@@ -45,17 +45,15 @@ services:
       - db
 
 
-  # front:
-  #   build:
-  #     context: ./front
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   ports:
-  #     - ${FRONT_PORT_EXTERNAL}:4200
-  #   depends_on:
-  #     - back
-  #   networks:
-  #     - backend
+  front:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
 
 networks:
   backend:
