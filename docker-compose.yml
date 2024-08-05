@@ -1,0 +1,67 @@
+services:
+  adminer:
+    image: adminer
+    restart: always
+    environment:
+      - ADMINER_DESIGN=pappu687	
+      - ADMINER_DEFAULT_SERVER=postgres
+    depends_on:
+      - postgres
+    ports:
+      - 8080:8080
+    networks:
+      - db
+
+  postgres:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - ${DATABASE_PORT}:5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - db
+
+  back:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - ${API_PORT_EXTERNAL}:${API_PORT_INTERNAL}
+    env_file:
+      - ./.env
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - backend
+      - db
+
+
+  # front:
+  #   build:
+  #     context: ./front
+  #     dockerfile: Dockerfile
+  #   restart: always
+  #   ports:
+  #     - ${FRONT_PORT_EXTERNAL}:4200
+  #   depends_on:
+  #     - back
+  #   networks:
+  #     - backend
+
+networks:
+  backend:
+    driver: bridge
+  db:
+    driver: bridge
+
+volumes:
+  postgres-data:
