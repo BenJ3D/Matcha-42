@@ -1,18 +1,23 @@
-import express, { Request, Response } from "express";
-import dotenv from "dotenv";
-import path from "path";
+import express from 'express';
+import dotenv from 'dotenv';
+import path from 'path';
+import routes from './routes/index'; // Importez le routeur centralisé
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+
+const PORT = process.env.API_PORT_INTERNAL || 3000;
 const app = express();
 
-const PORT = process.env.API_PORT_INTERNAL;
+// Middleware pour parser les JSON
+app.use(express.json());
 
-app.get("/", (request: Request, response: Response) => { 
-  response.status(200).send("Hello World-42");
-}); 
+// Utiliser le routeur centralisé
+app.use('/api', routes);
 
-app.listen(PORT, () => { 
-  console.log("Server running at PORT: ", PORT); 
-}).on("error", (error) => {
+
+app.listen(PORT, () => {
+  console.log(`Server running at PORT: ${PORT}`);
+}).on('error', (error) => {
   throw new Error(error.message);
 });
+
