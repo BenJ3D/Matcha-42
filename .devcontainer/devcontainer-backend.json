@@ -1,0 +1,16 @@
+{
+    "name": "Backend Dev Container",
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "back",
+    "workspaceFolder": "/app",
+    "settings": {
+      "terminal.integrated.shell.linux": "/bin/bash"
+    },
+    "extensions": [
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode"
+    ],
+    "postCreateCommand": "npm install",
+    "remoteUser": "node"
+  }
+  
