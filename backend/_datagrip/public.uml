@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>DATABASE</ID>
+  <OriginalElement>51dfe439-2c0c-40fc-a3f6-a3d78526f8c3.SCHEMA:matchadb.public</OriginalElement>
+  <nodes>
+    <node x="-1761.7047756874097" y="71.18800980134192">51dfe439-2c0c-40fc-a3f6-a3d78526f8c3.TABLE:matchadb.public.gender</node>
+    <node x="-1085.6128798842258" y="131.99999999999997">51dfe439-2c0c-40fc-a3f6-a3d78526f8c3.TABLE:matchadb.public.user</node>
+    <node x="-1799.382054992764" y="426.0434153400868">51dfe439-2c0c-40fc-a3f6-a3d78526f8c3.TABLE:matchadb.public.picture</node>
+    <node x="-1470.0" y="144.0">51dfe439-2c0c-40fc-a3f6-a3d78526f8c3.TABLE:matchadb.public.profile</node>
+    <node x="-1826.2778581765558" y="262.26628075253257">51dfe439-2c0c-40fc-a3f6-a3d78526f8c3.TABLE:matchadb.public.profile_sexual-preference</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="51dfe439-2c0c-40fc-a3f6-a3d78526f8c3.TABLE:matchadb.public.picture" target="51dfe439-2c0c-40fc-a3f6-a3d78526f8c3.TABLE:matchadb.public.profile" relationship="REFERENCES">
+      <point x="92.0" y="0.0" />
+      <point x="-1381.0" y="494.0434153400868" />
+      <point x="0.0" y="68.0" />
+    </edge>
+    <edge source="51dfe439-2c0c-40fc-a3f6-a3d78526f8c3.TABLE:matchadb.public.profile_sexual-preference" target="51dfe439-2c0c-40fc-a3f6-a3d78526f8c3.TABLE:matchadb.public.profile" relationship="REFERENCES">
+      <point x="127.0" y="-45.766280752532566" />
+      <point x="-89.0" y="60.5" />
+    </edge>
+    <edge source="51dfe439-2c0c-40fc-a3f6-a3d78526f8c3.TABLE:matchadb.public.profile" target="51dfe439-2c0c-40fc-a3f6-a3d78526f8c3.TABLE:matchadb.public.user" relationship="REFERENCES">
+      <point x="89.0" y="-2.842170943040401E-14" />
+      <point x="-99.62445730824902" y="0.0" />
+    </edge>
+    <edge source="51dfe439-2c0c-40fc-a3f6-a3d78526f8c3.TABLE:matchadb.public.profile_sexual-preference" target="51dfe439-2c0c-40fc-a3f6-a3d78526f8c3.TABLE:matchadb.public.gender" relationship="REFERENCES">
+      <point x="-1.4182344420987647E-4" y="-56.00028075253255" />
+      <point x="-1699.278" y="230.12203557312256" />
+      <point x="-1699.2778581765558" y="230.12203557312256" />
+      <point x="-1699.2778581765558" y="222.72714527693725" />
+      <point x="-1704.406027667982" y="222.72714527693725" />
+      <point x="-31.70125198057235" y="57.32754108798595" />
+    </edge>
+    <edge source="51dfe439-2c0c-40fc-a3f6-a3d78526f8c3.TABLE:matchadb.public.profile" target="51dfe439-2c0c-40fc-a3f6-a3d78526f8c3.TABLE:matchadb.public.gender" relationship="REFERENCES">
+      <point x="-89.0" y="-60.5" />
+      <point x="89.0" y="24.31199019865808" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Compact" zoom="0.8424557752341312" showDependencies="false" x="-1661.08031126482" y="316.8667119565215" />
+  <SelectedNodes>
+    <node>51dfe439-2c0c-40fc-a3f6-a3d78526f8c3.TABLE:matchadb.public.profile</node>
+  </SelectedNodes>
+  <Categories>
+    <Category>Columns</Category>
+    <Category>Comments</Category>
+    <Category>Key columns</Category>
+    <Category>Virtual foreign keys</Category>
+  </Categories>
+</Diagram>
+
