@@ -1,3 +1,4 @@
+
 -- Adminer 4.8.1 PostgreSQL 16.3 (Debian 16.3-1.pgdg120+1) dump
 TRUNCATE "blocked_users", "users" CASCADE;
 TRUNCATE "profile_sexual_preferences", "genders" CASCADE;
@@ -15,10 +16,17 @@ INSERT INTO "users" ("id", "username", "last_name", "first_name", "email", "pass
 (4,	'Lulu84',	'NONNON',	'Lucienne',	'lucienne.nonnon@gmail.com',	'81dc9bdb52d04dc20036dbd8313ed055',	'2024-08-30 10:12:38.816452',	NULL),
 (5,	'FakeLucia',	'Fake',	'Lucia',	'lucia.fake@gmail.com',	'81dc9bdb52d04dc20036dbd8313ed055',	'2024-08-30 13:37:13.263763',	NULL);
 
+-- Mettre à jour la séquence après insertion dans "users"
+SELECT setval(pg_get_serial_sequence('public.users', 'id'), COALESCE(MAX(id), 1)) FROM public.users;
+
 
 INSERT INTO "fake_user_repoting" ("id", "user_who_reported", "reported_user", "reported_at") VALUES
 (2,	1,	5,	'2024-08-30 13:57:26.768062'),
 (1,	2,	5,	'2024-08-30 13:57:44.598757');
+
+-- Mettre à jour la séquence après insertion dans "fake_user_repoting"
+SELECT setval(pg_get_serial_sequence('public.fake_user_repoting', 'id'), COALESCE(MAX(id), 1)) FROM public.fake_user_repoting;
+
 
 INSERT INTO "genders" ("gender_id", "name", "description") VALUES
 (5,	'Male',	'Identifies as male'),
@@ -32,12 +40,18 @@ INSERT INTO "genders" ("gender_id", "name", "description") VALUES
 (13,	'Transgender (FTM)',	'Assigned female at birth, identifies as male'),
 (14,	'Questioning',	'Exploring or questioning their gender identity');
 
+-- Mettre à jour la séquence après insertion dans "genders"
+SELECT setval(pg_get_serial_sequence('public.genders', 'gender_id'), COALESCE(MAX(gender_id), 1)) FROM public.genders;
 
 
 INSERT INTO "likes" ("like_id", "user", "user_liked") VALUES
 (1,	1,	3),
 (3,	1,	4),
 (4,	3,	1);
+
+-- Mettre à jour la séquence après insertion dans "likes"
+SELECT setval(pg_get_serial_sequence('public.likes', 'like_id'), COALESCE(MAX(like_id), 1)) FROM public.likes;
+
 
 INSERT INTO "locations" ("location_id", "latitude", "longitude", "city_name") VALUES
 (1,	45.764043,	4.835659,	'Lyon'),
@@ -85,12 +99,23 @@ INSERT INTO "locations" ("location_id", "latitude", "longitude", "city_name") VA
 (51,	49.894067,	2.295753,	'Amiens'),
 (52,	47.902733,	1.909020,	'Orléans');
 
+-- Mettre à jour la séquence après insertion dans "locations"
+SELECT setval(pg_get_serial_sequence('public.locations', 'location_id'), COALESCE(MAX(location_id), 1)) FROM public.locations;
+
+
 INSERT INTO "matches" ("match_id", "user_1", "user_2", "matched_at") VALUES
 (1,	1,	3,	'2024-08-30 13:35:14.181296');
+
+-- Mettre à jour la séquence après insertion dans "matches"
+SELECT setval(pg_get_serial_sequence('public.matches', 'match_id'), COALESCE(MAX(match_id), 1)) FROM public.matches;
 
 
 INSERT INTO "notifications" ("notification_id", "target_user", "has_read", "notified_at", "type", "source_user") VALUES
 (1,	3,	'f',	'2024-08-30 14:25:23.631109',	'LIKE',	1);
+
+-- Mettre à jour la séquence après insertion dans "notifications"
+SELECT setval(pg_get_serial_sequence('public.notifications', 'notification_id'), COALESCE(MAX(notification_id), 1)) FROM public.notifications;
+
 
 INSERT INTO "photos" ("photo_id", "url", "description", "owner_user_id") VALUES
 (1,	'https://example.com/photos/profile1_photo1.jpg',	NULL,	1),
@@ -114,6 +139,9 @@ INSERT INTO "photos" ("photo_id", "url", "description", "owner_user_id") VALUES
 (19,	'https://example.com/photos/profile4_photo4.jpg',	NULL,	4),
 (20,	'https://example.com/photos/profile4_photo5.jpg',	NULL,	4);
 
+-- Mettre à jour la séquence après insertion dans "photos"
+SELECT setval(pg_get_serial_sequence('public.photos', 'photo_id'), COALESCE(MAX(photo_id), 1)) FROM public.photos;
+
 
 INSERT INTO "profiles" ("profile_id", "onwer_user_id", "biography", "gender", "age", "main_picture", "location", "last_connection") VALUES
 (2,	2,	'Ouuep je mappel Bruno',	5,	25,	6,	NULL,	NULL),
@@ -121,6 +149,8 @@ INSERT INTO "profiles" ("profile_id", "onwer_user_id", "biography", "gender", "a
 (1,	1,	'je mappel ben bonjour blablabal bal abla bla',	5,	34,	2,	1,	NULL),
 (3,	3,	'Bonjour a tous :)',	6,	24,	13,	2,	NULL);
 
+-- Mettre à jour la séquence après insertion dans "profiles"
+SELECT setval(pg_get_serial_sequence('public.profiles', 'profile_id'), COALESCE(MAX(profile_id), 1)) FROM public.profiles;
 
 
 INSERT INTO "profile_sexual_preferences" ("id", "profile_id", "gender_id") VALUES
@@ -132,6 +162,8 @@ INSERT INTO "profile_sexual_preferences" ("id", "profile_id", "gender_id") VALUE
 (7,	4,	5),
 (8,	4,	13);
 
+-- Mettre à jour la séquence après insertion dans "profile_sexual_preferences"
+SELECT setval(pg_get_serial_sequence('public.profile_sexual_preferences', 'id'), COALESCE(MAX(id), 1)) FROM public.profile_sexual_preferences;
 
 
 INSERT INTO "tags" ("tag_id", "tag_name") VALUES
@@ -314,6 +346,10 @@ INSERT INTO "tags" ("tag_id", "tag_name") VALUES
 (177,	'Softball player'),
 (178,	'Cheerleader');
 
+-- Mettre à jour la séquence après insertion dans "tags"
+SELECT setval(pg_get_serial_sequence('public.tags', 'tag_id'), COALESCE(MAX(tag_id), 1)) FROM public.tags;
+
+
 INSERT INTO "profile_tag" ("id", "profile_id", "profile_tag") VALUES
 (1,	1,	19),
 (2,	1,	21),
@@ -321,6 +357,8 @@ INSERT INTO "profile_tag" ("id", "profile_id", "profile_tag") VALUES
 (4,	1,	98),
 (5,	3,	98);
 
+-- Mettre à jour la séquence après insertion dans "profile_tag"
+SELECT setval(pg_get_serial_sequence('public.profile_tag', 'id'), COALESCE(MAX(id), 1)) FROM public.profile_tag;
 
 
 INSERT INTO "visited_profile_history" ("id", "visiter", "visited") VALUES
@@ -329,9 +367,14 @@ INSERT INTO "visited_profile_history" ("id", "visiter", "visited") VALUES
 (4,	2,	3),
 (5,	4,	1);
 
+-- Mettre à jour la séquence après insertion dans "visited_profile_history"
+SELECT setval(pg_get_serial_sequence('public.visited_profile_history', 'id'), COALESCE(MAX(id), 1)) FROM public.visited_profile_history;
+
 
 INSERT INTO "blocked_users" ("id", "blocker_id", "blocked_id", "blocked_at") VALUES
 (1,	1,	5,	'2024-08-30 16:23:50.336874');
 
+-- Mettre à jour la séquence après insertion dans "blocked_users"
+SELECT setval(pg_get_serial_sequence('public.blocked_users', 'id'), COALESCE(MAX(id), 1)) FROM public.blocked_users;
 
 -- 2024-08-30 15:59:48.920113+00
