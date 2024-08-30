@@ -1,18 +1,18 @@
-FROM node:20.16.0
+FROM node:20-alpine
 
 WORKDIR /app
+
 COPY package*.json ./
-RUN npm install
+
+RUN npm ci
 
 COPY . .
 
-# Installer nodemon globalement pour permettre le hot reload
+# Development
 RUN npm install -g nodemon
-
-# Commande pour démarrer l'application en mode développement
 CMD ["npm", "run", "dev"]
 
 
-# Commandes pour démarrer l'application en mode production (a decommenter + decommenter ligne CMD dev)
+# Production
 # RUN npm run build
 # CMD ["npm", "run", "start"] ==> passage en prod
