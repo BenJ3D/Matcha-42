@@ -29,7 +29,7 @@ clean-volumes:
 	docker volume prune -f
 
 fclean: down prune clean-volumes
-	rm -f .env
+
 
 re: fclean all
 
