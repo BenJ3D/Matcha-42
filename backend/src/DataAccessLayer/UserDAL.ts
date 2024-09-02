@@ -2,7 +2,6 @@ import {User} from "../models/User";
 import db from "../config/knexConfig";
 
 class UserDAL {
-    // Récupérer tous les utilisateurs
     findAll = async (): Promise<User[]> => {
         try {
             const users = await db<User>('users').select('id', 'username', 'email', 'first_name', 'last_name', 'created_at');
