@@ -1,25 +1,33 @@
-import { Request, Response } from 'express';
-import UserModel from '../models/UserModel';
-import RelationModel from '../customORM/RelationModel';
+// controllers/userController.ts
+import {Request, Response} from 'express';
+import UserServices from '../services/UserServices';
 
-export const getUserDetails = async (req: Request, res: Response) => {
-    const userId = Number(req.params.id);
+const userController = {
+    // Méthode pour gérer la route GET /users
+    getAllUsers: async (req: Request, res: Response) => {
+        try {
+            const users = await UserServices.getAllUsers(); // Appel au service
+            res.json(users);
+        } catch (error: any) {
+            console.error("Error fetching users:", error);
+            res.status(500).json({error: 'Could not fetch users'});
+        }
+    },
 
-    // Récupérer les informations de l'utilisateur
-    const user = await UserModel.findById(userId);
+    getUserById: async (req: Request, res: Response) => {
+        try {
+            const userId = parseInt(req.params.id, 10);
+            const user = await UserServices.getUserById(userId);
+            if (!user) {
+                return res.status(404).json({message: 'User not found'});
+            }
+            res.json(user);
+        } catch (error: any) {
+            res.status(500).json({error: error.message});
 
-    // Créer une instance de RelationModel avec le nom de la table 'likes'
-    const relationModel = new RelationModel('likes');
+        }
+    }
 
-    // Récupérer les likes faits par l'utilisateur
-    const likesGiven = await relationModel.findWithRelation('user', userId);
-
-    // Récupérer les likes reçus par l'utilisateur
-    const likesReceived = await relationModel.findWithRelation('user_liked', userId);
-
-    res.json({
-        user,
-        likesGiven,    // Likes faits par cet utilisateur
-        likesReceived  // Likes reçus par cet utilisateur
-    });
 };
+
+export default userController;

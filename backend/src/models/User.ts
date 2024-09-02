@@ -1,7 +1,10 @@
 export interface User {
     id: number;
-    name: string;
+    username: string;
+    last_name: string;
+    first_name: string;
     email: string;
-    age: number;
-  }
-  
+    password?: string;
+    created_at: Date;
+    // sso_type?: number;
+}
