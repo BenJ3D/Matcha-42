@@ -1,6 +1,7 @@
 import {UserLightResponseDTO} from "./UserLightResponseDTO";
 import Photo from "../../models/Photo";
 import {Tag} from "../../models/Tags";
+import {BlockedUserResponseDTO} from "./BlockedUserResponseDTO";
 
 //Fourni un user complet pour les get ciblés byId avec toutes les infos profile / listes de like/match etc
 export interface UserResponseDTO extends UserLightResponseDTO {
@@ -13,6 +14,8 @@ export interface UserResponseDTO extends UserLightResponseDTO {
     gender: number;
     age: number;
     main_photo_id?: number;
+    photos: Photo[];
+    tags: Tag[];
     location?: {
         latitude: number;
         longitude: number;
@@ -25,6 +28,5 @@ export interface UserResponseDTO extends UserLightResponseDTO {
     likers?: UserLightResponseDTO[];
     visitors?: UserLightResponseDTO[];
     matchers?: UserLightResponseDTO[];
-    photos: Photo[];
-    tags: Tag[];
+    blocked?: BlockedUserResponseDTO[];
 }

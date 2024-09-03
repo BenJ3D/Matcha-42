@@ -1,7 +1,8 @@
 import db from "../config/knexConfig";
 import {UserLightResponseDTO} from "../DTOs/users/UserLightResponseDTO";
 import {UserResponseDTO} from "../DTOs/users/UserResponseDTO";
-import {Tag} from "../models/Tags"; // Import de l'interface Tag
+import {Tag} from "../models/Tags";
+import {BlockedUserResponseDTO} from "../DTOs/users/BlockedUserResponseDTO";
 
 class UserDAL {
     findAll = async (): Promise<UserLightResponseDTO[]> => {
@@ -89,11 +90,25 @@ class UserDAL {
                 .select('photo_id', 'url', 'description', 'owner_user_id')
                 .where('owner_user_id', id);
 
-            // Récupérer les tags associés au profil de l'utilisateur
             const tags: Tag[] = await db('tags')
                 .select('tags.tag_id', 'tags.tag_name')
                 .join('profile_tag', 'tags.tag_id', 'profile_tag.profile_tag')
                 .where('profile_tag.profile_id', user.profile_id);
+
+            // Récupérer les utilisateurs bloqués par cet utilisateur
+            const blockedUsers = await db('blocked_users')
+                .select('users.id', 'users.username', 'photos.url as main_photo_url', 'blocked_users.blocked_at')
+                .join('users', 'blocked_users.blocked_id', 'users.id')
+                .leftJoin('profiles', 'users.id', 'profiles.owner_user_id')
+                .leftJoin('photos', 'profiles.main_photo_id', 'photos.photo_id')
+                .where('blocked_users.blocker_id', id);
+
+            const blocked: BlockedUserResponseDTO[] = blockedUsers.map(blockedUser => ({
+                id: blockedUser.id,
+                username: blockedUser.username,
+                main_photo_url: blockedUser.main_photo_url || null,
+                blocked_at: blockedUser.blocked_at
+            }));
 
             return {
                 id: user.id,
@@ -119,7 +134,8 @@ class UserDAL {
                 visitors: visitors,
                 matchers: matchers,
                 photos: photos,
-                tags: tags // Ajout des tags en tant qu'objets avec tag_id et tag_name
+                tags: tags,
+                blocked: blocked // Ajout des utilisateurs bloqués avec la date de blocage
             } as UserResponseDTO;
 
         } catch (error) {
