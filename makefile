@@ -26,7 +26,12 @@ prune:
 	docker system prune -af
 
 clean-volumes:
-	docker volume prune -f
+	@if [ "`docker volume ls -q`" != "" ]; then \
+		docker volume rm `docker volume ls -q`; \
+	else \
+		echo "No volumes to remove."; \
+	fi
+
 
 fclean: down prune clean-volumes
 
