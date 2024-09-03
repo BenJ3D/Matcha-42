@@ -124,14 +124,14 @@ CREATE SEQUENCE profile_profile_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 214748364
 
 CREATE TABLE "public"."profiles" (
     "profile_id" integer DEFAULT nextval('profile_profile_id_seq') NOT NULL,
-    "onwer_user_id" bigint NOT NULL,
+    "owner_user_id" bigint NOT NULL,
     "biography" character varying(1024) NOT NULL,
     "gender" integer NOT NULL,
     "age" integer,
-    "main_picture" integer,
+    "main_photo_id" integer,
     "location" integer,
     "last_connection" timestamp,
-    CONSTRAINT "profile_onwer_user_id_key" UNIQUE ("onwer_user_id"),
+    CONSTRAINT "profile_owner_user_id_key" UNIQUE ("owner_user_id"),
     CONSTRAINT "profile_pkey" PRIMARY KEY ("profile_id")
 ) WITH (oids = false);
 
@@ -221,8 +221,8 @@ ALTER TABLE ONLY "public"."profile_tag"
 
 ALTER TABLE ONLY "public"."profiles" 
     ADD CONSTRAINT "profile_gender_fkey" FOREIGN KEY (gender) REFERENCES genders(gender_id) ON UPDATE CASCADE ON DELETE RESTRICT NOT DEFERRABLE,
-    ADD CONSTRAINT "profile_onwer_user_id_fkey" FOREIGN KEY (onwer_user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE,
-    ADD CONSTRAINT "profile_photo_photo_id_fk" FOREIGN KEY (main_picture) REFERENCES photos(photo_id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE,
+    ADD CONSTRAINT "profile_owner_user_id_fkey" FOREIGN KEY (owner_user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE,
+    ADD CONSTRAINT "profile_photo_photo_id_fk" FOREIGN KEY (main_photo_id) REFERENCES photos(photo_id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE,
     ADD CONSTRAINT "profiles_locations_location_id_fk" FOREIGN KEY (location) REFERENCES locations(location_id) NOT DEFERRABLE;
 
 ALTER TABLE ONLY "public"."users" 
@@ -378,7 +378,7 @@ INSERT INTO "photos" ("photo_id", "url", "description", "owner_user_id") VALUES
 SELECT setval(pg_get_serial_sequence('public.photos', 'photo_id'), COALESCE(MAX(photo_id), 1)) FROM public.photos;
 
 
-INSERT INTO "profiles" ("profile_id", "onwer_user_id", "biography", "gender", "age", "main_picture", "location", "last_connection") VALUES
+INSERT INTO "profiles" ("profile_id", "owner_user_id", "biography", "gender", "age", "main_photo_id", "location", "last_connection") VALUES
 (2,	2,	'Ouuep je mappel Bruno',	5,	25,	6,	NULL,	NULL),
 (4,	4,	'HOlaaaaaaa',	6,	29,	17,	NULL,	NULL),
 (1,	1,	'je mappel ben bonjour blablabal bal abla bla',	5,	34,	2,	1,	NULL),

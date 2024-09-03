@@ -5,3 +5,5 @@ const UserUpdateDto = joi.object({
     first_name: joi.string().required(),
     email: joi.string().email().required(),
 })
+
+export default { UserUpdateDto };

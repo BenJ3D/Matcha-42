@@ -1,5 +1,5 @@
-export interface Genders {
+interface Gender {
     gender_id: number;
     name: string;
-    description: string;
+    description?: string;
 }
