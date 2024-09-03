@@ -11,6 +11,9 @@ init:
 build:
 	$(DOCKER_COMPOSE) up -d --build
 
+stop:
+	${DOCKER_COMPOSE} stop
+
 up:
 	$(DOCKER_COMPOSE) up -d
 
