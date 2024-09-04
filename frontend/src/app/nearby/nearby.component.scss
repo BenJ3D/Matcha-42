@@ -1,0 +1,22 @@
+.nearby-container {
+	height: calc(100vh - 56px);
+	width: 100%;
+	position: relative;
+	z-index: 1;
+  }
+  
+  #map {
+	height: 100%;
+	width: 100%;
+  }
+  
+  .custom-div-icon {
+	background: none;
+	border: none;
+  }
+  
+  .custom-div-icon .material-icons {
+	font-size: 30px;
+	margin-left: -7px;
+	margin-top: -5px;
+  }
