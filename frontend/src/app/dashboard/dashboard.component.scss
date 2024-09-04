@@ -12,6 +12,8 @@
   }
   
   .bottom-tab-bar {
+	position: fixed;
+	z-index: 1000;
 	height: 56px;
 	position: fixed;
 	bottom: 0;
