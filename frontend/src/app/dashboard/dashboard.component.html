@@ -1,0 +1,17 @@
+<div class="dashboard-container">
+  <router-outlet></router-outlet>
+  <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="bottom-tab-bar">
+    <a
+      mat-tab-link
+      *ngFor="let tab of tabs"
+      [routerLink]="tab.path"
+      routerLinkActive
+      #rla="routerLinkActive"
+      [active]="rla.isActive"
+    >
+      <mat-icon>{{ tab.icon }}</mat-icon>
+      <span class="tab-label">{{ tab.label }}</span>
+    </a>
+  </nav>
+  <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
+</div>

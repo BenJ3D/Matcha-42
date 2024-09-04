@@ -46,12 +46,12 @@ export class LoginComponent {
       setTimeout(() => {
         this.isLoading = false;
         this.goToMain();
-      }, 4000);
+      }, 1000);
     }
   }
 
   goToMain(): void {
-    this.router.navigate(['']);
+    this.router.navigate(['/home']);
   }
 
   loginWithGoogle(): void {
