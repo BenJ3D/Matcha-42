@@ -1,0 +1,742 @@
+diff --git a/backend/package-lock.json b/backend/package-lock.json
+index 9ce8f64..4e40778 100644
+--- a/backend/package-lock.json
++++ b/backend/package-lock.json
+@@ -11,10 +11,14 @@
+       "dependencies": {
+         "dotenv": "^16.4.5",
+         "express": "^4.19.2",
++        "joi": "^17.13.3",
++        "knex": "^3.1.0",
+         "pg": "^8.12.0"
+       },
+       "devDependencies": {
+         "@types/express": "^4.17.21",
++        "@types/joi": "^17.2.3",
++        "@types/knex": "^0.16.1",
+         "@types/pg": "^8.11.8",
+         "nodemon": "^3.1.4",
+         "ts-node": "^10.9.2",
+@@ -33,6 +37,19 @@
+         "node": ">=12"
+       }
+     },
++    "node_modules/@hapi/hoek": {
++      "version": "9.3.0",
++      "resolved": "https://registry.npmjs.org/@hapi/hoek/-/hoek-9.3.0.tgz",
++      "integrity": "sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ=="
++    },
++    "node_modules/@hapi/topo": {
++      "version": "5.1.0",
++      "resolved": "https://registry.npmjs.org/@hapi/topo/-/topo-5.1.0.tgz",
++      "integrity": "sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==",
++      "dependencies": {
++        "@hapi/hoek": "^9.0.0"
++      }
++    },
+     "node_modules/@jridgewell/resolve-uri": {
+       "version": "3.1.2",
+       "resolved": "https://registry.npmjs.org/@jridgewell/resolve-uri/-/resolve-uri-3.1.2.tgz",
+@@ -58,6 +75,24 @@
+         "@jridgewell/sourcemap-codec": "^1.4.10"
+       }
+     },
++    "node_modules/@sideway/address": {
++      "version": "4.1.5",
++      "resolved": "https://registry.npmjs.org/@sideway/address/-/address-4.1.5.tgz",
++      "integrity": "sha512-IqO/DUQHUkPeixNQ8n0JA6102hT9CmaljNTPmQ1u8MEhBo/R4Q8eKLN/vGZxuebwOroDB4cbpjheD4+/sKFK4Q==",
++      "dependencies": {
++        "@hapi/hoek": "^9.0.0"
++      }
++    },
++    "node_modules/@sideway/formula": {
++      "version": "3.0.1",
++      "resolved": "https://registry.npmjs.org/@sideway/formula/-/formula-3.0.1.tgz",
++      "integrity": "sha512-/poHZJJVjx3L+zVD6g9KgHfYnb443oi7wLu/XKojDviHy6HOEOA6z1Trk5aR1dGcmPenJEgb2sK2I80LeS3MIg=="
++    },
++    "node_modules/@sideway/pinpoint": {
++      "version": "2.0.0",
++      "resolved": "https://registry.npmjs.org/@sideway/pinpoint/-/pinpoint-2.0.0.tgz",
++      "integrity": "sha512-RNiOoTPkptFtSVzQevY/yWtZwf/RxyVnPy/OcA9HBM3MlGDnBEYL5B41H0MTn0Uec8Hi+2qUtTfG2WWZBmMejQ=="
++    },
+     "node_modules/@tsconfig/node10": {
+       "version": "1.0.11",
+       "resolved": "https://registry.npmjs.org/@tsconfig/node10/-/node10-1.0.11.tgz",
+@@ -131,6 +166,26 @@
+       "integrity": "sha512-D0CFMMtydbJAegzOyHjtiKPLlvnm3iTZyZRSZoLq2mRhDdmLfIWOCYPfQJ4cu2erKghU++QvjcUjp/5h7hESpA==",
+       "dev": true
+     },
++    "node_modules/@types/joi": {
++      "version": "17.2.3",
++      "resolved": "https://registry.npmjs.org/@types/joi/-/joi-17.2.3.tgz",
++      "integrity": "sha512-dGjs/lhrWOa+eO0HwgxCSnDm5eMGCsXuvLglMghJq32F6q5LyyNuXb41DHzrg501CKNOSSAHmfB7FDGeUnDmzw==",
++      "deprecated": "This is a stub types definition. joi provides its own type definitions, so you do not need this installed.",
++      "dev": true,
++      "dependencies": {
++        "joi": "*"
++      }
++    },
++    "node_modules/@types/knex": {
++      "version": "0.16.1",
++      "resolved": "https://registry.npmjs.org/@types/knex/-/knex-0.16.1.tgz",
++      "integrity": "sha512-54gWD1HWwdVx5iLHaJ1qxH3I6KyBsj5fFqzRpXFn7REWiEB2jwspeVCombNsocSrqPd7IRPqKrsIME7/cD+TFQ==",
++      "deprecated": "This is a stub types definition. knex provides its own type definitions, so you do not need this installed.",
++      "dev": true,
++      "dependencies": {
++        "knex": "*"
++      }
++    },
+     "node_modules/@types/mime": {
+       "version": "1.3.5",
+       "resolved": "https://registry.npmjs.org/@types/mime/-/mime-1.3.5.tgz",
+@@ -426,6 +481,19 @@
+         "fsevents": "~2.3.2"
+       }
+     },
++    "node_modules/colorette": {
++      "version": "2.0.19",
++      "resolved": "https://registry.npmjs.org/colorette/-/colorette-2.0.19.tgz",
++      "integrity": "sha512-3tlv/dIP7FWvj3BsbHrGLJ6l/oKh1O3TcgBqMn+yyCagOxc23fyzDS6HypQbgxWbkpDnf52p1LuR4eWDQ/K9WQ=="
++    },
++    "node_modules/commander": {
++      "version": "10.0.1",
++      "resolved": "https://registry.npmjs.org/commander/-/commander-10.0.1.tgz",
++      "integrity": "sha512-y4Mg2tXshplEbSGzx7amzPwKKOCGuoSRP/CjEdwwk0FOGlUbq6lKuoyDZTNZkmxHdJtp54hdfY/JUrdL7Xfdug==",
++      "engines": {
++        "node": ">=14"
++      }
++    },
+     "node_modules/concat-map": {
+       "version": "0.0.1",
+       "resolved": "https://registry.npmjs.org/concat-map/-/concat-map-0.0.1.tgz",
+@@ -564,11 +632,27 @@
+         "node": ">= 0.4"
+       }
+     },
++    "node_modules/escalade": {
++      "version": "3.2.0",
++      "resolved": "https://registry.npmjs.org/escalade/-/escalade-3.2.0.tgz",
++      "integrity": "sha512-WUj2qlxaQtO4g6Pq5c29GTcWGDyd8itL8zTlipgECz3JesAiiOKotd8JU6otB3PACgG6xkJUyVhboMS+bje/jA==",
++      "engines": {
++        "node": ">=6"
++      }
++    },
+     "node_modules/escape-html": {
+       "version": "1.0.3",
+       "resolved": "https://registry.npmjs.org/escape-html/-/escape-html-1.0.3.tgz",
+       "integrity": "sha512-NiSupZ4OeuGwr68lGIeym/ksIZMJodUGOSCZ/FSnTxcrekbvqrgdUxlJOMpijaKZVjAJrWrGs/6Jy8OMuyj9ow=="
+     },
++    "node_modules/esm": {
++      "version": "3.2.25",
++      "resolved": "https://registry.npmjs.org/esm/-/esm-3.2.25.tgz",
++      "integrity": "sha512-U1suiZ2oDVWv4zPO56S0NcR5QriEahGtdN2OR6FiOG4WJvcjBVFB0qI4+eKoWFH483PKGuLuu6V8Z4T5g63UVA==",
++      "engines": {
++        "node": ">=6"
++      }
++    },
+     "node_modules/etag": {
+       "version": "1.8.1",
+       "resolved": "https://registry.npmjs.org/etag/-/etag-1.8.1.tgz",
+@@ -703,6 +787,19 @@
+         "url": "https://github.com/sponsors/ljharb"
+       }
+     },
++    "node_modules/get-package-type": {
++      "version": "0.1.0",
++      "resolved": "https://registry.npmjs.org/get-package-type/-/get-package-type-0.1.0.tgz",
++      "integrity": "sha512-pjzuKtY64GYfWizNAJ0fr9VqttZkNiK2iS430LtIHzjBEr6bX8Am2zm4sW4Ro5wjWW5cAlRL1qAMTcXbjNAO2Q==",
++      "engines": {
++        "node": ">=8.0.0"
++      }
++    },
++    "node_modules/getopts": {
++      "version": "2.3.0",
++      "resolved": "https://registry.npmjs.org/getopts/-/getopts-2.3.0.tgz",
++      "integrity": "sha512-5eDf9fuSXwxBL6q5HX+dhDj+dslFGWzU5thZ9kNKUkcPtaPdatmUFKwHFrLb/uf/WpA4BHET+AX3Scl56cAjpA=="
++    },
+     "node_modules/glob-parent": {
+       "version": "5.1.2",
+       "resolved": "https://registry.npmjs.org/glob-parent/-/glob-parent-5.1.2.tgz",
+@@ -816,6 +913,14 @@
+       "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.4.tgz",
+       "integrity": "sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ=="
+     },
++    "node_modules/interpret": {
++      "version": "2.2.0",
++      "resolved": "https://registry.npmjs.org/interpret/-/interpret-2.2.0.tgz",
++      "integrity": "sha512-Ju0Bz/cEia55xDwUWEa8+olFpCiQoypjnQySseKtmjNrnps3P+xfpUmGr90T7yjlVJmOtybRvPXhKMbHr+fWnw==",
++      "engines": {
++        "node": ">= 0.10"
++      }
++    },
+     "node_modules/ipaddr.js": {
+       "version": "1.9.1",
+       "resolved": "https://registry.npmjs.org/ipaddr.js/-/ipaddr.js-1.9.1.tgz",
+@@ -836,6 +941,20 @@
+         "node": ">=8"
+       }
+     },
++    "node_modules/is-core-module": {
++      "version": "2.15.1",
++      "resolved": "https://registry.npmjs.org/is-core-module/-/is-core-module-2.15.1.tgz",
++      "integrity": "sha512-z0vtXSwucUJtANQWldhbtbt7BnL0vxiFjIdDLAatwhDYty2bad6s+rijD6Ri4YuYJubLzIJLUidCh09e1djEVQ==",
++      "dependencies": {
++        "hasown": "^2.0.2"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/is-extglob": {
+       "version": "2.1.1",
+       "resolved": "https://registry.npmjs.org/is-extglob/-/is-extglob-2.1.1.tgz",
+@@ -866,6 +985,99 @@
+         "node": ">=0.12.0"
+       }
+     },
++    "node_modules/joi": {
++      "version": "17.13.3",
++      "resolved": "https://registry.npmjs.org/joi/-/joi-17.13.3.tgz",
++      "integrity": "sha512-otDA4ldcIx+ZXsKHWmp0YizCweVRZG96J10b0FevjfuncLO1oX59THoAmHkNubYJ+9gWsYsp5k8v4ib6oDv1fA==",
++      "dependencies": {
++        "@hapi/hoek": "^9.3.0",
++        "@hapi/topo": "^5.1.0",
++        "@sideway/address": "^4.1.5",
++        "@sideway/formula": "^3.0.1",
++        "@sideway/pinpoint": "^2.0.0"
++      }
++    },
++    "node_modules/knex": {
++      "version": "3.1.0",
++      "resolved": "https://registry.npmjs.org/knex/-/knex-3.1.0.tgz",
++      "integrity": "sha512-GLoII6hR0c4ti243gMs5/1Rb3B+AjwMOfjYm97pu0FOQa7JH56hgBxYf5WK2525ceSbBY1cjeZ9yk99GPMB6Kw==",
++      "dependencies": {
++        "colorette": "2.0.19",
++        "commander": "^10.0.0",
++        "debug": "4.3.4",
++        "escalade": "^3.1.1",
++        "esm": "^3.2.25",
++        "get-package-type": "^0.1.0",
++        "getopts": "2.3.0",
++        "interpret": "^2.2.0",
++        "lodash": "^4.17.21",
++        "pg-connection-string": "2.6.2",
++        "rechoir": "^0.8.0",
++        "resolve-from": "^5.0.0",
++        "tarn": "^3.0.2",
++        "tildify": "2.0.0"
++      },
++      "bin": {
++        "knex": "bin/cli.js"
++      },
++      "engines": {
++        "node": ">=16"
++      },
++      "peerDependenciesMeta": {
++        "better-sqlite3": {
++          "optional": true
++        },
++        "mysql": {
++          "optional": true
++        },
++        "mysql2": {
++          "optional": true
++        },
++        "pg": {
++          "optional": true
++        },
++        "pg-native": {
++          "optional": true
++        },
++        "sqlite3": {
++          "optional": true
++        },
++        "tedious": {
++          "optional": true
++        }
++      }
++    },
++    "node_modules/knex/node_modules/debug": {
++      "version": "4.3.4",
++      "resolved": "https://registry.npmjs.org/debug/-/debug-4.3.4.tgz",
++      "integrity": "sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==",
++      "dependencies": {
++        "ms": "2.1.2"
++      },
++      "engines": {
++        "node": ">=6.0"
++      },
++      "peerDependenciesMeta": {
++        "supports-color": {
++          "optional": true
++        }
++      }
++    },
++    "node_modules/knex/node_modules/ms": {
++      "version": "2.1.2",
++      "resolved": "https://registry.npmjs.org/ms/-/ms-2.1.2.tgz",
++      "integrity": "sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w=="
++    },
++    "node_modules/knex/node_modules/pg-connection-string": {
++      "version": "2.6.2",
++      "resolved": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.6.2.tgz",
++      "integrity": "sha512-ch6OwaeaPYcova4kKZ15sbJ2hKb/VP48ZD2gE7i1J+L4MspCtBMAx8nMgz7bksc7IojCIIWuEhHibSMFH8m8oA=="
++    },
++    "node_modules/lodash": {
++      "version": "4.17.21",
++      "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz",
++      "integrity": "sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg=="
++    },
+     "node_modules/make-error": {
+       "version": "1.3.6",
+       "resolved": "https://registry.npmjs.org/make-error/-/make-error-1.3.6.tgz",
+@@ -1045,6 +1257,11 @@
+         "node": ">= 0.8"
+       }
+     },
++    "node_modules/path-parse": {
++      "version": "1.0.7",
++      "resolved": "https://registry.npmjs.org/path-parse/-/path-parse-1.0.7.tgz",
++      "integrity": "sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw=="
++    },
+     "node_modules/path-to-regexp": {
+       "version": "0.1.7",
+       "resolved": "https://registry.npmjs.org/path-to-regexp/-/path-to-regexp-0.1.7.tgz",
+@@ -1273,6 +1490,41 @@
+         "node": ">=8.10.0"
+       }
+     },
++    "node_modules/rechoir": {
++      "version": "0.8.0",
++      "resolved": "https://registry.npmjs.org/rechoir/-/rechoir-0.8.0.tgz",
++      "integrity": "sha512-/vxpCXddiX8NGfGO/mTafwjq4aFa/71pvamip0++IQk3zG8cbCj0fifNPrjjF1XMXUne91jL9OoxmdykoEtifQ==",
++      "dependencies": {
++        "resolve": "^1.20.0"
++      },
++      "engines": {
++        "node": ">= 10.13.0"
++      }
++    },
++    "node_modules/resolve": {
++      "version": "1.22.8",
++      "resolved": "https://registry.npmjs.org/resolve/-/resolve-1.22.8.tgz",
++      "integrity": "sha512-oKWePCxqpd6FlLvGV1VU0x7bkPmmCNolxzjMf4NczoDnQcIWrAF+cPtZn5i6n+RfD2d9i0tzpKnG6Yk168yIyw==",
++      "dependencies": {
++        "is-core-module": "^2.13.0",
++        "path-parse": "^1.0.7",
++        "supports-preserve-symlinks-flag": "^1.0.0"
++      },
++      "bin": {
++        "resolve": "bin/resolve"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/resolve-from": {
++      "version": "5.0.0",
++      "resolved": "https://registry.npmjs.org/resolve-from/-/resolve-from-5.0.0.tgz",
++      "integrity": "sha512-qYg9KP24dD5qka9J47d0aVky0N+b4fTU89LN9iDnjB5waksiC49rvMB0PrUJQGoTmH50XPiqOvAjDfaijGxYZw==",
++      "engines": {
++        "node": ">=8"
++      }
++    },
+     "node_modules/safe-buffer": {
+       "version": "5.2.1",
+       "resolved": "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.2.1.tgz",
+@@ -1430,6 +1682,33 @@
+         "node": ">=4"
+       }
+     },
++    "node_modules/supports-preserve-symlinks-flag": {
++      "version": "1.0.0",
++      "resolved": "https://registry.npmjs.org/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz",
++      "integrity": "sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==",
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/tarn": {
++      "version": "3.0.2",
++      "resolved": "https://registry.npmjs.org/tarn/-/tarn-3.0.2.tgz",
++      "integrity": "sha512-51LAVKUSZSVfI05vjPESNc5vwqqZpbXCsU+/+wxlOrUjk2SnFTt97v9ZgQrD4YmxYW1Px6w2KjaDitCfkvgxMQ==",
++      "engines": {
++        "node": ">=8.0.0"
++      }
++    },
++    "node_modules/tildify": {
++      "version": "2.0.0",
++      "resolved": "https://registry.npmjs.org/tildify/-/tildify-2.0.0.tgz",
++      "integrity": "sha512-Cc+OraorugtXNfs50hU9KS369rFXCfgGLpfCfvlc+Ud5u6VWmUQsOAa9HbTvheQdYnrdJqqv1e5oIqXppMYnSw==",
++      "engines": {
++        "node": ">=8"
++      }
++    },
+     "node_modules/to-regex-range": {
+       "version": "5.0.1",
+       "resolved": "https://registry.npmjs.org/to-regex-range/-/to-regex-range-5.0.1.tgz",
+diff --git a/backend/package.json b/backend/package.json
+index 50f0b6f..fe95321 100644
+--- a/backend/package.json
++++ b/backend/package.json
+@@ -16,10 +16,14 @@
+   "dependencies": {
+     "dotenv": "^16.4.5",
+     "express": "^4.19.2",
++    "joi": "^17.13.3",
++    "knex": "^3.1.0",
+     "pg": "^8.12.0"
+   },
+   "devDependencies": {
+     "@types/express": "^4.17.21",
++    "@types/joi": "^17.2.3",
++    "@types/knex": "^0.16.1",
+     "@types/pg": "^8.11.8",
+     "nodemon": "^3.1.4",
+     "ts-node": "^10.9.2",
+diff --git a/backend/src/DTOs/login/LoginDTO.ts b/backend/src/DTOs/login/LoginDTO.ts
+index e69de29..d27e189 100644
+--- a/backend/src/DTOs/login/LoginDTO.ts
++++ b/backend/src/DTOs/login/LoginDTO.ts
+@@ -0,0 +1,7 @@
++import joi from "joi";
++
++//Informations demandées pour se logger
++const LoginDTO = joi.object({
++    username: joi.string().required(),
++    password: joi.string().required(),
++})
+\ No newline at end of file
+diff --git a/backend/src/DTOs/login/LoginResponseDTO.ts b/backend/src/DTOs/login/LoginResponseDTO.ts
+index e69de29..97891fc 100644
+--- a/backend/src/DTOs/login/LoginResponseDTO.ts
++++ b/backend/src/DTOs/login/LoginResponseDTO.ts
+@@ -0,0 +1,7 @@
++import joi, {number} from "joi";
++
++//Informations retournées si login == success
++const LoginResponseDTO = joi.object({
++    id: joi.number().required(),
++    token: joi.string(),
++})
+\ No newline at end of file
+diff --git a/backend/src/DTOs/users/UserCreateDTO.ts b/backend/src/DTOs/users/UserCreateDTO.ts
+index 4ab732c..6d9d801 100644
+--- a/backend/src/DTOs/users/UserCreateDTO.ts
++++ b/backend/src/DTOs/users/UserCreateDTO.ts
+@@ -1,6 +1,6 @@
+ import joi from "joi";
+ 
+-const UserCreateDto = joi.object({
++const UserCreateDTO = joi.object({
+     username: joi.string().required(),
+     last_name: joi.string().required(),
+     first_name: joi.string().required(),
+diff --git a/backend/src/DTOs/users/UserResponseDTO.ts b/backend/src/DTOs/users/UserResponseDTO.ts
+index 6d9d801..d9f028f 100644
+--- a/backend/src/DTOs/users/UserResponseDTO.ts
++++ b/backend/src/DTOs/users/UserResponseDTO.ts
+@@ -5,5 +5,4 @@ const UserCreateDTO = joi.object({
+     last_name: joi.string().required(),
+     first_name: joi.string().required(),
+     email: joi.string().email().required(),
+-    password: joi.string().required(),
+ })
+\ No newline at end of file
+diff --git a/backend/src/DTOs/users/UserUpdateDTO.ts b/backend/src/DTOs/users/UserUpdateDTO.ts
+index 4ab732c..9ba1f91 100644
+--- a/backend/src/DTOs/users/UserUpdateDTO.ts
++++ b/backend/src/DTOs/users/UserUpdateDTO.ts
+@@ -1,9 +1,7 @@
+ import joi from "joi";
+ 
+-const UserCreateDto = joi.object({
+-    username: joi.string().required(),
++const UserUpdateDto = joi.object({
+     last_name: joi.string().required(),
+     first_name: joi.string().required(),
+     email: joi.string().email().required(),
+-    password: joi.string().required(),
+ })
+\ No newline at end of file
+diff --git a/backend/src/DataAccessLayer/UserDAL.ts b/backend/src/DataAccessLayer/UserDAL.ts
+index 3fc7352..c408813 100644
+--- a/backend/src/DataAccessLayer/UserDAL.ts
++++ b/backend/src/DataAccessLayer/UserDAL.ts
+@@ -1,20 +1,29 @@
+ import {User} from "../models/User";
+ import db from "../config/knexConfig";
+ 
+-class UserDb {
+-    getAllUsers = async (): Promise<User[]> => {
+-        return await db<User>('users')
+-            .select('*');
++class UserDAL {
++    // Récupérer tous les utilisateurs
++    findAll = async (): Promise<User[]> => {
++        try {
++            const users = await db<User>('users').select('id', 'username', 'email', 'first_name', 'last_name', 'created_at');
++            return users;
++        } catch (error) {
++            console.error("Error fetching users:", error);
++            throw new Error("Could not fetch users");
++        }
++    }
++
++    fondOne = async (id: number): Promise<User | null> => {
++        try {
++            const user = await db<User>('users').select('id', 'username', 'email', 'first_name', 'last_name', 'created_at')
++                .where('id', id);
++            return user;
++        } catch (error) {
++            console.error("Error fetching user:", error);
++            throw new Error(`Could not fetch user id ${id}`);
++        }
+     }
+ }
+ 
+-//
+-//
+-// const getUsersByCriteria = async (ageRange: [number, number], location: string): Promise<User[]> => {
+-//     const users = await db<User>('users')
+-//         .whereBetween('age', ageRange)
+-//         .andWhere('location', location)
+-//         .select('id', 'name', 'email', 'age', 'location', 'tags');
+-//
+-//     return users;
+-// };
+\ No newline at end of file
++
++export default new UserDAL();
+diff --git a/backend/src/app.ts b/backend/src/app.ts
+index 9c2cf59..a0fb73f 100644
+--- a/backend/src/app.ts
++++ b/backend/src/app.ts
+@@ -1,19 +1,19 @@
+-import { query } from './customORM/db';
++import {query} from './config/db';
+ import express from 'express';
+-import config from './config';
+-import routes from './routes/index'; // Importez le routeur centralisé
+-import { QueryResult } from 'pg'; // Importez les types de pg si nécessaire
++import config from './config/config';
++import routes from './routes/indexRoutes'; // Importez le routeur centralisé
++import {QueryResult} from 'pg'; // Importez les types de pg si nécessaire
+ 
+ const PORT = config.port || 8000;
+ const DATABASE_URL = config.database_url;
+ const app = express();
+ 
+ if (!PORT) {
+-  throw new Error('La variable d\'environnement PORT est manquante.');
++    throw new Error('La variable d\'environnement PORT est manquante.');
+ }
+ 
+ if (!DATABASE_URL) {
+-  throw new Error('La variable d\'environnement DATABASE_URL est manquante.');
++    throw new Error('La variable d\'environnement DATABASE_URL est manquante.');
+ }
+ 
+ // Middleware pour parser les JSON
+@@ -25,19 +25,19 @@ app.use('/api', routes);
+ // Test de connexion à la base de données
+ query('SELECT NOW()')
+     .then((result: QueryResult) => {  // Utilisation de `QueryResult` pour typage explicite
+-      console.log('Connection to the database successful:', result.rows[0]);
++        console.log('Connection to the database successful:', result.rows[0]);
+     })
+     .catch((error: Error) => { // Typage explicite de l'erreur
+-      console.error('Error connecting to the database:', error);
++        console.error('Error connecting to the database:', error);
+     });
+ 
+ app.get('/', (req: express.Request, res: express.Response) => {  // Typage correct pour req et res
+-  res.send('Hello, world! MATCHA42 !');
++    res.send('Hello, world!');
+ });
+ 
+ app.listen(PORT, () => {
+-  console.log(`Server running at PORT: ${PORT}`);
+-  console.log(`Connected to the database at ${config.database_name}`);
++    console.log(`Server running at PORT: ${PORT}`);
++    console.log(`Connected to the database at ${config.database_name}`);
+ }).on('error', (error: Error) => { // Typage explicite de l'erreur ici aussi
+-  throw new Error(error.message);
++    throw new Error(error.message);
+ });
+diff --git a/backend/src/config/db.ts b/backend/src/config/db.ts
+index 4ecaa0a..594a7fe 100644
+--- a/backend/src/config/db.ts
++++ b/backend/src/config/db.ts
+@@ -1,4 +1,4 @@
+-import config from '../config'
++import config from './config'
+ import {Pool} from 'pg'
+ 
+ const pool = new Pool({
+diff --git a/backend/src/config/knexConfig.ts b/backend/src/config/knexConfig.ts
+index e69de29..4953836 100644
+--- a/backend/src/config/knexConfig.ts
++++ b/backend/src/config/knexConfig.ts
+@@ -0,0 +1,16 @@
++import { Knex, knex } from 'knex';
++import config from './config'
++
++const knexConfig: Knex.Config = {
++    client: 'pg', // Remplacez par 'pg' pour PostgreSQL, 'sqlite3' pour SQLite, etc.
++    connection: {
++        host: config.database_url,
++        user: config.user,
++        password: config.password,
++        database: config.database_name,
++    }
++};
++
++const db = knex(knexConfig);
++
++export default db;
+diff --git a/backend/src/controllers/userController.ts b/backend/src/controllers/userController.ts
+index 29fd209..7de1e8d 100644
+--- a/backend/src/controllers/userController.ts
++++ b/backend/src/controllers/userController.ts
+@@ -1,25 +1,35 @@
+-import { Request, Response } from 'express';
+-import UserModel from '../models/UserModel';
+-import RelationModel from '../customORM/RelationModel';
++// controllers/userController.ts
++import {Request, Response} from 'express';
++import UserServices from '../services/UserServices';
+ 
+-export const getUserDetails = async (req: Request, res: Response) => {
+-    const userId = Number(req.params.id);
++const userController = {
++    // Méthode pour gérer la route GET /users
++    getAllUsers: async (req: Request, res: Response) => {
++        try {
++            const users = await UserServices.getAllUsers(); // Appel au service
++            res.json(users);
++        } catch (error) {
++            console.error("Error fetching users:", error);
++            res.status(500).json({error: 'Could not fetch users'});
++        }
++    },
+ 
+-    // Récupérer les informations de l'utilisateur
+-    const user = await UserModel.findById(userId);
++    getUserById: async (req: Request, res: Response) => {
++        try {
++            const userId = parseInt(req.params.id, 10);
++            const user = await UserServices.getUserById(userId);
++            if (!user) {
++                return res.status(404).json({message: 'User not found'});
++            }
++            res.json(user);
++        } catch (error) {
++            res.status(500).json({error: error.message});
++        }
++    }
+ 
+-    // Créer une instance de RelationModel avec le nom de la table 'likes'
+-    const relationModel = new RelationModel('likes');
+ 
+-    // Récupérer les likes faits par l'utilisateur
+-    const likesGiven = await relationModel.findWithRelation('user', userId);
+ 
+-    // Récupérer les likes reçus par l'utilisateur
+-    const likesReceived = await relationModel.findWithRelation('user_liked', userId);
+-
+-    res.json({
+-        user,
+-        likesGiven,    // Likes faits par cet utilisateur
+-        likesReceived  // Likes reçus par cet utilisateur
+-    });
++    // D'autres méthodes comme createUser, getUserById, deleteUser, etc.
+ };
++
++export default userController;
+diff --git a/backend/src/models/User.ts b/backend/src/models/User.ts
+index 03a3c3f..bc7e463 100644
+--- a/backend/src/models/User.ts
++++ b/backend/src/models/User.ts
+@@ -1,7 +1,10 @@
+ export interface User {
+     id: number;
+-    name: string;
++    username: string;
++    last_name: string;
++    first_name: string;
+     email: string;
+-    age: number;
+-  }
+-  
+\ No newline at end of file
++    password?: string;
++    created_at: Date;
++    // sso_type?: number;
++}
+\ No newline at end of file
+diff --git a/backend/src/routes/indexRoutes.ts b/backend/src/routes/indexRoutes.ts
+index 92d11ca..cebaccf 100644
+--- a/backend/src/routes/indexRoutes.ts
++++ b/backend/src/routes/indexRoutes.ts
+@@ -1,5 +1,5 @@
+ import {Router} from 'express';
+-import userRoute from "./UserRoute";
++import userRoute from "./userRoutes";
+ 
+ const router = Router();
+ 
+diff --git a/backend/src/routes/userRoutes.ts b/backend/src/routes/userRoutes.ts
+index f2794f3..69e64f0 100644
+--- a/backend/src/routes/userRoutes.ts
++++ b/backend/src/routes/userRoutes.ts
+@@ -4,6 +4,6 @@ import UserController from "../controllers/userController";
+ const router = Router();
+ 
+ router.get('/', UserController.getAllUsers);
+-router.get('/:id', UserController.getUserById);
++// router.get('/:id', UserController.getUserById);
+ 
+ export default router;
+diff --git a/backend/src/services/UserServices.ts b/backend/src/services/UserServices.ts
+index 0b3ba24..1c4fe1c 100644
+--- a/backend/src/services/UserServices.ts
++++ b/backend/src/services/UserServices.ts
+@@ -1,16 +1,16 @@
+-// Importation de modèles ou autres dépendances si nécessaire
++import {User} from "../models/User";
++import UserDAL from "../DataAccessLayer/UserDAL"
++import userDAL from "../DataAccessLayer/UserDAL";
+ 
+-// Service utilisateur
+-const userService = {
+-    getUserById: (id: string) => {
+-        // Ici, vous pouvez faire une requête à une base de données ou autre source de données
+-        // Pour l'instant, nous allons retourner un objet simulé
+-        return {
+-            id: id,
+-            name: 'John Doe',
+-            email: 'john.doe@example.com',
+-        };
+-    },
+-};
++class UserServices {
++    async getAllUsers(): Promise<User[]> {
++        return await UserDAL.findAll();
++    }
+ 
+-export default userService;
++    async getUserById(id: number): Promise<User | null> {
++        return await userDAL.fondOne(id);
++    }
++}
++
++
++export default new UserServices();
+\ No newline at end of file

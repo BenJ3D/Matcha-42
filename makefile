@@ -11,6 +11,9 @@ init:
 build:
 	$(DOCKER_COMPOSE) up -d --build
 
+stop:
+	${DOCKER_COMPOSE} stop
+
 up:
 	$(DOCKER_COMPOSE) up -d
 
@@ -26,10 +29,15 @@ prune:
 	docker system prune -af
 
 clean-volumes:
-	docker volume prune -f
+	@if [ "`docker volume ls -q`" != "" ]; then \
+		docker volume rm `docker volume ls -q`; \
+	else \
+		echo "No volumes to remove."; \
+	fi
+
 
 fclean: down prune clean-volumes
-	rm -f .env
+
 
 re: fclean all
 

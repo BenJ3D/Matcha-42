@@ -1,11 +1,13 @@
 -- Étape 1 : Créer le type énuméré pour les notifications
 CREATE TYPE enum_notif_type AS ENUM ('LIKE', 'UNLIKE', 'MATCH', 'NEW_MESSAGE', 'NEW_VISIT');
+-- Adminer 4.8.1 PostgreSQL 16.4 (Debian 16.4-1.pgdg120+1) dump
 
--- Étape 2 : Créer les tables avec les colonnes appropriées, les contraintes et les commentaires
+DROP TABLE IF EXISTS "blocked_users";
+DROP SEQUENCE IF EXISTS blocked_users_id_seq;
+CREATE SEQUENCE blocked_users_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
--- Table blocked_users
 CREATE TABLE "public"."blocked_users" (
-    "id" SERIAL NOT NULL,
+    "id" integer DEFAULT nextval('blocked_users_id_seq') NOT NULL,
     "blocker_id" integer NOT NULL,
     "blocked_id" integer NOT NULL,
     "blocked_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -13,9 +15,16 @@ CREATE TABLE "public"."blocked_users" (
     CONSTRAINT "blocked_users_pk_2" UNIQUE ("blocker_id", "blocked_id")
 ) WITH (oids = false);
 
--- Table fake_user_repoting
+TRUNCATE "blocked_users";
+INSERT INTO "blocked_users" ("id", "blocker_id", "blocked_id", "blocked_at") VALUES
+(1,	1,	5,	'2024-08-30 16:23:50.336874');
+
+DROP TABLE IF EXISTS "fake_user_repoting";
+DROP SEQUENCE IF EXISTS fake_user_repoting_id_seq;
+CREATE SEQUENCE fake_user_repoting_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
+
 CREATE TABLE "public"."fake_user_repoting" (
-    "id" SERIAL NOT NULL,
+    "id" integer DEFAULT nextval('fake_user_repoting_id_seq') NOT NULL,
     "user_who_reported" integer NOT NULL,
     "reported_user" integer NOT NULL,
     "reported_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -23,7 +32,13 @@ CREATE TABLE "public"."fake_user_repoting" (
     CONSTRAINT "fake_user_repoting_pk_2" UNIQUE ("user_who_reported", "reported_user")
 ) WITH (oids = false);
 
--- Table genders
+TRUNCATE "fake_user_repoting";
+INSERT INTO "fake_user_repoting" ("id", "user_who_reported", "reported_user", "reported_at") VALUES
+(2,	1,	5,	'2024-08-30 13:57:26.768062'),
+(1,	2,	5,	'2024-08-30 13:57:44.598757');
+
+DROP TABLE IF EXISTS "genders";
+DROP SEQUENCE IF EXISTS gender_gender_id_seq;
 CREATE SEQUENCE gender_gender_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
 CREATE TABLE "public"."genders" (
@@ -34,235 +49,7 @@ CREATE TABLE "public"."genders" (
     CONSTRAINT "gender_pkey" PRIMARY KEY ("gender_id")
 ) WITH (oids = false);
 
--- Table likes
-CREATE TABLE "public"."likes" (
-    "like_id" SERIAL NOT NULL,
-    "user" integer NOT NULL,
-    "user_liked" integer NOT NULL,
-    CONSTRAINT "likes_pk" UNIQUE ("user_liked", "user"),
-    CONSTRAINT "likes_pk_2" PRIMARY KEY ("like_id")
-) WITH (oids = false);
-
--- Table locations
-CREATE TABLE "public"."locations" (
-    "location_id" SERIAL NOT NULL,
-    "latitude" numeric NOT NULL,
-    "longitude" numeric NOT NULL,
-    "city_name" character varying(100),
-    CONSTRAINT "locations_pk" PRIMARY KEY ("location_id"),
-    CONSTRAINT "locations_pk_2" UNIQUE ("longitude", "latitude"),
-    CONSTRAINT "locations_pk_3" UNIQUE ("city_name")
-) WITH (oids = false);
-
--- Table matches
-CREATE TABLE "public"."matches" (
-    "match_id" SERIAL NOT NULL,
-    "user_1" integer NOT NULL,
-    "user_2" integer NOT NULL,
-    "matched_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT "matches_pk" UNIQUE ("user_1", "user_2"),
-    CONSTRAINT "matches_pk_2" PRIMARY KEY ("match_id")
-) WITH (oids = false);
-
--- Table messages
-CREATE TABLE "public"."messages" (
-    "message_id" SERIAL NOT NULL,
-    "content" character varying(500) NOT NULL,
-    "created_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "owner_user" integer NOT NULL,
-    "target_user" integer NOT NULL,
-    CONSTRAINT "messages_pk" PRIMARY KEY ("message_id")
-) WITH (oids = false);
-
--- Table notifications
-CREATE TABLE "public"."notifications" (
-    "notification_id" SERIAL NOT NULL,
-    "target_user" integer NOT NULL,
-    "has_read" boolean DEFAULT false NOT NULL,
-    "notified_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "type" enum_notif_type NOT NULL,
-    "source_user" integer NOT NULL,
-    CONSTRAINT "notifications_pk" PRIMARY KEY ("notification_id")
-) WITH (oids = false);
-
-COMMENT ON COLUMN "public"."notifications"."target_user" IS 'user concerné qui doit recevoir la notif';
-COMMENT ON COLUMN "public"."notifications"."source_user" IS 'Quel user est à l''origine de la notification';
-
--- Table photos
-CREATE SEQUENCE picture_picture_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
-
-CREATE TABLE "public"."photos" (
-    "photo_id" integer DEFAULT nextval('picture_picture_id_seq') NOT NULL,
-    "url" character varying(255) NOT NULL,
-    "description" character varying(255),
-    "owner_user_id" integer NOT NULL,
-    CONSTRAINT "picture_pkey" PRIMARY KEY ("photo_id"),
-    CONSTRAINT "picture_url_key" UNIQUE ("url")
-) WITH (oids = false);
-
--- Table profile_sexual_preferences
-CREATE TABLE "public"."profile_sexual_preferences" (
-    "id" SERIAL NOT NULL,
-    "profile_id" integer NOT NULL,
-    "gender_id" integer NOT NULL,
-    CONSTRAINT "profile_sexual-preference_pk_id" PRIMARY KEY ("id"),
-    CONSTRAINT "profile_sexual-preference_pk_pair-gender-profile" UNIQUE ("gender_id", "profile_id")
-) WITH (oids = false);
-
--- Table profile_tag
-CREATE SEQUENCE profile_tag_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
-
-CREATE TABLE "public"."profile_tag" (
-    "id" integer DEFAULT nextval('profile_tag_id_seq') NOT NULL,
-    "profile_id" bigint NOT NULL,
-    "profile_tag" bigint NOT NULL,
-    CONSTRAINT "profile_tag_pkey" PRIMARY KEY ("id")
-) WITH (oids = false);
-
--- Table profiles
-CREATE SEQUENCE profile_profile_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
-
-CREATE TABLE "public"."profiles" (
-    "profile_id" integer DEFAULT nextval('profile_profile_id_seq') NOT NULL,
-    "onwer_user_id" bigint NOT NULL,
-    "biography" character varying(1024) NOT NULL,
-    "gender" integer NOT NULL,
-    "age" integer,
-    "main_picture" integer,
-    "location" integer,
-    "last_connection" timestamp,
-    CONSTRAINT "profile_onwer_user_id_key" UNIQUE ("onwer_user_id"),
-    CONSTRAINT "profile_pkey" PRIMARY KEY ("profile_id")
-) WITH (oids = false);
-
-COMMENT ON COLUMN "public"."profiles"."location" IS 'Contient les coordonnées GPS du quartier utilisateur';
-
--- Table sso_type
-CREATE TABLE "public"."sso_type" (
-    "sso_id" SERIAL NOT NULL,
-    "name" character varying(50) NOT NULL,
-    CONSTRAINT "sso_type_pk" PRIMARY KEY ("sso_id"),
-    CONSTRAINT "sso_type_pk_2" UNIQUE ("name")
-) WITH (oids = false);
-
-COMMENT ON TABLE "public"."sso_type" IS 'stocker les differents type de SSO pris en charge (facebook + google ?)';
-
--- Table tags
-CREATE SEQUENCE tag_tag_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
-
-CREATE TABLE "public"."tags" (
-    "tag_id" integer DEFAULT nextval('tag_tag_id_seq') NOT NULL,
-    "tag_name" character varying(50) NOT NULL,
-    CONSTRAINT "tag_pkey" PRIMARY KEY ("tag_id")
-) WITH (oids = false);
-
--- Table users
-CREATE TABLE "public"."users" (
-    "id" SERIAL NOT NULL,
-    "username" character varying(50) NOT NULL,
-    "last_name" character varying(255) NOT NULL,
-    "first_name" character varying(255) NOT NULL,
-    "email" character varying(255) NOT NULL,
-    "password" character varying(255),
-    "created_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "sso_type" integer,
-    CONSTRAINT "user_email_key" UNIQUE ("email"),
-    CONSTRAINT "user_pkey" PRIMARY KEY ("id"),
-    CONSTRAINT "user_username_key" UNIQUE ("username")
-) WITH (oids = false);
-
-COMMENT ON COLUMN "public"."users"."sso_type" IS 'Si bonus authentification via facebook, google.. Si NOT_NULL pas de password, si NULL, il faut un password';
-
--- Table visited_profile_history
-CREATE TABLE "public"."visited_profile_history" (
-    "id" SERIAL NOT NULL,
-    "visiter" integer NOT NULL,
-    "visited" integer NOT NULL,
-    CONSTRAINT "visited_profile_history_pk" UNIQUE ("visited", "visiter"),
-    CONSTRAINT "visited_profile_history_pk_2" PRIMARY KEY ("id")
-) WITH (oids = false);
-
--- Étape 3 : Ajouter les contraintes de clé étrangère
-
-ALTER TABLE ONLY "public"."blocked_users" 
-    ADD CONSTRAINT "blocked_users_users_id_fk" FOREIGN KEY (blocker_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE,
-    ADD CONSTRAINT "blocked_users_users_id_fk_2" FOREIGN KEY (blocked_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
-
-ALTER TABLE ONLY "public"."fake_user_repoting" 
-    ADD CONSTRAINT "fake_user_repoting_users_id_fk" FOREIGN KEY (user_who_reported) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE,
-    ADD CONSTRAINT "fake_user_repoting_users_id_fk_2" FOREIGN KEY (reported_user) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
-
-ALTER TABLE ONLY "public"."likes" 
-    ADD CONSTRAINT "like_user_id_fk" FOREIGN KEY ("user") REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE,
-    ADD CONSTRAINT "like_user_id_fk_2" FOREIGN KEY (user_liked) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
-
-ALTER TABLE ONLY "public"."matches" 
-    ADD CONSTRAINT "matches_users_id_fk" FOREIGN KEY (user_1) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE,
-    ADD CONSTRAINT "matches_users_id_fk_2" FOREIGN KEY (user_2) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
-
-ALTER TABLE ONLY "public"."messages" 
-    ADD CONSTRAINT "messages_users_id_fk" FOREIGN KEY (owner_user) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE,
-    ADD CONSTRAINT "messages_users_id_fk_2" FOREIGN KEY (target_user) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
-
-ALTER TABLE ONLY "public"."notifications" 
-    ADD CONSTRAINT "notifications_users_id_fk" FOREIGN KEY (target_user) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE,
-    ADD CONSTRAINT "notifications_users_id_fk_2" FOREIGN KEY (source_user) REFERENCES users(id) NOT DEFERRABLE;
-
-ALTER TABLE ONLY "public"."photos" 
-    ADD CONSTRAINT "photos_users_id_fk" FOREIGN KEY (owner_user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
-
-ALTER TABLE ONLY "public"."profile_sexual_preferences" 
-    ADD CONSTRAINT "profile_sexual_preferences_genders_gender_id_fk" FOREIGN KEY (gender_id) REFERENCES genders(gender_id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE,
-    ADD CONSTRAINT "profile_sexual_preferences_profile_profile_id_fk" FOREIGN KEY (profile_id) REFERENCES profiles(profile_id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
-
-ALTER TABLE ONLY "public"."profile_tag" 
-    ADD CONSTRAINT "profile_tag_fk1" FOREIGN KEY (profile_id) REFERENCES profiles(profile_id) NOT DEFERRABLE,
-    ADD CONSTRAINT "profile_tag_fk2" FOREIGN KEY (profile_tag) REFERENCES tags(tag_id) NOT DEFERRABLE;
-
-ALTER TABLE ONLY "public"."profiles" 
-    ADD CONSTRAINT "profile_gender_fkey" FOREIGN KEY (gender) REFERENCES genders(gender_id) ON UPDATE CASCADE ON DELETE RESTRICT NOT DEFERRABLE,
-    ADD CONSTRAINT "profile_onwer_user_id_fkey" FOREIGN KEY (onwer_user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE,
-    ADD CONSTRAINT "profile_photo_photo_id_fk" FOREIGN KEY (main_picture) REFERENCES photos(photo_id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE,
-    ADD CONSTRAINT "profiles_locations_location_id_fk" FOREIGN KEY (location) REFERENCES locations(location_id) NOT DEFERRABLE;
-
-ALTER TABLE ONLY "public"."users" 
-    ADD CONSTRAINT "user_accounts_sso_type_sso_id_fk" FOREIGN KEY (sso_type) REFERENCES sso_type(sso_id) NOT DEFERRABLE,
-    ADD CONSTRAINT "users_sso_type_sso_id_fk" FOREIGN KEY (sso_type) REFERENCES sso_type(sso_id) NOT DEFERRABLE;
-
-ALTER TABLE ONLY "public"."visited_profile_history" 
-    ADD CONSTRAINT "visited_profile_history_user_id_fk" FOREIGN KEY (visited) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE,
-    ADD CONSTRAINT "visited_profile_history_user_id_fk_2" FOREIGN KEY (visiter) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
-
-
--- Adminer 4.8.1 PostgreSQL 16.3 (Debian 16.3-1.pgdg120+1) dump
-TRUNCATE "blocked_users", "users" CASCADE;
-TRUNCATE "profile_sexual_preferences", "genders" CASCADE;
-TRUNCATE "profiles", "locations" CASCADE;
-TRUNCATE "profiles", "photos" CASCADE;
-TRUNCATE "profile_sexual_preferences", "profiles" CASCADE;
-TRUNCATE "profile_tag", "tags" CASCADE;
-TRUNCATE "users", "sso_type" CASCADE;
-
-
-INSERT INTO "users" ("id", "username", "last_name", "first_name", "email", "password", "created_at", "sso_type") VALUES
-(1,	'Ben3D',	'DUCROCQ',	'Benjamin',	'bducrocq42@gmail.com',	'81dc9bdb52d04dc20036dbd8313ed055',	'2024-08-30 10:10:02.474665',	NULL),
-(2,	'brunoFun',	'Funky',	'Bruno',	'bruno.fun@gmail.com',	'81dc9bdb52d04dc20036dbd8313ed055',	'2024-08-30 10:10:57.759031',	NULL),
-(3,	'Celine63',	'OUIOUI',	'Céline',	'celine.ouioui@gmail.com',	'81dc9bdb52d04dc20036dbd8313ed055',	'2024-08-30 10:11:48.656352',	NULL),
-(4,	'Lulu84',	'NONNON',	'Lucienne',	'lucienne.nonnon@gmail.com',	'81dc9bdb52d04dc20036dbd8313ed055',	'2024-08-30 10:12:38.816452',	NULL),
-(5,	'FakeLucia',	'Fake',	'Lucia',	'lucia.fake@gmail.com',	'81dc9bdb52d04dc20036dbd8313ed055',	'2024-08-30 13:37:13.263763',	NULL);
-
--- Mettre à jour la séquence après insertion dans "users"
-SELECT setval(pg_get_serial_sequence('public.users', 'id'), COALESCE(MAX(id), 1)) FROM public.users;
-
-
-INSERT INTO "fake_user_repoting" ("id", "user_who_reported", "reported_user", "reported_at") VALUES
-(2,	1,	5,	'2024-08-30 13:57:26.768062'),
-(1,	2,	5,	'2024-08-30 13:57:44.598757');
-
--- Mettre à jour la séquence après insertion dans "fake_user_repoting"
-SELECT setval(pg_get_serial_sequence('public.fake_user_repoting', 'id'), COALESCE(MAX(id), 1)) FROM public.fake_user_repoting;
-
-
+TRUNCATE "genders";
 INSERT INTO "genders" ("gender_id", "name", "description") VALUES
 (5,	'Male',	'Identifies as male'),
 (6,	'Female',	'Identifies as female'),
@@ -275,19 +62,39 @@ INSERT INTO "genders" ("gender_id", "name", "description") VALUES
 (13,	'Transgender (FTM)',	'Assigned female at birth, identifies as male'),
 (14,	'Questioning',	'Exploring or questioning their gender identity');
 
--- Mettre à jour la séquence après insertion dans "genders"
-SELECT setval(pg_get_serial_sequence('public.genders', 'gender_id'), COALESCE(MAX(gender_id), 1)) FROM public.genders;
+DROP TABLE IF EXISTS "likes";
+DROP SEQUENCE IF EXISTS likes_like_id_seq;
+CREATE SEQUENCE likes_like_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
+CREATE TABLE "public"."likes" (
+    "like_id" integer DEFAULT nextval('likes_like_id_seq') NOT NULL,
+    "user" integer NOT NULL,
+    "user_liked" integer NOT NULL,
+    CONSTRAINT "likes_pk" UNIQUE ("user_liked", "user"),
+    CONSTRAINT "likes_pk_2" PRIMARY KEY ("like_id")
+) WITH (oids = false);
 
+TRUNCATE "likes";
 INSERT INTO "likes" ("like_id", "user", "user_liked") VALUES
 (1,	1,	3),
 (3,	1,	4),
 (4,	3,	1);
 
--- Mettre à jour la séquence après insertion dans "likes"
-SELECT setval(pg_get_serial_sequence('public.likes', 'like_id'), COALESCE(MAX(like_id), 1)) FROM public.likes;
+DROP TABLE IF EXISTS "locations";
+DROP SEQUENCE IF EXISTS locations_location_id_seq;
+CREATE SEQUENCE locations_location_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
+CREATE TABLE "public"."locations" (
+    "location_id" integer DEFAULT nextval('locations_location_id_seq') NOT NULL,
+    "latitude" numeric NOT NULL,
+    "longitude" numeric NOT NULL,
+    "city_name" character varying(100),
+    CONSTRAINT "locations_pk" PRIMARY KEY ("location_id"),
+    CONSTRAINT "locations_pk_2" UNIQUE ("longitude", "latitude"),
+    CONSTRAINT "locations_pk_3" UNIQUE ("city_name")
+) WITH (oids = false);
 
+TRUNCATE "locations";
 INSERT INTO "locations" ("location_id", "latitude", "longitude", "city_name") VALUES
 (1,	45.764043,	4.835659,	'Lyon'),
 (2,	45.725137,	4.805528,	'Oullins'),
@@ -334,24 +141,74 @@ INSERT INTO "locations" ("location_id", "latitude", "longitude", "city_name") VA
 (51,	49.894067,	2.295753,	'Amiens'),
 (52,	47.902733,	1.909020,	'Orléans');
 
--- Mettre à jour la séquence après insertion dans "locations"
-SELECT setval(pg_get_serial_sequence('public.locations', 'location_id'), COALESCE(MAX(location_id), 1)) FROM public.locations;
+DROP TABLE IF EXISTS "matches";
+DROP SEQUENCE IF EXISTS matches_match_id_seq;
+CREATE SEQUENCE matches_match_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
+CREATE TABLE "public"."matches" (
+    "match_id" integer DEFAULT nextval('matches_match_id_seq') NOT NULL,
+    "user_1" integer NOT NULL,
+    "user_2" integer NOT NULL,
+    "matched_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT "matches_pk" UNIQUE ("user_1", "user_2"),
+    CONSTRAINT "matches_pk_2" PRIMARY KEY ("match_id")
+) WITH (oids = false);
 
+TRUNCATE "matches";
 INSERT INTO "matches" ("match_id", "user_1", "user_2", "matched_at") VALUES
 (1,	1,	3,	'2024-08-30 13:35:14.181296');
 
--- Mettre à jour la séquence après insertion dans "matches"
-SELECT setval(pg_get_serial_sequence('public.matches', 'match_id'), COALESCE(MAX(match_id), 1)) FROM public.matches;
+DROP TABLE IF EXISTS "messages";
+DROP SEQUENCE IF EXISTS messages_message_id_seq;
+CREATE SEQUENCE messages_message_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
+CREATE TABLE "public"."messages" (
+    "message_id" integer DEFAULT nextval('messages_message_id_seq') NOT NULL,
+    "content" character varying(500) NOT NULL,
+    "created_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "owner_user" integer NOT NULL,
+    "target_user" integer NOT NULL,
+    CONSTRAINT "messages_pk" PRIMARY KEY ("message_id")
+) WITH (oids = false);
 
+TRUNCATE "messages";
+
+DROP TABLE IF EXISTS "notifications";
+DROP SEQUENCE IF EXISTS notifications_notification_id_seq;
+CREATE SEQUENCE notifications_notification_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
+
+CREATE TABLE "public"."notifications" (
+    "notification_id" integer DEFAULT nextval('notifications_notification_id_seq') NOT NULL,
+    "target_user" integer NOT NULL,
+    "has_read" boolean DEFAULT false NOT NULL,
+    "notified_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "type" enum_notif_type NOT NULL,
+    "source_user" integer NOT NULL,
+    CONSTRAINT "notifications_pk" PRIMARY KEY ("notification_id")
+) WITH (oids = false);
+
+COMMENT ON COLUMN "public"."notifications"."target_user" IS 'user concerné qui doit recevoir la notif';
+
+COMMENT ON COLUMN "public"."notifications"."source_user" IS 'Quel user est à l''origine de la notification';
+
+TRUNCATE "notifications";
 INSERT INTO "notifications" ("notification_id", "target_user", "has_read", "notified_at", "type", "source_user") VALUES
 (1,	3,	'f',	'2024-08-30 14:25:23.631109',	'LIKE',	1);
 
--- Mettre à jour la séquence après insertion dans "notifications"
-SELECT setval(pg_get_serial_sequence('public.notifications', 'notification_id'), COALESCE(MAX(notification_id), 1)) FROM public.notifications;
+DROP TABLE IF EXISTS "photos";
+DROP SEQUENCE IF EXISTS picture_picture_id_seq;
+CREATE SEQUENCE picture_picture_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
+CREATE TABLE "public"."photos" (
+    "photo_id" integer DEFAULT nextval('picture_picture_id_seq') NOT NULL,
+    "url" character varying(255) NOT NULL,
+    "description" character varying(255),
+    "owner_user_id" integer NOT NULL,
+    CONSTRAINT "picture_pkey" PRIMARY KEY ("photo_id"),
+    CONSTRAINT "picture_url_key" UNIQUE ("url")
+) WITH (oids = false);
 
+TRUNCATE "photos";
 INSERT INTO "photos" ("photo_id", "url", "description", "owner_user_id") VALUES
 (1,	'https://example.com/photos/profile1_photo1.jpg',	NULL,	1),
 (2,	'https://example.com/photos/profile1_photo2.jpg',	NULL,	1),
@@ -374,20 +231,19 @@ INSERT INTO "photos" ("photo_id", "url", "description", "owner_user_id") VALUES
 (19,	'https://example.com/photos/profile4_photo4.jpg',	NULL,	4),
 (20,	'https://example.com/photos/profile4_photo5.jpg',	NULL,	4);
 
--- Mettre à jour la séquence après insertion dans "photos"
-SELECT setval(pg_get_serial_sequence('public.photos', 'photo_id'), COALESCE(MAX(photo_id), 1)) FROM public.photos;
+DROP TABLE IF EXISTS "profile_sexual_preferences";
+DROP SEQUENCE IF EXISTS profile_sexual_preferences_id_seq;
+CREATE SEQUENCE profile_sexual_preferences_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
+CREATE TABLE "public"."profile_sexual_preferences" (
+    "id" integer DEFAULT nextval('profile_sexual_preferences_id_seq') NOT NULL,
+    "profile_id" integer NOT NULL,
+    "gender_id" integer NOT NULL,
+    CONSTRAINT "profile_sexual-preference_pk_id" PRIMARY KEY ("id"),
+    CONSTRAINT "profile_sexual-preference_pk_pair-gender-profile" UNIQUE ("gender_id", "profile_id")
+) WITH (oids = false);
 
-INSERT INTO "profiles" ("profile_id", "onwer_user_id", "biography", "gender", "age", "main_picture", "location", "last_connection") VALUES
-(2,	2,	'Ouuep je mappel Bruno',	5,	25,	6,	NULL,	NULL),
-(4,	4,	'HOlaaaaaaa',	6,	29,	17,	NULL,	NULL),
-(1,	1,	'je mappel ben bonjour blablabal bal abla bla',	5,	34,	2,	1,	NULL),
-(3,	3,	'Bonjour a tous :)',	6,	24,	13,	2,	NULL);
-
--- Mettre à jour la séquence après insertion dans "profiles"
-SELECT setval(pg_get_serial_sequence('public.profiles', 'profile_id'), COALESCE(MAX(profile_id), 1)) FROM public.profiles;
-
-
+TRUNCATE "profile_sexual_preferences";
 INSERT INTO "profile_sexual_preferences" ("id", "profile_id", "gender_id") VALUES
 (2,	1,	6),
 (3,	2,	6),
@@ -397,10 +253,77 @@ INSERT INTO "profile_sexual_preferences" ("id", "profile_id", "gender_id") VALUE
 (7,	4,	5),
 (8,	4,	13);
 
--- Mettre à jour la séquence après insertion dans "profile_sexual_preferences"
-SELECT setval(pg_get_serial_sequence('public.profile_sexual_preferences', 'id'), COALESCE(MAX(id), 1)) FROM public.profile_sexual_preferences;
+DROP TABLE IF EXISTS "profile_tag";
+DROP SEQUENCE IF EXISTS profile_tag_id_seq;
+CREATE SEQUENCE profile_tag_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
+CREATE TABLE "public"."profile_tag" (
+    "id" integer DEFAULT nextval('profile_tag_id_seq') NOT NULL,
+    "profile_id" bigint NOT NULL,
+    "profile_tag" bigint NOT NULL,
+    CONSTRAINT "profile_tag_pkey" PRIMARY KEY ("id")
+) WITH (oids = false);
 
+TRUNCATE "profile_tag";
+INSERT INTO "profile_tag" ("id", "profile_id", "profile_tag") VALUES
+(1,	1,	19),
+(2,	1,	21),
+(3,	1,	84),
+(4,	1,	98),
+(5,	3,	98);
+
+DROP TABLE IF EXISTS "profiles";
+DROP SEQUENCE IF EXISTS profile_profile_id_seq;
+CREATE SEQUENCE profile_profile_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
+
+CREATE TABLE "public"."profiles" (
+    "profile_id" integer DEFAULT nextval('profile_profile_id_seq') NOT NULL,
+    "owner_user_id" bigint NOT NULL,
+    "biography" character varying(1024) NOT NULL,
+    "gender" integer NOT NULL,
+    "age" integer,
+    "main_photo_id" integer,
+    "location" integer,
+    "last_connection" timestamp,
+    CONSTRAINT "profile_onwer_user_id_key" UNIQUE ("owner_user_id"),
+    CONSTRAINT "profile_pkey" PRIMARY KEY ("profile_id")
+) WITH (oids = false);
+
+COMMENT ON COLUMN "public"."profiles"."location" IS 'Contient les coordonnées GPS du quartier utilisateur';
+
+TRUNCATE "profiles";
+INSERT INTO "profiles" ("profile_id", "owner_user_id", "biography", "gender", "age", "main_photo_id", "location", "last_connection") VALUES
+(2,	2,	'Ouuep je mappel Bruno',	5,	25,	6,	NULL,	NULL),
+(4,	4,	'HOlaaaaaaa',	6,	29,	17,	NULL,	NULL),
+(1,	1,	'je mappel ben bonjour blablabal bal abla bla',	5,	34,	2,	1,	NULL),
+(3,	3,	'Bonjour a tous :)',	6,	24,	13,	2,	NULL);
+
+DROP TABLE IF EXISTS "sso_type";
+DROP SEQUENCE IF EXISTS sso_type_sso_id_seq;
+CREATE SEQUENCE sso_type_sso_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
+
+CREATE TABLE "public"."sso_type" (
+    "sso_id" integer DEFAULT nextval('sso_type_sso_id_seq') NOT NULL,
+    "name" character varying(50) NOT NULL,
+    CONSTRAINT "sso_type_pk" PRIMARY KEY ("sso_id"),
+    CONSTRAINT "sso_type_pk_2" UNIQUE ("name")
+) WITH (oids = false);
+
+COMMENT ON TABLE "public"."sso_type" IS 'stocker les differents type de SSO pris en charge (facebook + google ?)';
+
+TRUNCATE "sso_type";
+
+DROP TABLE IF EXISTS "tags";
+DROP SEQUENCE IF EXISTS tag_tag_id_seq;
+CREATE SEQUENCE tag_tag_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
+
+CREATE TABLE "public"."tags" (
+    "tag_id" integer DEFAULT nextval('tag_tag_id_seq') NOT NULL,
+    "tag_name" character varying(50) NOT NULL,
+    CONSTRAINT "tag_pkey" PRIMARY KEY ("tag_id")
+) WITH (oids = false);
+
+TRUNCATE "tags";
 INSERT INTO "tags" ("tag_id", "tag_name") VALUES
 (1,	'Adventurous'),
 (2,	'Animal lover'),
@@ -581,35 +504,89 @@ INSERT INTO "tags" ("tag_id", "tag_name") VALUES
 (177,	'Softball player'),
 (178,	'Cheerleader');
 
--- Mettre à jour la séquence après insertion dans "tags"
-SELECT setval(pg_get_serial_sequence('public.tags', 'tag_id'), COALESCE(MAX(tag_id), 1)) FROM public.tags;
+DROP TABLE IF EXISTS "users";
+DROP SEQUENCE IF EXISTS users_id_seq;
+CREATE SEQUENCE users_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
+CREATE TABLE "public"."users" (
+    "id" integer DEFAULT nextval('users_id_seq') NOT NULL,
+    "username" character varying(50) NOT NULL,
+    "last_name" character varying(255) NOT NULL,
+    "first_name" character varying(255) NOT NULL,
+    "email" character varying(255) NOT NULL,
+    "password" character varying(255),
+    "created_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "sso_type" integer,
+    "profile_id" integer,
+    CONSTRAINT "user_email_key" UNIQUE ("email"),
+    CONSTRAINT "user_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "user_username_key" UNIQUE ("username")
+) WITH (oids = false);
 
-INSERT INTO "profile_tag" ("id", "profile_id", "profile_tag") VALUES
-(1,	1,	19),
-(2,	1,	21),
-(3,	1,	84),
-(4,	1,	98),
-(5,	3,	98);
+COMMENT ON COLUMN "public"."users"."sso_type" IS 'Si bonus authentification via facebook, google.. Si NOT_NULL pas de password, si NULL, il faut un password';
 
--- Mettre à jour la séquence après insertion dans "profile_tag"
-SELECT setval(pg_get_serial_sequence('public.profile_tag', 'id'), COALESCE(MAX(id), 1)) FROM public.profile_tag;
+TRUNCATE "users";
+INSERT INTO "users" ("id", "username", "last_name", "first_name", "email", "password", "created_at", "sso_type", "profile_id") VALUES
+(5,	'FakeLucia',	'Fake',	'Lucia',	'lucia.fake@gmail.com',	'81dc9bdb52d04dc20036dbd8313ed055',	'2024-08-30 13:37:13.263763',	NULL,	NULL),
+(1,	'Ben3D',	'DUCROCQ',	'Benjamin',	'bducrocq42@gmail.com',	'81dc9bdb52d04dc20036dbd8313ed055',	'2024-08-30 10:10:02.474665',	NULL,	1),
+(4,	'Lulu84',	'NONNON',	'Lucienne',	'lucienne.nonnon@gmail.com',	'81dc9bdb52d04dc20036dbd8313ed055',	'2024-08-30 10:12:38.816452',	NULL,	4),
+(3,	'Celine63',	'OUIOUI',	'Céline',	'celine.ouioui@gmail.com',	'81dc9bdb52d04dc20036dbd8313ed055',	'2024-08-30 10:11:48.656352',	NULL,	3),
+(2,	'brunoFun',	'Funky',	'Bruno',	'bruno.fun@gmail.com',	'81dc9bdb52d04dc20036dbd8313ed055',	'2024-08-30 10:10:57.759031',	NULL,	2);
 
+DROP TABLE IF EXISTS "visited_profile_history";
+DROP SEQUENCE IF EXISTS visited_profile_history_id_seq;
+CREATE SEQUENCE visited_profile_history_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
+CREATE TABLE "public"."visited_profile_history" (
+    "id" integer DEFAULT nextval('visited_profile_history_id_seq') NOT NULL,
+    "visiter" integer NOT NULL,
+    "visited" integer NOT NULL,
+    CONSTRAINT "visited_profile_history_pk" UNIQUE ("visited", "visiter"),
+    CONSTRAINT "visited_profile_history_pk_2" PRIMARY KEY ("id")
+) WITH (oids = false);
+
+TRUNCATE "visited_profile_history";
 INSERT INTO "visited_profile_history" ("id", "visiter", "visited") VALUES
 (1,	1,	3),
 (3,	3,	1),
 (4,	2,	3),
 (5,	4,	1);
 
--- Mettre à jour la séquence après insertion dans "visited_profile_history"
-SELECT setval(pg_get_serial_sequence('public.visited_profile_history', 'id'), COALESCE(MAX(id), 1)) FROM public.visited_profile_history;
+ALTER TABLE ONLY "public"."blocked_users" ADD CONSTRAINT "blocked_users_users_id_fk" FOREIGN KEY (blocker_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "public"."blocked_users" ADD CONSTRAINT "blocked_users_users_id_fk_2" FOREIGN KEY (blocked_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
 
+ALTER TABLE ONLY "public"."fake_user_repoting" ADD CONSTRAINT "fake_user_repoting_users_id_fk" FOREIGN KEY (user_who_reported) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "public"."fake_user_repoting" ADD CONSTRAINT "fake_user_repoting_users_id_fk_2" FOREIGN KEY (reported_user) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
 
-INSERT INTO "blocked_users" ("id", "blocker_id", "blocked_id", "blocked_at") VALUES
-(1,	1,	5,	'2024-08-30 16:23:50.336874');
+ALTER TABLE ONLY "public"."likes" ADD CONSTRAINT "like_user_id_fk" FOREIGN KEY ("user") REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "public"."likes" ADD CONSTRAINT "like_user_id_fk_2" FOREIGN KEY (user_liked) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
 
--- Mettre à jour la séquence après insertion dans "blocked_users"
-SELECT setval(pg_get_serial_sequence('public.blocked_users', 'id'), COALESCE(MAX(id), 1)) FROM public.blocked_users;
+ALTER TABLE ONLY "public"."matches" ADD CONSTRAINT "matches_users_id_fk" FOREIGN KEY (user_1) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "public"."matches" ADD CONSTRAINT "matches_users_id_fk_2" FOREIGN KEY (user_2) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
 
--- 2024-08-30 15:59:48.920113+00
+ALTER TABLE ONLY "public"."messages" ADD CONSTRAINT "messages_users_id_fk" FOREIGN KEY (owner_user) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "public"."messages" ADD CONSTRAINT "messages_users_id_fk_2" FOREIGN KEY (target_user) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+
+ALTER TABLE ONLY "public"."notifications" ADD CONSTRAINT "notifications_users_id_fk" FOREIGN KEY (target_user) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "public"."notifications" ADD CONSTRAINT "notifications_users_id_fk_2" FOREIGN KEY (source_user) REFERENCES users(id) NOT DEFERRABLE;
+
+ALTER TABLE ONLY "public"."photos" ADD CONSTRAINT "photos_users_id_fk" FOREIGN KEY (owner_user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+
+ALTER TABLE ONLY "public"."profile_sexual_preferences" ADD CONSTRAINT "profile_sexual_preferences_genders_gender_id_fk" FOREIGN KEY (gender_id) REFERENCES genders(gender_id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "public"."profile_sexual_preferences" ADD CONSTRAINT "profile_sexual_preferences_profile_profile_id_fk" FOREIGN KEY (profile_id) REFERENCES profiles(profile_id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+
+ALTER TABLE ONLY "public"."profile_tag" ADD CONSTRAINT "profile_tag_fk1" FOREIGN KEY (profile_id) REFERENCES profiles(profile_id) NOT DEFERRABLE;
+ALTER TABLE ONLY "public"."profile_tag" ADD CONSTRAINT "profile_tag_fk2" FOREIGN KEY (profile_tag) REFERENCES tags(tag_id) NOT DEFERRABLE;
+
+ALTER TABLE ONLY "public"."profiles" ADD CONSTRAINT "profile_gender_fkey" FOREIGN KEY (gender) REFERENCES genders(gender_id) ON UPDATE CASCADE ON DELETE RESTRICT NOT DEFERRABLE;
+ALTER TABLE ONLY "public"."profiles" ADD CONSTRAINT "profile_onwer_user_id_fkey" FOREIGN KEY (owner_user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "public"."profiles" ADD CONSTRAINT "profile_photo_photo_id_fk" FOREIGN KEY (main_photo_id) REFERENCES photos(photo_id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "public"."profiles" ADD CONSTRAINT "profiles_locations_location_id_fk" FOREIGN KEY (location) REFERENCES locations(location_id) NOT DEFERRABLE;
+
+ALTER TABLE ONLY "public"."users" ADD CONSTRAINT "user_accounts_sso_type_sso_id_fk" FOREIGN KEY (sso_type) REFERENCES sso_type(sso_id) NOT DEFERRABLE;
+ALTER TABLE ONLY "public"."users" ADD CONSTRAINT "users_profile_id_fkey" FOREIGN KEY (profile_id) REFERENCES profiles(profile_id) ON UPDATE RESTRICT ON DELETE RESTRICT NOT DEFERRABLE;
+
+ALTER TABLE ONLY "public"."visited_profile_history" ADD CONSTRAINT "visited_profile_history_user_id_fk" FOREIGN KEY (visited) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "public"."visited_profile_history" ADD CONSTRAINT "visited_profile_history_user_id_fk_2" FOREIGN KEY (visiter) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+
+-- 2024-09-03 18:02:01.553859+00

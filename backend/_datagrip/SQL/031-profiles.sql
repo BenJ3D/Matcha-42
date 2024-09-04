@@ -3,10 +3,10 @@ create table if not exists profiles
     profile_id      integer default nextval('profile_profile_id_seq'::regclass) not null
         constraint profile_pkey
             primary key,
-    onwer_user_id   bigint                                                      not null
-        constraint profile_onwer_user_id_key
+    owner_user_id   bigint                                                      not null
+        constraint profile_owner_user_id_key
             unique
-        constraint profile_onwer_user_id_fkey
+        constraint profile_owner_user_id_fkey
             references users
             on update cascade on delete cascade,
     biography       varchar(1024)                                               not null,
