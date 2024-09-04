@@ -1,4 +1,28 @@
-@import '@angular/material/prebuilt-themes/azure-blue.css';
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.mat-icon {
+  vertical-align: middle;
+}
+
+.mat-mdc-raised-button {
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.mat-mdc-card {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 8px;
+}
+
+.hover-effect {
+  transition: transform 0.3s ease;
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
