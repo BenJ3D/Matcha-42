@@ -10,7 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-signup',
   standalone: true,
   imports: [
     CommonModule,
@@ -23,18 +23,26 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatProgressSpinnerModule,
     MatFormFieldModule
   ],
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  templateUrl: './signup.component.html',
+  styleUrls: ['./signup.component.scss']
 })
-export class LoginComponent {
+export class SignupComponent {
   form: FormGroup;
   isLoading = false;
 
   constructor(private fb: FormBuilder, private router: Router) {
     this.form = this.fb.group({
+      name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(5)]]
-    });
+      password: ['', [Validators.required, Validators.minLength(5)]],
+      confirmPassword: ['', Validators.required]
+    }, { validator: this.checkPasswords });
+  }
+
+  checkPasswords(group: FormGroup) {
+    const pass = group.get('password')?.value;
+    const confirmPass = group.get('confirmPassword')?.value;
+    return pass === confirmPass ? null : { notSame: true };
   }
 
   onSubmit(): void {
@@ -42,20 +50,16 @@ export class LoginComponent {
       this.isLoading = true;
       this.form.disable();
 
-      // Simulate login process
+      // Simulate signup process
       setTimeout(() => {
         this.isLoading = false;
-        this.goToMain();
-      }, 4000);
+        this.router.navigate(['/login']);
+      }, 2000);
     }
   }
 
-  goToMain(): void {
-    this.router.navigate(['']);
-  }
-
-  loginWithGoogle(): void {
-    // Implement Google login logic here
-    console.log('Google login clicked');
+  signupWithGoogle(): void {
+    // Implement Google signup logic here
+    console.log('Google signup clicked');
   }
 }
