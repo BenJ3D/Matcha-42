@@ -3,8 +3,23 @@ import {UserLightResponseDTO} from "../DTOs/users/UserLightResponseDTO";
 import {UserResponseDTO} from "../DTOs/users/UserResponseDTO";
 import {Tag} from "../models/Tags";
 import {BlockedUserResponseDTO} from "../DTOs/users/BlockedUserResponseDTO";
+import {User} from "../models/User";
+import {UserCreateDTO} from "../DTOs/users/UserCreateDTO";
 
 class UserDAL {
+
+    save = async (newUser: UserCreateDTO): Promise<number> => {
+        try {
+            console.log(`essai save user : ` + JSON.stringify(newUser));
+            const [userId] = await db('users').insert(newUser).returning('id');
+            console.log(`Nouvel utilisateur save avec id ${userId}`);
+            return userId;
+        } catch (e) {
+            console.error("Erreur lors de l'insertion de l'utilisateur:", e);
+            throw e;
+        }
+    }
+
     findAll = async (): Promise<UserLightResponseDTO[]> => {
         try {
             const users = await db('users')
