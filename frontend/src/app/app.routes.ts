@@ -14,7 +14,7 @@ export const routes: Routes = [
     path: '',
     component: DashboardComponent,
     children: [
-      // { path: 'home', loadComponent: () => import('./home/home.component').then(m => m.HomeComponent) },
+      { path: 'home', loadComponent: () => import('./home/home.component').then(m => m.HomeComponent) },
       // { path: 'nearby', loadComponent: () => import('./nearby/nearby.component').then(m => m.NearbyComponent) },
       // { path: 'chats', loadComponent: () => import('./chats/chats.component').then(m => m.ChatsComponent) },
       // { path: 'notifications', loadComponent: () => import('./notifications/notifications.component').then(m => m.NotificationsComponent) },
