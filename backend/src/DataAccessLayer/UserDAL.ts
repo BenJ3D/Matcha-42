@@ -1,17 +1,19 @@
 import db from "../config/knexConfig";
-import {UserLightResponseDTO} from "../DTOs/users/UserLightResponseDTO";
-import {UserResponseDTO} from "../DTOs/users/UserResponseDTO";
+import {BlockedUserResponseDto} from "../DTOs/users/BlockedUserResponseDto";
+import {UserLightResponseDto} from "../DTOs/users/UserLightResponseDto";
+import {UserResponseDto} from "../DTOs/users/UserResponseDto";
+import {UserCreateDto} from "../DTOs/users/UserCreateDto";
 import {Tag} from "../models/Tags";
-import {BlockedUserResponseDTO} from "../DTOs/users/BlockedUserResponseDTO";
-import {User} from "../models/User";
-import {UserCreateDTO} from "../DTOs/users/UserCreateDTO";
+import {UserLoginPasswordCheckDto} from "../DTOs/users/UserLoginPasswordCheckDto";
 
 class UserDAL {
-
-    save = async (newUser: UserCreateDTO): Promise<number> => {
+    save = async (newUser: UserCreateDto): Promise<number> => {
         try {
+
+            console.log('Coucou userDAL')
             console.log(`essai save user : ` + JSON.stringify(newUser));
             const [userId] = await db('users').insert(newUser).returning('id');
+            console.log('Coucou INSERT userDAL')
             console.log(`Nouvel utilisateur save avec id ${userId}`);
             return userId;
         } catch (e) {
@@ -20,7 +22,7 @@ class UserDAL {
         }
     }
 
-    findAll = async (): Promise<UserLightResponseDTO[]> => {
+    findAll = async (): Promise<UserLightResponseDto[]> => {
         try {
             const users = await db('users')
                 .select(
@@ -55,7 +57,7 @@ class UserDAL {
         }
     }
 
-    findOne = async (id: number): Promise<UserResponseDTO | null> => {
+    findOne = async (id: number): Promise<UserResponseDto | null> => {
         try {
             const user = await db('users')
                 .select(
@@ -118,7 +120,7 @@ class UserDAL {
                 .leftJoin('photos', 'profiles.main_photo_id', 'photos.photo_id')
                 .where('blocked_users.blocker_id', id);
 
-            const blocked: BlockedUserResponseDTO[] = blockedUsers.map(blockedUser => ({
+            const blocked: BlockedUserResponseDto[] = blockedUsers.map(blockedUser => ({
                 id: blockedUser.id,
                 username: blockedUser.username,
                 main_photo_url: blockedUser.main_photo_url || null,
@@ -151,7 +153,7 @@ class UserDAL {
                 photos: photos,
                 tags: tags,
                 blocked: blocked // Ajout des utilisateurs bloqués avec la date de blocage
-            } as UserResponseDTO;
+            } as UserResponseDto;
 
         } catch (error) {
             console.error("Error fetching user:", error);
@@ -159,7 +161,16 @@ class UserDAL {
         }
     }
 
-    private getUserLightResponseList = async (userRows: { id: number }[]): Promise<UserLightResponseDTO[]> => {
+    async findOneByEmail(email: string): Promise<UserLoginPasswordCheckDto | null> {
+        try {
+            return await db('users').select('id', 'email', 'password').where('email', email).first();
+        } catch (e) {
+            console.error("Error fetching users:", e);
+            throw new Error("Could not fetch users");
+        }
+    }
+
+    private getUserLightResponseList = async (userRows: { id: number }[]): Promise<UserLightResponseDto[]> => {
         return Promise.all(userRows.map(async ({id}) => {
             const user = await db('users')
                 .select('id', 'username', 'last_name', 'first_name')
@@ -174,7 +185,7 @@ class UserDAL {
                 main_photo_url: mainPhotoUrl || null,
                 age: user.age,
                 gender: user.gender
-            } as UserLightResponseDTO;
+            } as UserLightResponseDto;
         }));
     }
 

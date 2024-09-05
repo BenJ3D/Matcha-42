@@ -1,4 +1,4 @@
-export interface UserCreateDTO {
+export interface UserCreateDto {
     username: string;
     last_name: string;
     first_name: string;

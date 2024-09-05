@@ -1,20 +1,22 @@
 import userDAL from "../DataAccessLayer/UserDAL";
-import {UserLightResponseDTO} from "../DTOs/users/UserLightResponseDTO";
-import {UserResponseDTO} from "../DTOs/users/UserResponseDTO";
-import {UserCreateDTO} from "../DTOs/users/UserCreateDTO";
+import {UserLightResponseDto} from "../DTOs/users/UserLightResponseDto";
+import {UserResponseDto} from "../DTOs/users/UserResponseDto";
+import {UserCreateDto} from "../DTOs/users/UserCreateDto";
 import {PasswordService} from "./PasswordService";
 
 class UserServices {
-    async getAllUsers(): Promise<UserLightResponseDTO[]> {
+    async getAllUsers(): Promise<UserLightResponseDto[]> {
         return await userDAL.findAll();
     }
 
-    async getUserById(id: number): Promise<UserResponseDTO | null> {
+    async getUserById(id: number): Promise<UserResponseDto | null> {
         return await userDAL.findOne(id);
     }
 
-    async createUser(newUser: UserCreateDTO): Promise<number> {
+    async createUser(newUser: UserCreateDto): Promise<number> {
+        console.log('Coucou createUser');
         newUser.password = await PasswordService.hashPassword(newUser.password);
+        console.log('Coucou createUser 2');
         return await userDAL.save(newUser);
     }
 }
