@@ -13,9 +13,14 @@ class UserDAL {
             const [userId] = await db('users').insert(newUser).returning('id');
             console.log(`Nouvel utilisateur save avec id ${userId}`);
             return userId;
-        } catch (e) {
-            console.error("Erreur lors de l'insertion de l'utilisateur:", e);
-            throw e;
+        } catch (e: any) {
+            if (e.code === '23505') {  // Code PostgreSQL pour violation d'unicité
+                console.error("Erreur: utilisateur déjà présent en base de données.", e);
+                throw {status: 409, message: "L'email existe déjà."};
+            } else {
+                console.error("Erreur lors de l'insertion de l'utilisateur:", e);
+                throw {status: 500, message: "Erreur interne du serveur."};
+            }
         }
     }
 
@@ -153,7 +158,7 @@ class UserDAL {
             } as UserResponseDto;
 
         } catch (error) {
-            console.error("Error fetching user:", error);
+            console.error("Error fetching suser:", error);
             throw new Error(`Could not fetch user id ${id}`);
         }
     }

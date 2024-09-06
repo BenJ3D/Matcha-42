@@ -36,13 +36,11 @@ const userController = {
             return res.status(400).json({error: "Validation échouée", details: error.details});
         }
         try {
-            console.log('Coucou userController');
             // Insertion dans la base via le DAL
             const userId = await userServices.createUser(newUser);
             return res.status(201).json({userId});
         } catch (e: any) {
-            res.status(500).json({error: e.message});
-
+            res.status(e.status || 500).json({error: e.message});
         }
     }
 
