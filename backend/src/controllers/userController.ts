@@ -2,8 +2,9 @@ import {Request, Response} from 'express';
 import UserServices from '../services/UserServices';
 import {UserLightResponseDto} from "../DTOs/users/UserLightResponseDto";
 import {UserResponseDto} from "../DTOs/users/UserResponseDto";
-import {UserCreateSchema} from "../DTOs/users/UserCreateDtoValidation";
+import {UserCreateDtoValidation} from "../DTOs/users/UserCreateDtoValidation";
 import userServices from "../services/UserServices";
+import {UserUpdateDtoValidation} from "../DTOs/users/UserUpdateDtoValidation";
 
 const userController = {
     getAllUsers: async (req: Request, res: Response) => {
@@ -31,7 +32,7 @@ const userController = {
     },
 
     createUser: async (req: Request, res: Response) => {
-        const {error, value: newUser} = UserCreateSchema.validate(req.body);
+        const {error, value: newUser} = UserCreateDtoValidation.validate(req.body);
         if (error) {
             return res.status(400).json({error: "Validation échouée", details: error.details});
         }
@@ -42,7 +43,39 @@ const userController = {
         } catch (e: any) {
             res.status(e.status || 500).json({error: e.message});
         }
+    },
+
+    updateUser: async (req: Request, res: Response) => {
+        // Valider les données du corps de la requête
+        const {error, value: updateUser} = UserUpdateDtoValidation.validate(req.body);
+
+        if (error) {
+            return res.status(400).json({error: "Validation échouée", details: error.details});
+        }
+
+        try {
+            const userId = parseInt(req.params.id, 10);
+
+            // Vérifier si l'utilisateur existe
+            const existingUser = await userServices.getUserById(userId);
+            if (!existingUser) {
+                return res.status(404).json({message: "Utilisateur non trouvé."});
+            }
+
+            // Mettre à jour l'utilisateur
+            await userServices.updateUser(userId, updateUser);
+            return res.status(200).json({message: "Utilisateur mis à jour avec succès."});
+
+        } catch (e: any) {
+            if (e.code === '23505') {  // Violation d'unicité (par exemple, email déjà pris)
+                return res.status(409).json({error: "Cet email est déjà pris."});
+            }
+
+            // Retourner une erreur générique en cas de problème inattendu
+            res.status(e.status || 500).json({error: e.message || "Erreur interne du serveur."});
+        }
     }
+
 
 };
 

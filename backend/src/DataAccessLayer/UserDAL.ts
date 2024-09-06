@@ -5,8 +5,42 @@ import {UserResponseDto} from "../DTOs/users/UserResponseDto";
 import {UserCreateDto} from "../DTOs/users/UserCreateDto";
 import {Tag} from "../models/Tags";
 import {UserLoginPasswordCheckDto} from "../DTOs/users/UserLoginPasswordCheckDto";
+import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
 
 class UserDAL {
+
+    update = async (userId: number, userUpdate: UserUpdateDto): Promise<void> => {
+        try {
+            // Vérifie si l'utilisateur existe avant de tenter la mise à jour
+            const user = await db('users').where('id', userId).first();
+            if (!user) {
+                throw {status: 404, message: "Utilisateur non trouvé."};
+            }
+
+            // Effectuer la mise à jour
+            await db('users')
+                .where('id', userId)
+                .update(userUpdate);
+
+            console.log(`Utilisateur avec id ${userId} mis à jour.`);
+
+        } catch (e: any) {
+            if (e.code === '23505') {  // Violation d'unicité (par ex. email déjà pris)
+                console.error("Erreur: email déjà utilisé par un autre utilisateur.", e);
+                throw {status: 409, message: "Cet email est déjà pris."};
+            } else if (e.code === '23503') {  // Violation de contrainte de clé étrangère
+                console.error("Erreur: contrainte de clé étrangère non respectée.", e);
+                throw {status: 400, message: "La mise à jour viole une contrainte de clé étrangère."};
+            } else if (e.status === 404) {  // Cas où l'utilisateur n'est pas trouvé
+                console.error("Erreur: utilisateur non trouvé.", e);
+                throw e;  // La relancer directement
+            } else {
+                console.error("Erreur lors de la mise à jour de l'utilisateur:", e);
+                throw {status: 500, message: "Erreur interne du serveur."};
+            }
+        }
+    };
+
     save = async (newUser: UserCreateDto): Promise<number> => {
         try {
 

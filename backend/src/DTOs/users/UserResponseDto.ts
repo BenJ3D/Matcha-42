@@ -9,7 +9,6 @@ export interface UserResponseDto extends UserLightResponseDto {
     email: string;
     created_at: Date;
     profile_id: number;
-    owner_user_id: number;
     biography: string;
     gender: number;
     age: number;
