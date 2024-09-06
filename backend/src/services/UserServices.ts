@@ -14,9 +14,7 @@ class UserServices {
     }
 
     async createUser(newUser: UserCreateDto): Promise<number> {
-        console.log('Coucou createUser');
         newUser.password = await PasswordService.hashPassword(newUser.password);
-        console.log('Coucou createUser 2');
         return await userDAL.save(newUser);
     }
 }

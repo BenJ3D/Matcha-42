@@ -10,10 +10,7 @@ class UserDAL {
     save = async (newUser: UserCreateDto): Promise<number> => {
         try {
 
-            console.log('Coucou userDAL')
-            console.log(`essai save user : ` + JSON.stringify(newUser));
             const [userId] = await db('users').insert(newUser).returning('id');
-            console.log('Coucou INSERT userDAL')
             console.log(`Nouvel utilisateur save avec id ${userId}`);
             return userId;
         } catch (e) {
