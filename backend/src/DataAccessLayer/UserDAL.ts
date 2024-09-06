@@ -223,6 +223,53 @@ class UserDAL {
         }
     }
 
+    async advancedSearch(filters: {
+        ageMin?: number;
+        ageMax?: number;
+        fameMin?: number;
+        fameMax?: number;
+        location?: string;
+        tags?: number[];
+    }): Promise<any[]> {
+        const query = db('users')
+            .select(
+                'users.id',
+                'users.username',
+                'profiles.age',
+                'profiles.fame_rating',  // Utilisation de fame_rating depuis profiles
+                'locations.city_name',
+                db.raw('ARRAY_AGG(tags.tag_name) AS interests')
+            )
+            .join('profiles', 'users.id', 'profiles.owner_user_id')
+            .leftJoin('locations', 'profiles.location', 'locations.location_id')
+            .leftJoin('profile_tag', 'profiles.profile_id', 'profile_tag.profile_id')
+            .leftJoin('tags', 'profile_tag.profile_tag', 'tags.tag_id')
+            .groupBy('users.id', 'profiles.age', 'profiles.fame_rating', 'locations.city_name');
+
+        // Appliquer les filtres dynamiquement
+        if (filters.ageMin !== undefined) {
+            query.where('profiles.age', '>=', filters.ageMin);
+        }
+        if (filters.ageMax !== undefined) {
+            query.where('profiles.age', '<=', filters.ageMax);
+        }
+        if (filters.fameMin !== undefined) {
+            query.where('profiles.fame_rating', '>=', filters.fameMin);
+        }
+        if (filters.fameMax !== undefined) {
+            query.where('profiles.fame_rating', '<=', filters.fameMax);
+        }
+        if (filters.location) {
+            query.where('locations.city_name', 'ILIKE', `%${filters.location}%`);
+        }
+        if (filters.tags && filters.tags.length > 0) {
+            query.whereIn('tags.tag_id', filters.tags);
+        }
+
+        return await query;
+    }
+
+
     private getUserLightResponseList = async (userRows: { id: number }[]): Promise<UserLightResponseDto[]> => {
         return Promise.all(userRows.map(async ({id}) => {
             const user = await db('users')

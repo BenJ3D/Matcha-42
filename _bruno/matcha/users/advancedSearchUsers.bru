@@ -1,0 +1,16 @@
+meta {
+  name: advancedSearchUsers
+  type: http
+  seq: 6
+}
+
+get {
+  url: http://localhost:8000/api/users/search/?ageMax=30&ageMin=25
+  body: none
+  auth: none
+}
+
+params:query {
+  ageMax: 30
+  ageMin: 25
+}

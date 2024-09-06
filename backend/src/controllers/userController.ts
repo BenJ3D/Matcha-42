@@ -88,6 +88,35 @@ const userController = {
         }
     },
 
+    advancedSearch: async (req: Request, res: Response) => {
+        try {
+            const {
+                ageMin,
+                ageMax,
+                fameMin,
+                fameMax,
+                location,
+                tags // Tags attendus sous forme de tableau
+            } = req.query;
+
+            // Convertir les critères en types corrects
+            const ageMinInt = ageMin ? parseInt(ageMin as string, 10) : undefined;
+            const ageMaxInt = ageMax ? parseInt(ageMax as string, 10) : undefined;
+            const fameMinInt = fameMin ? parseInt(fameMin as string, 10) : undefined;
+            const fameMaxInt = fameMax ? parseInt(fameMax as string, 10) : undefined;
+            const tagsArray = tags ? (tags as string).split(',').map(Number) : undefined;
+
+            const results = await userServices.advancedSearch(
+                ageMinInt, ageMaxInt, fameMinInt, fameMaxInt, location as string, tagsArray
+            );
+
+            return res.json(results);
+        } catch (error: any) {
+            console.error("Erreur lors de la recherche avancée:", error);
+            res.status(500).json({error: 'Erreur lors de la recherche avancée'});
+        }
+    }
+
 
 };
 

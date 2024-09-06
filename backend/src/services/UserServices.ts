@@ -26,6 +26,18 @@ class UserServices {
     async deleteUser(userId: number): Promise<void> {
         return await userDAL.delete(userId);
     }
+
+    async advancedSearch(
+        ageMin?: number,
+        ageMax?: number,
+        fameMin?: number,
+        fameMax?: number,
+        location?: string,
+        tags?: number[]
+    ): Promise<any[]> {
+        const filters = {ageMin, ageMax, fameMin, fameMax, location, tags};
+        return await userDAL.advancedSearch(filters);
+    }
 }
 
 export default new UserServices();
