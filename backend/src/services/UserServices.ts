@@ -22,6 +22,10 @@ class UserServices {
     async updateUser(userId: number, userUpdate: UserUpdateDto): Promise<void> {
         return await userDAL.update(userId, userUpdate);
     }
+
+    async deleteUser(userId: number): Promise<void> {
+        return await userDAL.delete(userId);
+    }
 }
 
 export default new UserServices();

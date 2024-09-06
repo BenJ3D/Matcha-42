@@ -58,6 +58,23 @@ class UserDAL {
         }
     }
 
+    delete = async (userId: number): Promise<void> => {
+        try {
+            // Vérifie si l'utilisateur existe avant de tenter la suppression
+            const user = await db('users').where('id', userId).first();
+            if (!user) {
+                throw {status: 404, message: "Utilisateur non trouvé."};
+            }
+
+            // Suppression de l'utilisateur
+            await db('users').where('id', userId).del();
+            console.log(`Utilisateur avec id ${userId} supprimé.`);
+        } catch (e: any) {
+            console.error(`Erreur lors de la suppression de l'utilisateur avec id ${userId}:`, e);
+            throw {status: e.status || 500, message: e.message || "Erreur interne du serveur."};
+        }
+    }
+
     findAll = async (): Promise<UserLightResponseDto[]> => {
         try {
             const users = await db('users')

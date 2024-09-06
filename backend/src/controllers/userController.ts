@@ -20,6 +20,9 @@ const userController = {
     getUserById: async (req: Request, res: Response) => {
         try {
             const userId = parseInt(req.params.id, 10);
+            if (isNaN(userId)) {
+                return res.status(400).json({message: 'Invalid user ID'});
+            }
             const user: UserResponseDto | null = await UserServices.getUserById(userId);
             if (!user) {
                 return res.status(404).json({message: 'User not found'});
@@ -37,7 +40,6 @@ const userController = {
             return res.status(400).json({error: "Validation échouée", details: error.details});
         }
         try {
-            // Insertion dans la base via le DAL
             const userId = await userServices.createUser(newUser);
             return res.status(201).json({userId});
         } catch (e: any) {
@@ -46,7 +48,6 @@ const userController = {
     },
 
     updateUser: async (req: Request, res: Response) => {
-        // Valider les données du corps de la requête
         const {error, value: updateUser} = UserUpdateDtoValidation.validate(req.body);
 
         if (error) {
@@ -56,13 +57,11 @@ const userController = {
         try {
             const userId = parseInt(req.params.id, 10);
 
-            // Vérifier si l'utilisateur existe
             const existingUser = await userServices.getUserById(userId);
             if (!existingUser) {
                 return res.status(404).json({message: "Utilisateur non trouvé."});
             }
 
-            // Mettre à jour l'utilisateur
             await userServices.updateUser(userId, updateUser);
             return res.status(200).json({message: "Utilisateur mis à jour avec succès."});
 
@@ -71,10 +70,23 @@ const userController = {
                 return res.status(409).json({error: "Cet email est déjà pris."});
             }
 
-            // Retourner une erreur générique en cas de problème inattendu
             res.status(e.status || 500).json({error: e.message || "Erreur interne du serveur."});
         }
-    }
+    },
+
+    deleteUser: async (req: Request, res: Response) => {
+        try {
+            const userId = parseInt(req.params.id, 10);
+            if (isNaN(userId)) {
+                return res.status(400).json({message: 'Invalid user ID'});
+            }
+
+            await userServices.deleteUser(userId);
+            return res.status(200).json({message: "Utilisateur supprimé avec succès."});
+        } catch (e: any) {
+            res.status(e.status || 500).json({error: e.message || "Erreur interne du serveur."});
+        }
+    },
 
 
 };
