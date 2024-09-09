@@ -5,12 +5,16 @@ meta {
 }
 
 get {
-  url: http://localhost:8000/api/users/search/?ageMax=30&ageMin=25
+  url: http://localhost:8000/api/users/search/?sexualPreferences=6,7
   body: none
   auth: none
 }
 
 params:query {
-  ageMax: 30
-  ageMin: 25
+  sexualPreferences: 6,7
+  ~location: Oullins
+  ~ageMax: 30
+  ~ageMin: 25
+  ~fameMin: 5
+  ~fameMax: 6
 }

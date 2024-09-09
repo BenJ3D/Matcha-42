@@ -6,6 +6,7 @@ import {UserCreateDto} from "../DTOs/users/UserCreateDto";
 import {Tag} from "../models/Tags";
 import {UserLoginPasswordCheckDto} from "../DTOs/users/UserLoginPasswordCheckDto";
 import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
+import {User} from "../models/User";
 
 class UserDAL {
 
@@ -110,6 +111,7 @@ class UserDAL {
         }
     }
 
+
     findOne = async (id: number): Promise<UserResponseDto | null> => {
         try {
             const user = await db('users')
@@ -124,6 +126,7 @@ class UserDAL {
                     'profiles.biography',
                     'profiles.gender',
                     'profiles.age',
+                    'profiles.fame_rating',  // Assurez-vous de récupérer correctement fame_rating
                     'profiles.main_photo_id',
                     'profiles.last_connection',
                     'photos.url as main_photo_url',
@@ -198,6 +201,7 @@ class UserDAL {
                     longitude: parseFloat(user.longitude),
                     city_name: user.city_name
                 },
+                fame_rating: user.fame_rating,  // Correction pour s'assurer que fame_rating est bien pris en compte
                 last_connection: user.last_connection,
                 main_photo_url: user.main_photo_url,
                 likers: likers,
@@ -205,14 +209,14 @@ class UserDAL {
                 matchers: matchers,
                 photos: photos,
                 tags: tags,
-                blocked: blocked // Ajout des utilisateurs bloqués avec la date de blocage
+                blocked: blocked  // Ajout des utilisateurs bloqués avec la date de blocage
             } as UserResponseDto;
 
         } catch (error) {
-            console.error("Error fetching suser:", error);
+            console.error("Error fetching user:", error);  // Correction du message d'erreur
             throw new Error(`Could not fetch user id ${id}`);
         }
-    }
+    };
 
     async findOneByEmail(email: string): Promise<UserLoginPasswordCheckDto | null> {
         try {
@@ -230,13 +234,14 @@ class UserDAL {
         fameMax?: number;
         location?: string;
         tags?: number[];
+        preferredGenders?: number[];
     }): Promise<any[]> {
         const query = db('users')
             .select(
                 'users.id',
                 'users.username',
                 'profiles.age',
-                'profiles.fame_rating',  // Utilisation de fame_rating depuis profiles
+                'profiles.fame_rating',
                 'locations.city_name',
                 db.raw('ARRAY_AGG(tags.tag_name) AS interests')
             )
@@ -266,8 +271,78 @@ class UserDAL {
             query.whereIn('tags.tag_id', filters.tags);
         }
 
+        // Filtrer par préférences sexuelles si spécifiées
+        if (filters.preferredGenders && filters.preferredGenders.length > 0) {
+            query.whereIn('profiles.gender', filters.preferredGenders);
+        }
+
         return await query;
     }
+
+
+    // async findAllWithFilters(
+    //     userSearch: UserResponseDto,
+    //     age?: [number, number],
+    //     location?: { latitude: number; longitude: number },
+    //     deltaRating?: number,
+    //     tags?: Tag[]
+    // ): Promise<UserLightResponseDto[]> {
+    //     const query = db('users')
+    //         .select(
+    //             'users.id',
+    //             'users.username',
+    //             'photos.url as main_photo_url',
+    //             'profiles.age',
+    //             'profiles.gender',
+    //             'profiles.fame_rating',
+    //             'locations.latitude',
+    //             'locations.longitude',
+    //             'locations.city_name',
+    //             db.raw('ARRAY_AGG(tags.tag_name) AS interests')
+    //         )
+    //         .leftJoin('profiles', 'users.id', 'profiles.owner_user_id')
+    //         .leftJoin('photos', 'profiles.main_photo_id', 'photos.photo_id')
+    //         .leftJoin('locations', 'profiles.location', 'locations.location_id')
+    //         .leftJoin('profile_tag', 'profiles.profile_id', 'profile_tag.profile_id')
+    //         .leftJoin('tags', 'profile_tag.profile_tag', 'tags.tag_id')
+    //         .groupBy('users.id', 'profiles.age', 'profiles.gender', 'profiles.fame_rating', 'locations.city_name');
+    //
+    //     // Filtre par préférence sexuelle
+    //     const userGender = userSearch.gender;
+    //     if (userSearch.tags) {
+    //         query.whereIn('tags.tag_id', userSearch.tags.map(tag => tag.tag_id));
+    //     }
+    //
+    //     // Logique pour filtrer par orientation sexuelle
+    //     if (userSearch.gender === 1) {
+    //         // Exemple pour les hommes intéressés par les femmes, à ajuster selon les préférences
+    //         query.where('profiles.gender', '=', 2); // Filtres basés sur la préférence du genre
+    //     } else if (userSearch.gender === 2) {
+    //         query.where('profiles.gender', '=', 1);
+    //     }
+    //
+    //     // Filtre par âge
+    //     if (age) {
+    //         query.where('profiles.age', '>=', age[0])
+    //             .where('profiles.age', '<=', age[1]);
+    //     }
+    //
+    //     // Filtre par "fame rating"
+    //     if (deltaRating) {
+    //         query.where('profiles.fame_rating', '>=', userSearch.fame_rating - deltaRating)
+    //             .where('profiles.fame_rating', '<=', userSearch.fame_rating + deltaRating);
+    //     }
+    //
+    //     // Filtre par localisation (à ajuster pour une recherche par distance)
+    //     if (location) {
+    //         query.where('locations.latitude', '>=', location.latitude - 0.1)
+    //             .where('locations.latitude', '<=', location.latitude + 0.1)
+    //             .where('locations.longitude', '>=', location.longitude - 0.1)
+    //             .where('locations.longitude', '<=', location.longitude + 0.1);
+    //     }
+    //
+    //     return await query;
+    // }
 
 
     private getUserLightResponseList = async (userRows: { id: number }[]): Promise<UserLightResponseDto[]> => {

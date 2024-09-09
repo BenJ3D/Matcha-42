@@ -17,6 +17,7 @@ class UserServices {
     async createUser(newUser: UserCreateDto): Promise<number> {
         newUser.password = await PasswordService.hashPassword(newUser.password);
         return await userDAL.save(newUser);
+        231
     }
 
     async updateUser(userId: number, userUpdate: UserUpdateDto): Promise<void> {
@@ -33,9 +34,10 @@ class UserServices {
         fameMin?: number,
         fameMax?: number,
         location?: string,
-        tags?: number[]
+        tags?: number[],
+        preferredGenders?: number[]
     ): Promise<any[]> {
-        const filters = {ageMin, ageMax, fameMin, fameMax, location, tags};
+        const filters = {ageMin, ageMax, fameMin, fameMax, location, tags, preferredGenders};
         return await userDAL.advancedSearch(filters);
     }
 }

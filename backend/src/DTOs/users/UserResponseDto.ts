@@ -20,6 +20,7 @@ export interface UserResponseDto extends UserLightResponseDto {
         longitude: number;
         city_name?: string;
     };
+    fame_rating: number;
     last_connection?: Date;
     likers?: UserLightResponseDto[];
     visitors?: UserLightResponseDto[];

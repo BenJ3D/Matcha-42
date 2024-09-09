@@ -314,6 +314,7 @@ CREATE TABLE "public"."profiles" (
     "main_photo_id" integer,
     "location" integer,
     "last_connection" timestamp,
+    "fame_rating" integer DEFAULT 0,
     CONSTRAINT "profile_onwer_user_id_key" UNIQUE ("owner_user_id"),
     CONSTRAINT "profile_pkey" PRIMARY KEY ("profile_id")
 ) WITH (oids = false);
@@ -321,11 +322,11 @@ CREATE TABLE "public"."profiles" (
 COMMENT ON COLUMN "public"."profiles"."location" IS 'Contient les coordonnées GPS du quartier utilisateur';
 
 TRUNCATE "profiles";
-INSERT INTO "profiles" ("profile_id", "owner_user_id", "biography", "gender", "age", "main_photo_id", "location", "last_connection") VALUES
-(2,	2,	'Ouuep je mappel Bruno',	5,	25,	6,	NULL,	NULL),
-(4,	4,	'HOlaaaaaaa',	6,	29,	17,	NULL,	NULL),
-(1,	1,	'je mappel ben bonjour blablabal bal abla bla',	5,	34,	2,	1,	NULL),
-(3,	3,	'Bonjour a tous :)',	6,	24,	13,	2,	NULL);
+INSERT INTO "profiles" ("profile_id", "owner_user_id", "biography", "gender", "age", "main_photo_id", "location", "last_connection", "fame_rating") VALUES
+(2,	2,	'Ouuep je mappel Bruno',	5,	25,	6,	NULL,	NULL, 6),
+(4,	4,	'HOlaaaaaaa',	6,	29,	17,	NULL,	NULL, 5),
+(1,	1,	'je mappel ben bonjour blablabal bal abla bla',	5,	34,	2,	1,	NULL, 9),
+(3,	3,	'Bonjour a tous :)',	6,	24,	13,	2,	NULL, 2);
 
 SELECT setval('profile_profile_id_seq', (SELECT MAX(profile_id) FROM profiles));
 

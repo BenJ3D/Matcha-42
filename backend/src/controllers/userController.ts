@@ -96,7 +96,8 @@ const userController = {
                 fameMin,
                 fameMax,
                 location,
-                tags // Tags attendus sous forme de tableau
+                tags, // Tags attendus sous forme de tableau
+                sexualPreferences // Paramètre pour les préférences sexuelles
             } = req.query;
 
             // Convertir les critères en types corrects
@@ -105,9 +106,16 @@ const userController = {
             const fameMinInt = fameMin ? parseInt(fameMin as string, 10) : undefined;
             const fameMaxInt = fameMax ? parseInt(fameMax as string, 10) : undefined;
             const tagsArray = tags ? (tags as string).split(',').map(Number) : undefined;
+            const sexualPreferencesArray = sexualPreferences ? (sexualPreferences as string).split(',').map(Number) : undefined;
 
             const results = await userServices.advancedSearch(
-                ageMinInt, ageMaxInt, fameMinInt, fameMaxInt, location as string, tagsArray
+                ageMinInt,
+                ageMaxInt,
+                fameMinInt,
+                fameMaxInt,
+                location as string,
+                tagsArray,
+                sexualPreferencesArray // Utiliser le bon paramètre ici
             );
 
             return res.json(results);
