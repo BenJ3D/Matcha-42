@@ -1,8 +1,8 @@
 import {query} from './config/db';
 import express from 'express';
 import config from './config/config';
-import routes from './routes/indexRoutes'; // Importez le routeur centralisé
-import {QueryResult} from 'pg'; // Importez les types de pg si nécessaire
+import routes from './routes/indexRoutes';
+import {QueryResult} from 'pg';
 
 const PORT = config.port || 8000;
 const DATABASE_URL = config.database_url;

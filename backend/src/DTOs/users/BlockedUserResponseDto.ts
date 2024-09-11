@@ -1,4 +1,4 @@
-export interface BlockedUserResponseDTO {
+export interface BlockedUserResponseDto {
     id: number;
     username: string;
     main_photo_url: string;

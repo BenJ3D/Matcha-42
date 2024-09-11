@@ -25,6 +25,9 @@ restart: down up
 logs:
 	$(DOCKER_COMPOSE) logs -f
 
+runlog:
+	$(DOCKER_COMPOSE) up --build
+
 prune:
 	docker system prune -af
 

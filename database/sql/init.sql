@@ -19,6 +19,9 @@ TRUNCATE "blocked_users";
 INSERT INTO "blocked_users" ("id", "blocker_id", "blocked_id", "blocked_at") VALUES
 (1,	1,	5,	'2024-08-30 16:23:50.336874');
 
+SELECT setval('blocked_users_id_seq', (SELECT MAX(id) FROM blocked_users));
+
+
 DROP TABLE IF EXISTS "fake_user_repoting";
 DROP SEQUENCE IF EXISTS fake_user_repoting_id_seq;
 CREATE SEQUENCE fake_user_repoting_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
@@ -36,6 +39,9 @@ TRUNCATE "fake_user_repoting";
 INSERT INTO "fake_user_repoting" ("id", "user_who_reported", "reported_user", "reported_at") VALUES
 (2,	1,	5,	'2024-08-30 13:57:26.768062'),
 (1,	2,	5,	'2024-08-30 13:57:44.598757');
+
+SELECT setval('fake_user_repoting_id_seq', (SELECT MAX(id) FROM fake_user_repoting));
+
 
 DROP TABLE IF EXISTS "genders";
 DROP SEQUENCE IF EXISTS gender_gender_id_seq;
@@ -62,6 +68,9 @@ INSERT INTO "genders" ("gender_id", "name", "description") VALUES
 (13,	'Transgender (FTM)',	'Assigned female at birth, identifies as male'),
 (14,	'Questioning',	'Exploring or questioning their gender identity');
 
+SELECT setval('gender_gender_id_seq', (SELECT MAX(gender_id) FROM genders));
+
+
 DROP TABLE IF EXISTS "likes";
 DROP SEQUENCE IF EXISTS likes_like_id_seq;
 CREATE SEQUENCE likes_like_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
@@ -79,6 +88,9 @@ INSERT INTO "likes" ("like_id", "user", "user_liked") VALUES
 (1,	1,	3),
 (3,	1,	4),
 (4,	3,	1);
+
+SELECT setval('likes_like_id_seq', (SELECT MAX(like_id) FROM likes));
+
 
 DROP TABLE IF EXISTS "locations";
 DROP SEQUENCE IF EXISTS locations_location_id_seq;
@@ -141,6 +153,9 @@ INSERT INTO "locations" ("location_id", "latitude", "longitude", "city_name") VA
 (51,	49.894067,	2.295753,	'Amiens'),
 (52,	47.902733,	1.909020,	'Orléans');
 
+SELECT setval('locations_location_id_seq', (SELECT MAX(location_id) FROM locations));
+
+
 DROP TABLE IF EXISTS "matches";
 DROP SEQUENCE IF EXISTS matches_match_id_seq;
 CREATE SEQUENCE matches_match_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
@@ -158,6 +173,8 @@ TRUNCATE "matches";
 INSERT INTO "matches" ("match_id", "user_1", "user_2", "matched_at") VALUES
 (1,	1,	3,	'2024-08-30 13:35:14.181296');
 
+SELECT setval('matches_match_id_seq', (SELECT MAX(match_id) FROM matches));
+
 DROP TABLE IF EXISTS "messages";
 DROP SEQUENCE IF EXISTS messages_message_id_seq;
 CREATE SEQUENCE messages_message_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
@@ -172,6 +189,8 @@ CREATE TABLE "public"."messages" (
 ) WITH (oids = false);
 
 TRUNCATE "messages";
+
+SELECT setval('messages_message_id_seq', (SELECT MAX(message_id) FROM messages));
 
 DROP TABLE IF EXISTS "notifications";
 DROP SEQUENCE IF EXISTS notifications_notification_id_seq;
@@ -194,6 +213,9 @@ COMMENT ON COLUMN "public"."notifications"."source_user" IS 'Quel user est à l'
 TRUNCATE "notifications";
 INSERT INTO "notifications" ("notification_id", "target_user", "has_read", "notified_at", "type", "source_user") VALUES
 (1,	3,	'f',	'2024-08-30 14:25:23.631109',	'LIKE',	1);
+
+SELECT setval('notifications_notification_id_seq', (SELECT MAX(notification_id) FROM notifications));
+
 
 DROP TABLE IF EXISTS "photos";
 DROP SEQUENCE IF EXISTS picture_picture_id_seq;
@@ -231,6 +253,8 @@ INSERT INTO "photos" ("photo_id", "url", "description", "owner_user_id") VALUES
 (19,	'https://example.com/photos/profile4_photo4.jpg',	NULL,	4),
 (20,	'https://example.com/photos/profile4_photo5.jpg',	NULL,	4);
 
+SELECT setval('picture_picture_id_seq', (SELECT MAX(photo_id) FROM photos));
+
 DROP TABLE IF EXISTS "profile_sexual_preferences";
 DROP SEQUENCE IF EXISTS profile_sexual_preferences_id_seq;
 CREATE SEQUENCE profile_sexual_preferences_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
@@ -253,6 +277,8 @@ INSERT INTO "profile_sexual_preferences" ("id", "profile_id", "gender_id") VALUE
 (7,	4,	5),
 (8,	4,	13);
 
+SELECT setval('profile_sexual_preferences_id_seq', (SELECT MAX(id) FROM profile_sexual_preferences));
+
 DROP TABLE IF EXISTS "profile_tag";
 DROP SEQUENCE IF EXISTS profile_tag_id_seq;
 CREATE SEQUENCE profile_tag_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
@@ -272,6 +298,9 @@ INSERT INTO "profile_tag" ("id", "profile_id", "profile_tag") VALUES
 (4,	1,	98),
 (5,	3,	98);
 
+SELECT setval('profile_tag_id_seq', (SELECT MAX(id) FROM profile_tag));
+
+
 DROP TABLE IF EXISTS "profiles";
 DROP SEQUENCE IF EXISTS profile_profile_id_seq;
 CREATE SEQUENCE profile_profile_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
@@ -285,6 +314,7 @@ CREATE TABLE "public"."profiles" (
     "main_photo_id" integer,
     "location" integer,
     "last_connection" timestamp,
+    "fame_rating" integer DEFAULT 0,
     CONSTRAINT "profile_onwer_user_id_key" UNIQUE ("owner_user_id"),
     CONSTRAINT "profile_pkey" PRIMARY KEY ("profile_id")
 ) WITH (oids = false);
@@ -292,11 +322,13 @@ CREATE TABLE "public"."profiles" (
 COMMENT ON COLUMN "public"."profiles"."location" IS 'Contient les coordonnées GPS du quartier utilisateur';
 
 TRUNCATE "profiles";
-INSERT INTO "profiles" ("profile_id", "owner_user_id", "biography", "gender", "age", "main_photo_id", "location", "last_connection") VALUES
-(2,	2,	'Ouuep je mappel Bruno',	5,	25,	6,	NULL,	NULL),
-(4,	4,	'HOlaaaaaaa',	6,	29,	17,	NULL,	NULL),
-(1,	1,	'je mappel ben bonjour blablabal bal abla bla',	5,	34,	2,	1,	NULL),
-(3,	3,	'Bonjour a tous :)',	6,	24,	13,	2,	NULL);
+INSERT INTO "profiles" ("profile_id", "owner_user_id", "biography", "gender", "age", "main_photo_id", "location", "last_connection", "fame_rating") VALUES
+(2,	2,	'Ouuep je mappel Bruno',	5,	25,	6,	NULL,	NULL, 6),
+(4,	4,	'HOlaaaaaaa',	6,	29,	17,	NULL,	NULL, 5),
+(1,	1,	'je mappel ben bonjour blablabal bal abla bla',	5,	34,	2,	1,	NULL, 9),
+(3,	3,	'Bonjour a tous :)',	6,	24,	13,	2,	NULL, 2);
+
+SELECT setval('profile_profile_id_seq', (SELECT MAX(profile_id) FROM profiles));
 
 DROP TABLE IF EXISTS "sso_type";
 DROP SEQUENCE IF EXISTS sso_type_sso_id_seq;
@@ -312,6 +344,9 @@ CREATE TABLE "public"."sso_type" (
 COMMENT ON TABLE "public"."sso_type" IS 'stocker les differents type de SSO pris en charge (facebook + google ?)';
 
 TRUNCATE "sso_type";
+
+SELECT setval('sso_type_sso_id_seq', (SELECT MAX(sso_id) FROM sso_type));
+
 
 DROP TABLE IF EXISTS "tags";
 DROP SEQUENCE IF EXISTS tag_tag_id_seq;
@@ -504,6 +539,8 @@ INSERT INTO "tags" ("tag_id", "tag_name") VALUES
 (177,	'Softball player'),
 (178,	'Cheerleader');
 
+SELECT setval('tag_tag_id_seq', (SELECT MAX(tag_id) FROM tags));
+
 DROP TABLE IF EXISTS "users";
 DROP SEQUENCE IF EXISTS users_id_seq;
 CREATE SEQUENCE users_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
@@ -520,7 +557,8 @@ CREATE TABLE "public"."users" (
     "profile_id" integer,
     CONSTRAINT "user_email_key" UNIQUE ("email"),
     CONSTRAINT "user_pkey" PRIMARY KEY ("id"),
-    CONSTRAINT "user_username_key" UNIQUE ("username")
+    CONSTRAINT "user_username_key" UNIQUE ("username"),
+    CONSTRAINT "users_profile_id" UNIQUE ("profile_id")
 ) WITH (oids = false);
 
 COMMENT ON COLUMN "public"."users"."sso_type" IS 'Si bonus authentification via facebook, google.. Si NOT_NULL pas de password, si NULL, il faut un password';
@@ -532,6 +570,8 @@ INSERT INTO "users" ("id", "username", "last_name", "first_name", "email", "pass
 (4,	'Lulu84',	'NONNON',	'Lucienne',	'lucienne.nonnon@gmail.com',	'81dc9bdb52d04dc20036dbd8313ed055',	'2024-08-30 10:12:38.816452',	NULL,	4),
 (3,	'Celine63',	'OUIOUI',	'Céline',	'celine.ouioui@gmail.com',	'81dc9bdb52d04dc20036dbd8313ed055',	'2024-08-30 10:11:48.656352',	NULL,	3),
 (2,	'brunoFun',	'Funky',	'Bruno',	'bruno.fun@gmail.com',	'81dc9bdb52d04dc20036dbd8313ed055',	'2024-08-30 10:10:57.759031',	NULL,	2);
+
+SELECT setval('users_id_seq', (SELECT MAX(id) FROM users));
 
 DROP TABLE IF EXISTS "visited_profile_history";
 DROP SEQUENCE IF EXISTS visited_profile_history_id_seq;
@@ -551,6 +591,9 @@ INSERT INTO "visited_profile_history" ("id", "visiter", "visited") VALUES
 (3,	3,	1),
 (4,	2,	3),
 (5,	4,	1);
+
+SELECT setval('visited_profile_history_id_seq', (SELECT MAX(id) FROM visited_profile_history));
+
 
 ALTER TABLE ONLY "public"."blocked_users" ADD CONSTRAINT "blocked_users_users_id_fk" FOREIGN KEY (blocker_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
 ALTER TABLE ONLY "public"."blocked_users" ADD CONSTRAINT "blocked_users_users_id_fk_2" FOREIGN KEY (blocked_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;

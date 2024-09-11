@@ -1,0 +1,20 @@
+meta {
+  name: update user
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:8000/api/users/39
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "testv42@test.fr",
+    "last_name": "BLAM",
+    "first_name": "ouil"
+  }
+  
+}

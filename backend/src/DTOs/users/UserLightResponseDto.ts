@@ -1,4 +1,4 @@
-export interface UserLightResponseDTO {
+export interface UserLightResponseDto {
     id: number;
     username: string;
     main_photo_url: string;
