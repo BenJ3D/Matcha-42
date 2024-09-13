@@ -9,8 +9,8 @@ router.get('/search', UserController.advancedSearch);
  * @swagger
  * /users:
  *   post:
- *     summary: Créer un nouvel utilisateur
- *     description: Crée un nouvel utilisateur et renvoie l'ID de l'utilisateur créé.
+ *     summary: Crée un nouvel utilisateur
+ *     description: Crée un nouvel utilisateur dans l'application.
  *     tags:
  *       - Utilisateurs
  *     requestBody:
@@ -20,18 +20,37 @@ router.get('/search', UserController.advancedSearch);
  *           schema:
  *             type: object
  *             required:
+ *               - username
  *               - email
  *               - password
+ *               - first_name
+ *               - last_name
  *             properties:
+ *               username:
+ *                 type: string
+ *                 description: Le nom d'utilisateur
+ *                 example: userTest
  *               email:
  *                 type: string
+ *                 description: L'adresse email de l'utilisateur
+ *                 example: user.test@test.fr
  *               password:
  *                 type: string
+ *                 description: Le mot de passe de l'utilisateur
+ *                 example: 1234
+ *               first_name:
+ *                 type: string
+ *                 description: Le prénom de l'utilisateur
+ *                 example: Dupont
+ *               last_name:
+ *                 type: string
+ *                 description: Le nom de famille de l'utilisateur
+ *                 example: Pierre
  *     responses:
  *       201:
- *         description: Utilisateur créé avec succès.
+ *         description: Utilisateur créé
  *       400:
- *         description: Validation échouée.
+ *         description: Erreur dans les données fournies
  */
 router.post('/', UserController.createUser);
 
