@@ -1,13 +1,13 @@
 meta {
   name: update user
   type: http
-  seq: 4
+  seq: 5
 }
 
 put {
   url: http://localhost:8000/api/users/39
   body: json
-  auth: none
+  auth: inherit
 }
 
 body:json {
