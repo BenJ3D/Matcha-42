@@ -17,7 +17,6 @@ class UserServices {
     async createUser(newUser: UserCreateDto): Promise<number> {
         newUser.password = await PasswordService.hashPassword(newUser.password);
         return await userDAL.save(newUser);
-        231
     }
 
     async updateUser(userId: number, userUpdate: UserUpdateDto): Promise<void> {

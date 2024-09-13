@@ -5,6 +5,7 @@ import {UserResponseDto} from "../DTOs/users/UserResponseDto";
 import {UserCreateDtoValidation} from "../DTOs/users/UserCreateDtoValidation";
 import userServices from "../services/UserServices";
 import {UserUpdateDtoValidation} from "../DTOs/users/UserUpdateDtoValidation";
+import {AuthenticatedRequest} from "../middlewares/authMiddleware";
 
 const userController = {
     getAllUsers: async (req: Request, res: Response) => {
@@ -14,6 +15,27 @@ const userController = {
         } catch (error: any) {
             console.error("Error fetching users:", error);
             res.status(500).json({error: 'Could not fetch users'});
+        }
+    },
+
+    getMe: async (req: AuthenticatedRequest, res: Response) => {
+        try {
+            let userId: number;
+            if (!req.userId) {
+                return res.status(401).json({error: "Non Authenticated"});
+            }
+            userId = req.userId;
+            if (isNaN(userId)) {
+                return res.status(400).json({message: 'Invalid user ID'});
+            }
+            const user: UserResponseDto | null = await UserServices.getUserById(userId);
+            if (!user) {
+                return res.status(404).json({message: 'User not found'});
+            }
+            res.json(user);
+        } catch (error: any) {
+            res.status(500).json({error: error.message});
+
         }
     },
 

@@ -3,6 +3,7 @@ import express from 'express';
 import config from './config/config';
 import routes from './routes/indexRoutes';
 import {QueryResult} from 'pg';
+import authMiddleware from "./middlewares/authMiddleware";
 
 const PORT = config.port || 8000;
 const DATABASE_URL = config.database_url;
@@ -19,7 +20,10 @@ if (!DATABASE_URL) {
 // Middleware pour parser les JSON
 app.use(express.json());
 
-// Utiliser le routeur centralisé
+// Middleware pour gerer l'authentification des requêtes
+app.use(authMiddleware);
+
+// routeur centralisé
 app.use('/api', routes);
 
 // Test de connexion à la base de données
