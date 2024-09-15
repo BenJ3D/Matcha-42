@@ -69,7 +69,7 @@ const userController = {
         }
     },
 
-    updateUser: async (req: Request, res: Response) => {
+    updateUser: async (req: AuthenticatedRequest, res: Response) => {
         const {error, value: updateUser} = UserUpdateDtoValidation.validate(req.body);
 
         if (error) {
@@ -77,8 +77,10 @@ const userController = {
         }
 
         try {
-            const userId = parseInt(req.params.id, 10);
-
+            const userId = req.userId;
+            if (!userId) {
+                return res.status(401).json({error: "Non Authenticated"});
+            }
             const existingUser = await userServices.getUserById(userId);
             if (!existingUser) {
                 return res.status(404).json({message: "Utilisateur non trouvé."});
@@ -96,9 +98,12 @@ const userController = {
         }
     },
 
-    deleteUser: async (req: Request, res: Response) => {
+    deleteUser: async (req: AuthenticatedRequest, res: Response) => {
         try {
-            const userId = parseInt(req.params.id, 10);
+            const userId = req.userId;
+            if (!userId) {
+                return res.status(401).json({error: "Non Authenticated"});
+            }
             if (isNaN(userId)) {
                 return res.status(400).json({message: 'Invalid user ID'});
             }
@@ -110,7 +115,7 @@ const userController = {
         }
     },
 
-    advancedSearch: async (req: Request, res: Response) => {
+    advancedSearch: async (req: AuthenticatedRequest, res: Response) => {
         try {
             const {
                 ageMin,
