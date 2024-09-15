@@ -161,19 +161,12 @@ router.get('/:id', UserController.getUserById);
 
 /**
  * @swagger
- * /users/{id}:
+ * /users/:
  *   put:
- *     summary: Mettre à jour un utilisateur
- *     description: Met à jour les informations d'un utilisateur en fonction de son ID.
+ *     summary: Mettre à jour l'utilisateur authentifié
+ *     description: Met à jour les informations d'un utilisateur en fonction de son ID extrait de son token JWT.
  *     tags:
  *       - Utilisateurs
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: integer
- *         required: true
- *         description: ID de l'utilisateur à mettre à jour
  *     requestBody:
  *       required: true
  *       content:
@@ -183,10 +176,13 @@ router.get('/:id', UserController.getUserById);
  *             properties:
  *               email:
  *                 type: string
+ *                 example: jean.dupont@42Lyon.fr
  *               first_name:
  *                 type: string
+ *                 example: Dupont
  *               last_name:
  *                 type: string
+ *                 example: Jean
  *     responses:
  *       200:
  *         description: Utilisateur mis à jour avec succès.
@@ -195,29 +191,22 @@ router.get('/:id', UserController.getUserById);
  *       404:
  *         description: Utilisateur non trouvé.
  */
-router.put('/:id', UserController.updateUser);
+router.put('/', UserController.updateUser);
 
 /**
  * @swagger
- * /users/{id}:
+ * /users/:
  *   delete:
- *     summary: Supprimer un utilisateur
- *     description: Supprime un utilisateur par son ID.
+ *     summary: Supprimer l'utilisateur authentifié
+ *     description: Supprime un utilisateur authentifié, l'ID est extrait via son token JWT.
  *     tags:
  *       - Utilisateurs
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: integer
- *         required: true
- *         description: ID de l'utilisateur à supprimer
  *     responses:
  *       200:
  *         description: Utilisateur supprimé avec succès.
  *       404:
  *         description: Utilisateur non trouvé.
  */
-router.delete('/:id', UserController.deleteUser);
+router.delete('/', UserController.deleteUser);
 
 export default router;
