@@ -4,6 +4,10 @@ import config from './config/config';
 import routes from './routes/indexRoutes';
 import {QueryResult} from 'pg';
 import authMiddleware from "./middlewares/authMiddleware";
+import swaggerOptions from './config/swaggerConfig';
+import swaggerJsDoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
+
 
 const PORT = config.port || 8000;
 const DATABASE_URL = config.database_url;
@@ -16,6 +20,10 @@ if (!PORT) {
 if (!DATABASE_URL) {
     throw new Error('La variable d\'environnement DATABASE_URL est manquante.');
 }
+
+// Swagger setup
+const swaggerSpec = swaggerJsDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Middleware pour parser les JSON
 app.use(express.json());
