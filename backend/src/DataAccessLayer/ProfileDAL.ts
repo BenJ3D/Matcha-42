@@ -31,29 +31,37 @@ class ProfileDAL {
         return profile;
     }
 
-    async create(userId: number, profileData: ProfileCreateDto): Promise<number> {
-        const [{profile_id: profileId}] = await db('profiles').insert({
-            owner_user_id: userId,
-            biography: profileData.biography,
-            gender: profileData.gender,
-            age: profileData.age,
-            main_photo_id: profileData.main_photo_id,
-            location: profileData.location, // Utiliser 'location'
-        }).returning('profile_id');
+    async create(userId: number, profileData: any): Promise<number> {
+        const {biography, gender, age, main_photo_id, location} = profileData;
 
-        // Gérer l'insertion des tags et des préférences sexuelles
-        if (profileData.tags && profileData.tags.length > 0) {
+        const profileFields: any = {
+            owner_user_id: userId,
+            biography,
+            gender,
+            age,
+            main_photo_id,
+            location,
+        };
+
+        const [{profile_id: profileId}] = await db('profiles')
+            .insert(profileFields)
+            .returning('profile_id');
+
+        // Gérer les tags et les préférences sexuelles
+        const {tags, sexualPreferences} = profileData;
+
+        if (tags && tags.length > 0) {
             await db('profile_tag').insert(
-                profileData.tags.map(tagId => ({
+                tags.map((tagId: number) => ({
                     profile_id: profileId,
                     profile_tag: tagId,
                 }))
             );
         }
 
-        if (profileData.sexualPreferences && profileData.sexualPreferences.length > 0) {
+        if (sexualPreferences && sexualPreferences.length > 0) {
             await db('profile_sexual_preferences').insert(
-                profileData.sexualPreferences.map(genderId => ({
+                sexualPreferences.map((genderId: number) => ({
                     profile_id: profileId,
                     gender_id: genderId,
                 }))
@@ -63,34 +71,31 @@ class ProfileDAL {
         return profileId;
     }
 
-    async update(profileId: number, profileData: ProfileUpdateDto): Promise<void> {
-        // Séparer les champs de 'profiles' et les autres champs
-        const {biography, gender, age, main_photo_id, location, tags, sexualPreferences} = profileData;
+    async update(profileId: number, profileData: any): Promise<void> {
+        const {biography, gender, age, main_photo_id, location} = profileData;
 
-        // Créer un objet avec seulement les champs de 'profiles'
-        const profileFields: Partial<ProfileUpdateDto> = {};
+        const profileFields: any = {};
         if (biography !== undefined) profileFields.biography = biography;
         if (gender !== undefined) profileFields.gender = gender;
         if (age !== undefined) profileFields.age = age;
         if (main_photo_id !== undefined) profileFields.main_photo_id = main_photo_id;
         if (location !== undefined) profileFields.location = location;
 
-        // Mettre à jour la table 'profiles' uniquement avec les champs valides
         if (Object.keys(profileFields).length > 0) {
             await db('profiles')
                 .where({profile_id: profileId})
                 .update(profileFields);
         }
 
-        // Gérer la mise à jour des tags
+        // Gérer les tags et les préférences sexuelles
+        const {tags, sexualPreferences} = profileData;
+
         if (tags !== undefined) {
-            // Supprimer les anciens tags
             await db('profile_tag').where({profile_id: profileId}).del();
 
-            // Insérer les nouveaux tags
             if (tags.length > 0) {
                 await db('profile_tag').insert(
-                    tags.map(tagId => ({
+                    tags.map((tagId: number) => ({
                         profile_id: profileId,
                         profile_tag: tagId,
                     }))
@@ -98,15 +103,12 @@ class ProfileDAL {
             }
         }
 
-        // Gérer la mise à jour des préférences sexuelles
         if (sexualPreferences !== undefined) {
-            // Supprimer les anciennes préférences
             await db('profile_sexual_preferences').where({profile_id: profileId}).del();
 
-            // Insérer les nouvelles préférences
             if (sexualPreferences.length > 0) {
                 await db('profile_sexual_preferences').insert(
-                    sexualPreferences.map(genderId => ({
+                    sexualPreferences.map((genderId: number) => ({
                         profile_id: profileId,
                         gender_id: genderId,
                     }))

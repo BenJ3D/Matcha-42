@@ -50,9 +50,13 @@ const swaggerDefinition: SwaggerDefinition = {
                         description: 'ID de la photo principale (référence à la table photos)',
                     },
                     location: {
-                        type: 'integer',
-                        example: 1,
-                        description: 'ID de l\'emplacement (référence à la table locations)',
+                        type: 'object',
+                        properties: {
+                            latitude: {type: 'number', example: 45.764043},
+                            longitude: {type: 'number', example: 4.835659}
+                        },
+                        required: ['latitude', 'longitude'],
+                        description: 'Coordonnées géographiques du profil',
                     },
                     tags: {
                         type: 'array',
@@ -97,9 +101,13 @@ const swaggerDefinition: SwaggerDefinition = {
                         description: 'ID de la photo principale (référence à la table photos)',
                     },
                     location: {
-                        type: 'integer',
-                        example: 2,
-                        description: 'ID de l\'emplacement (référence à la table locations)',
+                        type: 'object',
+                        properties: {
+                            latitude: {type: 'number', example: 48.856614},
+                            longitude: {type: 'number', example: 2.3522219}
+                        },
+                        required: ['latitude', 'longitude'],
+                        description: 'Coordonnées géographiques du profil',
                     },
                     tags: {
                         type: 'array',
