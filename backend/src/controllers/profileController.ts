@@ -39,9 +39,8 @@ class ProfileController {
 
             const profileId = await profileServices.createProfile(userId, value);
             res.status(201).json({profileId});
-        } catch (error) {
-            console.error('Erreur lors de la création du profil:', error);
-            res.status(500).json({error: 'Erreur interne du serveur'});
+        } catch (e: any) {
+            res.status(e.status || 500).json({error: e.message})
         }
     }
 
@@ -56,9 +55,8 @@ class ProfileController {
 
             await profileServices.updateProfile(userId, value);
             res.status(200).json({message: 'Profil mis à jour avec succès'});
-        } catch (error) {
-            console.error('Erreur lors de la mise à jour du profil:', error);
-            res.status(500).json({error: 'Erreur interne du serveur'});
+        } catch (e: any) {
+            res.status(e.status || 500).json({error: e.message})
         }
     }
 
@@ -72,7 +70,7 @@ class ProfileController {
             if (error.status === 404) {
                 res.status(404).json({error: error.message});
             } else {
-                res.status(500).json({error: 'Erreur interne du serveur'});
+                res.status(error.status || 500).json({error: error.message});
             }
         }
     }
