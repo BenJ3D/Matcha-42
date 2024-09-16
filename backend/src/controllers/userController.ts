@@ -14,7 +14,7 @@ const userController = {
             res.json(users);
         } catch (error: any) {
             console.error("Error fetching users:", error);
-            res.status(500).json({error: 'Could not fetch users'});
+            res.status(400).json({error: 'Could not fetch users'});
         }
     },
 
@@ -146,9 +146,8 @@ const userController = {
             );
 
             return res.json(results);
-        } catch (error: any) {
-            console.error("Erreur lors de la recherche avancée:", error);
-            res.status(500).json({error: 'Erreur lors de la recherche avancée'});
+        } catch (e: any) {
+            res.status(e.status || 500).json({error: e.message});
         }
     }
 

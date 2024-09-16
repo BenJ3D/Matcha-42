@@ -22,25 +22,25 @@ INSERT INTO "blocked_users" ("id", "blocker_id", "blocked_id", "blocked_at") VAL
 SELECT setval('blocked_users_id_seq', (SELECT MAX(id) FROM blocked_users));
 
 
-DROP TABLE IF EXISTS "fake_user_repoting";
-DROP SEQUENCE IF EXISTS fake_user_repoting_id_seq;
-CREATE SEQUENCE fake_user_repoting_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
+DROP TABLE IF EXISTS "fake_user_reporting";
+DROP SEQUENCE IF EXISTS fake_user_reporting_id_seq;
+CREATE SEQUENCE fake_user_reporting_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
-CREATE TABLE "public"."fake_user_repoting" (
-    "id" integer DEFAULT nextval('fake_user_repoting_id_seq') NOT NULL,
+CREATE TABLE "public"."fake_user_reporting" (
+    "id" integer DEFAULT nextval('fake_user_reporting_id_seq') NOT NULL,
     "user_who_reported" integer NOT NULL,
     "reported_user" integer NOT NULL,
     "reported_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT "fake_user_repoting_pk" PRIMARY KEY ("id"),
-    CONSTRAINT "fake_user_repoting_pk_2" UNIQUE ("user_who_reported", "reported_user")
+    CONSTRAINT "fake_user_reporting_pk" PRIMARY KEY ("id"),
+    CONSTRAINT "fake_user_reporting_pk_2" UNIQUE ("user_who_reported", "reported_user")
 ) WITH (oids = false);
 
-TRUNCATE "fake_user_repoting";
-INSERT INTO "fake_user_repoting" ("id", "user_who_reported", "reported_user", "reported_at") VALUES
+TRUNCATE "fake_user_reporting";
+INSERT INTO "fake_user_reporting" ("id", "user_who_reported", "reported_user", "reported_at") VALUES
 (2,	1,	5,	'2024-08-30 13:57:26.768062'),
 (1,	2,	5,	'2024-08-30 13:57:44.598757');
 
-SELECT setval('fake_user_repoting_id_seq', (SELECT MAX(id) FROM fake_user_repoting));
+SELECT setval('fake_user_reporting_id_seq', (SELECT MAX(id) FROM fake_user_reporting));
 
 
 DROP TABLE IF EXISTS "genders";
@@ -102,8 +102,7 @@ CREATE TABLE "public"."locations" (
     "longitude" numeric NOT NULL,
     "city_name" character varying(100),
     CONSTRAINT "locations_pk" PRIMARY KEY ("location_id"),
-    CONSTRAINT "locations_pk_2" UNIQUE ("longitude", "latitude"),
-    CONSTRAINT "locations_pk_3" UNIQUE ("city_name")
+    CONSTRAINT "locations_pk_3" UNIQUE ("longitude", "latitude", "city_name")
 ) WITH (oids = false);
 
 TRUNCATE "locations";
@@ -598,8 +597,8 @@ SELECT setval('visited_profile_history_id_seq', (SELECT MAX(id) FROM visited_pro
 ALTER TABLE ONLY "public"."blocked_users" ADD CONSTRAINT "blocked_users_users_id_fk" FOREIGN KEY (blocker_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
 ALTER TABLE ONLY "public"."blocked_users" ADD CONSTRAINT "blocked_users_users_id_fk_2" FOREIGN KEY (blocked_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
 
-ALTER TABLE ONLY "public"."fake_user_repoting" ADD CONSTRAINT "fake_user_repoting_users_id_fk" FOREIGN KEY (user_who_reported) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
-ALTER TABLE ONLY "public"."fake_user_repoting" ADD CONSTRAINT "fake_user_repoting_users_id_fk_2" FOREIGN KEY (reported_user) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "public"."fake_user_reporting" ADD CONSTRAINT "fake_user_reporting_users_id_fk" FOREIGN KEY (user_who_reported) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "public"."fake_user_reporting" ADD CONSTRAINT "fake_user_reporting_users_id_fk_2" FOREIGN KEY (reported_user) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
 
 ALTER TABLE ONLY "public"."likes" ADD CONSTRAINT "like_user_id_fk" FOREIGN KEY ("user") REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
 ALTER TABLE ONLY "public"."likes" ADD CONSTRAINT "like_user_id_fk_2" FOREIGN KEY (user_liked) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;

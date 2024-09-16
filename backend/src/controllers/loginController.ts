@@ -1,7 +1,6 @@
 import {Request, Response} from 'express';
 import loginServices from "../services/LoginServices";
 import JwtService from "../services/JwtService";
-import {IJwtPayload} from "../types/IJwtPayload";
 import userServices from "../services/UserServices";
 import {LoginDtoValidation} from "../DTOs/login/LoginDtoValidation";
 
