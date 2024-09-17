@@ -617,7 +617,12 @@ ALTER TABLE ONLY "public"."photos" ADD CONSTRAINT "photos_users_id_fk" FOREIGN K
 ALTER TABLE ONLY "public"."profile_sexual_preferences" ADD CONSTRAINT "profile_sexual_preferences_genders_gender_id_fk" FOREIGN KEY (gender_id) REFERENCES genders(gender_id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
 ALTER TABLE ONLY "public"."profile_sexual_preferences" ADD CONSTRAINT "profile_sexual_preferences_profile_profile_id_fk" FOREIGN KEY (profile_id) REFERENCES profiles(profile_id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
 
-ALTER TABLE ONLY "public"."profile_tag" ADD CONSTRAINT "profile_tag_fk1" FOREIGN KEY (profile_id) REFERENCES profiles(profile_id) NOT DEFERRABLE;
+ALTER TABLE "public"."profile_tag" 
+    ADD CONSTRAINT "profile_tag_fk1" 
+    FOREIGN KEY (profile_id) 
+    REFERENCES profiles(profile_id) 
+    ON DELETE CASCADE 
+    NOT DEFERRABLE;
 ALTER TABLE ONLY "public"."profile_tag" ADD CONSTRAINT "profile_tag_fk2" FOREIGN KEY (profile_tag) REFERENCES tags(tag_id) NOT DEFERRABLE;
 
 ALTER TABLE ONLY "public"."profiles" ADD CONSTRAINT "profile_gender_fkey" FOREIGN KEY (gender) REFERENCES genders(gender_id) ON UPDATE CASCADE ON DELETE RESTRICT NOT DEFERRABLE;
