@@ -23,9 +23,9 @@ export const LocationDtoValidation = joi.object({
 export const ProfileCreateDtoValidation = joi.object({
     biography: joi.string().max(1024).required(),
     gender: joi.number().integer().required(),
-    age: joi.number().integer().min(18).required(),
+    age: joi.number().integer().min(18).max(120).required(),
     main_photo_id: joi.number().integer(),
     location: LocationDtoValidation,
-    tags: joi.array().items(joi.number().integer()),
-    sexualPreferences: joi.array().items(joi.number().integer()),
+    tags: joi.array().items(joi.number().integer()).unique(),
+    sexualPreferences: joi.array().items(joi.number().integer()).unique(),
 });

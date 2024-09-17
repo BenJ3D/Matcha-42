@@ -1,0 +1,2174 @@
+import {query} from './config/db';
+import express from 'express';
+import config from './config/config';
+import routes from './routes/indexRoutes';
+import {QueryResult} from 'pg';
+import authMiddleware from "./middlewares/authMiddleware";
+import swaggerOptions from './config/swaggerConfig';
+import swaggerJsDoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
+
+
+const PORT = config.port || 8000;
+const DATABASE_URL = config.database_url;
+const app = express();
+
+if (!PORT) {
+    throw new Error('La variable d\'environnement PORT est manquante.');
+}
+
+if (!DATABASE_URL) {
+    throw new Error('La variable d\'environnement DATABASE_URL est manquante.');
+}
+
+// Swagger setup
+const swaggerSpec = swaggerJsDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Middleware pour parser les JSON
+app.use(express.json());
+
+// Middleware pour gerer l'authentification des requêtes
+app.use(authMiddleware);
+
+// routeur centralisé
+app.use('/api', routes);
+
+// Test de connexion à la base de données
+query('SELECT NOW()')
+    .then((result: QueryResult) => {  // Utilisation de `QueryResult` pour typage explicite
+        console.log('Connection to the database successful:', result.rows[0]);
+    })
+    .catch((error: Error) => { // Typage explicite de l'erreur
+        console.error('Error connecting to the database:', error);
+    });
+
+app.get('/', (req: express.Request, res: express.Response) => {  // Typage correct pour req et res
+    res.send('Hello, world!');
+});
+
+app.listen(PORT, () => {
+    console.log(`Server running at PORT: ${PORT}`);
+    console.log(`Connected to the database at ${config.database_name}`);
+}).on('error', (error: Error) => { // Typage explicite de l'erreur ici aussi
+    throw new Error(error.message);
+});
+import dotenv from 'dotenv';
+
+// Charger les variables d'environnement
+dotenv.config();
+
+// Valider et exporter les variables d'environnement nécessaires
+const API_PORT = process.env.API_PORT_INTERNAL;
+
+
+const POSTGRES_DB = process.env.POSTGRES_DB;
+const DATABASE_PORT = process.env.DATABASE_PORT;
+const POSTGRES_USER = process.env.POSTGRES_USER;
+const POSTGRES_PASSWORD = process.env.POSTGRES_PASSWORD;
+const POSTGRES_HOST = process.env.POSTGRES_HOST || 'postgres';
+
+
+if (!API_PORT) {
+    throw new Error('La variable d\'environnement API_PORT est manquante.');
+}
+
+if (!POSTGRES_DB) {
+    throw new Error('La variable d\'environnement POSTGRES_DB est manquante.');
+}
+
+if (!DATABASE_PORT) {
+    throw new Error('La variable d\'environnement DATABASE_PORT est manquante.');
+}
+
+if (!POSTGRES_USER) {
+    throw new Error('La variable d\'environnement POSTGRES_USER est manquante.');
+}
+
+if (!POSTGRES_PASSWORD) {
+    throw new Error('La variable d\'environnement POSTGRES_PASSWORD est manquante.');
+}
+export default {
+    port : parseInt(API_PORT, 10),
+    database_url : POSTGRES_HOST,
+    database_port: parseInt(DATABASE_PORT, 10),
+    database_name: POSTGRES_DB,
+    user: POSTGRES_USER,
+    password: POSTGRES_PASSWORD,
+};
+import config from './config'
+import {Pool} from 'pg'
+
+const pool = new Pool({
+    user: config.user,
+    host: config.database_url,
+    database: config.database_name,
+    password: config.password,
+    port: config.database_port,
+});
+
+export const query = (text: string, params?: any[]) => pool.query(text, params);
+import NodeGeocoder from 'node-geocoder';
+
+const options: NodeGeocoder.Options = {
+    provider: 'opencage',
+    apiKey: 'e397c7937da741e8b03eb2cc6b33edb1', // TODO: si fonctionne=> déplacer dans .env
+    formatter: null, // optionnel
+};
+
+const geocoder = NodeGeocoder(options);
+
+export default geocoder;
+import { Knex, knex } from 'knex';
+import config from './config'
+
+const knexConfig: Knex.Config = {
+    client: 'pg', // Remplacez par 'pg' pour PostgreSQL, 'sqlite3' pour SQLite, etc.
+    connection: {
+        host: config.database_url,
+        user: config.user,
+        password: config.password,
+        database: config.database_name,
+    }
+};
+
+const db = knex(knexConfig);
+
+export default db;
+// src/config/swaggerConfig.ts
+
+// @ts-ignore
+import {SwaggerDefinition, Options} from 'swagger-jsdoc';
+
+const swaggerDefinition: SwaggerDefinition = {
+    openapi: '3.0.0',
+    info: {
+        title: 'Matcha API Documentation',
+        version: '1.0.0',
+        description: 'Documentation de l\'API pour Matcha',
+    },
+    servers: [
+        {
+            url: 'http://localhost:8000/api',
+        },
+    ],
+    components: {
+        securitySchemes: {
+            BearerAuth: {
+                type: 'http',
+                scheme: 'bearer',
+                bearerFormat: 'JWT',
+            }
+        },
+        schemas: {
+            // Schéma pour ProfileCreateDto
+            ProfileCreateDto: {
+                type: 'object',
+                required: ['biography', 'gender', 'age'],
+                properties: {
+                    biography: {
+                        type: 'string',
+                        maxLength: 1024,
+                        example: 'Je suis passionné par le développement web...',
+                    },
+                    gender: {
+                        type: 'integer',
+                        example: 5,
+                        description: 'ID du genre (référence à la table genders)',
+                    },
+                    age: {
+                        type: 'integer',
+                        minimum: 18,
+                        example: 25,
+                    },
+                    main_photo_id: {
+                        type: 'integer',
+                        example: 6,
+                        description: 'ID de la photo principale (référence à la table photos)',
+                    },
+                    location: {
+                        type: 'object',
+                        properties: {
+                            latitude: {type: 'number', example: 45.764043},
+                            longitude: {type: 'number', example: 4.835659}
+                        },
+                        required: ['latitude', 'longitude'],
+                        description: 'Coordonnées géographiques du profil',
+                    },
+                    tags: {
+                        type: 'array',
+                        items: {
+                            type: 'integer',
+                            example: 19,
+                        },
+                        description: 'Liste des IDs des tags (référence à la table tags)',
+                    },
+                    sexualPreferences: {
+                        type: 'array',
+                        items: {
+                            type: 'integer',
+                            example: 6,
+                        },
+                        description: 'Liste des IDs des préférences sexuelles (référence à la table genders)',
+                    },
+                },
+            },
+            // Schéma pour ProfileUpdateDto
+            ProfileUpdateDto: {
+                type: 'object',
+                properties: {
+                    biography: {
+                        type: 'string',
+                        maxLength: 1024,
+                        example: 'Mise à jour de ma biographie...',
+                    },
+                    gender: {
+                        type: 'integer',
+                        example: 6,
+                        description: 'ID du genre (référence à la table genders)',
+                    },
+                    age: {
+                        type: 'integer',
+                        minimum: 18,
+                        example: 29,
+                    },
+                    main_photo_id: {
+                        type: 'integer',
+                        example: 17,
+                        description: 'ID de la photo principale (référence à la table photos)',
+                    },
+                    location: {
+                        type: 'object',
+                        properties: {
+                            latitude: {type: 'number', example: 48.856614},
+                            longitude: {type: 'number', example: 2.3522219}
+                        },
+                        required: ['latitude', 'longitude'],
+                        description: 'Coordonnées géographiques du profil',
+                    },
+                    tags: {
+                        type: 'array',
+                        items: {
+                            type: 'integer',
+                            example: 21,
+                        },
+                        description: 'Liste des IDs des tags (référence à la table tags)',
+                    },
+                    sexualPreferences: {
+                        type: 'array',
+                        items: {
+                            type: 'integer',
+                            example: 13,
+                        },
+                        description: 'Liste des IDs des préférences sexuelles (référence à la table genders)',
+                    },
+                },
+            },
+            // Schéma pour ProfileResponseDto
+            ProfileResponseDto: {
+                type: 'object',
+                properties: {
+                    profile_id: {
+                        type: 'integer',
+                        example: 1,
+                    },
+                    owner_user_id: {
+                        type: 'integer',
+                        example: 1,
+                    },
+                    biography: {
+                        type: 'string',
+                        example: 'je mappel ben bonjour blablabal bal abla bla',
+                    },
+                    gender: {
+                        type: 'integer',
+                        example: 5,
+                    },
+                    age: {
+                        type: 'integer',
+                        example: 34,
+                    },
+                    main_photo_id: {
+                        type: 'integer',
+                        example: 2,
+                    },
+                    main_photo_url: {
+                        type: 'string',
+                        example: 'https://example.com/photos/profile1_photo1.jpg',
+                    },
+                    photos: {
+                        type: 'array',
+                        items: {
+                            $ref: '#/components/schemas/Photo',
+                        },
+                    },
+                    location: {
+                        type: 'object',
+                        properties: {
+                            location_id: {type: 'integer', example: 1},
+                            latitude: {type: 'number', example: 45.764043},
+                            longitude: {type: 'number', example: 4.835659},
+                            city_name: {type: 'string', example: 'Lyon'},
+                        },
+                    },
+                    tags: {
+                        type: 'array',
+                        items: {
+                            $ref: '#/components/schemas/Tag',
+                        },
+                    },
+                    fame_rating: {
+                        type: 'integer',
+                        example: 9,
+                    },
+                    last_connection: {
+                        type: 'string',
+                        format: 'date-time',
+                        example: '2024-08-30T10:10:02.474Z',
+                    },
+                },
+            },
+            // Schéma pour Photo
+            Photo: {
+                type: 'object',
+                properties: {
+                    photo_id: {
+                        type: 'integer',
+                        example: 1,
+                    },
+                    url: {
+                        type: 'string',
+                        example: 'https://example.com/photos/profile1_photo1.jpg',
+                    },
+                    description: {
+                        type: 'string',
+                        example: 'Photo de profil',
+                    },
+                    owner_user_id: {
+                        type: 'integer',
+                        example: 1,
+                    },
+                },
+            },
+            // Schéma pour Tag
+            Tag: {
+                type: 'object',
+                properties: {
+                    tag_id: {
+                        type: 'integer',
+                        example: 19,
+                    },
+                    tag_name: {
+                        type: 'string',
+                        example: 'Gamer',
+                    },
+                },
+            },
+        },
+    },
+    security: [{
+        BearerAuth: []
+    }]
+};
+
+const options: Options = {
+    swaggerDefinition,
+    apis: ['./src/routes/*.ts', './src/controllers/*.ts'], // Chemins où Swagger doit chercher les annotations
+};
+
+export default options;
+declare module 'swagger-ui-express' {
+    import {RequestHandler} from 'express';
+    export const serve: RequestHandler;
+
+    export function setup(swaggerDoc: any, options?: any): RequestHandler;
+}
+import {Request, Response} from 'express';
+import loginServices from "../services/LoginServices";
+import JwtService from "../services/JwtService";
+import userServices from "../services/UserServices";
+import {LoginDtoValidation} from "../DTOs/login/LoginDtoValidation";
+
+const loginController = {
+    // Méthode existante pour la connexion avec mot de passe
+    loginWithPassword: async (req: Request, res: Response) => {
+        const {error, value: loginUser} = LoginDtoValidation.validate(req.body);
+        if (error) {
+            return res.status(400).json({error: "Validation échouée", details: error.details});
+        }
+        try {
+            const loginResult = await loginServices.login(loginUser);
+            if (loginResult == null) {
+                return res.status(401).json({error: "Identifiants incorrects"});
+            }
+            return res.status(200).json(loginResult); // Retourne les informations de l'utilisateur et les tokens
+        } catch (e: any) {
+            res.status(500).json({error: e.message});
+        }
+    },
+
+    // Nouvelle méthode pour rafraîchir le token
+    refreshToken: async (req: Request, res: Response) => {
+        try {
+            // Récupérer le refresh token depuis le corps de la requête
+            const {refreshToken} = req.body;
+
+            if (!refreshToken) {
+                return res.status(400).json({error: "Le refresh token est requis"});
+            }
+
+            // Vérifier le refresh token
+            const payload = JwtService.verifyRefreshToken(refreshToken);
+            if (!payload) {
+                return res.status(401).json({error: "Refresh token invalide"});
+            }
+
+            // Générer de nouveaux tokens
+            const newTokens = JwtService.generateTokens({id: payload.id});
+
+
+            const user = await userServices.getUserById(payload.id);
+            if (!user) {
+                return res.status(404).json({error: "Utilisateur non trouvé"});
+            }
+
+            // Retourner les nouveaux tokens (et les infos utilisateur si vous les incluez)
+            return res.status(200).json({
+                user,
+                accessToken: newTokens.accessToken,
+                refreshToken: newTokens.refreshToken,
+            });
+        } catch (e: any) {
+            console.error("Erreur lors du rafraîchissement du token:", e);
+            res.status(500).json({error: "Erreur interne du serveur"});
+        }
+    },
+};
+
+export default loginController;
+// src/controllers/profileController.ts
+import {Request, Response} from 'express';
+import profileServices from '../services/ProfileServices';
+import {ProfileCreateDtoValidation} from '../DTOs/profiles/ProfileCreateDto';
+import {ProfileUpdateDtoValidation} from '../DTOs/profiles/ProfileUpdateDto';
+import {AuthenticatedRequest} from '../middlewares/authMiddleware';
+
+class ProfileController {
+    async getMyProfile(req: AuthenticatedRequest, res: Response) {
+        try {
+            const userId = req.userId!;
+            const profile = await profileServices.getProfileByUserId(userId);
+
+            if (!profile) {
+                return res.status(404).json({error: 'Profil non trouvé'});
+            }
+
+            res.json(profile);
+        } catch (error) {
+            console.error('Erreur lors de la récupération du profil:', error);
+            res.status(500).json({error: 'Erreur interne du serveur'});
+        }
+    }
+
+    async createMyProfile(req: AuthenticatedRequest, res: Response) {
+        try {
+            const userId = req.userId!;
+            const {error, value} = ProfileCreateDtoValidation.validate(req.body);
+
+            if (error) {
+                return res.status(400).json({error: error.details[0].message});
+            }
+
+            // Vérifier si l'utilisateur a déjà un profil
+            const existingProfile = await profileServices.getProfileByUserId(userId);
+            if (existingProfile) {
+                return res.status(400).json({error: 'Profil déjà existant'});
+            }
+
+            const profileId = await profileServices.createProfile(userId, value);
+            res.status(201).json({profileId});
+        } catch (e: any) {
+            res.status(e.status || 500).json({error: e.message})
+        }
+    }
+
+    async updateMyProfile(req: AuthenticatedRequest, res: Response) {
+        try {
+            const userId = req.userId!;
+            const {error, value} = ProfileUpdateDtoValidation.validate(req.body);
+
+            if (error) {
+                return res.status(400).json({error: error.details[0].message});
+            }
+
+            await profileServices.updateProfile(userId, value);
+            res.status(200).json({message: 'Profil mis à jour avec succès'});
+        } catch (e: any) {
+            res.status(e.status || 500).json({error: e.message})
+        }
+    }
+
+    async deleteMyProfile(req: AuthenticatedRequest, res: Response) {
+        try {
+            const userId = req.userId!;
+            await profileServices.deleteProfile(userId);
+            res.status(200).json({message: 'Profil supprimé avec succès'});
+        } catch (error: any) {
+            console.error('Erreur lors de la suppression du profil:', error);
+            if (error.status === 404) {
+                res.status(404).json({error: error.message});
+            } else {
+                res.status(error.status || 500).json({error: error.message});
+            }
+        }
+    }
+}
+
+export default new ProfileController();
+import {Request, Response} from 'express';
+import UserServices from '../services/UserServices';
+import {UserLightResponseDto} from "../DTOs/users/UserLightResponseDto";
+import {UserResponseDto} from "../DTOs/users/UserResponseDto";
+import {UserCreateDtoValidation} from "../DTOs/users/UserCreateDtoValidation";
+import userServices from "../services/UserServices";
+import {UserUpdateDtoValidation} from "../DTOs/users/UserUpdateDtoValidation";
+import {AuthenticatedRequest} from "../middlewares/authMiddleware";
+
+const userController = {
+    getAllUsers: async (req: Request, res: Response) => {
+        try {
+            const users: UserLightResponseDto[] = await UserServices.getAllUsers();
+            res.json(users);
+        } catch (error: any) {
+            console.error("Error fetching users:", error);
+            res.status(400).json({error: 'Could not fetch users'});
+        }
+    },
+
+    getMe: async (req: AuthenticatedRequest, res: Response) => {
+        try {
+            let userId: number;
+            if (!req.userId) {
+                return res.status(401).json({error: "Non Authenticated"});
+            }
+            userId = req.userId;
+            if (isNaN(userId)) {
+                return res.status(400).json({message: 'Invalid user ID'});
+            }
+            const user: UserResponseDto | null = await UserServices.getUserById(userId);
+            if (!user) {
+                return res.status(404).json({message: 'User not found'});
+            }
+            res.json(user);
+        } catch (error: any) {
+            res.status(500).json({error: error.message});
+
+        }
+    },
+
+    getUserById: async (req: Request, res: Response) => {
+        try {
+            const userId = parseInt(req.params.id, 10);
+            if (isNaN(userId)) {
+                return res.status(400).json({message: 'Invalid user ID'});
+            }
+            const user: UserResponseDto | null = await UserServices.getUserById(userId);
+            if (!user) {
+                return res.status(404).json({message: 'User not found'});
+            }
+            res.json(user);
+        } catch (error: any) {
+            res.status(500).json({error: error.message});
+
+        }
+    },
+
+    createUser: async (req: Request, res: Response) => {
+        const {error, value: newUser} = UserCreateDtoValidation.validate(req.body);
+        if (error) {
+            return res.status(400).json({error: "Validation échouée", details: error.details});
+        }
+        try {
+            const userId = await userServices.createUser(newUser);
+            return res.status(201).json({userId});
+        } catch (e: any) {
+            res.status(e.status || 500).json({error: e.message});
+        }
+    },
+
+    updateUser: async (req: AuthenticatedRequest, res: Response) => {
+        const {error, value: updateUser} = UserUpdateDtoValidation.validate(req.body);
+
+        if (error) {
+            return res.status(400).json({error: "Validation échouée", details: error.details});
+        }
+
+        try {
+            const userId = req.userId;
+            if (!userId) {
+                return res.status(401).json({error: "Non Authenticated"});
+            }
+            const existingUser = await userServices.getUserById(userId);
+            if (!existingUser) {
+                return res.status(404).json({message: "Utilisateur non trouvé."});
+            }
+
+            await userServices.updateUser(userId, updateUser);
+            return res.status(200).json({message: "Utilisateur mis à jour avec succès."});
+
+        } catch (e: any) {
+            if (e.code === '23505') {  // Violation d'unicité (par exemple, email déjà pris)
+                return res.status(409).json({error: "Cet email est déjà pris."});
+            }
+
+            res.status(e.status || 500).json({error: e.message || "Erreur interne du serveur."});
+        }
+    },
+
+    deleteUser: async (req: AuthenticatedRequest, res: Response) => {
+        try {
+            const userId = req.userId;
+            if (!userId) {
+                return res.status(401).json({error: "Non Authenticated"});
+            }
+            if (isNaN(userId)) {
+                return res.status(400).json({message: 'Invalid user ID'});
+            }
+
+            await userServices.deleteUser(userId);
+            return res.status(200).json({message: "Utilisateur supprimé avec succès."});
+        } catch (e: any) {
+            res.status(e.status || 500).json({error: e.message || "Erreur interne du serveur."});
+        }
+    },
+
+    advancedSearch: async (req: AuthenticatedRequest, res: Response) => {
+        try {
+            const {
+                ageMin,
+                ageMax,
+                fameMin,
+                fameMax,
+                location,
+                tags, // Tags attendus sous forme de tableau
+                sexualPreferences // Paramètre pour les préférences sexuelles
+            } = req.query;
+
+            // Convertir les critères en types corrects
+            const ageMinInt = ageMin ? parseInt(ageMin as string, 10) : undefined;
+            const ageMaxInt = ageMax ? parseInt(ageMax as string, 10) : undefined;
+            const fameMinInt = fameMin ? parseInt(fameMin as string, 10) : undefined;
+            const fameMaxInt = fameMax ? parseInt(fameMax as string, 10) : undefined;
+            const tagsArray = tags ? (tags as string).split(',').map(Number) : undefined;
+            const sexualPreferencesArray = sexualPreferences ? (sexualPreferences as string).split(',').map(Number) : undefined;
+
+            const results = await userServices.advancedSearch(
+                ageMinInt,
+                ageMaxInt,
+                fameMinInt,
+                fameMaxInt,
+                location as string,
+                tagsArray,
+                sexualPreferencesArray // Utiliser le bon paramètre ici
+            );
+
+            return res.json(results);
+        } catch (e: any) {
+            res.status(e.status || 500).json({error: e.message});
+        }
+    }
+
+
+};
+
+export default userController;
+import db from '../config/knexConfig';
+
+interface Location {
+    location_id: number;
+    latitude: number;
+    longitude: number;
+    city_name?: string;
+}
+
+class LocationDAL {
+    async findByCoordinates(latitude: number, longitude: number): Promise<Location | null> {
+        const location = await db('locations')
+            .select('*')
+            .where({latitude, longitude})
+            .first();
+        return location || null;
+    }
+
+    async create(latitude: number, longitude: number, cityName: string | null): Promise<number> {
+        const [{location_id}] = await db('locations')
+            .insert({
+                latitude,
+                longitude,
+                city_name: cityName,
+            })
+            .returning('location_id');
+
+        return location_id;
+    }
+}
+
+export default new LocationDAL();
+import db from '../config/knexConfig';
+import {ProfileCreateDto} from '../DTOs/profiles/ProfileCreateDto';
+import {ProfileUpdateDto} from '../DTOs/profiles/ProfileUpdateDto';
+import {ProfileResponseDto} from '../DTOs/profiles/ProfileResponseDto';
+
+class ProfileDAL {
+    async findOne(profileId: number): Promise<ProfileResponseDto | null> {
+        try {
+            const profile = await db('profiles')
+                .select('*')
+                .where({profile_id: profileId})
+                .first();
+
+            if (!profile) return null;
+
+            return profile;
+        } catch (error) {
+            console.error(`Erreur lors de la récupération du profil avec l'ID ${profileId}:`, error);
+            throw {status: 500, message: "Erreur interne du serveur."};
+        }
+    }
+
+    async findByUserId(userId: number): Promise<ProfileResponseDto | null> {
+        try {
+            const profile = await db('profiles')
+                .select('*')
+                .where({owner_user_id: userId})
+                .first();
+
+            if (!profile) return null;
+
+            return profile;
+        } catch (error) {
+            console.error(`Erreur lors de la récupération du profil pour l'utilisateur ID ${userId}:`, error);
+            throw {status: 500, message: "Erreur interne du serveur."};
+        }
+    }
+
+    async create(userId: number, profileData: any): Promise<number> {
+        try {
+            const {biography, gender, age, main_photo_id, location} = profileData;
+
+            const profileFields: any = {
+                owner_user_id: userId,
+                biography,
+                gender,
+                age,
+                main_photo_id,
+                location,
+            };
+
+            const [{profile_id: profileId}] = await db('profiles')
+                .insert(profileFields)
+                .returning('profile_id');
+
+            const {tags, sexualPreferences} = profileData;
+
+            if (tags && tags.length > 0) {
+                await db('profile_tag').insert(
+                    tags.map((tagId: number) => ({
+                        profile_id: profileId,
+                        profile_tag: tagId,
+                    }))
+                );
+            }
+
+            if (sexualPreferences && sexualPreferences.length > 0) {
+                await db('profile_sexual_preferences').insert(
+                    sexualPreferences.map((genderId: number) => ({
+                        profile_id: profileId,
+                        gender_id: genderId,
+                    }))
+                );
+            }
+
+            return profileId;
+        } catch (error: any) {
+            console.error("Erreur lors de la création du profil:", error);
+            if (error.code === '23505') {
+                throw {status: 409, message: "Conflit : Le profil existe déjà."};
+            } else {
+                throw {status: 500, message: "Erreur interne du serveur."};
+            }
+        }
+    }
+
+    async update(profileId: number, profileData: any): Promise<void> {
+        try {
+            const profile = await this.findOne(profileId);
+            if (!profile) {
+                throw {status: 404, message: 'Profil non trouvé.'};
+            }
+
+            const {biography, gender, age, main_photo_id, location, tags, sexualPreferences} = profileData;
+            const profileFields: any = {};
+
+            if (biography !== undefined) profileFields.biography = biography;
+            if (gender !== undefined) profileFields.gender = gender;
+            if (age !== undefined) profileFields.age = age;
+            if (main_photo_id !== undefined) profileFields.main_photo_id = main_photo_id;
+            if (location !== undefined) profileFields.location = location;
+
+            if (Object.keys(profileFields).length > 0) {
+                await db('profiles').where({profile_id: profileId}).update(profileFields);
+            }
+
+            if (tags !== undefined) {
+                await db('profile_tag').where({profile_id: profileId}).del();
+                if (tags.length > 0) {
+                    await db('profile_tag').insert(
+                        tags.map((tagId: number) => ({
+                            profile_id: profileId,
+                            profile_tag: tagId,
+                        }))
+                    );
+                }
+            }
+
+            if (sexualPreferences !== undefined) {
+                await db('profile_sexual_preferences').where({profile_id: profileId}).del();
+                if (sexualPreferences.length > 0) {
+                    await db('profile_sexual_preferences').insert(
+                        sexualPreferences.map((genderId: number) => ({
+                            profile_id: profileId,
+                            gender_id: genderId,
+                        }))
+                    );
+                }
+            }
+        } catch (error: any) {
+            console.error(`Erreur lors de la mise à jour du profil ID ${profileId}:`, error);
+            if (error.status === 404) {
+                throw error;
+            } else {
+                throw {status: 500, message: "Erreur interne du serveur."};
+            }
+        }
+    }
+
+    async delete(profileId: number): Promise<void> {
+        try {
+            const profile = await this.findOne(profileId);
+            if (!profile) {
+                throw {status: 404, message: 'Profil non trouvé.'};
+            }
+
+            await db.transaction(async trx => {
+                await trx('profile_tag').where({profile_id: profileId}).del();
+                await trx('profile_sexual_preferences').where({profile_id: profileId}).del();
+                await trx('profiles').where({profile_id: profileId}).del();
+            });
+
+            console.log(`Profil avec l'ID ${profileId} supprimé.`);
+        } catch (error: any) {
+            console.error(`Erreur lors de la suppression du profil ID ${profileId}:`, error);
+            if (error.status === 404) {
+                throw error;
+            } else if (error.code === '23503') {
+                throw {status: 400, message: "Erreur : Contrainte de clé étrangère."};
+            } else {
+                throw {status: 500, message: "Erreur interne du serveur."};
+            }
+        }
+    }
+}
+
+export default new ProfileDAL();
+import db from "../config/knexConfig";
+import {BlockedUserResponseDto} from "../DTOs/users/BlockedUserResponseDto";
+import {UserLightResponseDto} from "../DTOs/users/UserLightResponseDto";
+import {UserResponseDto} from "../DTOs/users/UserResponseDto";
+import {UserCreateDto} from "../DTOs/users/UserCreateDto";
+import {Tag} from "../models/Tags";
+import {UserLoginPasswordCheckDto} from "../DTOs/users/UserLoginPasswordCheckDto";
+import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
+import {User} from "../models/User";
+
+class UserDAL {
+
+    update = async (userId: number, userUpdate: UserUpdateDto): Promise<void> => {
+        try {
+            // Vérifie si l'utilisateur existe avant de tenter la mise à jour
+            const user = await db('users').where('id', userId).first();
+            if (!user) {
+                throw {status: 404, message: "Utilisateur non trouvé."};
+            }
+
+            // Effectuer la mise à jour
+            await db('users')
+                .where('id', userId)
+                .update(userUpdate);
+
+            console.log(`Utilisateur avec id ${userId} mis à jour.`);
+
+        } catch (e: any) {
+            if (e.code === '23505') {  // Violation d'unicité (par ex. email déjà pris)
+                console.error("Erreur: email déjà utilisé par un autre utilisateur.", e);
+                throw {status: 409, message: "Cet email est déjà pris."};
+            } else if (e.code === '23503') {  // Violation de contrainte de clé étrangère
+                console.error("Erreur: contrainte de clé étrangère non respectée.", e);
+                throw {status: 400, message: "La mise à jour viole une contrainte de clé étrangère."};
+            } else if (e.status === 404) {  // Cas où l'utilisateur n'est pas trouvé
+                console.error("Erreur: utilisateur non trouvé.", e);
+                throw e;  // La relancer directement
+            } else {
+                console.error("Erreur lors de la mise à jour de l'utilisateur:", e);
+                throw {status: 500, message: "Erreur interne du serveur."};
+            }
+        }
+    };
+
+    save = async (newUser: UserCreateDto): Promise<number> => {
+        try {
+
+            const [userId] = await db('users').insert(newUser).returning('id');
+            console.log(`Nouvel utilisateur save avec id ${userId}`);
+            return userId;
+        } catch (e: any) {
+            if (e.code === '23505') {  // Code PostgreSQL pour violation d'unicité
+                console.error("Erreur: utilisateur déjà présent en base de données.", e);
+                throw {status: 409, message: "L'email existe déjà."};
+            } else {
+                console.error("Erreur lors de l'insertion de l'utilisateur:", e);
+                throw {status: 500, message: "Erreur interne du serveur."};
+            }
+        }
+    }
+
+    delete = async (userId: number): Promise<void> => {
+        try {
+            // Vérifie si l'utilisateur existe avant de tenter la suppression
+            const user = await db('users').where('id', userId).first();
+            if (!user) {
+                throw {status: 404, message: "Utilisateur non trouvé."};
+            }
+
+            // Suppression de l'utilisateur
+            await db('users').where('id', userId).del();
+            console.log(`Utilisateur avec id ${userId} supprimé.`);
+        } catch (e: any) {
+            console.error(`Erreur lors de la suppression de l'utilisateur avec id ${userId}:`, e);
+            throw {status: e.status || 500, message: e.message || "Erreur interne du serveur."};
+        }
+    }
+
+    findAll = async (): Promise<UserLightResponseDto[]> => {
+        try {
+            const users = await db('users')
+                .select(
+                    'users.id',
+                    'users.username',
+                    'photos.url as main_photo_url',
+                    'profiles.age',
+                    'profiles.gender',
+                    'locations.latitude',
+                    'locations.longitude',
+                    'locations.city_name'
+                )
+                .leftJoin('profiles', 'users.id', 'profiles.owner_user_id')
+                .leftJoin('photos', 'profiles.main_photo_id', 'photos.photo_id')
+                .leftJoin('locations', 'profiles.location', 'locations.location_id');
+
+            return users.map(user => ({
+                id: user.id,
+                username: user.username,
+                main_photo_url: user.main_photo_url || null,
+                location: user.latitude && user.longitude ? {
+                    latitude: parseFloat(user.latitude),
+                    longitude: parseFloat(user.longitude),
+                    city_name: user.city_name || undefined
+                } : undefined,
+                age: user.age,
+                gender: user.gender
+            }));
+        } catch (error) {
+            console.error("Error fetching users:", error);
+            throw new Error("Could not fetch users");
+        }
+    }
+
+
+    findOne = async (id: number): Promise<UserResponseDto | null> => {
+        try {
+            const user = await db('users')
+                .select(
+                    'users.id',
+                    'users.username',
+                    'users.email',
+                    'users.first_name',
+                    'users.last_name',
+                    'users.created_at',
+                    'profiles.profile_id',
+                    'profiles.biography',
+                    'profiles.gender',
+                    'profiles.age',
+                    'profiles.fame_rating',  // Assurez-vous de récupérer correctement fame_rating
+                    'profiles.main_photo_id',
+                    'profiles.last_connection',
+                    'photos.url as main_photo_url',
+                    'locations.latitude',
+                    'locations.longitude',
+                    'locations.city_name'
+                )
+                .leftJoin('profiles', 'users.id', 'profiles.owner_user_id')
+                .leftJoin('photos', 'profiles.main_photo_id', 'photos.photo_id')
+                .leftJoin('locations', 'profiles.location', 'locations.location_id')
+                .where('users.id', id)
+                .first();
+
+            if (!user) {
+                return null;
+            }
+
+            const likers = await this.getUserLightResponseList(
+                await db('likes').select('user as id').where('user_liked', id)
+            );
+
+            const visitors = await this.getUserLightResponseList(
+                await db('visited_profile_history').select('visiter as id').where('visited', id)
+            );
+
+            const matchers = await this.getUserLightResponseList(
+                await db('matches').select('user_2 as id').where('user_1', id)
+                    .union([
+                        db('matches').select('user_1 as id').where('user_2', id)
+                    ])
+            );
+
+            const photos = await db('photos')
+                .select('photo_id', 'url', 'description', 'owner_user_id')
+                .where('owner_user_id', id);
+
+            const tags: Tag[] = await db('tags')
+                .select('tags.tag_id', 'tags.tag_name')
+                .join('profile_tag', 'tags.tag_id', 'profile_tag.profile_tag')
+                .where('profile_tag.profile_id', user.profile_id);
+
+            // Récupérer les utilisateurs bloqués par cet utilisateur
+            const blockedUsers = await db('blocked_users')
+                .select('users.id', 'users.username', 'photos.url as main_photo_url', 'blocked_users.blocked_at')
+                .join('users', 'blocked_users.blocked_id', 'users.id')
+                .leftJoin('profiles', 'users.id', 'profiles.owner_user_id')
+                .leftJoin('photos', 'profiles.main_photo_id', 'photos.photo_id')
+                .where('blocked_users.blocker_id', id);
+
+            const blocked: BlockedUserResponseDto[] = blockedUsers.map(blockedUser => ({
+                id: blockedUser.id,
+                username: blockedUser.username,
+                main_photo_url: blockedUser.main_photo_url || null,
+                blocked_at: blockedUser.blocked_at
+            }));
+
+            return {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                first_name: user.first_name,
+                last_name: user.last_name,
+                created_at: user.created_at,
+                profile_id: user.profile_id,
+                owner_user_id: user.id,
+                biography: user.biography,
+                gender: user.gender,
+                age: user.age,
+                main_photo_id: user.main_photo_id,
+                location: {
+                    latitude: parseFloat(user.latitude),
+                    longitude: parseFloat(user.longitude),
+                    city_name: user.city_name
+                },
+                fame_rating: user.fame_rating,  // Correction pour s'assurer que fame_rating est bien pris en compte
+                last_connection: user.last_connection,
+                main_photo_url: user.main_photo_url,
+                likers: likers,
+                visitors: visitors,
+                matchers: matchers,
+                photos: photos,
+                tags: tags,
+                blocked: blocked  // Ajout des utilisateurs bloqués avec la date de blocage
+            } as UserResponseDto;
+
+        } catch (error) {
+            console.error("Error fetching user:", error);  // Correction du message d'erreur
+            throw new Error(`Could not fetch user id ${id}`);
+        }
+    };
+
+    async findOneByEmail(email: string): Promise<UserLoginPasswordCheckDto | null> {
+        try {
+            return await db('users').select('id', 'email', 'password').where('email', email).first();
+        } catch (e) {
+            console.error("Error fetching users:", e);
+            throw new Error("Could not fetch users");
+        }
+    }
+
+    async advancedSearch(filters: {
+        ageMin?: number;
+        ageMax?: number;
+        fameMin?: number;
+        fameMax?: number;
+        location?: string;
+        tags?: number[];
+        preferredGenders?: number[];
+    }): Promise<any[]> {
+        const query = db('users')
+            .select(
+                'users.id',
+                'users.username',
+                'profiles.age',
+                'profiles.fame_rating',
+                'locations.city_name',
+                db.raw('ARRAY_AGG(tags.tag_name) AS interests')
+            )
+            .join('profiles', 'users.id', 'profiles.owner_user_id')
+            .leftJoin('locations', 'profiles.location', 'locations.location_id')
+            .leftJoin('profile_tag', 'profiles.profile_id', 'profile_tag.profile_id')
+            .leftJoin('tags', 'profile_tag.profile_tag', 'tags.tag_id')
+            .groupBy('users.id', 'profiles.age', 'profiles.fame_rating', 'locations.city_name');
+
+        // Appliquer les filtres dynamiquement
+        if (filters.ageMin !== undefined) {
+            query.where('profiles.age', '>=', filters.ageMin);
+        }
+        if (filters.ageMax !== undefined) {
+            query.where('profiles.age', '<=', filters.ageMax);
+        }
+        if (filters.fameMin !== undefined) {
+            query.where('profiles.fame_rating', '>=', filters.fameMin);
+        }
+        if (filters.fameMax !== undefined) {
+            query.where('profiles.fame_rating', '<=', filters.fameMax);
+        }
+        if (filters.location) {
+            query.where('locations.city_name', 'ILIKE', `%${filters.location}%`);
+        }
+        if (filters.tags && filters.tags.length > 0) {
+            query.whereIn('tags.tag_id', filters.tags);
+        }
+
+        // Filtrer par préférences sexuelles si spécifiées
+        if (filters.preferredGenders && filters.preferredGenders.length > 0) {
+            query.whereIn('profiles.gender', filters.preferredGenders);
+        }
+
+        return await query;
+    }
+
+    private getUserLightResponseList = async (userRows: { id: number }[]): Promise<UserLightResponseDto[]> => {
+        return Promise.all(userRows.map(async ({id}) => {
+            const user = await db('users')
+                .select('id', 'username', 'last_name', 'first_name')
+                .where('id', id)
+                .first();
+
+            const mainPhotoUrl = await this.getMainPhotoUrl(id);
+
+            return {
+                id: user.id,
+                username: user.username,
+                main_photo_url: mainPhotoUrl || null,
+                age: user.age,
+                gender: user.gender
+            } as UserLightResponseDto;
+        }));
+    }
+
+    private getMainPhotoUrl = async (userId: number): Promise<string | null> => {
+        const photo = await db('photos')
+            .join('profiles', 'photos.photo_id', 'profiles.main_photo_id')
+            .select('photos.url')
+            .where('profiles.owner_user_id', userId)
+            .first();
+        return photo ? photo.url : null;
+    }
+}
+
+export default new UserDAL();
+export interface LoginDto {
+    email: string;
+    password: string;
+}import joi from "joi";
+
+export const LoginDtoValidation = joi.object({
+    email: joi.string().email().required(),
+    password: joi.string().required(),
+})import joi, {number} from "joi";
+
+//Informations retournées si login == success
+const LoginResponseDTO = joi.object({
+    id: joi.number().required(),
+    token: joi.string(),
+})import joi from 'joi';
+
+export interface LocationDto {
+    latitude: number;
+    longitude: number;
+}
+
+export interface ProfileCreateDto {
+    biography: string;
+    gender: number;
+    age: number;
+    main_photo_id?: number;
+    location?: LocationDto;
+    tags?: number[];
+    sexualPreferences?: number[];
+}
+
+export const LocationDtoValidation = joi.object({
+    latitude: joi.number().required(),
+    longitude: joi.number().required(),
+});
+
+export const ProfileCreateDtoValidation = joi.object({
+    biography: joi.string().max(1024).required(),
+    gender: joi.number().integer().required(),
+    age: joi.number().integer().min(18).required(),
+    main_photo_id: joi.number().integer(),
+    location: LocationDtoValidation,
+    tags: joi.array().items(joi.number().integer()),
+    sexualPreferences: joi.array().items(joi.number().integer()),
+});
+import {Photo} from "../../models/Photo";
+import {Tag} from "../../models/Tags";
+
+export interface ProfileResponseDto {
+    profile_id: number;
+    owner_user_id: number;
+    biography: string;
+    gender: number;
+    age: number;
+    main_photo_id?: number;
+    main_photo_url?: string;
+    photos?: Photo[];
+    location?: {
+        location_id: number;
+        latitude: number;
+        longitude: number;
+        city_name?: string;
+    };
+    tags?: Tag[];
+    fame_rating: number;
+    last_connection?: Date;
+}
+import joi from 'joi';
+import {LocationDtoValidation} from "./ProfileCreateDto";
+
+export interface LocationDto {
+    latitude: number;
+    longitude: number;
+}
+
+export interface ProfileUpdateDto {
+    biography?: string;
+    gender?: number;
+    age?: number;
+    main_photo_id?: number;
+    location?: LocationDto;
+    tags?: number[];
+    sexualPreferences?: number[];
+}
+
+export const ProfileUpdateDtoValidation = joi.object({
+    biography: joi.string().max(1024),
+    gender: joi.number().integer(),
+    age: joi.number().integer().min(18),
+    main_photo_id: joi.number().integer(),
+    location: LocationDtoValidation,
+    tags: joi.array().items(joi.number().integer()),
+    sexualPreferences: joi.array().items(joi.number().integer()),
+});
+export interface BlockedUserResponseDto {
+    id: number;
+    username: string;
+    main_photo_url: string;
+    blocked_at: Date;
+}export interface UserCreateDto {
+    username: string;
+    last_name: string;
+    first_name: string;
+    email: string;
+    password: string;
+}
+import joi from "joi";
+
+export const UserCreateDtoValidation = joi.object({
+    username: joi.string().required(),
+    last_name: joi.string().required(),
+    first_name: joi.string().required(),
+    email: joi.string().email().required(),
+    password: joi.string().required(),
+});
+export interface UserLightResponseDto {
+    id: number;
+    username: string;
+    main_photo_url: string;
+    location?: {
+        latitude: number;
+        longitude: number;
+        city_name?: string;
+    };
+    age: number;
+    gender: number;
+}export interface UserLoginPasswordCheckDto {
+    id: number;
+    password: string;
+}import {UserLightResponseDto} from "./UserLightResponseDto";
+import Photo from "../../models/Photo";
+import {Tag} from "../../models/Tags";
+import {BlockedUserResponseDto} from "./BlockedUserResponseDto";
+
+//Fourni un user complet pour les get ciblés byId avec toutes les infos profile / listes de like/match etc
+export interface UserResponseDto extends UserLightResponseDto {
+    id: number;
+    email: string;
+    created_at: Date;
+    profile_id: number;
+    biography: string;
+    gender: number;
+    age: number;
+    main_photo_id?: number;
+    photos: Photo[];
+    tags?: Tag[];
+    location?: {
+        latitude: number;
+        longitude: number;
+        city_name?: string;
+    };
+    fame_rating: number;
+    last_connection?: Date;
+    likers?: UserLightResponseDto[];
+    visitors?: UserLightResponseDto[];
+    matchers?: UserLightResponseDto[];
+    blocked?: BlockedUserResponseDto[];
+}export interface UserUpdateDto {
+    last_name: string;
+    first_name: string;
+    email: string;
+}import joi from "joi";
+
+export const UserUpdateDtoValidation = joi.object({
+    last_name: joi.string().required(),
+    first_name: joi.string().required(),
+    email: joi.string().email().required(),
+})
+import {Request, Response, NextFunction} from 'express';
+import JwtService from '../services/JwtService';
+import UserServices from "../services/UserServices";
+
+export interface AuthenticatedRequest extends Request {
+    userId?: number;
+}
+
+// Chemins à exclure
+const excludedPaths = [
+    {url: /^\/api\/login\/?$/, methods: ['POST']},
+    {url: /^\/api\/login\/refresh\/?$/, methods: ['POST']},
+    {url: /^\/api\/users\/?$/, methods: ['POST']},
+];
+
+const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    // Vérifier si le chemin de la requête est dans les chemins exclus
+    const isExcluded = excludedPaths.some(excluded => {
+        const matchUrl = excluded.url.test(req.originalUrl);
+        const matchMethod = excluded.methods.includes(req.method);
+        return matchUrl && matchMethod;
+    });
+
+    if (isExcluded) {
+        return next();
+    }
+
+    // Récupérer le token de l'en-tête Authorization
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({error: 'Non autorisé : aucun token fourni'});
+    }
+
+    const token = authHeader.substring(7);
+
+    const payload = JwtService.verifyAccessToken(token);
+
+    if (!payload) {
+        return res.status(401).json({error: 'Non autorisé : token invalide'});
+    }
+
+    // Vérifier si l'utilisateur existe toujours dans la base de données
+    const user = await UserServices.getUserById(payload.id);
+    if (!user) {
+        return res.status(401).json({error: 'Non autorisé : utilisateur supprimé ou inexistant'});
+    }
+    req.userId = payload.id;
+
+    next();
+};
+
+export default authMiddleware;
+export interface BlockedUser {
+    id: number;
+    blocker_id: number;
+    blocked_id: number;
+    blocked_at: Date;
+}interface Gender {
+    gender_id: number;
+    name: string;
+    description?: string;
+}
+export interface Like {
+    like_id: number;
+    user: number;
+    user_liked: number;
+}interface Location {
+    location_id: number;
+    latitude: number;
+    longitude: number;
+    city_name?: string;
+}
+export interface Matches {
+    match_id: number;
+    user_1: number;
+    user_2: number;
+    matched_at: Date;
+}export interface Photo {
+    photo_id: number;
+    url: string;
+    description?: string;
+    owner_user_id: number;
+}
+interface Profile {
+    profile_id: number;
+    owner_user_id: number;
+    biography: string;
+    gender: number;
+    age: number;
+    main_photo_id?: number; // => photo_id
+    location?: Location;
+    last_connection?: Date;
+}
+export interface Tag {
+    tag_id: number;
+    tag_name: string;
+}
+export interface User {
+    id: number;
+    username: string;
+    last_name: string;
+    first_name: string;
+    email: string;
+    password?: string;
+    created_at: Date;
+    // sso_type?: number;
+}export interface VisitedProfileHistory {
+    id: number;
+    visiter: number;
+    visited: number;
+    visited_at: Date;
+}import {Router} from 'express';
+import userRoute from "./userRoutes";
+import loginRoutes from "./loginRoutes";
+import profileRoutes from './profileRoutes';
+
+const router = Router();
+
+router.use('/users', userRoute);
+router.use('/login', loginRoutes);
+router.use('/profiles', profileRoutes);
+
+export default router;
+import {Router} from 'express';
+import LoginController from "../controllers/loginController";
+
+const router = Router();
+
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     security: []
+ *     summary: Authentification utilisateur
+ *     description: Authentifie un utilisateur avec son email et mot de passe, retourne un JWT.
+ *     tags:
+ *       - Authentification
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 description: Email de l'utilisateur
+ *                 example: jean.dupont@mail.fr
+ *               password:
+ *                 type: string
+ *                 description: Mot de passe de l'utilisateur
+ *                 example: 1234
+ *     responses:
+ *       200:
+ *         description: Succès de la connexion, retourne un access et un refresh token.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 accessToken:
+ *                   type: string
+ *                 refreshToken:
+ *                   type: string
+ *       401:
+ *         description: Identifiants incorrects.
+ *       400:
+ *         description: Erreur de validation.
+ */
+router.post('/', LoginController.loginWithPassword);
+
+/**
+ * @swagger
+ * /login/refresh:
+ *   post:
+ *     security: []
+ *     summary: Rafraîchir le token JWT
+ *     description: Génère de nouveaux tokens à partir du refresh token fourni.
+ *     tags:
+ *       - Authentification
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - refreshToken
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 description: Refresh token de l'utilisateur
+ *     responses:
+ *       200:
+ *         description: Retourne les nouveaux access et refresh tokens.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 accessToken:
+ *                   type: string
+ *                 refreshToken:
+ *                   type: string
+ *       401:
+ *         description: Refresh token invalide.
+ *       400:
+ *         description: Le refresh token est requis.
+ */
+router.post('/refresh', LoginController.refreshToken);
+
+export default router;
+// src/routes/profileRoutes.ts
+import {Router} from 'express';
+import profileController from '../controllers/profileController';
+import authMiddleware from '../middlewares/authMiddleware';
+
+const router = Router();
+
+/**
+ * @swagger
+ * /profiles/me:
+ *   get:
+ *     summary: Récupérer le profil de l'utilisateur connecté
+ *     tags:
+ *       - Profils
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Profil récupéré avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ProfileResponseDto'
+ *       404:
+ *         description: Profil non trouvé
+ */
+router.get('/me', authMiddleware, profileController.getMyProfile);
+
+/**
+ * @swagger
+ * /profiles:
+ *   post:
+ *     summary: Créer un profil pour l'utilisateur connecté
+ *     tags:
+ *       - Profils
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ProfileCreateDto'
+ *     responses:
+ *       201:
+ *         description: Profil créé avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 profileId:
+ *                   type: integer
+ *                   example: 1
+ *       400:
+ *         description: Erreur de validation ou profil déjà existant
+ */
+router.post('/', authMiddleware, profileController.createMyProfile);
+
+/**
+ * @swagger
+ * /profiles:
+ *   put:
+ *     summary: Mettre à jour le profil de l'utilisateur connecté
+ *     tags:
+ *       - Profils
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ProfileUpdateDto'
+ *     responses:
+ *       200:
+ *         description: Profil mis à jour avec succès
+ *       400:
+ *         description: Erreur de validation
+ *       404:
+ *         description: Profil non trouvé
+ */
+router.put('/', authMiddleware, profileController.updateMyProfile);
+
+/**
+ * @swagger
+ * /profiles:
+ *   delete:
+ *     summary: Supprimer le profil de l'utilisateur connecté
+ *     tags:
+ *       - Profils
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Profil supprimé avec succès
+ *       404:
+ *         description: Profil non trouvé
+ */
+router.delete('/', authMiddleware, profileController.deleteMyProfile);
+
+export default router;
+import {Router} from 'express';
+import UserController from "../controllers/userController";
+
+const router = Router();
+
+/**
+ * @swagger
+ * /users/search:
+ *   get:
+ *     summary: Recherche avancée d'utilisateurs
+ *     description: Recherche des utilisateurs selon des critères spécifiques (âge, localisation, notoriété, etc.).
+ *     tags:
+ *       - Utilisateurs
+ *     parameters:
+ *       - in: query
+ *         name: ageMin
+ *         schema:
+ *           type: integer
+ *         description: Âge minimum de l'utilisateur
+ *       - in: query
+ *         name: ageMax
+ *         schema:
+ *           type: integer
+ *         description: Âge maximum de l'utilisateur
+ *       - in: query
+ *         name: fameMin
+ *         schema:
+ *           type: integer
+ *         description: Notoriété minimale
+ *       - in: query
+ *         name: fameMax
+ *         schema:
+ *           type: integer
+ *         description: Notoriété maximale
+ *       - in: query
+ *         name: location
+ *         schema:
+ *           type: string
+ *         description: Localisation de l'utilisateur
+ *       - in: query
+ *         name: tags
+ *         schema:
+ *           type: string
+ *           description: Liste des tags séparés par des virgules
+ *       - in: query
+ *         name: sexualPreferences
+ *         schema:
+ *           type: string
+ *           description: Liste des préférences sexuelles séparées par des virgules
+ *     responses:
+ *       200:
+ *         description: Liste des utilisateurs correspondant aux critères.
+ */
+router.get('/search', UserController.advancedSearch);
+
+/**
+ * @swagger
+ * /users:
+ *   post:
+ *     security: []
+ *     summary: Créer un nouvel utilisateur
+ *     description: Crée un nouvel utilisateur avec les informations fournies.
+ *     tags:
+ *       - Utilisateurs
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - first_name
+ *               - last_name
+ *               - email
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 description: Nom d'utilisateur
+ *                 example: "JeanDup"
+ *               first_name:
+ *                 type: string
+ *                 description: Prénom de l'utilisateur
+ *                 example: "DUPONT"
+ *               last_name:
+ *                 type: string
+ *                 description: Nom de famille de l'utilisateur
+ *                 example: "Jean"
+ *               email:
+ *                 type: string
+ *                 description: Adresse email de l'utilisateur
+ *                 example: "jean.dupont@mail.fr"
+ *               password:
+ *                 type: string
+ *                 description: Mot de passe
+ *                 example: "1234"
+ *     responses:
+ *       201:
+ *         description: Utilisateur créé avec succès.
+ *       400:
+ *         description: Erreur de validation ou email déjà pris.
+ */
+
+router.post('/', UserController.createUser);
+
+/**
+ * @swagger
+ * /users:
+ *   get:
+ *     summary: Récupérer tous les utilisateurs
+ *     description: Retourne une liste de tous les utilisateurs.
+ *     tags:
+ *       - Utilisateurs
+ *     responses:
+ *       200:
+ *         description: Liste des utilisateurs récupérée avec succès.
+ */
+router.get('/', UserController.getAllUsers);
+
+/**
+ * @swagger
+ * /users/me:
+ *   get:
+ *     summary: Récupérer les informations de l'utilisateur connecté
+ *     description: Renvoie les informations de l'utilisateur connecté à partir du token JWT.
+ *     tags:
+ *       - Utilisateurs
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Informations de l'utilisateur connecté récupérées avec succès.
+ *       401:
+ *         description: Non autorisé.
+ */
+router.get('/me', UserController.getMe);
+
+/**
+ * @swagger
+ * /users/{id}:
+ *   get:
+ *     summary: Récupérer un utilisateur par ID
+ *     description: Retourne les informations d'un utilisateur en fonction de son ID.
+ *     tags:
+ *       - Utilisateurs
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID de l'utilisateur
+ *     responses:
+ *       200:
+ *         description: Utilisateur récupéré avec succès.
+ *       404:
+ *         description: Utilisateur non trouvé.
+ */
+router.get('/:id', UserController.getUserById);
+
+/**
+ * @swagger
+ * /users/:
+ *   put:
+ *     summary: Mettre à jour l'utilisateur authentifié
+ *     description: Met à jour les informations d'un utilisateur en fonction de son ID extrait de son token JWT.
+ *     tags:
+ *       - Utilisateurs
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: jean.dupont@42Lyon.fr
+ *               first_name:
+ *                 type: string
+ *                 example: Dupont
+ *               last_name:
+ *                 type: string
+ *                 example: Jean
+ *     responses:
+ *       200:
+ *         description: Utilisateur mis à jour avec succès.
+ *       400:
+ *         description: Erreur de validation.
+ *       404:
+ *         description: Utilisateur non trouvé.
+ */
+router.put('/', UserController.updateUser);
+
+/**
+ * @swagger
+ * /users/:
+ *   delete:
+ *     summary: Supprimer l'utilisateur authentifié
+ *     description: Supprime un utilisateur authentifié, l'ID est extrait via son token JWT.
+ *     tags:
+ *       - Utilisateurs
+ *     responses:
+ *       200:
+ *         description: Utilisateur supprimé avec succès.
+ *       404:
+ *         description: Utilisateur non trouvé.
+ */
+router.delete('/', UserController.deleteUser);
+
+export default router;
+import jwt from 'jsonwebtoken';
+import {IJwtPayload} from "../types/IJwtPayload";
+
+if (!process.env.JWT_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
+    throw new Error("Les variables d'environnement JWT_SECRET et REFRESH_TOKEN_SECRET sont obligatoires.");
+}
+
+
+const JWT_SECRET = process.env.JWT_SECRET;
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
+const ACCESS_TOKEN_EXPIRATION = '2h'; // Expires in 15 minutes
+const REFRESH_TOKEN_EXPIRATION = '7d'; // Expires in 7 days
+
+
+class JwtService {
+    // Génère un access token
+    generateAccessToken(payload: IJwtPayload): string {
+        return jwt.sign(payload, JWT_SECRET, {expiresIn: ACCESS_TOKEN_EXPIRATION});
+    }
+
+    // Génère un refresh token
+    generateRefreshToken(payload: IJwtPayload): string {
+        return jwt.sign(payload, REFRESH_TOKEN_SECRET, {expiresIn: REFRESH_TOKEN_EXPIRATION});
+    }
+
+    // Vérifie le token JWT (access token)
+    verifyAccessToken(token: string): IJwtPayload | null {
+        try {
+            return jwt.verify(token, JWT_SECRET) as IJwtPayload;
+        } catch (error) {
+            console.error('Erreur de validation du token JWT:', error);
+            return null;
+        }
+    }
+
+    // Vérifie le refresh token
+    verifyRefreshToken(token: string): IJwtPayload | null {
+        try {
+            return jwt.verify(token, REFRESH_TOKEN_SECRET) as IJwtPayload;
+        } catch (error) {
+            console.error('Erreur de validation du refresh token:', error);
+            return null;
+        }
+    }
+
+    // Génère à la fois un access token et un refresh token
+    generateTokens(payload: IJwtPayload): { accessToken: string, refreshToken: string } {
+        const accessToken = this.generateAccessToken(payload);
+        const refreshToken = this.generateRefreshToken(payload);
+        return {accessToken, refreshToken};
+    }
+
+    // Rafraîchit l'access token à partir d'un refresh token valide
+    refreshAccessToken(refreshToken: string): string | null {
+        const payload = this.verifyRefreshToken(refreshToken);
+        if (payload) {
+            return this.generateAccessToken(payload);
+        }
+        return null;
+    }
+}
+
+export default new JwtService();
+import userDAL from "../DataAccessLayer/UserDAL";
+import {UserResponseDto} from "../DTOs/users/UserResponseDto";
+import {PasswordService} from "./PasswordService";
+import {LoginDto} from "../DTOs/login/LoginDto";
+import JwtService from "./JwtService"; // Importation de JwtService
+import {IJwtPayload} from "../types/IJwtPayload"; // Importation de IJwtPayload pour le type
+
+class LoginServices {
+    async login(userTryLogin: LoginDto): Promise<{
+        user: UserResponseDto,
+        accessToken: string,
+        refreshToken: string
+    } | null> {
+        // Récupérer l'utilisateur à partir de l'email fourni
+        const user = await userDAL.findOneByEmail(userTryLogin.email);
+        if (!user) {
+            return null; // Si l'utilisateur n'existe pas
+        }
+
+        // Vérification du mot de passe
+        if (await PasswordService.verifyPassword(userTryLogin.password, user.password)) {
+            const userResponse = await userDAL.findOne(user.id);
+
+            if (!userResponse) {
+                return null;
+            }
+
+            // Créer le payload pour le token JWT
+            const payload: IJwtPayload = {id: user.id};
+
+            // Générer les tokens
+            const {accessToken, refreshToken} = JwtService.generateTokens(payload);
+
+            // Retourner les informations utilisateur + les tokens
+            return {
+                user: userResponse,   // Informations de l'utilisateur
+                accessToken,          // Access token
+                refreshToken          // Refresh token
+            };
+        }
+
+        return null; // Si le mot de passe est incorrect
+    }
+}
+
+export default new LoginServices();
+import bcrypt from 'bcryptjs';
+
+export class PasswordService {
+    static async hashPassword(password: string): Promise<string> {
+        try {
+            return await bcrypt.hash(password, 10);
+        } catch (error) {
+            console.error('Error hashing password:', error);
+            throw error; // Re-lance l'erreur pour être capturée dans createUser
+        }
+    }
+
+    static async verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
+        try {
+            return await bcrypt.compare(password, hashedPassword);
+        } catch (error) {
+            throw error;
+        }
+    }
+}
+import profileDAL from '../DataAccessLayer/ProfileDAL';
+import {ProfileCreateDto} from '../DTOs/profiles/ProfileCreateDto';
+import {ProfileUpdateDto} from '../DTOs/profiles/ProfileUpdateDto';
+import {ProfileResponseDto} from '../DTOs/profiles/ProfileResponseDto';
+import geocoder from "../config/geocoder";
+import locationDAL from "../DataAccessLayer/LocationDAL";
+
+class ProfileServices {
+    async getProfileByUserId(userId: number): Promise<ProfileResponseDto | null> {
+        return await profileDAL.findByUserId(userId);
+    }
+
+    async createProfile(userId: number, profileData: ProfileCreateDto): Promise<number> {
+        let locationId: number | undefined = undefined;
+
+        if (profileData.location) {
+            const {latitude, longitude} = profileData.location;
+
+            try {
+                // Obtenir le nom de la ville à partir des coordonnées
+                const res = await geocoder.reverse({lat: latitude, lon: longitude});
+                let cityName = null;
+                if (res && res.length > 0 && res[0].city) {
+                    cityName = res[0].city;
+                }
+                console.log('DBG LOCATION :', res[0]);
+
+                // Vérifier si la localisation existe déjà
+                let location = await locationDAL.findByCoordinates(latitude, longitude);
+
+                if (location) {
+                    locationId = location.location_id;
+                } else {
+                    // Créer une nouvelle localisation
+                    locationId = await locationDAL.create(latitude, longitude, cityName);
+                }
+            } catch (error) {
+                console.error('Erreur lors du géocodage inverse :', error);
+                throw new Error('Impossible de déterminer la localisation. Veuillez réessayer plus tard.');
+            }
+        }
+
+        // Préparer les données du profil avec l'ID de localisation
+        const profileDataWithLocationId = {
+            ...profileData,
+            location: locationId, // Ajouter l'ID de localisation dans les données du profil
+        };
+
+        return await profileDAL.create(userId, profileDataWithLocationId);
+    }
+
+    async updateProfile(userId: number, profileData: ProfileUpdateDto): Promise<void> {
+        const profile = await profileDAL.findByUserId(userId);
+        if (!profile) {
+            throw {status: 404, message: 'Profil non trouvé'};
+        }
+
+        let locationId: number | undefined = undefined;
+
+        if (profileData.location) {
+            const {latitude, longitude} = profileData.location;
+
+            try {
+                // Obtenir le nom de la ville à partir des coordonnées
+                const res = await geocoder.reverse({lat: latitude, lon: longitude});
+                let cityName = null;
+                if (res && res.length > 0 && res[0].city) {
+                    cityName = res[0].city;
+                }
+                console.log('DBG LOCATION :', res[0]);
+
+                // Vérifier si la localisation existe déjà
+                let location = await locationDAL.findByCoordinates(latitude, longitude);
+
+                if (location) {
+                    locationId = location.location_id;
+                } else {
+                    // Créer une nouvelle localisation
+                    locationId = await locationDAL.create(latitude, longitude, cityName);
+                }
+            } catch (error) {
+                console.error('Erreur lors du géocodage inverse :', error);
+                throw new Error('Impossible de déterminer la localisation. Veuillez réessayer plus tard.');
+            }
+        }
+
+        // Préparer les données du profil avec l'ID de localisation
+        const profileDataToUpdate: any = {
+            ...profileData,
+            location: locationId, // Ajouter l'ID de localisation dans les données du profil
+        };
+
+        await profileDAL.update(profile.profile_id, profileDataToUpdate);
+    }
+
+    async deleteProfile(userId: number): Promise<void> {
+        // Récupérer le profil pour vérifier s'il appartient à l'utilisateur
+        const profile = await profileDAL.findByUserId(userId);
+        if (!profile) {
+            throw {status: 404, message: 'Profil non trouvé'};
+        }
+
+        await profileDAL.delete(profile.profile_id);
+    }
+}
+
+export default new ProfileServices();
+import userDAL from "../DataAccessLayer/UserDAL";
+import {UserLightResponseDto} from "../DTOs/users/UserLightResponseDto";
+import {UserResponseDto} from "../DTOs/users/UserResponseDto";
+import {UserCreateDto} from "../DTOs/users/UserCreateDto";
+import {PasswordService} from "./PasswordService";
+import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
+
+class UserServices {
+    async getAllUsers(): Promise<UserLightResponseDto[]> {
+        return await userDAL.findAll();
+    }
+
+    async getUserById(id: number): Promise<UserResponseDto | null> {
+        return await userDAL.findOne(id);
+    }
+
+    async createUser(newUser: UserCreateDto): Promise<number> {
+        newUser.password = await PasswordService.hashPassword(newUser.password);
+        return await userDAL.save(newUser);
+    }
+
+    async updateUser(userId: number, userUpdate: UserUpdateDto): Promise<void> {
+        return await userDAL.update(userId, userUpdate);
+    }
+
+    async deleteUser(userId: number): Promise<void> {
+        return await userDAL.delete(userId);
+    }
+
+    async advancedSearch(
+        ageMin?: number,
+        ageMax?: number,
+        fameMin?: number,
+        fameMax?: number,
+        location?: string,
+        tags?: number[],
+        preferredGenders?: number[]
+    ): Promise<any[]> {
+        const filters = {ageMin, ageMax, fameMin, fameMax, location, tags, preferredGenders};
+        return await userDAL.advancedSearch(filters);
+    }
+}
+
+export default new UserServices();export interface IJwtPayload {
+    id: number;
+}
