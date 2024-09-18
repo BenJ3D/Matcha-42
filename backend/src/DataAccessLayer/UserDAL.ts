@@ -6,7 +6,7 @@ import {UserCreateDto} from "../DTOs/users/UserCreateDto";
 import {Tag} from "../models/Tags";
 import {UserLoginPasswordCheckDto} from "../DTOs/users/UserLoginPasswordCheckDto";
 import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
-import {User} from "../models/User";
+import {Gender} from "../models/Genders";
 
 class UserDAL {
 
@@ -168,6 +168,11 @@ class UserDAL {
                 .join('profile_tag', 'tags.tag_id', 'profile_tag.profile_tag')
                 .where('profile_tag.profile_id', user.profile_id);
 
+            const sexualPreferences: Gender[] = await db('genders')
+                .select('genders.gender_id', 'genders.name', 'genders.description')
+                .join('profile_sexual_preferences', 'genders.gender_id', 'profile_sexual_preferences.gender_id')
+                .where('profile_sexual_preferences.profile_id', user.profile_id);
+
             // Récupérer les utilisateurs bloqués par cet utilisateur
             const blockedUsers = await db('blocked_users')
                 .select('users.id', 'users.username', 'photos.url as main_photo_url', 'blocked_users.blocked_at')
@@ -208,6 +213,7 @@ class UserDAL {
                 visitors: visitors,
                 matchers: matchers,
                 photos: photos,
+                sexualPreferences: sexualPreferences,
                 tags: tags,
                 blocked: blocked  // Ajout des utilisateurs bloqués avec la date de blocage
             } as UserResponseDto;

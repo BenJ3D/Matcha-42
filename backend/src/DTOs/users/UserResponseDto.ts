@@ -1,5 +1,5 @@
 import {UserLightResponseDto} from "./UserLightResponseDto";
-import Photo from "../../models/Photo";
+import {Photo} from "../../models/Photo";
 import {Tag} from "../../models/Tags";
 import {BlockedUserResponseDto} from "./BlockedUserResponseDto";
 
@@ -14,6 +14,7 @@ export interface UserResponseDto extends UserLightResponseDto {
     age: number;
     main_photo_id?: number;
     photos: Photo[];
+    sexualPreferences?: Gender[];
     tags?: Tag[];
     location?: {
         latitude: number;
