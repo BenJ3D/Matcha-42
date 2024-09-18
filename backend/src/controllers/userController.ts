@@ -117,6 +117,11 @@ const userController = {
 
     advancedSearch: async (req: AuthenticatedRequest, res: Response) => {
         try {
+            const userId = req.userId;
+            if (!userId) {
+                return res.status(401).json({error: "Non Authenticated"});
+            }
+
             const {
                 ageMin,
                 ageMax,
@@ -136,13 +141,14 @@ const userController = {
             const sexualPreferencesArray = sexualPreferences ? (sexualPreferences as string).split(',').map(Number) : undefined;
 
             const results = await userServices.advancedSearch(
+                userId,
                 ageMinInt,
                 ageMaxInt,
                 fameMinInt,
                 fameMaxInt,
                 location as string,
                 tagsArray,
-                sexualPreferencesArray // Utiliser le bon paramètre ici
+                // sexualPreferencesArray // Utiliser le bon paramètre ici
             );
 
             return res.json(results);

@@ -241,7 +241,7 @@ class UserDAL {
         location?: string;
         tags?: number[];
         preferredGenders?: number[];
-    }): Promise<any[]> {
+    }, userId: number): Promise<any[]> {
         const query = db('users')
             .select(
                 'users.id',
@@ -255,7 +255,8 @@ class UserDAL {
             .leftJoin('locations', 'profiles.location', 'locations.location_id')
             .leftJoin('profile_tag', 'profiles.profile_id', 'profile_tag.profile_id')
             .leftJoin('tags', 'profile_tag.profile_tag', 'tags.tag_id')
-            .groupBy('users.id', 'profiles.age', 'profiles.fame_rating', 'locations.city_name');
+            .groupBy('users.id', 'profiles.age', 'profiles.fame_rating', 'locations.city_name')
+            .where('users.id', '!=', userId);
 
         // Appliquer les filtres dynamiquement
         if (filters.ageMin !== undefined) {

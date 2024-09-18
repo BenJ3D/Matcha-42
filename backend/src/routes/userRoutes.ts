@@ -42,11 +42,6 @@ const router = Router();
  *         schema:
  *           type: string
  *           description: Liste des tags séparés par des virgules
- *       - in: query
- *         name: sexualPreferences
- *         schema:
- *           type: string
- *           description: Liste des préférences sexuelles séparées par des virgules
  *     responses:
  *       200:
  *         description: Liste des utilisateurs correspondant aux critères.

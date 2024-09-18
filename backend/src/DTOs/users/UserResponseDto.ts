@@ -2,6 +2,7 @@ import {UserLightResponseDto} from "./UserLightResponseDto";
 import {Photo} from "../../models/Photo";
 import {Tag} from "../../models/Tags";
 import {BlockedUserResponseDto} from "./BlockedUserResponseDto";
+import {Gender} from "../../models/Genders"
 
 //Fourni un user complet pour les get ciblés byId avec toutes les infos profile / listes de like/match etc
 export interface UserResponseDto extends UserLightResponseDto {
