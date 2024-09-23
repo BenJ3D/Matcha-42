@@ -6,6 +6,8 @@ import {UserCreateDtoValidation} from "../DTOs/users/UserCreateDtoValidation";
 import userServices from "../services/UserServices";
 import {UserUpdateDtoValidation} from "../DTOs/users/UserUpdateDtoValidation";
 import {AuthenticatedRequest} from "../middlewares/authMiddleware";
+import {SearchValidationSchema} from "../DTOs/users/SearchValidationSchemaDto";
+import {VALID_SORT_FIELDS, VALID_ORDER_VALUES, SortField, SortOrder} from '../config/sortConfig';
 
 const userController = {
     getAllUsers: async (req: Request, res: Response) => {
@@ -116,6 +118,13 @@ const userController = {
     },
 
     advancedSearch: async (req: AuthenticatedRequest, res: Response) => {
+        const {error, value: newUser} = SearchValidationSchema.validate(req.body);
+
+        if (error) {
+            return res.status(400).json({error: "Validation échouée", details: error.details});
+        }
+
+
         try {
             const userId = req.userId;
             if (!userId) {
@@ -128,8 +137,9 @@ const userController = {
                 fameMin,
                 fameMax,
                 location,
-                tags, // Tags attendus sous forme de tableau
-                sexualPreferences // Paramètre pour les préférences sexuelles
+                tags,
+                sortBy,
+                order
             } = req.query;
 
             // Convertir les critères en types corrects
@@ -138,7 +148,21 @@ const userController = {
             const fameMinInt = fameMin ? parseInt(fameMin as string, 10) : undefined;
             const fameMaxInt = fameMax ? parseInt(fameMax as string, 10) : undefined;
             const tagsArray = tags ? (tags as string).split(',').map(Number) : undefined;
-            const sexualPreferencesArray = sexualPreferences ? (sexualPreferences as string).split(',').map(Number) : undefined;
+            const sortByStr = sortBy ? (sortBy as string) : undefined;
+            const orderStr = order ? (order as string).toLowerCase() : 'asc';
+
+            // Validation des paramètres de tri
+            if (sortByStr && !VALID_SORT_FIELDS.includes(sortByStr as SortField)) {
+                return res.status(400).json({
+                    error: `Le champ de tri '${sortByStr}' n'est pas valide. Les champs valides sont : ${VALID_SORT_FIELDS.join(', ')}.`
+                });
+            }
+
+            if (orderStr && !VALID_ORDER_VALUES.includes(orderStr as SortOrder)) {
+                return res.status(400).json({
+                    error: `La valeur de 'order' doit être 'asc' ou 'desc'.`
+                });
+            }
 
             const results = await userServices.advancedSearch(
                 userId,
@@ -148,7 +172,8 @@ const userController = {
                 fameMaxInt,
                 location as string,
                 tagsArray,
-                // sexualPreferencesArray // Utiliser le bon paramètre ici
+                sortByStr,
+                orderStr
             );
 
             return res.json(results);
@@ -156,8 +181,6 @@ const userController = {
             res.status(e.status || 500).json({error: e.message});
         }
     }
-
-
 };
 
 export default userController;

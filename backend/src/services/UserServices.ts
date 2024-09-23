@@ -36,6 +36,8 @@ class UserServices {
         fameMax?: number,
         location?: string,
         tags?: number[],
+        sortBy?: string,
+        order?: string
     ): Promise<any[]> {
         // Récupérer les préférences sexuelles de l'utilisateur
         const userProfile = await profileDAL.findByUserId(userId);
@@ -43,7 +45,6 @@ class UserServices {
             throw {status: 404, message: 'Profil non trouvé'};
         }
 
-        // Récupérer les préférences sexuelles de l'utilisateur
         const sexualPreferences = await profileDAL.getSexualPreferences(userProfile.profile_id);
 
         const filters = {
@@ -54,6 +55,8 @@ class UserServices {
             location,
             tags,
             preferredGenders: sexualPreferences.map((gender) => gender.gender_id),
+            sortBy,
+            order
         };
 
         return await userDAL.advancedSearch(filters, userId);

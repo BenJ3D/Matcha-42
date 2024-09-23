@@ -241,6 +241,8 @@ class UserDAL {
         location?: string;
         tags?: number[];
         preferredGenders?: number[];
+        sortBy?: string;
+        order?: string;
     }, userId: number): Promise<any[]> {
         const query = db('users')
             .select(
@@ -281,6 +283,10 @@ class UserDAL {
         // Filtrer par préférences sexuelles si spécifiées
         if (filters.preferredGenders && filters.preferredGenders.length > 0) {
             query.whereIn('profiles.gender', filters.preferredGenders);
+        }
+
+        if (filters.sortBy) {
+            query.orderBy(filters.sortBy, filters.order || 'asc');
         }
 
         return await query;

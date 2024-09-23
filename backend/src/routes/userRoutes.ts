@@ -8,7 +8,7 @@ const router = Router();
  * /users/search:
  *   get:
  *     summary: Recherche avancée d'utilisateurs
- *     description: Recherche des utilisateurs selon des critères spécifiques (âge, localisation, notoriété, etc.).
+ *     description: Recherche des utilisateurs selon des critères spécifiques (âge, localisation, notoriété, etc.) et permet le tri des résultats.
  *     tags:
  *       - Utilisateurs
  *     parameters:
@@ -41,7 +41,19 @@ const router = Router();
  *         name: tags
  *         schema:
  *           type: string
- *           description: Liste des tags séparés par des virgules
+ *         description: Liste des tags séparés par des virgules
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           enum: ['age', 'username', 'fame_rating', 'city_name']
+ *         description: Champ par lequel trier (e.g., 'age', 'username', 'fame_rating', 'city_name')
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: ['asc', 'desc']
+ *         description: Ordre du tri ('asc' pour ascendant, 'desc' pour descendant)
  *     responses:
  *       200:
  *         description: Liste des utilisateurs correspondant aux critères.
