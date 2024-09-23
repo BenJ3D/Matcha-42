@@ -19,6 +19,11 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     ports:
       - ${DATABASE_PORT}:5432
     volumes:
@@ -33,7 +38,8 @@ services:
       dockerfile: Dockerfile
     restart: always
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     ports:
       - ${API_PORT_EXTERNAL}:${API_PORT_INTERNAL}
     env_file:
