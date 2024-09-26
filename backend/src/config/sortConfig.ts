@@ -1,4 +1,4 @@
-// Liste des champs de tri valides
+// Liste des champs de tri valides pour advancedResearch
 export const VALID_SORT_FIELDS = ['username', 'age', 'fame_rating', 'city_name'] as const;
 
 // Type TypeScript pour les champs de tri

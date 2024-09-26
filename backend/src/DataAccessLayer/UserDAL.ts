@@ -233,17 +233,21 @@ class UserDAL {
         }
     }
 
-    async advancedSearch(filters: {
-        ageMin?: number;
-        ageMax?: number;
-        fameMin?: number;
-        fameMax?: number;
-        location?: string;
-        tags?: number[];
-        preferredGenders?: number[];
-        sortBy?: string;
-        order?: string;
-    }, userId: number, userGender: number): Promise<any[]> {
+    async advancedSearch(
+        filters: {
+            ageMin?: number;
+            ageMax?: number;
+            fameMin?: number;
+            fameMax?: number;
+            location?: string;
+            tags?: number[];
+            preferredGenders?: number[];
+            sortBy?: string;
+            order?: string;
+        },
+        userId: number,
+        userGender: number
+    ): Promise<UserLightResponseDto[]> {
         console.log('user gender : ' + userGender);
 
         const query = db('users')
@@ -252,15 +256,17 @@ class UserDAL {
                 'users.username',
                 'profiles.age',
                 'profiles.fame_rating',
-                'profiles.gender as gender_id',
-                'locations.city_name',
-                db.raw('ARRAY_AGG(DISTINCT tags.tag_name) AS interests')
+                'profiles.gender as gender',
+                'photos.url as main_photo_url',
+                'locations.latitude',
+                'locations.longitude',
+                'locations.city_name'
             )
             .join('profiles', 'users.id', 'profiles.owner_user_id')
             .join('profile_sexual_preferences', 'profiles.profile_id', 'profile_sexual_preferences.profile_id')
+            .leftJoin('photos', 'profiles.main_photo_id', 'photos.photo_id')
             .leftJoin('locations', 'profiles.location', 'locations.location_id')
-            .leftJoin('profile_tag', 'profiles.profile_id', 'profile_tag.profile_id')
-            .leftJoin('tags', 'profile_tag.profile_tag', 'tags.tag_id')
+            // Si vous souhaitez filtrer par tags, vous pouvez les gérer séparément
             .where('users.id', '!=', userId)
             // Filtrer les profils dont les préférences sexuelles incluent userGender
             .andWhere('profile_sexual_preferences.gender_id', userGender)
@@ -269,6 +275,9 @@ class UserDAL {
                 'profiles.age',
                 'profiles.fame_rating',
                 'profiles.gender',
+                'photos.url',
+                'locations.latitude',
+                'locations.longitude',
                 'locations.city_name'
             );
 
@@ -289,7 +298,11 @@ class UserDAL {
             query.where('locations.city_name', 'ILIKE', `%${filters.location}%`);
         }
         if (filters.tags && filters.tags.length > 0) {
-            query.whereIn('tags.tag_id', filters.tags);
+            // Joindre les tags et filtrer
+            query.join('profile_tag', 'profiles.profile_id', 'profile_tag.profile_id')
+                .whereIn('profile_tag.profile_tag', filters.tags);
+            // Mettre à jour le groupBy si nécessaire
+            query.groupBy('profile_tag.profile_tag');
         }
         if (filters.preferredGenders && filters.preferredGenders.length > 0) {
             query.whereIn('profiles.gender', filters.preferredGenders);
@@ -298,7 +311,22 @@ class UserDAL {
             query.orderBy(filters.sortBy, filters.order || 'asc');
         }
 
-        return await query;
+        // Exécuter la requête
+        const results = await query;
+
+        // Structurer les données pour correspondre à l'interface UserLightResponseDto
+        return results.map(user => ({
+            id: user.id,
+            username: user.username,
+            age: user.age,
+            main_photo_url: user.main_photo_url,
+            gender: user.gender,
+            location: user.latitude && user.longitude ? {
+                latitude: user.latitude,
+                longitude: user.longitude,
+                city_name: user.city_name
+            } : undefined
+        }));
     }
 
 
