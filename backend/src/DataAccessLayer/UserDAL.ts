@@ -243,9 +243,8 @@ class UserDAL {
         preferredGenders?: number[];
         sortBy?: string;
         order?: string;
-        // Note: userGender is now a number, not an array
     }, userId: number, userGender: number): Promise<any[]> {
-        console.log('user gender : ' + userGender)
+        console.log('user gender : ' + userGender);
 
         const query = db('users')
             .select(
@@ -253,6 +252,7 @@ class UserDAL {
                 'users.username',
                 'profiles.age',
                 'profiles.fame_rating',
+                'profiles.gender as gender_id',
                 'locations.city_name',
                 db.raw('ARRAY_AGG(DISTINCT tags.tag_name) AS interests')
             )
@@ -262,8 +262,15 @@ class UserDAL {
             .leftJoin('profile_tag', 'profiles.profile_id', 'profile_tag.profile_id')
             .leftJoin('tags', 'profile_tag.profile_tag', 'tags.tag_id')
             .where('users.id', '!=', userId)
+            // Filtrer les profils dont les préférences sexuelles incluent userGender
             .andWhere('profile_sexual_preferences.gender_id', userGender)
-            .groupBy('users.id', 'profiles.age', 'profiles.fame_rating', 'locations.city_name');
+            .groupBy(
+                'users.id',
+                'profiles.age',
+                'profiles.fame_rating',
+                'profiles.gender',
+                'locations.city_name'
+            );
 
         // Appliquer les filtres supplémentaires
         if (filters.ageMin !== undefined) {
@@ -293,6 +300,7 @@ class UserDAL {
 
         return await query;
     }
+
 
     private getUserLightResponseList = async (userRows: { id: number }[]): Promise<UserLightResponseDto[]> => {
         return Promise.all(userRows.map(async ({id}) => {
