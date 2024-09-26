@@ -243,6 +243,7 @@ class UserDAL {
         preferredGenders?: number[];
         sortBy?: string;
         order?: string;
+        userGender?: number[];
     }, userId: number): Promise<any[]> {
         const query = db('users')
             .select(
@@ -261,6 +262,10 @@ class UserDAL {
             .where('users.id', '!=', userId);
 
         // Appliquer les filtres dynamiquement
+        if (filters.userGender != undefined) {
+
+        }
+
         if (filters.ageMin !== undefined) {
             query.where('profiles.age', '>=', filters.ageMin);
         }
