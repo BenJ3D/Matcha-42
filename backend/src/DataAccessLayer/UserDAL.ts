@@ -243,8 +243,10 @@ class UserDAL {
         preferredGenders?: number[];
         sortBy?: string;
         order?: string;
-        userGender?: number[];
-    }, userId: number): Promise<any[]> {
+        // Note: userGender is now a number, not an array
+    }, userId: number, userGender: number): Promise<any[]> {
+        console.log('user gender : ' + userGender)
+
         const query = db('users')
             .select(
                 'users.id',
@@ -252,20 +254,18 @@ class UserDAL {
                 'profiles.age',
                 'profiles.fame_rating',
                 'locations.city_name',
-                db.raw('ARRAY_AGG(tags.tag_name) AS interests')
+                db.raw('ARRAY_AGG(DISTINCT tags.tag_name) AS interests')
             )
             .join('profiles', 'users.id', 'profiles.owner_user_id')
+            .join('profile_sexual_preferences', 'profiles.profile_id', 'profile_sexual_preferences.profile_id')
             .leftJoin('locations', 'profiles.location', 'locations.location_id')
             .leftJoin('profile_tag', 'profiles.profile_id', 'profile_tag.profile_id')
             .leftJoin('tags', 'profile_tag.profile_tag', 'tags.tag_id')
-            .groupBy('users.id', 'profiles.age', 'profiles.fame_rating', 'locations.city_name')
-            .where('users.id', '!=', userId);
+            .where('users.id', '!=', userId)
+            .andWhere('profile_sexual_preferences.gender_id', userGender)
+            .groupBy('users.id', 'profiles.age', 'profiles.fame_rating', 'locations.city_name');
 
-        // Appliquer les filtres dynamiquement
-        if (filters.userGender != undefined) {
-
-        }
-
+        // Appliquer les filtres supplémentaires
         if (filters.ageMin !== undefined) {
             query.where('profiles.age', '>=', filters.ageMin);
         }
@@ -284,12 +284,9 @@ class UserDAL {
         if (filters.tags && filters.tags.length > 0) {
             query.whereIn('tags.tag_id', filters.tags);
         }
-
-        // Filtrer par préférences sexuelles si spécifiées
         if (filters.preferredGenders && filters.preferredGenders.length > 0) {
             query.whereIn('profiles.gender', filters.preferredGenders);
         }
-
         if (filters.sortBy) {
             query.orderBy(filters.sortBy, filters.order || 'asc');
         }

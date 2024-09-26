@@ -39,13 +39,17 @@ class UserServices {
         sortBy?: string,
         order?: string
     ): Promise<any[]> {
-        // Récupérer les préférences sexuelles de l'utilisateur
+        // Récupérer le profil de l'utilisateur
         const userProfile = await profileDAL.findByUserId(userId);
         if (!userProfile) {
             throw {status: 404, message: 'Profil non trouvé'};
         }
 
+        // Récupérer les préférences sexuelles de l'utilisateur
         const sexualPreferences = await profileDAL.getSexualPreferences(userProfile.profile_id);
+
+        //Recup genre de l'utilisateur
+        const userGender = userProfile.gender;
 
         const filters = {
             ageMin,
@@ -56,10 +60,10 @@ class UserServices {
             tags,
             preferredGenders: sexualPreferences.map((gender) => gender.gender_id),
             sortBy,
-            order
+            order,
         };
 
-        return await userDAL.advancedSearch(filters, userId);
+        return await userDAL.advancedSearch(filters, userId, userGender);
     }
 
 }
