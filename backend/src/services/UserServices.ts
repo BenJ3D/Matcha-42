@@ -4,6 +4,7 @@ import {UserResponseDto} from "../DTOs/users/UserResponseDto";
 import {UserCreateDto} from "../DTOs/users/UserCreateDto";
 import {PasswordService} from "./PasswordService";
 import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
+import profileDAL from "../DataAccessLayer/ProfileDAL";
 
 class UserServices {
     async getAllUsers(): Promise<UserLightResponseDto[]> {
@@ -28,17 +29,43 @@ class UserServices {
     }
 
     async advancedSearch(
+        userId: number,
         ageMin?: number,
         ageMax?: number,
         fameMin?: number,
         fameMax?: number,
         location?: string,
         tags?: number[],
-        preferredGenders?: number[]
+        sortBy?: string,
+        order?: string
     ): Promise<any[]> {
-        const filters = {ageMin, ageMax, fameMin, fameMax, location, tags, preferredGenders};
-        return await userDAL.advancedSearch(filters);
+        // Récupérer le profil de l'utilisateur
+        const userProfile = await profileDAL.findByUserId(userId);
+        if (!userProfile) {
+            throw {status: 404, message: 'Profil non trouvé'};
+        }
+
+        // Récupérer les préférences sexuelles de l'utilisateur
+        const sexualPreferences = await profileDAL.getSexualPreferences(userProfile.profile_id);
+
+        //Recup genre de l'utilisateur
+        const userGender = userProfile.gender;
+
+        const filters = {
+            ageMin,
+            ageMax,
+            fameMin,
+            fameMax,
+            location,
+            tags,
+            preferredGenders: sexualPreferences.map((gender) => gender.gender_id),
+            sortBy,
+            order,
+        };
+
+        return await userDAL.advancedSearch(filters, userId, userGender);
     }
+
 }
 
 export default new UserServices();

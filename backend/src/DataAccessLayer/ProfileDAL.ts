@@ -2,6 +2,7 @@ import db from '../config/knexConfig';
 import {ProfileCreateDto} from '../DTOs/profiles/ProfileCreateDto';
 import {ProfileUpdateDto} from '../DTOs/profiles/ProfileUpdateDto';
 import {ProfileResponseDto} from '../DTOs/profiles/ProfileResponseDto';
+import {Gender} from "../models/Genders";
 
 class ProfileDAL {
     async findOne(profileId: number): Promise<ProfileResponseDto | null> {
@@ -30,9 +31,9 @@ class ProfileDAL {
             if (!profile) return null;
 
             return profile;
-        } catch (error) {
+        } catch (error: any) {
             console.error(`Erreur lors de la récupération du profil pour l'utilisateur ID ${userId}:`, error);
-            throw {status: 500, message: "Erreur interne du serveur."};
+            throw {status: error.status || 500, message: error.message || "Erreur interne du serveur."};
         }
     }
 
@@ -78,6 +79,8 @@ class ProfileDAL {
             console.error("Erreur lors de la création du profil:", error);
             if (error.code === '23505') {
                 throw {status: 409, message: "Conflit : Le profil existe déjà."};
+            } else if (error.code === '23503') {
+                throw {status: 400, message: error.detail || "Un ou plusieurs identifiants fournis sont invalides."};
             } else {
                 throw {status: 500, message: "Erreur interne du serveur."};
             }
@@ -129,8 +132,12 @@ class ProfileDAL {
             }
         } catch (error: any) {
             console.error(`Erreur lors de la mise à jour du profil ID ${profileId}:`, error);
+
             if (error.status === 404) {
                 throw error;
+            } else if (error.code === '23503') {
+                // Gérer les violations de contraintes de clé étrangère
+                throw {status: 400, message: error.detail || "Un ou plusieurs identifiants fournis sont invalides."};
             } else {
                 throw {status: 500, message: "Erreur interne du serveur."};
             }
@@ -160,6 +167,20 @@ class ProfileDAL {
             } else {
                 throw {status: 500, message: "Erreur interne du serveur."};
             }
+        }
+    }
+
+    async getSexualPreferences(profileId: number): Promise<Gender[]> {
+        try {
+            const preferences: Gender[] = await db('genders')
+                .select('genders.gender_id', 'genders.name', 'genders.description')
+                .join('profile_sexual_preferences', 'genders.gender_id', 'profile_sexual_preferences.gender_id')
+                .where('profile_sexual_preferences.profile_id', profileId);
+
+            return preferences;
+        } catch (error) {
+            console.error(`Erreur lors de la récupération des préférences sexuelles pour le profil ID ${profileId}:`, error);
+            throw {status: 500, message: "Erreur interne du serveur."};
         }
     }
 }
