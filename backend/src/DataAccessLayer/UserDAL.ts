@@ -331,23 +331,44 @@ class UserDAL {
 
 
     private getUserLightResponseList = async (userRows: { id: number }[]): Promise<UserLightResponseDto[]> => {
-        return Promise.all(userRows.map(async ({id}) => {
-            const user = await db('users')
-                .select('id', 'username', 'last_name', 'first_name')
-                .where('id', id)
-                .first();
+        if (userRows.length === 0) {
+            return [];
+        }
 
-            const mainPhotoUrl = await this.getMainPhotoUrl(id);
+        const userIds = userRows.map(user => user.id);
 
-            return {
-                id: user.id,
-                username: user.username,
-                main_photo_url: mainPhotoUrl || null,
-                age: user.age,
-                gender: user.gender
-            } as UserLightResponseDto;
+        // Récupérer les informations de tous les utilisateurs en une seule requête
+        const users = await db('users')
+            .select(
+                'users.id',
+                'users.username',
+                'profiles.age',
+                'profiles.gender',
+                'photos.url as main_photo_url',
+                'locations.latitude',
+                'locations.longitude',
+                'locations.city_name'
+            )
+            .leftJoin('profiles', 'users.id', 'profiles.owner_user_id')
+            .leftJoin('photos', 'profiles.main_photo_id', 'photos.photo_id')
+            .leftJoin('locations', 'profiles.location', 'locations.location_id')
+            .whereIn('users.id', userIds);
+
+        // Mapper les utilisateurs pour correspondre à l'interface UserLightResponseDto
+        return users.map(user => ({
+            id: user.id,
+            username: user.username,
+            age: user.age || null,
+            main_photo_url: user.main_photo_url || null,
+            gender: user.gender || null,
+            location: user.latitude && user.longitude ? {
+                latitude: parseFloat(user.latitude),
+                longitude: parseFloat(user.longitude),
+                city_name: user.city_name || undefined
+            } : undefined
         }));
     }
+
 
     private getMainPhotoUrl = async (userId: number): Promise<string | null> => {
         const photo = await db('photos')
