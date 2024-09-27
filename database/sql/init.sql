@@ -92,6 +92,25 @@ INSERT INTO "likes" ("like_id", "user", "user_liked") VALUES
 SELECT setval('likes_like_id_seq', (SELECT MAX(like_id) FROM likes));
 
 
+DROP TABLE IF EXISTS "unlikes";
+DROP SEQUENCE IF EXISTS unlikes_unlike_id_seq;
+CREATE SEQUENCE unlikes_unlike_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
+
+CREATE TABLE "public"."unlikes" (
+    "unlike_id" integer DEFAULT nextval('unlikes_unlike_id_seq') NOT NULL,
+    "user" integer NOT NULL,
+    "user_unliked" integer NOT NULL,
+    CONSTRAINT "unlikes_pk" UNIQUE ("user_unliked", "user"),
+    CONSTRAINT "unlikes_pk_2" PRIMARY KEY ("unlike_id")
+) WITH (oids = false);
+
+TRUNCATE "unlikes";
+INSERT INTO "unlikes" ("unlike_id", "user", "user_unliked") VALUES
+(1,	1,	2);
+
+SELECT setval('unlikes_unlike_id_seq', (SELECT MAX(unlike_id) FROM unlikes));
+
+
 DROP TABLE IF EXISTS "locations";
 DROP SEQUENCE IF EXISTS locations_location_id_seq;
 CREATE SEQUENCE locations_location_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
@@ -602,6 +621,9 @@ ALTER TABLE ONLY "public"."fake_user_reporting" ADD CONSTRAINT "fake_user_report
 
 ALTER TABLE ONLY "public"."likes" ADD CONSTRAINT "like_user_id_fk" FOREIGN KEY ("user") REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
 ALTER TABLE ONLY "public"."likes" ADD CONSTRAINT "like_user_id_fk_2" FOREIGN KEY (user_liked) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+
+ALTER TABLE ONLY "public"."unlikes" ADD CONSTRAINT "unlike_user_id_fk" FOREIGN KEY ("user") REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "public"."unlikes" ADD CONSTRAINT "unlike_user_id_fk_2" FOREIGN KEY (user_unliked) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
 
 ALTER TABLE ONLY "public"."matches" ADD CONSTRAINT "matches_users_id_fk" FOREIGN KEY (user_1) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
 ALTER TABLE ONLY "public"."matches" ADD CONSTRAINT "matches_users_id_fk_2" FOREIGN KEY (user_2) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
