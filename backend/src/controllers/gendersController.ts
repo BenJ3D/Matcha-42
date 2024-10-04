@@ -1,7 +1,7 @@
 import {Request, Response} from 'express';
 import GendersService from '../services/GendersService';
 
-class gendersController {
+class GendersController {
     async getAllGenders(req: Request, res: Response) {
         try {
             const genders = await GendersService.getAllGenders();
@@ -13,4 +13,4 @@ class gendersController {
     }
 }
 
-export default new gendersController();
+export default new GendersController();
