@@ -1,6 +1,6 @@
 // src/routes/profileRoutes.ts
 import {Router} from 'express';
-import profileController from '../controllers/profileController';
+import profileController from '../controllers/ProfileController';
 import authMiddleware from '../middlewares/authMiddleware';
 
 const router = Router();
