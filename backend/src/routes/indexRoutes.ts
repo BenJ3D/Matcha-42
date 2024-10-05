@@ -5,6 +5,8 @@ import profileRoutes from './profileRoutes';
 import gendersRoutes from "./gendersRoutes";
 import tagsRoutes from "./tagsRoutes";
 import natchesRoutes from "./matchesRoutes";
+import likesRoutes from "./likesRoutes";
+import unlikesRoutes from "./unlikesRoutes";
 
 const router = Router();
 
@@ -13,6 +15,8 @@ router.use('/login', loginRoutes);
 router.use('/profiles', profileRoutes);
 router.use('/genders', gendersRoutes);
 router.use('/tags', tagsRoutes);
+router.use('/likes', likesRoutes);
+router.use('/unlikes', unlikesRoutes);
 router.use('/matches', natchesRoutes);
 
 
