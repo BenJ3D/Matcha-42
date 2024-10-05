@@ -1,0 +1,26 @@
+meta {
+  name: get -users-search
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8000/api/users/search
+  body: none
+  auth: bearer
+}
+
+params:query {
+  ~ageMin: 
+  ~ageMax: 
+  ~fameMin: 
+  ~fameMax: 
+  ~location: 
+  ~tags: 
+  ~sortBy: 
+  ~order: 
+}
+
+auth:bearer {
+  token: {{token}}
+}

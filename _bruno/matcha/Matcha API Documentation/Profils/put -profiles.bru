@@ -1,0 +1,30 @@
+meta {
+  name: put -profiles
+  type: http
+  seq: 2
+}
+
+put {
+  url: http://localhost:8000/api/profiles
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "biography": "",
+    "gender": "",
+    "age": "",
+    "main_photo_id": "",
+    "location": {
+      "latitude": "",
+      "longitude": ""
+    },
+    "tags": [],
+    "sexualPreferences": []
+  }
+}

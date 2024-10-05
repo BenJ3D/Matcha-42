@@ -1,0 +1,23 @@
+meta {
+  name: put -users-
+  type: http
+  seq: 6
+}
+
+put {
+  url: http://localhost:8000/api/users/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "email": "",
+    "first_name": "",
+    "last_name": ""
+  }
+}

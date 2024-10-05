@@ -1,0 +1,15 @@
+meta {
+  name: get -matches
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8000/api/matches
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

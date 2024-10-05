@@ -12,6 +12,8 @@ const excludedPaths = [
     {url: /^\/api\/login\/?$/, methods: ['POST']},
     {url: /^\/api\/login\/refresh\/?$/, methods: ['POST']},
     {url: /^\/api\/users\/?$/, methods: ['POST']},
+    {url: /^\/api-docs\/?$/, methods: ['GET']}, // Exclure la route de documentation
+    {url: /^\/api-docs\.json$/, methods: ['GET']}, // Exclure la route du JSON de documentation
 ];
 
 const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {

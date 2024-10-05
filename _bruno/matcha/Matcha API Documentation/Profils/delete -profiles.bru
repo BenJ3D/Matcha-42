@@ -1,0 +1,15 @@
+meta {
+  name: delete -profiles
+  type: http
+  seq: 3
+}
+
+delete {
+  url: http://localhost:8000/api/profiles
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

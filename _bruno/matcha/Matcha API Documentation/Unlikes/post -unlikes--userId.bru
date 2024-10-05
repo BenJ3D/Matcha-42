@@ -1,0 +1,19 @@
+meta {
+  name: post -unlikes--userId
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8000/api/unlikes/:userId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  userId: 
+}
+
+auth:bearer {
+  token: {{token}}
+}

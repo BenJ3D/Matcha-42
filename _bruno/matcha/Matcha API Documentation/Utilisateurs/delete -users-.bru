@@ -1,0 +1,15 @@
+meta {
+  name: delete -users-
+  type: http
+  seq: 7
+}
+
+delete {
+  url: http://localhost:8000/api/users/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

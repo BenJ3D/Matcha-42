@@ -1,0 +1,15 @@
+meta {
+  name: get -genders
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8000/api/genders
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

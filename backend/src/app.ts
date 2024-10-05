@@ -25,6 +25,11 @@ if (!DATABASE_URL) {
 const swaggerSpec = swaggerJsDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+// Route pour accéder au JSON de la documentation
+app.get('/api-docs.json', (req, res) => {
+    res.json(swaggerSpec);
+});
+
 // Middleware pour parser les JSON
 app.use(express.json());
 
