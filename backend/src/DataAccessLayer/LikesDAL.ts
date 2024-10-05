@@ -1,5 +1,3 @@
-// src/DataAccessLayer/LikesDAL.ts
-
 import db from '../config/knexConfig';
 import {Like} from '../models/Like';
 import {User} from '../models/User';

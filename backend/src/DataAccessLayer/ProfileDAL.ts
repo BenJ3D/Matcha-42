@@ -1,6 +1,4 @@
 import db from '../config/knexConfig';
-import {ProfileCreateDto} from '../DTOs/profiles/ProfileCreateDto';
-import {ProfileUpdateDto} from '../DTOs/profiles/ProfileUpdateDto';
 import {ProfileResponseDto} from '../DTOs/profiles/ProfileResponseDto';
 import {Gender} from "../models/Genders";
 

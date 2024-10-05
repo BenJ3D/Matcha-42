@@ -1,5 +1,3 @@
-// src/DataAccessLayer/UnlikesDAL.ts
-
 import db from '../config/knexConfig';
 import {Unlike} from '../models/Unlike';
 import {User} from '../models/User';
