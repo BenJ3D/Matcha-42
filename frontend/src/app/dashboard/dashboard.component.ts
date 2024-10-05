@@ -21,7 +21,7 @@ export class DashboardComponent {
   tabs = [
     { path: 'home', icon: 'home', label: 'Home' },
     { path: 'nearby', icon: 'near_me', label: 'Nearby' },
-    { path: 'chats', icon: 'chat', label: 'Chats' },
+    { path: 'chat', icon: 'chat', label: 'Chat' },
     { path: 'notifications', icon: 'notifications', label: 'Notifications' },
     { path: 'profile', icon: 'person', label: 'Profile' }
   ];

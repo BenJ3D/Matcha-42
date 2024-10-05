@@ -16,7 +16,7 @@ export const routes: Routes = [
     children: [
       { path: 'home', loadComponent: () => import('./home/home.component').then(m => m.HomeComponent) },
       { path: 'nearby', loadComponent: () => import('./nearby/nearby.component').then(m => m.NearbyComponent) },
-      // { path: 'chats', loadComponent: () => import('./chats/chats.component').then(m => m.ChatsComponent) },
+      { path: 'chat', loadComponent: () => import('./chat/chat.component').then(m => m.ChatComponent) },
       // { path: 'notifications', loadComponent: () => import('./notifications/notifications.component').then(m => m.NotificationsComponent) },
       // { path: 'profile', loadComponent: () => import('./profile/profile.component').then(m => m.ProfileComponent) },
       { path: '', redirectTo: 'home', pathMatch: 'full' },

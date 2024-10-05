@@ -1,0 +1,19 @@
+<div class="chat-container">
+	<div class="conversation-list">
+	  <mat-selection-list [multiple]="false">
+		<mat-list-option *ngFor="let user of chatUsers" (click)="selectConversation(user)">
+		  <div mat-line>{{ user.name }}</div>
+		  <div mat-line>{{ user.lastMessage }}</div>
+		  <div mat-line class="timestamp">{{ user.timestamp | date:'short' }}</div>
+		  <mat-icon mat-list-avatar>account_circle</mat-icon>
+		  <span class="unread-badge" *ngIf="user.unread > 0">{{ user.unread }}</span>
+		</mat-list-option>
+	  </mat-selection-list>
+	</div>
+	<app-conversation 
+	  *ngIf="selectedUser" 
+	  [user]="selectedUser"
+	  (close)="closeConversation()"
+	></app-conversation>
+  </div>
+  
