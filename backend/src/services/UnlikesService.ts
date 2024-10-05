@@ -1,7 +1,6 @@
-// src/services/UnlikesService.ts
-
 import UnlikesDAL from '../DataAccessLayer/UnlikesDAL';
 import MatchesService from './MatchesService';
+import LikesService from "./LikesService";
 
 class UnlikesService {
     async getUserUnlikes(userId: number): Promise<number[]> {
@@ -24,8 +23,14 @@ class UnlikesService {
         if (!targetExists) {
             throw {status: 404, message: 'Utilisateur cible non trouvé'};
         }
-
         await UnlikesDAL.addUnlike(userId, targetUserId);
+
+        //Suppression d'un eventuel like, catch vide pour ne pas retourné de 404 si le like n'existe pas
+        try {
+            await LikesService.removeLike(userId, targetUserId);
+        } catch (e: any) {
+        }
+
 
         // Supprimer un match si existant
         await MatchesService.deleteMatch(userId, targetUserId);

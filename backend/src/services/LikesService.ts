@@ -1,9 +1,8 @@
-// src/services/LikesService.ts
-
 import LikesDAL from '../DataAccessLayer/LikesDAL';
 import MatchesService from './MatchesService';
 import {UserLightResponseDto} from '../DTOs/users/UserLightResponseDto';
 import userDAL from '../DataAccessLayer/UserDAL';
+import UnlikesService from "./UnlikesService";
 
 class LikesService {
     async getUserLikes(userId: number): Promise<UserLightResponseDto[]> {
@@ -27,8 +26,15 @@ class LikesService {
         if (!targetExists) {
             throw {status: 404, message: 'Utilisateur cible non trouvé'};
         }
-        
+
         await LikesDAL.addLike(userId, targetUserId);
+
+        //Suppression d'un eventuel unlike, catch vide pour ne pas retourné de 404 si le unlike n'existe pas
+        try {
+            await UnlikesService.removeUnlike(userId, targetUserId);
+        } catch (e: any) {
+
+        }
 
         // Vérifier si c'est un match
         const reciprocalLikes = await LikesDAL.getLikesByUserId(targetUserId);
