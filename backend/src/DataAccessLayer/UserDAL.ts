@@ -329,6 +329,41 @@ class UserDAL {
         }));
     }
 
+    async getUsersByIds(userIds: number[]): Promise<UserLightResponseDto[]> {
+        try {
+            const users = await db('users')
+                .select(
+                    'users.id',
+                    'users.username',
+                    'profiles.age',
+                    'profiles.gender',
+                    'photos.url as main_photo_url',
+                    'locations.latitude',
+                    'locations.longitude',
+                    'locations.city_name'
+                )
+                .leftJoin('profiles', 'users.id', 'profiles.owner_user_id')
+                .leftJoin('photos', 'profiles.main_photo_id', 'photos.photo_id')
+                .leftJoin('locations', 'profiles.location', 'locations.location_id')
+                .whereIn('users.id', userIds);
+
+            return users.map(user => ({
+                id: user.id,
+                username: user.username,
+                age: user.age || null,
+                gender: user.gender || null,
+                main_photo_url: user.main_photo_url || null,
+                location: user.latitude && user.longitude ? {
+                    latitude: parseFloat(user.latitude),
+                    longitude: parseFloat(user.longitude),
+                    city_name: user.city_name || undefined
+                } : undefined
+            }));
+        } catch (error) {
+            console.error('Erreur lors de la récupération des utilisateurs:', error);
+            throw {status: 500, message: 'Impossible de récupérer les utilisateurs'};
+        }
+    }
 
     private getUserLightResponseList = async (userRows: { id: number }[]): Promise<UserLightResponseDto[]> => {
         if (userRows.length === 0) {
@@ -368,7 +403,6 @@ class UserDAL {
             } : undefined
         }));
     }
-
 
     private getMainPhotoUrl = async (userId: number): Promise<string | null> => {
         const photo = await db('photos')
