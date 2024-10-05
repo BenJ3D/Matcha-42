@@ -7,27 +7,6 @@ const router = Router();
 
 /**
  * @swagger
- * /profiles/me:
- *   get:
- *     summary: Récupérer le profil de l'utilisateur connecté
- *     tags:
- *       - Profils
- *     security:
- *       - BearerAuth: []
- *     responses:
- *       200:
- *         description: Profil récupéré avec succès
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ProfileResponseDto'
- *       404:
- *         description: Profil non trouvé
- */
-router.get('/me', authMiddleware, profileController.getMyProfile);
-
-/**
- * @swagger
  * /profiles:
  *   post:
  *     summary: Créer un profil pour l'utilisateur connecté

@@ -6,21 +6,6 @@ import {ProfileUpdateDtoValidation} from '../DTOs/profiles/ProfileUpdateDto';
 import {AuthenticatedRequest} from '../middlewares/authMiddleware';
 
 class ProfileController {
-    async getMyProfile(req: AuthenticatedRequest, res: Response) {
-        try {
-            const userId = req.userId!;
-            const profile = await profileServices.getProfileByUserId(userId);
-
-            if (!profile) {
-                return res.status(404).json({error: 'Profil non trouvé'});
-            }
-
-            res.json(profile);
-        } catch (error) {
-            console.error('Erreur lors de la récupération du profil:', error);
-            res.status(500).json({error: 'Erreur interne du serveur'});
-        }
-    }
 
     async createMyProfile(req: AuthenticatedRequest, res: Response) {
         try {
