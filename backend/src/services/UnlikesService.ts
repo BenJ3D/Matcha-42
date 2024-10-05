@@ -1,28 +1,44 @@
+// src/services/UnlikesService.ts
+
 import UnlikesDAL from '../DataAccessLayer/UnlikesDAL';
-import LikesDAL from '../DataAccessLayer/LikesDAL';
-import MatchesDAL from '../DataAccessLayer/MatchesDAL';
-import {Unlike} from "../models/Unlike";
+import MatchesService from './MatchesService';
 
 class UnlikesService {
     async getUserUnlikes(userId: number): Promise<number[]> {
         const unlikes = await UnlikesDAL.getUnlikesByUserId(userId);
-        return unlikes.map((unlike) => unlike.user_unliked);
+        if (unlikes.length === 0) {
+            return [];
+        }
+
+        const unlikedUserIds = unlikes.map(unlike => unlike.user_unliked);
+        return unlikedUserIds;
     }
 
     async addUnlike(userId: number, targetUserId: number): Promise<void> {
+        if (userId === targetUserId) {
+            throw {status: 400, message: 'Vous ne pouvez pas unliker vous-même'};
+        }
+
+        // Vérifier si l'utilisateur cible existe
+        const targetExists = await UnlikesDAL.userExists(targetUserId);
+        if (!targetExists) {
+            throw {status: 404, message: 'Utilisateur cible non trouvé'};
+        }
+
         await UnlikesDAL.addUnlike(userId, targetUserId);
 
-        // Supprimer les likes existants entre les deux utilisateurs
-        await LikesDAL.removeLike(userId, targetUserId);
-        await LikesDAL.removeLike(targetUserId, userId);
-
-        // Supprimer le match s'il existe
-        await MatchesDAL.removeMatch(userId, targetUserId);
-        // TODO: Implémenter un message websocket pour le front
+        // Supprimer un match si existant
+        await MatchesService.deleteMatch(userId, targetUserId);
+        // TODO: Implémenter un message websocket pour notifier la suppression du match
     }
 
     async removeUnlike(userId: number, targetUserId: number): Promise<void> {
         await UnlikesDAL.removeUnlike(userId, targetUserId);
+        // Aucun impact direct sur les matches
+    }
+
+    async getUnlikedUserIds(userId: number): Promise<number[]> {
+        return await UnlikesDAL.getUnlikesFromUser(userId);
     }
 }
 

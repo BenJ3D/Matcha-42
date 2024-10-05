@@ -1,36 +1,58 @@
+// src/services/LikesService.ts
+
 import LikesDAL from '../DataAccessLayer/LikesDAL';
-import MatchesDAL from '../DataAccessLayer/MatchesDAL';
+import MatchesService from './MatchesService';
+import {UserLightResponseDto} from '../DTOs/users/UserLightResponseDto';
+import userDAL from '../DataAccessLayer/UserDAL';
 
 class LikesService {
-    async getUserLikes(userId: number): Promise<number[]> {
+    async getUserLikes(userId: number): Promise<UserLightResponseDto[]> {
         const likes = await LikesDAL.getLikesByUserId(userId);
-        return likes.map((like) => like.user_liked);
+        if (likes.length === 0) {
+            return [];
+        }
+
+        const likedUserIds = likes.map(like => like.user_liked);
+        const likedUsers = await userDAL.getUsersByIds(likedUserIds);
+        return likedUsers;
     }
 
-    async likeUser(userId: number, targetUserId: number): Promise<void> {
+    async addLike(userId: number, targetUserId: number): Promise<void> {
+        if (userId === targetUserId) {
+            throw {status: 400, message: 'Vous ne pouvez pas liker vous-même'};
+        }
+
+        // Vérifier si l'utilisateur cible existe
+        const targetExists = await LikesDAL.userExists(targetUserId);
+        if (!targetExists) {
+            throw {status: 404, message: 'Utilisateur cible non trouvé'};
+        }
+
         await LikesDAL.addLike(userId, targetUserId);
 
         // Vérifier si c'est un match
-        const targetLikes = await LikesDAL.getLikesByUserId(targetUserId);
-        const isMatch = targetLikes.some((like) => like.user_liked === userId);
-
-        if (isMatch) {
-            await MatchesDAL.addMatch(userId, targetUserId);
-            // TODO: Implémenter un message websocket pour le front
+        const reciprocalLikes = await LikesDAL.getLikesByUserId(targetUserId);
+        const isMutual = reciprocalLikes.some(like => like.user_liked === userId);
+        if (isMutual) {
+            await MatchesService.createMatch(userId, targetUserId);
+            // TODO: Implémenter un message websocket pour notifier un nouveau match
         }
     }
 
-    async unlikeUser(userId: number, targetUserId: number): Promise<void> {
+    async removeLike(userId: number, targetUserId: number): Promise<void> {
         await LikesDAL.removeLike(userId, targetUserId);
 
-        // Vérifier si un match existait
-        const targetLikes = await LikesDAL.getLikesByUserId(targetUserId);
-        const hadMatch = targetLikes.some((like) => like.user_liked === userId);
-
-        if (hadMatch) {
-            await MatchesDAL.removeMatch(userId, targetUserId);
-            // TODO: Implémenter un message websocket pour le front
+        // Vérifier si un match doit être supprimé
+        const reciprocalLikes = await LikesDAL.getLikesByUserId(targetUserId);
+        const isStillMutual = reciprocalLikes.some(like => like.user_liked === userId);
+        if (!isStillMutual) {
+            await MatchesService.deleteMatch(userId, targetUserId);
+            // TODO: Implémenter un message websocket pour notifier la suppression du match
         }
+    }
+
+    async getLikedUserIds(userId: number): Promise<number[]> {
+        return await LikesDAL.getLikesFromUser(userId);
     }
 }
 
