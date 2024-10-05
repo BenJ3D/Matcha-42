@@ -42,13 +42,8 @@ class LikesService {
     async removeLike(userId: number, targetUserId: number): Promise<void> {
         await LikesDAL.removeLike(userId, targetUserId);
 
-        // Vérifier si un match doit être supprimé
-        const reciprocalLikes = await LikesDAL.getLikesByUserId(targetUserId);
-        const isStillMutual = reciprocalLikes.some(like => like.user_liked === userId);
-        if (!isStillMutual) {
-            await MatchesService.deleteMatch(userId, targetUserId);
-            // TODO: Implémenter un message websocket pour notifier la suppression du match
-        }
+        //Supprimer un match s'il existe
+        await MatchesService.deleteMatch(userId, targetUserId);
     }
 
     async getLikedUserIds(userId: number): Promise<number[]> {

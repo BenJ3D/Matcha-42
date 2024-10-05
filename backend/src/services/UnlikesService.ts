@@ -34,7 +34,6 @@ class UnlikesService {
 
     async removeUnlike(userId: number, targetUserId: number): Promise<void> {
         await UnlikesDAL.removeUnlike(userId, targetUserId);
-        // Aucun impact direct sur les matches
     }
 
     async getUnlikedUserIds(userId: number): Promise<number[]> {
