@@ -28,7 +28,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Middleware pour parser les JSON
 app.use(express.json());
 
-// Middleware pour gerer l'authentification des requêtes
+// Middleware pour gerer l'authentification des requêtes de manière globale
 app.use(authMiddleware);
 
 // routeur centralisé

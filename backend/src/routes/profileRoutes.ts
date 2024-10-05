@@ -1,7 +1,5 @@
-// src/routes/profileRoutes.ts
 import {Router} from 'express';
 import profileController from '../controllers/ProfileController';
-import authMiddleware from '../middlewares/authMiddleware';
 
 const router = Router();
 
@@ -34,7 +32,7 @@ const router = Router();
  *       400:
  *         description: Erreur de validation ou profil déjà existant
  */
-router.post('/', authMiddleware, profileController.createMyProfile);
+router.post('/', profileController.createMyProfile);
 
 /**
  * @swagger
@@ -59,7 +57,7 @@ router.post('/', authMiddleware, profileController.createMyProfile);
  *       404:
  *         description: Profil non trouvé
  */
-router.put('/', authMiddleware, profileController.updateMyProfile);
+router.put('/', profileController.updateMyProfile);
 
 /**
  * @swagger
@@ -76,6 +74,6 @@ router.put('/', authMiddleware, profileController.updateMyProfile);
  *       404:
  *         description: Profil non trouvé
  */
-router.delete('/', authMiddleware, profileController.deleteMyProfile);
+router.delete('/', profileController.deleteMyProfile);
 
 export default router;

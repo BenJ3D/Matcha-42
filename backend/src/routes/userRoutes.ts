@@ -1,5 +1,6 @@
 import {Router} from 'express';
 import UserController from "../controllers/userController";
+import {validateIdMiddleware} from "../middlewares/validateIdMiddleware";
 
 const router = Router();
 
@@ -164,7 +165,7 @@ router.get('/me', UserController.getMe);
  *       404:
  *         description: Utilisateur non trouvé.
  */
-router.get('/:id', UserController.getUserById);
+router.get('/:id', validateIdMiddleware, UserController.getUserById);
 
 /**
  * @swagger
