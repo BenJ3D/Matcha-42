@@ -1,6 +1,7 @@
 import {Request, Response, NextFunction} from 'express';
 import JwtService from '../services/JwtService';
 import UserServices from "../services/UserServices";
+import {isValidId} from "../utils/validateId";
 
 export interface AuthenticatedRequest extends Request {
     userId?: number;
@@ -38,6 +39,11 @@ const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: Ne
 
     if (!payload) {
         return res.status(401).json({error: 'Non autorisé : token invalide'});
+    }
+
+    //Verif de l'ID user dans le token (protection contre un overflow si token généré manuellement)
+    if (!payload.id || !isValidId(payload.id)) {
+        return res.status(401).json({error: 'Invalid id, your jwt token is wrong'});
     }
 
     // Vérif si l'utilisateur existe toujours dans la base de données
