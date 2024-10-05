@@ -1,8 +1,6 @@
-// src/routes/unlikesRoutes.ts
-
 import {Router} from 'express';
 import UnlikesController from '../controllers/UnlikesController';
-import authMiddleware from '../middlewares/authMiddleware';
+import {validateIdMiddleware} from "../middlewares/validateIdMiddleware";
 
 const router = Router();
 
@@ -32,7 +30,7 @@ const router = Router();
  *       500:
  *         description: Erreur interne du serveur
  */
-router.get('/', authMiddleware, UnlikesController.getMyUnlikes);
+router.get('/', UnlikesController.getMyUnlikes);
 
 /**
  * @swagger
@@ -64,7 +62,7 @@ router.get('/', authMiddleware, UnlikesController.getMyUnlikes);
  *       500:
  *         description: Erreur interne du serveur
  */
-router.post('/:userId', authMiddleware, UnlikesController.addUnlike);
+router.post('/:userId', validateIdMiddleware, UnlikesController.addUnlike);
 
 /**
  * @swagger
@@ -94,6 +92,6 @@ router.post('/:userId', authMiddleware, UnlikesController.addUnlike);
  *       500:
  *         description: Erreur interne du serveur
  */
-router.delete('/:userId', authMiddleware, UnlikesController.removeUnlike);
+router.delete('/:userId', validateIdMiddleware, UnlikesController.removeUnlike);
 
 export default router;

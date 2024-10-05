@@ -1,5 +1,6 @@
 import {Router} from 'express';
 import TagsController from '../controllers/TagsController';
+import {validateIdMiddleware} from "../middlewares/validateIdMiddleware";
 
 const router = Router();
 
@@ -48,6 +49,6 @@ router.get('/', TagsController.getAllTags);
  *       400:
  *         description: ID de tag invalide
  */
-router.get('/:tagId', TagsController.getTagById);
+router.get('/:tagId', validateIdMiddleware, TagsController.getTagById);
 
 export default router;

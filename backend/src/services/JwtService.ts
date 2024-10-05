@@ -8,8 +8,8 @@ if (!process.env.JWT_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
-const ACCESS_TOKEN_EXPIRATION = '2h'; // Expires in 15 minutes
-const REFRESH_TOKEN_EXPIRATION = '7d'; // Expires in 7 days
+const ACCESS_TOKEN_EXPIRATION = '4h';
+const REFRESH_TOKEN_EXPIRATION = '7d';
 
 
 class JwtService {

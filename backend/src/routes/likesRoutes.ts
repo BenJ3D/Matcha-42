@@ -1,8 +1,6 @@
-// src/routes/likesRoutes.ts
-
 import {Router} from 'express';
 import LikesController from '../controllers/LikesController';
-import authMiddleware from '../middlewares/authMiddleware';
+import {validateIdMiddleware} from "../middlewares/validateIdMiddleware";
 
 const router = Router();
 
@@ -32,7 +30,7 @@ const router = Router();
  *       500:
  *         description: Erreur interne du serveur
  */
-router.get('/', authMiddleware, LikesController.getMyLikes);
+router.get('/', LikesController.getMyLikes);
 
 /**
  * @swagger
@@ -64,7 +62,7 @@ router.get('/', authMiddleware, LikesController.getMyLikes);
  *       500:
  *         description: Erreur interne du serveur
  */
-router.post('/:userId', authMiddleware, LikesController.addLike);
+router.post('/:userId', validateIdMiddleware, LikesController.addLike);
 
 /**
  * @swagger
@@ -94,6 +92,6 @@ router.post('/:userId', authMiddleware, LikesController.addLike);
  *       500:
  *         description: Erreur interne du serveur
  */
-router.delete('/:userId', authMiddleware, LikesController.removeLike);
+router.delete('/:userId', validateIdMiddleware, LikesController.removeLike);
 
 export default router;

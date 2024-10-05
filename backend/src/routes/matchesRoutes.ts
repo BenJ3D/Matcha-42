@@ -1,8 +1,5 @@
-// src/routes/matchesRoutes.ts
-
 import {Router} from 'express';
 import MatchesController from '../controllers/MatchesController';
-import authMiddleware from '../middlewares/authMiddleware';
 
 const router = Router();
 
@@ -25,6 +22,6 @@ const router = Router();
  *               items:
  *                 $ref: '#/components/schemas/UserLightResponseDto'
  */
-router.get('/', authMiddleware, MatchesController.getMyMatches);
+router.get('/', MatchesController.getMyMatches);
 
 export default router;

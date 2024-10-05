@@ -27,7 +27,7 @@ class LikesService {
         if (!targetExists) {
             throw {status: 404, message: 'Utilisateur cible non trouvé'};
         }
-
+        
         await LikesDAL.addLike(userId, targetUserId);
 
         // Vérifier si c'est un match

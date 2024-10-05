@@ -14,7 +14,7 @@ const excludedPaths = [
 ];
 
 const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    // Vérifier si le chemin de la requête est dans les chemins exclus
+    // Vérif si le chemin de la requête est dans les chemins exclus
     const isExcluded = excludedPaths.some(excluded => {
         const matchUrl = excluded.url.test(req.originalUrl);
         const matchMethod = excluded.methods.includes(req.method);
@@ -25,7 +25,7 @@ const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: Ne
         return next();
     }
 
-    // Récupérer le token de l'en-tête Authorization
+    // Récup le token de l'en-tête Authorization
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -40,7 +40,7 @@ const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: Ne
         return res.status(401).json({error: 'Non autorisé : token invalide'});
     }
 
-    // Vérifier si l'utilisateur existe toujours dans la base de données
+    // Vérif si l'utilisateur existe toujours dans la base de données
     const user = await UserServices.getUserById(payload.id);
     if (!user) {
         return res.status(401).json({error: 'Non autorisé : utilisateur supprimé ou inexistant'});

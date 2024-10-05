@@ -29,7 +29,6 @@ class UnlikesService {
 
         // Supprimer un match si existant
         await MatchesService.deleteMatch(userId, targetUserId);
-        // TODO: Implémenter un message websocket pour notifier la suppression du match
     }
 
     async removeUnlike(userId: number, targetUserId: number): Promise<void> {

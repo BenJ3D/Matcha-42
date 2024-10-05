@@ -1,6 +1,4 @@
-// src/controllers/UnlikesController.ts
-
-import {Request, Response} from 'express';
+import {Response} from 'express';
 import UnlikesService from '../services/UnlikesService';
 import {AuthenticatedRequest} from '../middlewares/authMiddleware';
 
