@@ -597,18 +597,19 @@ CREATE SEQUENCE visited_profile_history_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2
 
 CREATE TABLE "public"."visited_profile_history" (
     "id" integer DEFAULT nextval('visited_profile_history_id_seq') NOT NULL,
-    "visiter" integer NOT NULL,
-    "visited" integer NOT NULL,
-    CONSTRAINT "visited_profile_history_pk" UNIQUE ("visited", "visiter"),
+    "visiter_id" integer NOT NULL,
+    "visited_id" integer NOT NULL,
+    "viewed_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT "visited_profile_history_pk" UNIQUE ("visiter_id", "visited_id"),
     CONSTRAINT "visited_profile_history_pk_2" PRIMARY KEY ("id")
 ) WITH (oids = false);
 
 TRUNCATE "visited_profile_history";
-INSERT INTO "visited_profile_history" ("id", "visiter", "visited") VALUES
-(1,	1,	3),
-(3,	3,	1),
-(4,	2,	3),
-(5,	4,	1);
+INSERT INTO "visited_profile_history" ("id", "visiter_id", "visited_id", "viewed_at") VALUES
+(1,	1,	3, "2024-07-11 12:42:02.474665"),
+(3,	3,	1, "2024-08-23 22:42:02.474665"),
+(4,	2,	3, "2024-10-1 05:42:02.474665"),
+(5,	4,	1, "2024-06-15 20:42:02.474665");
 
 SELECT setval('visited_profile_history_id_seq', (SELECT MAX(id) FROM visited_profile_history));
 
@@ -655,7 +656,7 @@ ALTER TABLE ONLY "public"."profiles" ADD CONSTRAINT "profiles_locations_location
 ALTER TABLE ONLY "public"."users" ADD CONSTRAINT "user_accounts_sso_type_sso_id_fk" FOREIGN KEY (sso_type) REFERENCES sso_type(sso_id) NOT DEFERRABLE;
 ALTER TABLE ONLY "public"."users" ADD CONSTRAINT "users_profile_id_fkey" FOREIGN KEY (profile_id) REFERENCES profiles(profile_id) ON UPDATE RESTRICT ON DELETE RESTRICT NOT DEFERRABLE;
 
-ALTER TABLE ONLY "public"."visited_profile_history" ADD CONSTRAINT "visited_profile_history_user_id_fk" FOREIGN KEY (visited) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
-ALTER TABLE ONLY "public"."visited_profile_history" ADD CONSTRAINT "visited_profile_history_user_id_fk_2" FOREIGN KEY (visiter) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "public"."visited_profile_history" ADD CONSTRAINT "visited_profile_history_user_id_fk" FOREIGN KEY (visited_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "public"."visited_profile_history" ADD CONSTRAINT "visited_profile_history_user_id_fk_2" FOREIGN KEY (visiter_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
 
 -- 2024-09-03 18:02:01.553859+00
