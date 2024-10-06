@@ -7,6 +7,7 @@ import tagsRoutes from "./tagsRoutes";
 import natchesRoutes from "./matchesRoutes";
 import likesRoutes from "./likesRoutes";
 import unlikesRoutes from "./unlikesRoutes";
+import visitedProfilesRoutes from "./visitedProfilesRoutes";
 
 const router = Router();
 
@@ -17,6 +18,7 @@ router.use('/genders', gendersRoutes);
 router.use('/tags', tagsRoutes);
 router.use('/likes', likesRoutes);
 router.use('/unlikes', unlikesRoutes);
+router.use('/visited-profiles', visitedProfilesRoutes)
 router.use('/matches', natchesRoutes);
 
 

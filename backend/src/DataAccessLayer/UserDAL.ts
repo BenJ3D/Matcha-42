@@ -126,7 +126,7 @@ class UserDAL {
                     'profiles.biography',
                     'profiles.gender',
                     'profiles.age',
-                    'profiles.fame_rating',  // Assurez-vous de récupérer correctement fame_rating
+                    'profiles.fame_rating',
                     'profiles.main_photo_id',
                     'profiles.last_connection',
                     'photos.url as main_photo_url',
@@ -148,9 +148,22 @@ class UserDAL {
                 await db('likes').select('user as id').where('user_liked', id)
             );
 
-            const visitors = await this.getUserLightResponseList(
-                await db('visited_profile_history').select('visiter as id').where('visited', id)
+            const visitors = await db('visited_profile_history')
+                .select('visiter_id', 'viewed_at')
+                .where('visited_id', id)
+                .orderBy('viewed_at', 'desc');
+
+            const visitorDetails = await this.getUserLightResponseList(
+                visitors.map(visit => ({id: visit.visiter_id}))
             );
+
+            const visitsWithDetails = visitorDetails.map(visitor => {
+                const visit = visitors.find(v => v.visiter_id === visitor.id);
+                return {
+                    ...visitor,
+                    viewed_at: visit?.viewed_at
+                };
+            });
 
             const matchers = await this.getUserLightResponseList(
                 await db('matches').select('user_2 as id').where('user_1', id)
@@ -173,7 +186,6 @@ class UserDAL {
                 .join('profile_sexual_preferences', 'genders.gender_id', 'profile_sexual_preferences.gender_id')
                 .where('profile_sexual_preferences.profile_id', user.profile_id);
 
-            // Récupérer les utilisateurs bloqués par cet utilisateur
             const blockedUsers = await db('blocked_users')
                 .select('users.id', 'users.username', 'photos.url as main_photo_url', 'blocked_users.blocked_at')
                 .join('users', 'blocked_users.blocked_id', 'users.id')
@@ -206,20 +218,20 @@ class UserDAL {
                     longitude: parseFloat(user.longitude),
                     city_name: user.city_name
                 },
-                fame_rating: user.fame_rating,  // Correction pour s'assurer que fame_rating est bien pris en compte
+                fame_rating: user.fame_rating,
                 last_connection: user.last_connection,
                 main_photo_url: user.main_photo_url,
                 likers: likers,
-                visitors: visitors,
+                visitors: visitsWithDetails, // Include visits with details
                 matchers: matchers,
                 photos: photos,
                 sexualPreferences: sexualPreferences,
                 tags: tags,
-                blocked: blocked  // Ajout des utilisateurs bloqués avec la date de blocage
+                blocked: blocked
             } as UserResponseDto;
 
         } catch (error) {
-            console.error("Error fetching user:", error);  // Correction du message d'erreur
+            console.error("Error fetching user:", error);
             throw new Error(`Could not fetch user id ${id}`);
         }
     };

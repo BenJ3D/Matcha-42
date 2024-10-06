@@ -1,0 +1,11 @@
+meta {
+  name: get all visitors to my profile
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/visited-profiles
+  body: none
+  auth: inherit
+}
