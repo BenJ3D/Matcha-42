@@ -1,0 +1,13 @@
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+script:post-response {
+  if(res.status ==  401) {
+    console.log('ATTENTION TOKEN INVALIDE')
+  }
+}

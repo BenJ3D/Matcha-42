@@ -1,0 +1,15 @@
+meta {
+  name: i'm visited a user_id
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/visited-profiles/:userId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  userId: 4
+}

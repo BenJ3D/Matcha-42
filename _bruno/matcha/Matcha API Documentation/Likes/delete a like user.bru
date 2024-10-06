@@ -1,0 +1,15 @@
+meta {
+  name: delete a like user
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{baseUrl}}/likes/:userId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  userId: 4
+}

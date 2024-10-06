@@ -1,13 +1,13 @@
 meta {
-  name: get -users-search
+  name: advanced user search
   type: http
   seq: 1
 }
 
 get {
-  url: http://localhost:8000/api/users/search
+  url: {{baseUrl}}/users/search
   body: none
-  auth: bearer
+  auth: inherit
 }
 
 params:query {
@@ -19,8 +19,4 @@ params:query {
   ~tags: 
   ~sortBy: 
   ~order: 
-}
-
-auth:bearer {
-  token: {{token}}
 }

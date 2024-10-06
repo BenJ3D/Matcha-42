@@ -1,17 +1,13 @@
 meta {
-  name: put -users-
+  name: update my user
   type: http
   seq: 6
 }
 
 put {
-  url: http://localhost:8000/api/users/
+  url: {{baseUrl}}/users/
   body: json
-  auth: bearer
-}
-
-auth:bearer {
-  token: {{token}}
+  auth: inherit
 }
 
 body:json {
