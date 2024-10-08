@@ -7,7 +7,8 @@ import authMiddleware from "./middlewares/authMiddleware";
 import swaggerOptions from './config/swaggerConfig';
 import swaggerJsDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-
+import {createServer} from "http";
+import {Server, Socket} from "socket.io";
 
 const PORT = config.port || 8000;
 const DATABASE_URL = config.database_url;
@@ -52,9 +53,28 @@ app.get('/', (req: express.Request, res: express.Response) => {  // Typage corre
     res.send('Hello, world!');
 });
 
-app.listen(PORT, () => {
+
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+    // ...
+});
+
+io.on("connection", (socket: Socket) => {
+    // ...
+});
+
+httpServer.listen(PORT, () => {
     console.log(`Server running at PORT: ${PORT}`);
     console.log(`Connected to the database at ${config.database_name}`);
+
 }).on('error', (error: Error) => { // Typage explicite de l'erreur ici aussi
     throw new Error(error.message);
 });
+
+
+// app.listen(PORT, () => {
+//     console.log(`Server running at PORT: ${PORT}`);
+//     console.log(`Connected to the database at ${config.database_name}`);
+// }).on('error', (error: Error) => { // Typage explicite de l'erreur ici aussi
+//     throw new Error(error.message);
+// });
