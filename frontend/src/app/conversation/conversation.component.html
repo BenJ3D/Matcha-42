@@ -15,12 +15,12 @@
 	  </div>
 	</div>
 	<div class="message-input">
-	  <mat-form-field appearance="outline">
-		<input matInput [(ngModel)]="newMessage" placeholder="Type a message..." (keyup.enter)="sendMessage()">
-	  </mat-form-field>
-	  <button mat-icon-button color="primary" (click)="sendMessage()">
-		<mat-icon>send</mat-icon>
-	  </button>
-	</div>
+		<mat-form-field appearance="outline" class="message-field">
+		  <input matInput [(ngModel)]="newMessage" placeholder="Type a message..." (keyup.enter)="sendMessage()">
+		  <button mat-icon-button matSuffix color="primary" (click)="sendMessage()">
+			<mat-icon>send</mat-icon>
+		  </button>
+		</mat-form-field>
+	  </div>	  
   </div>
   

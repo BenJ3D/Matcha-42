@@ -1,8 +1,8 @@
 .conversation-container {
 	display: flex;
 	flex-direction: column;
-	height: 100%;
 	flex: 1;
+	overflow: hidden;
   }
   
   .conversation-header {
@@ -10,6 +10,7 @@
 	align-items: center;
 	padding: 8px;
 	border-bottom: 1px solid #ccc;
+	flex-shrink: 0;
   }
   
   .conversation-header h2 {
@@ -63,10 +64,10 @@
 	align-items: center;
 	padding: 8px;
 	border-top: 1px solid #ccc;
+	flex-shrink: 0;
   }
   
   .message-input mat-form-field {
 	flex: 1;
-	margin-right: 8px;
   }
   
