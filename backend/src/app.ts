@@ -59,9 +59,16 @@ const io = new Server(httpServer, {
     // ...
 });
 
+
 io.on("connection", (socket: Socket) => {
-    // ...
+    console.log("Nouvel connection de " + socket.id);
+
+    socket.on('disconnect', () => {
+        console.log("Disconnection de " + socket.id);
+
+    })
 });
+
 
 httpServer.listen(PORT, () => {
     console.log(`Server running at PORT: ${PORT}`);
