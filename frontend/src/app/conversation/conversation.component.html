@@ -8,8 +8,10 @@
 	<div class="message-list" #scrollContainer>
 	  <div *ngFor="let message of messages" 
 		   [ngClass]="{'message': true, 'user-message': message.sender === 'user', 'other-message': message.sender === 'other'}">
-		<div class="message-content">{{ message.text }}</div>
-		<div class="message-timestamp">{{ message.timestamp | date:'short' }}</div>
+		<div class="message-content">
+		  {{ message.text }}
+		  <div class="message-timestamp">{{ message.timestamp | date:'shortTime' }}</div>
+		</div>
 	  </div>
 	</div>
 	<div class="message-input">

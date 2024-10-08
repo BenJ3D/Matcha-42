@@ -2,9 +2,11 @@
 	<div class="conversation-list">
 	  <mat-list>
 		<mat-list-item *ngFor="let user of chatUsers" (click)="selectConversation(user)">
-		  <mat-icon matListAvatar>account_circle</mat-icon>
-		  <h3 matLine>{{ user.name }}</h3>
-		  <span class="unread-badge" *ngIf="user.unread > 0">{{ user.unread }}</span>
+		  <div class="conversation-item">
+			<mat-icon matListAvatar>account_circle</mat-icon>
+			<span class="user-name">{{ user.name }}</span>
+			<span class="unread-badge" *ngIf="user.unread > 0">{{ user.unread }}</span>
+		  </div>
 		</mat-list-item>
 	  </mat-list>
 	</div>
