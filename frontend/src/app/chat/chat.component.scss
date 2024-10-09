@@ -32,7 +32,6 @@
 	justify-content: center;
   }
   
-  
   mat-list-item {
 	cursor: pointer;
   }
@@ -55,6 +54,7 @@
 	.conversation-list {
 	  width: 100%;
 	  flex-shrink: 0;
+	  border-right: none;
 	}
   
 	.chat-container.conversation-selected .conversation-list {
