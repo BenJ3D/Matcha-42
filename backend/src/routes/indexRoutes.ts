@@ -8,6 +8,7 @@ import natchesRoutes from "./matchesRoutes";
 import likesRoutes from "./likesRoutes";
 import unlikesRoutes from "./unlikesRoutes";
 import visitedProfilesRoutes from "./visitedProfilesRoutes";
+import notificationsRoute from "./notificationsRoute";
 
 const router = Router();
 
@@ -20,6 +21,7 @@ router.use('/likes', likesRoutes);
 router.use('/unlikes', unlikesRoutes);
 router.use('/visited-profiles', visitedProfilesRoutes)
 router.use('/matches', natchesRoutes);
+router.use('/notifications', notificationsRoute);
 
 
 export default router;

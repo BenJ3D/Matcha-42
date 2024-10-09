@@ -1,14 +1,17 @@
-import {query} from './config/db';
+// src/server.ts
 import express from 'express';
+import {createServer} from "http";
+import {Server} from "socket.io";
 import config from './config/config';
 import routes from './routes/indexRoutes';
+import {query} from './config/db';
 import {QueryResult} from 'pg';
 import authMiddleware from "./middlewares/authMiddleware";
-import swaggerOptions from './config/swaggerConfig';
 import swaggerJsDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import {createServer} from "http";
-import {Server, Socket} from "socket.io";
+import swaggerOptions from './config/swaggerConfig';
+import {initializeSockets, onlineUsers} from './sockets/index';
+import JwtService from "./services/JwtService";
 
 const PORT = config.port || 8000;
 const DATABASE_URL = config.database_url;
@@ -22,7 +25,7 @@ if (!DATABASE_URL) {
     throw new Error('La variable d\'environnement DATABASE_URL est manquante.');
 }
 
-// Swagger setup
+// Configuration de Swagger
 const swaggerSpec = swaggerJsDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
@@ -34,54 +37,61 @@ app.get('/api-docs.json', (req, res) => {
 // Middleware pour parser les JSON
 app.use(express.json());
 
-// Middleware pour gerer l'authentification des requêtes de manière globale
+// Middleware pour gérer l'authentification des requêtes de manière globale
 app.use(authMiddleware);
 
-// routeur centralisé
+// Routeur centralisé
 app.use('/api', routes);
 
 // Test de connexion à la base de données
 query('SELECT NOW()')
-    .then((result: QueryResult) => {  // Utilisation de `QueryResult` pour typage explicite
-        console.log('Connection to the database successful:', result.rows[0]);
+    .then((result: QueryResult) => {
+        console.log('Connexion à la base de données réussie:', result.rows[0]);
     })
-    .catch((error: Error) => { // Typage explicite de l'erreur
-        console.error('Error connecting to the database:', error);
+    .catch((error: Error) => {
+        console.error('Erreur de connexion à la base de données:', error);
     });
 
-app.get('/', (req: express.Request, res: express.Response) => {  // Typage correct pour req et res
+app.get('/', (req: express.Request, res: express.Response) => {
     res.send('Hello, world!');
 });
 
-
 const httpServer = createServer(app);
+// const io = new Server(httpServer, {});
+
 const io = new Server(httpServer, {
-    // ...
+    cors: {
+        origin: "http://localhost:4200",
+        methods: ["GET", "POST"]
+    }
 });
 
+io.use((socket, next) => {
+    const token = socket.handshake.auth.token || socket.handshake.query.token;
 
-io.on("connection", (socket: Socket) => {
-    console.log("Nouvel connection de " + socket.id);
+    console.log(token);
+    if (!token) {
+        return next(new Error("Authentication error"));
+    }
 
-    socket.on('disconnect', () => {
-        console.log("Disconnection de " + socket.id);
-
-    })
+    try {
+        const payload = JwtService.verifyAccessToken(token);
+        if (payload && payload.id) {
+            socket.data.userId = payload.id;
+            return next();
+        } else {
+            return next(new Error("Authentication error"));
+        }
+    } catch (error) {
+        return next(new Error("Authentication error"));
+    }
 });
-
+// Initialiser Socket.IO avec les gestionnaires d'événements
+initializeSockets(io);
 
 httpServer.listen(PORT, () => {
-    console.log(`Server running at PORT: ${PORT}`);
-    console.log(`Connected to the database at ${config.database_name}`);
-
-}).on('error', (error: Error) => { // Typage explicite de l'erreur ici aussi
+    console.log(`Serveur en cours d'exécution sur le PORT: ${PORT}`);
+    console.log(`Connecté à la base de données: ${config.database_name}`);
+}).on('error', (error: Error) => {
     throw new Error(error.message);
 });
-
-
-// app.listen(PORT, () => {
-//     console.log(`Server running at PORT: ${PORT}`);
-//     console.log(`Connected to the database at ${config.database_name}`);
-// }).on('error', (error: Error) => { // Typage explicite de l'erreur ici aussi
-//     throw new Error(error.message);
-// });
