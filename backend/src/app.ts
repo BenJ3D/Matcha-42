@@ -1,7 +1,7 @@
 // src/server.ts
 import express from 'express';
 import {createServer} from "http";
-import {Server} from "socket.io";
+import {Server, Socket} from "socket.io";
 import config from './config/config';
 import routes from './routes/indexRoutes';
 import {query} from './config/db';
@@ -10,13 +10,13 @@ import authMiddleware from "./middlewares/authMiddleware";
 import swaggerJsDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import swaggerOptions from './config/swaggerConfig';
-import {initializeSockets, onlineUsers} from './sockets/index';
-import JwtService from "./services/JwtService";
+import initializeSockets from "./sockets";
 
 const PORT = config.port || 8000;
 const DATABASE_URL = config.database_url;
 const app = express();
 
+// const onlineUsers = new Map<number, Socket>();
 if (!PORT) {
     throw new Error('La variable d\'environnement PORT est manquante.');
 }
@@ -66,26 +66,25 @@ const io = new Server(httpServer, {
     }
 });
 
-io.use((socket, next) => {
-    const token = socket.handshake.auth.token || socket.handshake.query.token;
-
-    console.log(token);
-    if (!token) {
-        return next(new Error("Authentication error"));
-    }
-
-    try {
-        const payload = JwtService.verifyAccessToken(token);
-        if (payload && payload.id) {
-            socket.data.userId = payload.id;
-            return next();
-        } else {
-            return next(new Error("Authentication error"));
-        }
-    } catch (error) {
-        return next(new Error("Authentication error"));
-    }
-});
+// io.use((socket, next) => {
+//     const token = socket.handshake.auth.token || socket.handshake.query.token;
+//
+//     if (!token) {
+//         return next(new Error("Authentication error"));
+//     }
+//
+//     try {
+//         const payload = JwtService.verifyAccessToken(token);
+//         if (payload && payload.id) {
+//             socket.data.userId = payload.id;
+//             return next();
+//         } else {
+//             return next(new Error("Authentication error"));
+//         }
+//     } catch (error) {
+//         return next(new Error("Authentication error"));
+//     }
+// });
 // Initialiser Socket.IO avec les gestionnaires d'événements
 initializeSockets(io);
 

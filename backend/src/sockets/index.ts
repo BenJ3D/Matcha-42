@@ -1,47 +1,57 @@
-import {Server, Socket} from 'socket.io';
-import JwtService from '../services/JwtService'; // Ensure this is the correct path
-import connectionHandler from './events/connection';
+import {Server, Socket} from "socket.io";
 import notification from './events/notification';
-
-const onlineUsers = new Map<number, Socket>();
+import JwtService from '../services/JwtService';
+import {onlineUsers} from './events/onlineUsers';
+import {IJwtPayload} from '../types/IJwtPayload';
 
 const initializeSockets = (io: Server) => {
-    io.on('connection', (socket: Socket) => {
-        console.log('Nouvelle connexion: ' + socket.id);
+    io.use((socket: Socket, next) => {
+        const token = socket.handshake.auth.token || socket.handshake.query.token;
 
+        if (!token) {
+            return next(new Error("Authentication error: Token manquant"));
+        }
 
-        // Authenticate the user and associate the user ID with the socket
-        socket.on('authenticate', (data: { token: string }) => {
-            const payload = JwtService.verifyAccessToken(data.token);
+        try {
+            const payload: IJwtPayload | null = JwtService.verifyAccessToken(token);
             if (payload && payload.id) {
-                onlineUsers.set(payload.id, socket);
                 socket.data.userId = payload.id;
-
-                console.log(`User ${payload.id} connected with socket ${socket.id}`);
-
-                // Optionally, emit a confirmation to the client
-                socket.emit('authenticated', {message: 'You are authenticated'});
+                return next();
             } else {
-                console.log('Invalid token detected in socket connection');
-                socket.emit('unauthorized', {message: 'Invalid token'});
-                socket.disconnect(true);
+                return next(new Error("Authentication error: Token invalide"));
             }
+        } catch (error) {
+            return next(new Error("Authentication error: Token invalide"));
+        }
+    });
+
+    io.on("connection", (socket: Socket) => {
+        const userId = socket.data.userId as number;
+        console.log(`User ${userId} connecté avec le socket ${socket.id}`);
+
+        // Ajouter le socket à la map onlineUsers
+        if (!onlineUsers.has(userId)) {
+            onlineUsers.set(userId, new Set());
+        }
+        onlineUsers.get(userId)!.add(socket);
+
+        // Gérer la déconnexion
+        socket.on("disconnect", () => {
+            const userSet = onlineUsers.get(userId);
+            if (userSet) {
+                userSet.delete(socket);
+                if (userSet.size === 0) {
+                    onlineUsers.delete(userId);
+                }
+            }
+            console.log(`User ${userId} déconnecté du socket ${socket.id}`);
         });
 
-        socket.on('disconnect', () => {
-            const userId = socket.data.userId;
-            if (userId) {
-                onlineUsers.delete(userId);
-                console.log(`User ${userId} disconnected`);
-            }
-        });
-
-        // Initialize event handlers
-        connectionHandler(socket, io);
+        // Initialiser les gestionnaires d'événements
         notification(socket, io);
 
-        // Add other event handlers here
+        // Ajouter d'autres gestionnaires d'événements ici
     });
 };
 
-export {initializeSockets, onlineUsers};
+export default initializeSockets;

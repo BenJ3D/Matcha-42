@@ -1,8 +1,6 @@
 import NotificationsDAL from '../DataAccessLayer/NotificationsDAL';
-import {NotificationType} from '../models/Notifications';
-import {Notification} from '../models/Notifications';
-import {onlineUsers} from '../sockets'; // We'll modify sockets to maintain online users
-import {Socket} from 'socket.io';
+import {NotificationType, Notification} from '../models/Notifications';
+import {onlineUsers} from '../sockets/events/onlineUsers';
 
 class NotificationsService {
     async createNotification(
@@ -16,14 +14,15 @@ class NotificationsService {
             type
         );
 
-        // Check if the target user is online
-        const targetSocket = onlineUsers.get(targetUserId);
-        if (targetSocket) {
-            // Emit the notification to the target user via websocket
-            targetSocket.emit('notification', {
-                notification_id: notificationId,
-                type,
-                source_user_id: sourceUserId,
+        // Vérifier si l'utilisateur cible est en ligne
+        const userSockets = onlineUsers.get(targetUserId);
+        if (userSockets) {
+            userSockets.forEach((socket) => {
+                socket.emit('notification', {
+                    notification_id: notificationId,
+                    type,
+                    source_user_id: sourceUserId,
+                });
             });
         }
 
