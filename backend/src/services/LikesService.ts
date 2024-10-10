@@ -3,6 +3,8 @@ import MatchesService from './MatchesService';
 import {UserLightResponseDto} from '../DTOs/users/UserLightResponseDto';
 import userDAL from '../DataAccessLayer/UserDAL';
 import UnlikesService from "./UnlikesService";
+import NotificationsService from "./NotificationsService";
+import {NotificationType} from "../models/Notifications";
 
 class LikesService {
     async getUserLikes(userId: number): Promise<UserLightResponseDto[]> {
@@ -41,8 +43,30 @@ class LikesService {
         const isMutual = reciprocalLikes.some(like => like.user_liked === userId);
         if (isMutual) {
             await MatchesService.createMatch(userId, targetUserId);
+
+            // MATCH notifications pour les deux users
+            await NotificationsService.createNotification(
+                userId,
+                targetUserId,
+                NotificationType.MATCH
+            );
+            await NotificationsService.createNotification(
+                targetUserId,
+                userId,
+                NotificationType.MATCH
+            );
+        } else {
+            // LIKE notification pour target user
+            await NotificationsService.createNotification(
+                targetUserId,
+                userId,
+                NotificationType.LIKE
+            );
+        
             // TODO: Implémenter un message websocket pour notifier un nouveau match
         }
+
+
     }
 
     async removeLike(userId: number, targetUserId: number): Promise<void> {

@@ -3,14 +3,11 @@ import {UserResponseDto} from "../DTOs/users/UserResponseDto";
 import {PasswordService} from "./PasswordService";
 import {LoginDto} from "../DTOs/login/LoginDto";
 import JwtService from "./JwtService"; // Importation de JwtService
-import {IJwtPayload} from "../types/IJwtPayload"; // Importation de IJwtPayload pour le type
+import {IJwtPayload} from "../types/IJwtPayload";
+import {LoginResponseDTO} from "../DTOs/login/LoginResponseDTO"; // Importation de IJwtPayload pour le type
 
 class LoginServices {
-    async login(userTryLogin: LoginDto): Promise<{
-        user: UserResponseDto,
-        accessToken: string,
-        refreshToken: string
-    } | null> {
+    async login(userTryLogin: LoginDto): Promise<LoginResponseDTO | null> {
         // Récupérer l'utilisateur à partir de l'email fourni
         const user = await userDAL.findOneByEmail(userTryLogin.email);
         if (!user) {

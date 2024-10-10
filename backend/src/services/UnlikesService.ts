@@ -1,6 +1,8 @@
 import UnlikesDAL from '../DataAccessLayer/UnlikesDAL';
 import MatchesService from './MatchesService';
 import LikesService from "./LikesService";
+import {NotificationType} from "../models/Notifications";
+import NotificationsService from "./NotificationsService";
 
 class UnlikesService {
     async getUserUnlikes(userId: number): Promise<number[]> {
@@ -34,6 +36,13 @@ class UnlikesService {
 
         // Supprimer un match si existant
         await MatchesService.deleteMatch(userId, targetUserId);
+
+        // Create UNLIKE notification for the target user
+        await NotificationsService.createNotification(
+            targetUserId,
+            userId,
+            NotificationType.UNLIKE
+        );
     }
 
     async removeUnlike(userId: number, targetUserId: number): Promise<void> {
