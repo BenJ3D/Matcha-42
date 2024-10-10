@@ -1,7 +1,7 @@
-import joi, {number} from "joi";
+import {UserResponseDto} from "../users/UserResponseDto";
 
-//Informations retournées si login == success
-const LoginResponseDTO = joi.object({
-    id: joi.number().required(),
-    token: joi.string(),
-})
+export interface LoginResponseDTO {
+    user: UserResponseDto;
+    accessToken: string;
+    refreshToken: string;
+}

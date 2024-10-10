@@ -1,6 +1,8 @@
 import VisitedProfilesDAL from '../DataAccessLayer/VisitedProfilesDAL';
 import UserDAL from '../DataAccessLayer/UserDAL';
 import {UserLightResponseDto} from '../DTOs/users/UserLightResponseDto';
+import {NotificationType} from "../models/Notifications";
+import NotificationsService from "./NotificationsService";
 
 class VisitedProfilesService {
     async addVisit(visiterId: number, visitedId: number): Promise<void> {
@@ -15,6 +17,13 @@ class VisitedProfilesService {
         }
 
         await VisitedProfilesDAL.addVisit(visiterId, visitedId);
+
+        // NEW_VISIT notification pour l'user visited
+        await NotificationsService.createNotification(
+            visitedId,
+            visiterId,
+            NotificationType.NEW_VISIT
+        );
     }
 
     async getVisitHistoryForUser(userId: number): Promise<(UserLightResponseDto & { viewed_at: Date })[]> {
