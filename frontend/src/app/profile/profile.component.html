@@ -1,1 +1,42 @@
-<p>profile works!</p>
+<!-- profile.component.html -->
+<div class="profile-container">
+    <mat-card class="profile-card">
+      <div class="profile-header">
+        <img
+          [src]="user.images[0]"
+          [alt]="user.username"
+          class="profile-picture"
+        />
+        <h2>{{ user.firstName }} {{ user.lastName }}</h2>
+        <p class="username">{{ '@' + user.username }}</p>
+      </div>
+      <mat-card-content>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Gender:</strong> {{ user.gender }}</p>
+        <p><strong>Interested In:</strong> {{ user.sexualPreferences }}</p>
+        <p><strong>Bio:</strong> {{ user.bio }}</p>
+        <p>
+          <strong>Interests:</strong>
+          <span *ngFor="let interest of user.interests">{{ interest }} </span>
+        </p>
+        <p><strong>Fame Rating:</strong> {{ user.fameRating }}</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button color="primary" (click)="onEditProfile()">
+          Edit Profile
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  
+    <div class="profile-images">
+      <h3>Gallery</h3>
+      <div class="images-grid">
+        <img
+          *ngFor="let image of user.images"
+          [src]="image"
+          [alt]="user.username"
+        />
+      </div>
+    </div>
+  </div>
+  

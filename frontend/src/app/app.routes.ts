@@ -18,7 +18,7 @@ export const routes: Routes = [
       { path: 'nearby', loadComponent: () => import('./nearby/nearby.component').then(m => m.NearbyComponent) },
       { path: 'chat', loadComponent: () => import('./chat/chat.component').then(m => m.ChatComponent) },
       { path: 'notification', loadComponent: () => import('./notification/notification.component').then(m => m.NotificationComponent) },
-      // { path: 'profile', loadComponent: () => import('./profile/profile.component').then(m => m.ProfileComponent) },
+      { path: 'profile', loadComponent: () => import('./profile/profile.component').then(m => m.ProfileComponent) },
       { path: '', redirectTo: 'home', pathMatch: 'full' },
     ],
   },
