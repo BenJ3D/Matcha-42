@@ -228,6 +228,47 @@ const swaggerDefinition: SwaggerDefinition = {
                 },
             },
         },
+        Message: {
+            type: 'object',
+            properties: {
+                message_id: {
+                    type: 'integer',
+                    example: 1,
+                },
+                content: {
+                    type: 'string',
+                    example: 'Bonjour, comment ça va ?',
+                },
+                created_at: {
+                    type: 'string',
+                    format: 'date-time',
+                    example: '2021-09-15T12:34:56Z',
+                },
+                owner_user: {
+                    type: 'integer',
+                    example: 1,
+                },
+                target_user: {
+                    type: 'integer',
+                    example: 2,
+                },
+            },
+        },
+        CreateMessageDto: {
+            type: 'object',
+            required: ['target_user', 'content'],
+            properties: {
+                target_user: {
+                    type: 'integer',
+                    example: 2,
+                },
+                content: {
+                    type: 'string',
+                    maxLength: 500,
+                    example: 'Bonjour, comment ça va ?',
+                },
+            },
+        },
     },
     security: [{
         BearerAuth: []

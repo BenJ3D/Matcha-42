@@ -1,4 +1,4 @@
-interface Message {
+export interface Message {
     message_id: number;
     content: string;
     created_at: Date;

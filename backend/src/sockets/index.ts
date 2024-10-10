@@ -1,5 +1,4 @@
 import {Server, Socket} from "socket.io";
-import notification from './events/notification';
 import JwtService from '../services/JwtService';
 import {onlineUsers} from './events/onlineUsers';
 import {IJwtPayload} from '../types/IJwtPayload';
@@ -46,11 +45,6 @@ const initializeSockets = (io: Server) => {
             }
             console.log(`User ${userId} déconnecté du socket ${socket.id}`);
         });
-
-        // Initialiser les gestionnaires d'événements
-        notification(socket, io);
-
-        // Ajouter d'autres gestionnaires d'événements ici
     });
 };
 

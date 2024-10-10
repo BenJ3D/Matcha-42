@@ -46,6 +46,24 @@ class MatchesDAL {
             throw {status: 500, message: 'Impossible de supprimer le match'};
         }
     }
+
+    async isMatched(userId1: number, userId2: number): Promise<boolean> {
+        try {
+            // Assurez-vous que user_1 est toujours inférieur à user_2 pour maintenir l'unicité
+            const [user1, user2] = userId1 < userId2 ? [userId1, userId2] : [userId2, userId1];
+
+            const match = await db('matches')
+                .select('*')
+                .where({user_1: user1, user_2: user2})
+                .first();
+
+            return !!match;
+        } catch (error) {
+            console.error(`Erreur lors de la vérification du match entre ${userId1} et ${userId2}:`, error);
+            throw {status: 500, message: 'Erreur interne du serveur lors de la vérification du match'};
+        }
+    }
+
 }
 
 export default new MatchesDAL();
