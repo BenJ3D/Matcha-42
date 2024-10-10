@@ -10,9 +10,10 @@ export enum NotificationType {
 // Interface for Notification Model
 export interface Notification {
     notification_id: number;
-    target_user: number;
-    has_read: boolean;
-    notified_at: Date;
     type: NotificationType;
+    target_user: number;
     source_user: number;
+    content: string | null;
+    notified_at: Date;
+    has_read: boolean;
 }
