@@ -21,9 +21,43 @@ const swaggerDefinition: SwaggerDefinition = {
                 type: 'http',
                 scheme: 'bearer',
                 bearerFormat: 'JWT',
-            }
+            },
         },
         schemas: {
+            // Schéma pour UserLightResponseDto
+            UserLightResponseDto: {
+                type: 'object',
+                properties: {
+                    id: {
+                        type: 'integer',
+                        example: 1,
+                    },
+                    username: {
+                        type: 'string',
+                        example: 'johndoe',
+                    },
+                    main_photo_url: {
+                        type: 'string',
+                        example: 'https://example.com/photos/user1_photo.jpg',
+                    },
+                    age: {
+                        type: 'integer',
+                        example: 25,
+                    },
+                    gender: {
+                        type: 'integer',
+                        example: 5,
+                    },
+                    location: {
+                        type: 'object',
+                        properties: {
+                            latitude: {type: 'number', example: 45.764043},
+                            longitude: {type: 'number', example: 4.835659},
+                            city_name: {type: 'string', example: 'Lyon'},
+                        },
+                    },
+                },
+            },
             // Schéma pour ProfileCreateDto
             ProfileCreateDto: {
                 type: 'object',
@@ -53,7 +87,7 @@ const swaggerDefinition: SwaggerDefinition = {
                         type: 'object',
                         properties: {
                             latitude: {type: 'number', example: 45.764043},
-                            longitude: {type: 'number', example: 4.835659}
+                            longitude: {type: 'number', example: 4.835659},
                         },
                         required: ['latitude', 'longitude'],
                         description: 'Coordonnées géographiques du profil',
@@ -104,7 +138,7 @@ const swaggerDefinition: SwaggerDefinition = {
                         type: 'object',
                         properties: {
                             latitude: {type: 'number', example: 48.856614},
-                            longitude: {type: 'number', example: 2.3522219}
+                            longitude: {type: 'number', example: 2.3522219},
                         },
                         required: ['latitude', 'longitude'],
                         description: 'Coordonnées géographiques du profil',
@@ -141,7 +175,7 @@ const swaggerDefinition: SwaggerDefinition = {
                     },
                     biography: {
                         type: 'string',
-                        example: 'je mappel ben bonjour blablabal bal abla bla',
+                        example: 'Je m\'appelle Ben, bonjour blablabla...',
                     },
                     gender: {
                         type: 'integer',
@@ -227,52 +261,56 @@ const swaggerDefinition: SwaggerDefinition = {
                     },
                 },
             },
-        },
-        Message: {
-            type: 'object',
-            properties: {
-                message_id: {
-                    type: 'integer',
-                    example: 1,
-                },
-                content: {
-                    type: 'string',
-                    example: 'Bonjour, comment ça va ?',
-                },
-                created_at: {
-                    type: 'string',
-                    format: 'date-time',
-                    example: '2021-09-15T12:34:56Z',
-                },
-                owner_user: {
-                    type: 'integer',
-                    example: 1,
-                },
-                target_user: {
-                    type: 'integer',
-                    example: 2,
+            // Schéma pour CreateMessageDto
+            CreateMessageDto: {
+                type: 'object',
+                required: ['target_user', 'content'],
+                properties: {
+                    target_user: {
+                        type: 'integer',
+                        example: 2,
+                    },
+                    content: {
+                        type: 'string',
+                        maxLength: 500,
+                        example: 'Bonjour, comment ça va ?',
+                    },
                 },
             },
-        },
-        CreateMessageDto: {
-            type: 'object',
-            required: ['target_user', 'content'],
-            properties: {
-                target_user: {
-                    type: 'integer',
-                    example: 2,
-                },
-                content: {
-                    type: 'string',
-                    maxLength: 500,
-                    example: 'Bonjour, comment ça va ?',
+            // Schéma pour Message
+            Message: {
+                type: 'object',
+                properties: {
+                    message_id: {
+                        type: 'integer',
+                        example: 1,
+                    },
+                    content: {
+                        type: 'string',
+                        example: 'Bonjour, comment ça va ?',
+                    },
+                    created_at: {
+                        type: 'string',
+                        format: 'date-time',
+                        example: '2021-09-15T12:34:56Z',
+                    },
+                    owner_user: {
+                        type: 'integer',
+                        example: 1,
+                    },
+                    target_user: {
+                        type: 'integer',
+                        example: 2,
+                    },
                 },
             },
         },
     },
-    security: [{
-        BearerAuth: []
-    }]
+    security: [
+        {
+            BearerAuth: [],
+        },
+    ],
 };
 
 const options: Options = {
