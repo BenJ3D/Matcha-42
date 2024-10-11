@@ -12,10 +12,18 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerOptions from './config/swaggerConfig';
 import {initializeSockets, onlineUsers} from './sockets/index';
 import JwtService from "./services/JwtService";
+import cors from 'cors';
 
 const PORT = config.port || 8000;
 const DATABASE_URL = config.database_url;
 const app = express();
+
+// Configurer CORS
+app.use(cors({
+    origin: 'http://localhost:4200',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,
+}));
 
 if (!PORT) {
     throw new Error('La variable d\'environnement PORT est manquante.');
@@ -59,6 +67,7 @@ app.get('/', (req: express.Request, res: express.Response) => {
 const httpServer = createServer(app);
 // const io = new Server(httpServer, {});
 
+// Configurer CORS pour SocketIO
 const io = new Server(httpServer, {
     cors: {
         origin: "http://localhost:4200",
