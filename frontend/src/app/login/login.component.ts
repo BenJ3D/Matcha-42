@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -30,10 +31,10 @@ export class LoginComponent {
   form: FormGroup;
   isLoading = false;
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor(private fb: FormBuilder, private router: Router, private authService: AuthService) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(5)]]
+      password: ['', [Validators.required, Validators.minLength(4)]]
     });
   }
 
@@ -41,13 +42,32 @@ export class LoginComponent {
     if (this.form.valid) {
       this.isLoading = true;
       this.form.disable();
-
-      // Simulate login process
-      setTimeout(() => {
-        this.isLoading = false;
-        this.goToMain();
-      }, 1000);
     }
+
+    const loginData = this.form.value;
+
+    this.authService.login(loginData).subscribe(
+      {
+        next: (response) => {
+          console.log("Here next")
+          this.isLoading = false;
+
+          localStorage.setItem('accessToken', response.accessToken)
+          localStorage.setItem('refreshToken', response.refreshToken)
+
+          this.goToMain();
+        },
+        error: (error) => {
+          console.log(error)
+          this.isLoading = false;
+          this.form.enable();
+          return 'Error: ${this.error}';
+        },
+        complete: () => {
+          console.log("Here complete")
+        }
+      }
+    )
   }
 
   goToMain(): void {
