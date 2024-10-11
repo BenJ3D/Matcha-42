@@ -4,6 +4,8 @@ import MessageDAL from '../DataAccessLayer/MessageDAL';
 import MatchesService from "./MatchesService";
 import {Message} from '../models/Message';
 import {Socket} from 'socket.io';
+import NotificationsService from "./NotificationsService";
+import {NotificationType} from "../models/Notifications";
 
 class MessageService {
     async createMessage(ownerUserId: number, createMessageDto: CreateMessageDto): Promise<Message> {
@@ -31,6 +33,11 @@ class MessageService {
             targetUserSockets.forEach((socket: Socket) => {
                 socket.emit('message', message);
             });
+            NotificationsService.createNotification(
+                target_user,
+                ownerUserId,
+                NotificationType.NEW_MESSAGE
+            )
         }
 
         // Émettre le message à l'utilisateur propriétaire (envoyeur)
