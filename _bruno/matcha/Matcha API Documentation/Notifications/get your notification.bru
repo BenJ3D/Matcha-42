@@ -5,7 +5,11 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/notifications
+  url: {{baseUrl}}/notifications?includeRead=true
   body: none
   auth: inherit
+}
+
+params:query {
+  includeRead: true
 }
