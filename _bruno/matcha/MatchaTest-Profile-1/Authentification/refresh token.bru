@@ -1,0 +1,25 @@
+meta {
+  name: refresh token
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/login/refresh
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "refreshToken": "{{refreshToken}}"
+  }
+}
+
+script:post-response {
+  let data = res.getBody();
+  bru.setVar("accessToken",data.accessToken);
+  bru.setVar("refreshToken", data.refreshToken);
+  console.log("accessToken = " + data.accessToken);
+  console.log("refreshToken = " + data.accessToken);
+}

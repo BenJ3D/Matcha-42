@@ -1,0 +1,30 @@
+meta {
+  name: create my profile
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/profiles
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "biography": "Je suis passionné par le développement web, moi aussi...",
+    "gender": 6,
+    "age": 25,
+    "main_photo_id": 6,
+    "location": {
+      "latitude": 45.964043,
+      "longitude": 4.435659
+    },
+    "tags": [
+      19,23
+    ],
+    "sexualPreferences": [
+      5
+    ]
+  }
+}

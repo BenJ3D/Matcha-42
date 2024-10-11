@@ -1,0 +1,20 @@
+meta {
+  name: MarkAsRead Notifications
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/notifications/MarkAsRead
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "notificationIds" : [
+      52,51
+    ]
+    
+  }
+}

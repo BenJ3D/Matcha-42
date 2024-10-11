@@ -30,19 +30,12 @@ class UnlikesService {
         //Suppression d'un eventuel like, catch vide pour ne pas retourné de 404 si le like n'existe pas
         try {
             await LikesService.removeLike(userId, targetUserId);
+
+            console.log(`DBG il avait un like avec user ${targetUserId}`)
         } catch (e: any) {
+            console.log(`DBG il n'y avait aucun like avec user ${targetUserId}`)
         }
 
-
-        // Supprimer un match si existant
-        await MatchesService.deleteMatch(userId, targetUserId);
-
-        // Create UNLIKE notification for the target user
-        await NotificationsService.createNotification(
-            targetUserId,
-            userId,
-            NotificationType.UNLIKE
-        );
     }
 
     async removeUnlike(userId: number, targetUserId: number): Promise<void> {

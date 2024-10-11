@@ -44,17 +44,7 @@ class LikesService {
         if (isMutual) {
             await MatchesService.createMatch(userId, targetUserId);
 
-            // MATCH notifications pour les deux users
-            await NotificationsService.createNotification(
-                userId,
-                targetUserId,
-                NotificationType.MATCH
-            );
-            await NotificationsService.createNotification(
-                targetUserId,
-                userId,
-                NotificationType.MATCH
-            );
+
         } else {
             // LIKE notification pour target user
             await NotificationsService.createNotification(
@@ -62,7 +52,7 @@ class LikesService {
                 userId,
                 NotificationType.LIKE
             );
-        
+
             // TODO: Implémenter un message websocket pour notifier un nouveau match
         }
 

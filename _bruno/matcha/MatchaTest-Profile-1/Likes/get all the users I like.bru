@@ -1,0 +1,11 @@
+meta {
+  name: get all the users I like
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/likes
+  body: none
+  auth: inherit
+}

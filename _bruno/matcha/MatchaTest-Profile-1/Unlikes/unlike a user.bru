@@ -1,0 +1,15 @@
+meta {
+  name: unlike a user
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/unlikes/:userId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  userId: 4
+}

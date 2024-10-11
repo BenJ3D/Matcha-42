@@ -1,0 +1,30 @@
+meta {
+  name: update my profile
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{baseUrl}}/profiles
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "biography": "Mise à jour de ma biographie...",
+    "gender": 6,
+    "age": 29,
+    "main_photo_id": 17,
+    "location": {
+      "latitude": 48.856614,
+      "longitude": 2.3522219
+    },
+    "tags": [
+      21
+    ],
+    "sexualPreferences": [
+      13
+    ]
+  }
+}
