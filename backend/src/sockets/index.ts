@@ -2,6 +2,7 @@ import {Server, Socket} from "socket.io";
 import JwtService from '../services/JwtService';
 import {onlineUsers} from './events/onlineUsers';
 import {IJwtPayload} from '../types/IJwtPayload';
+import userServices from "../services/UserServices";
 
 const initializeSockets = (io: Server) => {
     io.use((socket: Socket, next) => {
@@ -31,6 +32,7 @@ const initializeSockets = (io: Server) => {
         // Ajouter le socket à la map onlineUsers
         if (!onlineUsers.has(userId)) {
             onlineUsers.set(userId, new Set());
+            userServices.setOnlineUser(userId);
         }
         onlineUsers.get(userId)!.add(socket);
 
@@ -41,6 +43,7 @@ const initializeSockets = (io: Server) => {
                 userSet.delete(socket);
                 if (userSet.size === 0) {
                     onlineUsers.delete(userId);
+                    userServices.setOfflineUser(userId);
                 }
             }
             console.log(`User ${userId} déconnecté du socket ${socket.id}`);

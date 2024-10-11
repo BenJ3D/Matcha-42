@@ -28,6 +28,15 @@ class UserServices {
         return await userDAL.delete(userId);
     }
 
+    async setOnlineUser(userId: number): Promise<void> {
+        return await userDAL.updateOnlineStatus(userId, true);
+    }
+
+    async setOfflineUser(userId: number): Promise<void> {
+        return await userDAL.updateOnlineStatus(userId, false);
+    }
+
+
     async advancedSearch(
         userId: number,
         ageMin?: number,

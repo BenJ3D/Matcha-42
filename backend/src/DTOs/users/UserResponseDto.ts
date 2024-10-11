@@ -13,6 +13,7 @@ export interface UserResponseDto extends UserLightResponseDto {
     biography: string;
     gender: number;
     age: number;
+    is_online: boolean;
     main_photo_id?: number;
     photos: Photo[];
     sexualPreferences?: Gender[];
