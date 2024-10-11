@@ -1,0 +1,27 @@
+<div class="notification-container">
+  <h1>Notifications</h1>
+  <div class="notification-list">
+    <div
+      class="notification-item"
+      *ngFor="let notification of notifications"
+      (click)="onNotificationClick(notification)"
+      [ngClass]="{ 'unread-notification': !notification.read }"
+    >
+      <!-- Notification Icon -->
+      <mat-icon class="notification-icon">
+        {{ getNotificationIcon(notification.type) }}
+      </mat-icon>
+
+      <!-- Notification Text -->
+      <div class="notification-text">
+        <p class="description">{{ notification.description }}</p>
+        <small class="timestamp">{{ notification.timestamp | date: 'short' }}</small>
+      </div>
+
+      <!-- Unread Indicator -->
+      <mat-icon *ngIf="!notification.read" class="unread-indicator">
+        fiber_manual_record
+      </mat-icon>
+    </div>
+  </div>
+</div>

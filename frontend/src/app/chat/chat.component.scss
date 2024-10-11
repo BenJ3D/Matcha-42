@@ -7,16 +7,32 @@
 	width: 300px;
 	overflow-y: auto;
 	border-right: 1px solid #ccc;
+	flex-shrink: 0;
   }
   
-  app-conversation {
-	flex: 1;
+  .conversation-item {
 	display: flex;
-	flex-direction: column;
+	align-items: center;
+	width: 100%;
+  }
+  
+  .conversation-item .user-name {
+	flex: 1;
+  }
+  
+  .unread-badge {
+	background-color: #66bb6a;
+	color: white;
+	border-radius: 50%;
+	width: 24px;
+	height: 24px;
+	font-size: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
   }
   
   mat-list-item {
-	height: 80px !important;
 	cursor: pointer;
   }
   
@@ -24,15 +40,10 @@
 	background-color: #f0f0f0;
   }
   
-  .unread-badge {
-	background-color: #ff4081;
-	color: white;
-	border-radius: 50%;
-	padding: 2px 6px;
-	font-size: 12px;
-	position: absolute;
-	right: 16px;
-	top: 16px;
+  app-conversation {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
   }
   
   @media (max-width: 600px) {
@@ -42,6 +53,8 @@
   
 	.conversation-list {
 	  width: 100%;
+	  flex-shrink: 0;
+	  border-right: none;
 	}
   
 	.chat-container.conversation-selected .conversation-list {
@@ -49,13 +62,9 @@
 	}
   
 	.chat-container.conversation-selected app-conversation {
-	  position: fixed;
-	  top: 0;
-	  left: 0;
-	  right: 0;
-	  bottom: 0; /* Adjust as needed */
-	  z-index: 1000;
-	  background: white;
+	  flex: 1;
+	  display: flex;
+	  flex-direction: column;
 	}
   }
   

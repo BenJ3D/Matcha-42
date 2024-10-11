@@ -10,11 +10,20 @@ import authMiddleware from "./middlewares/authMiddleware";
 import swaggerJsDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import swaggerOptions from './config/swaggerConfig';
+import JwtService from "./services/JwtService";
+import cors from 'cors';
 import initializeSockets from "./sockets";
 
 const PORT = config.port || 8000;
 const DATABASE_URL = config.database_url;
 const app = express();
+
+// Configurer CORS
+app.use(cors({
+    origin: 'http://localhost:4200',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,
+}));
 
 // const onlineUsers = new Map<number, Socket>();
 if (!PORT) {
@@ -59,6 +68,7 @@ app.get('/', (req: express.Request, res: express.Response) => {
 const httpServer = createServer(app);
 // const io = new Server(httpServer, {});
 
+// Configurer CORS pour SocketIO
 const io = new Server(httpServer, {
     cors: {
         origin: "http://localhost:4200",

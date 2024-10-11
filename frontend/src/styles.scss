@@ -6,10 +6,6 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
-.mat-icon {
-  vertical-align: middle;
-}
-
 .mat-mdc-raised-button {
   text-transform: uppercase;
   font-weight: 500;
@@ -26,4 +22,10 @@ body {
   &:hover {
     transform: translateY(-2px);
   }
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
