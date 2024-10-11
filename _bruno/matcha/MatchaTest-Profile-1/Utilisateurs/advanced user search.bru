@@ -1,0 +1,22 @@
+meta {
+  name: advanced user search
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/users/search
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~ageMin: 
+  ~ageMax: 
+  ~fameMin: 
+  ~fameMax: 
+  ~location: 
+  ~tags: 
+  ~sortBy: 
+  ~order: 
+}

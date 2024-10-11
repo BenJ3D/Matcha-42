@@ -1,0 +1,18 @@
+meta {
+  name: send message
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/messages
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "target_user": 4,
+    "content": "Coucou cava ?"
+  }
+}
