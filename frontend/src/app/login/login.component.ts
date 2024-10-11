@@ -49,7 +49,6 @@ export class LoginComponent {
     this.authService.login(loginData).subscribe(
       {
         next: (response) => {
-          console.log("Here next")
           this.isLoading = false;
 
           localStorage.setItem('accessToken', response.accessToken)
@@ -61,10 +60,10 @@ export class LoginComponent {
           console.log(error)
           this.isLoading = false;
           this.form.enable();
-          return 'Error: ${this.error}';
+          return `Error: ${error.message}`;
         },
         complete: () => {
-          console.log("Here complete")
+          console.log("Complete")
         }
       }
     )
