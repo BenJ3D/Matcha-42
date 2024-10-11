@@ -32,6 +32,10 @@ class MatchesService {
 
         // TODO: Implémenter un message websocket pour notifier le front de la suppression du match
     }
+
+    async isMatched(userId1: number, userId2: number): Promise<boolean> {
+        return await MatchesDAL.isMatched(userId1, userId2);
+    }
 }
 
 export default new MatchesService();

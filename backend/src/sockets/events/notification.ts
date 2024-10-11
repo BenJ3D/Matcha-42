@@ -1,5 +1,5 @@
 import {Socket, Server} from "socket.io";
-import {CreateMessageDto} from "../../DTOs/chat/MessageDto";
+import {CreateMessageDto} from "../../DTOs/chat/CreateMessageDto";
 
 const messageEventHandler = (socket: Socket, io: Server) => {
 
