@@ -1,5 +1,5 @@
 import {Request, Response, NextFunction} from 'express';
-import {isValidId} from '../utils/validateId';
+import {isValidId} from '../utils/isValidId';
 
 /**
  * Middleware pour valider l'ID dans les paramètres de l'URL.

@@ -1,13 +1,16 @@
 import {Response} from 'express';
 import UnlikesService from '../services/UnlikesService';
 import {AuthenticatedRequest} from '../middlewares/authMiddleware';
+import {checkUserId} from "../utils/checkUserId";
 
 class UnlikesController {
     async getMyUnlikes(req: AuthenticatedRequest, res: Response) {
         try {
             const userId = req.userId!;
-            const unlikes = await UnlikesService.getUserUnlikes(userId);
-            res.json({unlikes});
+            checkUserId(userId, res);
+
+            const {unlikesGiven, unlikesReceived} = await UnlikesService.getUserUnlikes(userId);
+            res.json({unlikesGiven, unlikesReceived});
         } catch (error: any) {
             console.error('Erreur lors de la récupération des unlikes:', error);
             res.status(error.status || 500).json({error: error.message || 'Erreur interne du serveur'});
@@ -18,10 +21,8 @@ class UnlikesController {
         try {
             const userId = req.userId!;
             const targetUserId = parseInt(req.params.userId, 10);
-
-            if (isNaN(targetUserId)) {
-                return res.status(400).json({error: 'ID de l\'utilisateur cible invalide'});
-            }
+            checkUserId(userId, res);
+            checkUserId(targetUserId, res);
 
             await UnlikesService.addUnlike(userId, targetUserId);
             res.status(200).json({message: 'Utilisateur unliké avec succès'});
@@ -36,9 +37,8 @@ class UnlikesController {
             const userId = req.userId!;
             const targetUserId = parseInt(req.params.userId, 10);
 
-            if (isNaN(targetUserId)) {
-                return res.status(400).json({error: 'ID de l\'utilisateur cible invalide'});
-            }
+            checkUserId(userId, res);
+            checkUserId(targetUserId, res);
 
             await UnlikesService.removeUnlike(userId, targetUserId);
             res.status(200).json({message: 'Unlike retiré avec succès'});

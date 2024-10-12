@@ -8,23 +8,27 @@ const router = Router();
  * @swagger
  * /unlikes:
  *   get:
- *     summary: Récupérer tous les unlikes de l'utilisateur authentifié
+ *     summary: Récupérer les unlikes de l'utilisateur (donnés et reçus)
  *     tags:
  *       - Unlikes
  *     security:
  *       - BearerAuth: []
  *     responses:
  *       200:
- *         description: Liste des unlikes
+ *         description: Listes des unlikes donnés et reçus
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 unlikes:
+ *                 unlikesGiven:
  *                   type: array
  *                   items:
- *                     type: integer
+ *                     $ref: '#/components/schemas/UserLightResponseDto'
+ *                 unlikesReceived:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/UserLightResponseDto'
  *       401:
  *         description: Non autorisé
  *       500:

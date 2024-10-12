@@ -4,18 +4,62 @@ import {validateIdMiddleware} from '../middlewares/validateIdMiddleware';
 
 const router = Router();
 
+
 /**
  * @swagger
  * /visited-profiles:
  *   get:
- *     summary: Récupérer l'historique des visites pour l'utilisateur authentifié
+ *     summary: Récupérer l'historique des visites (effectuées et reçues) pour l'utilisateur authentifié
  *     tags:
  *       - Visited Profiles
  *     security:
  *       - BearerAuth: []
  *     responses:
  *       200:
- *         description: Liste des visites
+ *         description: Liste des visites effectuées et reçues
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 visitsMade:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       username:
+ *                         type: string
+ *                       age:
+ *                         type: integer
+ *                       gender:
+ *                         type: integer
+ *                       main_photo_url:
+ *                         type: string
+ *                       is_online:
+ *                         type: boolean
+ *                       last_activity:
+ *                         type: string
+ *                         format: date-time
+ *                       location:
+ *                         type: object
+ *                         properties:
+ *                           latitude:
+ *                             type: number
+ *                           longitude:
+ *                             type: number
+ *                           city_name:
+ *                             type: string
+ *                       viewed_at:
+ *                         type: string
+ *                         format: date-time
+ *                 visitsReceived:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       (mêmes propriétés que ci-dessus)
  *       401:
  *         description: Non autorisé
  */

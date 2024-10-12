@@ -448,6 +448,7 @@ class UserDAL {
                 'users.is_online',
                 'users.last_activity'
             )
+
             .leftJoin('profiles', 'users.id', 'profiles.owner_user_id')
             .leftJoin('photos', 'profiles.main_photo_id', 'photos.photo_id')
             .leftJoin('locations', 'profiles.location', 'locations.location_id')

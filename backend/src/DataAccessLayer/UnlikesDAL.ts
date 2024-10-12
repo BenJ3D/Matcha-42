@@ -13,6 +13,16 @@ class UnlikesDAL {
         }
     }
 
+    async getUnlikesReceivedByUserId(userId: number): Promise<Unlike[]> {
+        try {
+            const unlikes = await db('unlikes').select('*').where('user_unliked', userId);
+            return unlikes;
+        } catch (error) {
+            console.error(`Erreur lors de la récupération des unlikes reçus pour l'utilisateur ${userId}:`, error);
+            throw {status: 500, message: 'Impossible de récupérer les unlikes reçus pour cet utilisateur'};
+        }
+    }
+
     async addUnlike(userId: number, userUnlikedId: number): Promise<void> {
         try {
             await db('unlikes').insert({user: userId, user_unliked: userUnlikedId});
