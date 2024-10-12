@@ -1,10 +1,9 @@
 import userDAL from "../DataAccessLayer/UserDAL";
-import {UserResponseDto} from "../DTOs/users/UserResponseDto";
 import {PasswordService} from "./PasswordService";
 import {LoginDto} from "../DTOs/login/LoginDto";
-import JwtService from "./JwtService"; // Importation de JwtService
+import JwtService from "./JwtService";
 import {IJwtPayload} from "../types/IJwtPayload";
-import {LoginResponseDTO} from "../DTOs/login/LoginResponseDTO"; // Importation de IJwtPayload pour le type
+import {LoginResponseDTO} from "../DTOs/login/LoginResponseDTO";
 
 class LoginServices {
     async login(userTryLogin: LoginDto): Promise<LoginResponseDTO | null> {
