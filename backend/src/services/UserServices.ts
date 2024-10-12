@@ -18,7 +18,7 @@ class UserServices {
     }
 
     async createUser(newUser: UserCreateDto): Promise<number> {
-        const requiredScore = config.user_password_strength_force as number || 3;
+        const requiredScore = config.user_password_strength_force;
 
         const passwordEvaluation = zxcvbn(newUser.password);
         if (passwordEvaluation.score < requiredScore) {
@@ -28,6 +28,7 @@ class UserServices {
             };
         }
 
+        newUser.email = newUser.email.toLowerCase();
         newUser.password = await PasswordService.hashPassword(newUser.password);
         return await userDAL.save(newUser);
     }

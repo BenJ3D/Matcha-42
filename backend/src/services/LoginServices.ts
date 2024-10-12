@@ -9,7 +9,7 @@ import {LoginResponseDTO} from "../DTOs/login/LoginResponseDTO"; // Importation 
 class LoginServices {
     async login(userTryLogin: LoginDto): Promise<LoginResponseDTO | null> {
         // Récupérer l'utilisateur à partir de l'email fourni
-        const user = await userDAL.findOneByEmail(userTryLogin.email);
+        const user = await userDAL.findOneByEmail(userTryLogin.email.toLowerCase());
         if (!user) {
             return null; // Si l'utilisateur n'existe pas
         }

@@ -12,7 +12,7 @@ const DATABASE_PORT = process.env.DATABASE_PORT;
 const POSTGRES_USER = process.env.POSTGRES_USER;
 const POSTGRES_PASSWORD = process.env.POSTGRES_PASSWORD;
 const POSTGRES_HOST = process.env.POSTGRES_HOST || 'postgres';
-const USER_PASSWORD_STRENGTH_SCORE = process.env.PASSWORD_STRENGTH_SCORE || '4';
+const USER_PASSWORD_STRENGTH_SCORE = process.env.USER_PASSWORD_STRENGTH_SCORE ?? '4';
 
 
 if (!API_PORT) {
