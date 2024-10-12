@@ -3,9 +3,11 @@ import JwtService from '../services/JwtService';
 import {onlineUsers} from './events/onlineUsers';
 import {IJwtPayload} from '../types/IJwtPayload';
 import userServices from "../services/UserServices";
+import {UserResponseDto} from "../DTOs/users/UserResponseDto";
+import UserServices from "../services/UserServices";
 
 const initializeSockets = (io: Server) => {
-    io.use((socket: Socket, next) => {
+    io.use(async (socket: Socket, next) => {
         const token = socket.handshake.auth.token || socket.handshake.query.token;
 
         if (!token) {
@@ -15,6 +17,10 @@ const initializeSockets = (io: Server) => {
         try {
             const payload: IJwtPayload | null = JwtService.verifyAccessToken(token);
             if (payload && payload.id) {
+                const user = await userServices.getUserById(payload.id);
+                if (!user) {
+                    return next(new Error("User not found"));
+                }
                 socket.data.userId = payload.id;
                 return next();
             } else {
