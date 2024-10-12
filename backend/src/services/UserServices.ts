@@ -1,3 +1,4 @@
+import zxcvbn from 'zxcvbn';
 import userDAL from "../DataAccessLayer/UserDAL";
 import {UserLightResponseDto} from "../DTOs/users/UserLightResponseDto";
 import {UserResponseDto} from "../DTOs/users/UserResponseDto";
@@ -5,6 +6,7 @@ import {UserCreateDto} from "../DTOs/users/UserCreateDto";
 import {PasswordService} from "./PasswordService";
 import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
 import profileDAL from "../DataAccessLayer/ProfileDAL";
+import config from "../config/config";
 
 class UserServices {
     async getAllUsers(): Promise<UserLightResponseDto[]> {
@@ -16,6 +18,16 @@ class UserServices {
     }
 
     async createUser(newUser: UserCreateDto): Promise<number> {
+        const requiredScore = config.user_password_strength_force as number || 3;
+
+        const passwordEvaluation = zxcvbn(newUser.password);
+        if (passwordEvaluation.score < requiredScore) {
+            throw {
+                status: 400,
+                message: 'Le mot de passe est trop faible. Veuillez en choisir un plus robuste.'
+            };
+        }
+
         newUser.password = await PasswordService.hashPassword(newUser.password);
         return await userDAL.save(newUser);
     }
@@ -35,7 +47,6 @@ class UserServices {
     async setOfflineUser(userId: number): Promise<void> {
         return await userDAL.updateOnlineStatus(userId, false);
     }
-
 
     async advancedSearch(
         userId: number,

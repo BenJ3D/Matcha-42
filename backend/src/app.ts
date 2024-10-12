@@ -1,18 +1,17 @@
 // src/server.ts
 import express from 'express';
 import {createServer} from "http";
-import {Server, Socket} from "socket.io";
+import {Server} from "socket.io";
 import config from './config/config';
 import routes from './routes/indexRoutes';
 import {query} from './config/db';
 import {QueryResult} from 'pg';
 import authMiddleware from "./middlewares/authMiddleware";
-import swaggerJsDoc from 'swagger-jsdoc';
-import swaggerUi from 'swagger-ui-express';
 import swaggerOptions from './config/swaggerConfig';
-import JwtService from "./services/JwtService";
 import cors from 'cors';
 import initializeSockets from "./sockets";
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsDoc from 'swagger-jsdoc';
 
 const PORT = config.port || 8000;
 const DATABASE_URL = config.database_url;
