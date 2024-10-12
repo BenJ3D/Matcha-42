@@ -89,6 +89,7 @@ class UserDAL {
                     'locations.longitude',
                     'locations.city_name',
                     'users.is_online',
+                    'users.last_activity',
                 )
                 .leftJoin('profiles', 'users.id', 'profiles.owner_user_id')
                 .leftJoin('photos', 'profiles.main_photo_id', 'photos.photo_id')
@@ -106,6 +107,7 @@ class UserDAL {
                 age: user.age,
                 gender: user.gender,
                 is_online: user.is_online,
+                last_activity: user.last_activity,
             }));
         } catch (error) {
             console.error("Error fetching users:", error);
@@ -129,6 +131,7 @@ class UserDAL {
                     'profiles.gender',
                     'profiles.age',
                     'users.is_online',
+                    'users.last_activity',
                     'profiles.fame_rating',
                     'profiles.main_photo_id',
                     'profiles.last_connection',
@@ -216,6 +219,7 @@ class UserDAL {
                 gender: user.gender,
                 age: user.age,
                 is_online: user.is_online,
+                last_activity: user.last_activity,
                 main_photo_id: user.main_photo_id,
                 location: {
                     latitude: parseFloat(user.latitude),
@@ -264,8 +268,6 @@ class UserDAL {
         userId: number,
         userGender: number
     ): Promise<UserLightResponseDto[]> {
-        console.log('user gender : ' + userGender);
-
         const query = db('users')
             .select(
                 'users.id',
@@ -277,7 +279,8 @@ class UserDAL {
                 'locations.latitude',
                 'locations.longitude',
                 'locations.city_name',
-                'is_online'
+                'is_online',
+                'last_activity'
             )
             .join('profiles', 'users.id', 'profiles.owner_user_id')
             .join('profile_sexual_preferences', 'profiles.profile_id', 'profile_sexual_preferences.profile_id')
@@ -343,7 +346,8 @@ class UserDAL {
                 longitude: user.longitude,
                 city_name: user.city_name
             } : undefined,
-            is_online: user.is_online
+            is_online: user.is_online,
+            last_activity: user.last_activity
         }));
     }
 
@@ -357,6 +361,7 @@ class UserDAL {
                     'profiles.gender',
                     'photos.url as main_photo_url',
                     'users.is_online',
+                    'users.last_activity',
                     'locations.latitude',
                     'locations.longitude',
                     'locations.city_name'
@@ -373,6 +378,7 @@ class UserDAL {
                 gender: user.gender || null,
                 main_photo_url: user.main_photo_url || null,
                 is_online: user.is_online,
+                last_activity: user.last_activity,
                 location: user.latitude && user.longitude ? {
                     latitude: parseFloat(user.latitude),
                     longitude: parseFloat(user.longitude),
@@ -385,7 +391,7 @@ class UserDAL {
         }
     }
 
-    updateOnlineStatus = async (userId: number, newStatus: boolean): Promise<void> => {
+    async updateOnlineStatus(userId: number, newStatus: boolean): Promise<void> {
         try {
             // Vérifie si l'utilisateur existe avant de tenter la mise à jour
             const user = await db('users').where('id', userId).first();
@@ -397,6 +403,10 @@ class UserDAL {
             await db('users')
                 .where('id', userId)
                 .update('is_online', newStatus);
+
+            await db('users')
+                .where('id', userId)
+                .update('last_activity', new Date().toISOString());
 
             console.log(`Utilisateur avec id ${userId} mis à jour.`);
 
@@ -412,7 +422,7 @@ class UserDAL {
                 throw e;  // La relancer directement
             } else {
                 console.error("Erreur lors de la mise à jour de l'utilisateur:", e);
-                throw {status: 500, message: "Erreur interne du serveur."};
+                throw {status: 400, message: "Erreur"};
             }
         }
     };
@@ -436,6 +446,7 @@ class UserDAL {
                 'locations.longitude',
                 'locations.city_name',
                 'users.is_online',
+                'users.last_activity'
             )
             .leftJoin('profiles', 'users.id', 'profiles.owner_user_id')
             .leftJoin('photos', 'profiles.main_photo_id', 'photos.photo_id')
@@ -455,6 +466,7 @@ class UserDAL {
                 city_name: user.city_name || undefined
             } : undefined,
             is_online: user.is_online,
+            last_activity: user.last_activity,
         }));
     }
 
