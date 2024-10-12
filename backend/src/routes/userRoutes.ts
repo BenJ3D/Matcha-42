@@ -201,6 +201,7 @@ router.get('/:id', validateIdMiddleware, UserController.getUserById);
  */
 router.put('/', UserController.updateUser);
 
+
 /**
  * @swagger
  * /users/:

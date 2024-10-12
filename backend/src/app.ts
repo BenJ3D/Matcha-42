@@ -76,26 +76,7 @@ const io = new Server(httpServer, {
     }
 });
 
-// io.use((socket, next) => {
-//     const token = socket.handshake.auth.token || socket.handshake.query.token;
-//
-//     if (!token) {
-//         return next(new Error("Authentication error"));
-//     }
-//
-//     try {
-//         const payload = JwtService.verifyAccessToken(token);
-//         if (payload && payload.id) {
-//             socket.data.userId = payload.id;
-//             return next();
-//         } else {
-//             return next(new Error("Authentication error"));
-//         }
-//     } catch (error) {
-//         return next(new Error("Authentication error"));
-//     }
-// });
-// Initialiser Socket.IO avec les gestionnaires d'événements
+//Init logique sockets
 initializeSockets(io);
 
 httpServer.listen(PORT, () => {

@@ -67,7 +67,7 @@ const userController = {
             const userId = await userServices.createUser(newUser);
             return res.status(201).json({userId});
         } catch (e: any) {
-            res.status(e.status || 500).json({error: e.message});
+            res.status(e.status || 400).json({error: e.message});
         }
     },
 
@@ -96,7 +96,7 @@ const userController = {
                 return res.status(409).json({error: "Cet email est déjà pris."});
             }
 
-            res.status(e.status || 500).json({error: e.message || "Erreur interne du serveur."});
+            res.status(e.status || 400).json({error: e.message || "Erreur"});
         }
     },
 

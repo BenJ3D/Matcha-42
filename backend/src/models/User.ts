@@ -6,5 +6,6 @@ export interface User {
     email: string;
     password?: string;
     created_at: Date;
+    is_online: boolean;
     // sso_type?: number;
 }

@@ -573,6 +573,8 @@ CREATE TABLE "public"."users" (
     "created_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     "sso_type" integer,
     "profile_id" integer,
+    "is_online" boolean DEFAULT false NOT NULL,
+    "last_activity" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT "user_email_key" UNIQUE ("email"),
     CONSTRAINT "user_pkey" PRIMARY KEY ("id"),
     CONSTRAINT "user_username_key" UNIQUE ("username"),

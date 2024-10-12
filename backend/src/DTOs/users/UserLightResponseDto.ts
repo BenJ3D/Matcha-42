@@ -9,4 +9,6 @@ export interface UserLightResponseDto {
         city_name?: string;
     };
     gender: number;
+    is_online: boolean;
+    last_activity: Date;
 }

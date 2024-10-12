@@ -2,9 +2,12 @@ import {Server, Socket} from "socket.io";
 import JwtService from '../services/JwtService';
 import {onlineUsers} from './events/onlineUsers';
 import {IJwtPayload} from '../types/IJwtPayload';
+import userServices from "../services/UserServices";
+import {UserResponseDto} from "../DTOs/users/UserResponseDto";
+import UserServices from "../services/UserServices";
 
 const initializeSockets = (io: Server) => {
-    io.use((socket: Socket, next) => {
+    io.use(async (socket: Socket, next) => {
         const token = socket.handshake.auth.token || socket.handshake.query.token;
 
         if (!token) {
@@ -14,6 +17,10 @@ const initializeSockets = (io: Server) => {
         try {
             const payload: IJwtPayload | null = JwtService.verifyAccessToken(token);
             if (payload && payload.id) {
+                const user = await userServices.getUserById(payload.id);
+                if (!user) {
+                    return next(new Error("User not found"));
+                }
                 socket.data.userId = payload.id;
                 return next();
             } else {
@@ -31,6 +38,7 @@ const initializeSockets = (io: Server) => {
         // Ajouter le socket à la map onlineUsers
         if (!onlineUsers.has(userId)) {
             onlineUsers.set(userId, new Set());
+            userServices.setOnlineUser(userId);
         }
         onlineUsers.get(userId)!.add(socket);
 
@@ -41,6 +49,7 @@ const initializeSockets = (io: Server) => {
                 userSet.delete(socket);
                 if (userSet.size === 0) {
                     onlineUsers.delete(userId);
+                    userServices.setOfflineUser(userId);
                 }
             }
             console.log(`User ${userId} déconnecté du socket ${socket.id}`);
