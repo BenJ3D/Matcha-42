@@ -28,7 +28,8 @@
     "pg": "^8.12.0",
     "socket.io": "^4.8.0",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",
@@ -42,6 +43,7 @@
     "@types/node-geocoder": "^4.2.6",
     "@types/pg": "^8.11.8",
     "@types/swagger-jsdoc": "^6.0.4",
+    "@types/zxcvbn": "^4.4.5",
     "nodemon": "^3.1.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"

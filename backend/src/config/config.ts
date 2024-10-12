@@ -12,6 +12,7 @@ const DATABASE_PORT = process.env.DATABASE_PORT;
 const POSTGRES_USER = process.env.POSTGRES_USER;
 const POSTGRES_PASSWORD = process.env.POSTGRES_PASSWORD;
 const POSTGRES_HOST = process.env.POSTGRES_HOST || 'postgres';
+const USER_PASSWORD_STRENGTH_SCORE = process.env.PASSWORD_STRENGTH_SCORE || '4';
 
 
 if (!API_PORT) {
@@ -33,11 +34,13 @@ if (!POSTGRES_USER) {
 if (!POSTGRES_PASSWORD) {
     throw new Error('La variable d\'environnement POSTGRES_PASSWORD est manquante.');
 }
+
 export default {
-    port : parseInt(API_PORT, 10),
-    database_url : POSTGRES_HOST,
+    port: parseInt(API_PORT, 10),
+    database_url: POSTGRES_HOST,
     database_port: parseInt(DATABASE_PORT, 10),
     database_name: POSTGRES_DB,
     user: POSTGRES_USER,
     password: POSTGRES_PASSWORD,
+    user_password_strength_force: parseInt(USER_PASSWORD_STRENGTH_SCORE, 10),
 };

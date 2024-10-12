@@ -107,9 +107,10 @@ router.get('/search', UserController.advancedSearch);
  *       201:
  *         description: Utilisateur créé avec succès.
  *       400:
+ *         description: Erreur de validation ou mot de passe trop faible.
+ *       409:
  *         description: Erreur de validation ou email déjà pris.
  */
-
 router.post('/', UserController.createUser);
 
 /**
@@ -200,7 +201,6 @@ router.get('/:id', validateIdMiddleware, UserController.getUserById);
  *         description: Utilisateur non trouvé.
  */
 router.put('/', UserController.updateUser);
-
 
 /**
  * @swagger
