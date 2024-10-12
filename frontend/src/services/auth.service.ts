@@ -17,13 +17,13 @@ interface AuthResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private apiUrl = 'http://localhost:8000/api';
 
-  constructor(private http: HttpClient) { }
- 
+  constructor(private http: HttpClient) {}
+
   signup(signupData: any): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/users`, signupData);
   }
@@ -36,16 +36,14 @@ export class AuthService {
     const token = localStorage.getItem('accessToken');
 
     if (!token) {
-      return new Observable<boolean>(observer => {
+      return new Observable<boolean>((observer) => {
         observer.next(false);
         observer.complete();
       });
     }
 
-    return this.http.post<{valid: boolean}>(`${this.apiUrl}/token/verify-token`, { token })
-    .pipe(
-      map(response => response.valid)
-      );
-
+    return this.http
+      .get<{ valid: boolean }>(`${this.apiUrl}/verify-token`)
+      .pipe(map((response) => response.valid));
   }
 }
