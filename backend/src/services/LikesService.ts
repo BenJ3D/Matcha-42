@@ -7,15 +7,24 @@ import NotificationsService from "./NotificationsService";
 import {NotificationType} from "../models/Notifications";
 
 class LikesService {
-    async getUserLikes(userId: number): Promise<UserLightResponseDto[]> {
-        const likes = await LikesDAL.getLikesByUserId(userId);
-        if (likes.length === 0) {
-            return [];
-        }
+    async getUserLikes(userId: number): Promise<{
+        likesGiven: UserLightResponseDto[],
+        likesReceived: UserLightResponseDto[]
+    }> {
+        // Likes donnés
+        const likesGiven = await LikesDAL.getLikesByUserId(userId);
+        const likesGivenUserIds = likesGiven.map(like => like.user_liked);
+        const likesGivenUsers = likesGivenUserIds.length > 0 ? await userDAL.getUsersByIds(likesGivenUserIds) : [];
 
-        const likedUserIds = likes.map(like => like.user_liked);
-        const likedUsers = await userDAL.getUsersByIds(likedUserIds);
-        return likedUsers;
+        // Likes reçus
+        const likesReceived = await LikesDAL.getLikesReceivedByUserId(userId);
+        const likesReceivedUserIds = likesReceived.map(like => like.user);
+        const likesReceivedUsers = likesReceivedUserIds.length > 0 ? await userDAL.getUsersByIds(likesReceivedUserIds) : [];
+
+        return {
+            likesGiven: likesGivenUsers,
+            likesReceived: likesReceivedUsers
+        };
     }
 
     async addLike(userId: number, targetUserId: number): Promise<void> {

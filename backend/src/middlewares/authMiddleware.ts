@@ -1,7 +1,7 @@
 import {Request, Response, NextFunction} from 'express';
 import JwtService from '../services/JwtService';
 import UserServices from "../services/UserServices";
-import {isValidId} from "../utils/validateId";
+import {isValidId} from "../utils/isValidId";
 
 export interface AuthenticatedRequest extends Request {
     userId?: number;

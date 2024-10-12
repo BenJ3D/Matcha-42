@@ -29,6 +29,20 @@ class VisitedProfilesDAL {
             throw {status: 400, message: 'Impossible de récupérer l\'historique des visites'};
         }
     }
+
+    async getVisitsMadeByUser(userId: number): Promise<Visit[]> {
+        try {
+            const visits = await db('visited_profile_history')
+                .select('visited_id', 'viewed_at')
+                .where('visiter_id', userId)
+                .orderBy('viewed_at', 'desc');
+            return visits;
+        } catch (error: any) {
+            console.error(`Erreur lors de la récupération des visites effectuées par l'utilisateur ${userId}:`, error);
+            throw {status: 500, message: 'Impossible de récupérer l\'historique des visites effectuées'};
+        }
+    }
+
 }
 
 export default new VisitedProfilesDAL();

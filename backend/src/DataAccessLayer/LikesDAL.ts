@@ -12,6 +12,16 @@ class LikesDAL {
             throw {status: 500, message: 'Impossible de récupérer les likes pour cet utilisateur'};
         }
     }
+    
+    async getLikesReceivedByUserId(userId: number): Promise<Like[]> {
+        try {
+            const likes = await db('likes').select('*').where('user_liked', userId);
+            return likes;
+        } catch (error) {
+            console.error(`Erreur lors de la récupération des likes reçus pour l'utilisateur ${userId}:`, error);
+            throw {status: 500, message: 'Impossible de récupérer les likes reçus pour cet utilisateur'};
+        }
+    }
 
     async addLike(userId: number, userLikedId: number): Promise<void> {
         try {

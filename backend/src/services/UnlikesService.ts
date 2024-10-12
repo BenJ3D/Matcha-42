@@ -3,16 +3,28 @@ import MatchesService from './MatchesService';
 import LikesService from "./LikesService";
 import {NotificationType} from "../models/Notifications";
 import NotificationsService from "./NotificationsService";
+import {UserLightResponseDto} from "../DTOs/users/UserLightResponseDto";
+import userDAL from "../DataAccessLayer/UserDAL";
 
 class UnlikesService {
-    async getUserUnlikes(userId: number): Promise<number[]> {
-        const unlikes = await UnlikesDAL.getUnlikesByUserId(userId);
-        if (unlikes.length === 0) {
-            return [];
-        }
+    async getUserUnlikes(userId: number): Promise<{
+        unlikesGiven: UserLightResponseDto[],
+        unlikesReceived: UserLightResponseDto[]
+    }> {
+        // Unlikes donnés
+        const unlikesGiven = await UnlikesDAL.getUnlikesByUserId(userId);
+        const unlikesGivenUserIds = unlikesGiven.map(unlike => unlike.user_unliked);
+        const unlikesGivenUsers = unlikesGivenUserIds.length > 0 ? await userDAL.getUsersByIds(unlikesGivenUserIds) : [];
 
-        const unlikedUserIds = unlikes.map(unlike => unlike.user_unliked);
-        return unlikedUserIds;
+        // Unlikes reçus
+        const unlikesReceived = await UnlikesDAL.getUnlikesReceivedByUserId(userId);
+        const unlikesReceivedUserIds = unlikesReceived.map(unlike => unlike.user);
+        const unlikesReceivedUsers = unlikesReceivedUserIds.length > 0 ? await userDAL.getUsersByIds(unlikesReceivedUserIds) : [];
+
+        return {
+            unlikesGiven: unlikesGivenUsers,
+            unlikesReceived: unlikesReceivedUsers
+        };
     }
 
     async addUnlike(userId: number, targetUserId: number): Promise<void> {
