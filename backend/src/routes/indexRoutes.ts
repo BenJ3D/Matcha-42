@@ -9,6 +9,7 @@ import likesRoutes from "./likesRoutes";
 import unlikesRoutes from "./unlikesRoutes";
 import visitedProfilesRoutes from "./visitedProfilesRoutes";
 import notificationsRoute from "./notificationsRoute";
+import verifyTokenRoutes from "./verifyTokenRoutes";
 
 const router = Router();
 
@@ -22,6 +23,7 @@ router.use('/unlikes', unlikesRoutes);
 router.use('/visited-profiles', visitedProfilesRoutes)
 router.use('/matches', natchesRoutes);
 router.use('/notifications', notificationsRoute);
+router.use('/verify-token', verifyTokenRoutes);
 
 
 export default router;
