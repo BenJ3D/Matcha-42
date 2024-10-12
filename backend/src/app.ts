@@ -13,8 +13,8 @@ import initializeSockets from "./sockets";
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsDoc from 'swagger-jsdoc';
 
-const PORT = config.port || 8000;
-const DATABASE_URL = config.database_url;
+const PORT = config.apiPortInternal ?? 8000;
+const DATABASE_URL = config.databaseUrl;
 const app = express();
 
 // Configurer CORS
@@ -80,7 +80,7 @@ initializeSockets(io);
 
 httpServer.listen(PORT, () => {
     console.log(`Serveur en cours d'exécution sur le PORT: ${PORT}`);
-    console.log(`Connecté à la base de données: ${config.database_name}`);
+    console.log(`Connecté à la base de données: ${config.databaseName}`);
 }).on('error', (error: Error) => {
     throw new Error(error.message);
 });

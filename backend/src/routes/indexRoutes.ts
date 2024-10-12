@@ -10,6 +10,7 @@ import unlikesRoutes from "./unlikesRoutes";
 import messageRoutes from "./messageRoutes";
 import notificationsRoute from "./notificationsRoute";
 import visitedProfilesRoutes from "./visitedProfilesRoutes";
+import emailVerificationRoutes from "./emailVerificationRoutes";
 
 const router = Router();
 
@@ -23,6 +24,7 @@ router.use('/genders', gendersRoutes);
 router.use('/unlikes', unlikesRoutes);
 router.use('/profiles', profileRoutes);
 router.use('/notifications', notificationsRoute);
+router.use('/verify-email', emailVerificationRoutes)
 router.use('/visited-profiles', visitedProfilesRoutes)
 
 

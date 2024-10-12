@@ -7,6 +7,8 @@ import {PasswordService} from "./PasswordService";
 import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
 import profileDAL from "../DataAccessLayer/ProfileDAL";
 import config from "../config/config";
+import transporter from "../config/mailer";
+import jwt from "jsonwebtoken";
 
 class UserServices {
     async getAllUsers(): Promise<UserLightResponseDto[]> {
@@ -18,7 +20,7 @@ class UserServices {
     }
 
     async createUser(newUser: UserCreateDto): Promise<number> {
-        const requiredScore = config.user_password_strength_force;
+        const requiredScore = config.userPasswordStrengthForce;
 
         const passwordEvaluation = zxcvbn(newUser.password);
         if (passwordEvaluation.score < requiredScore) {
@@ -30,7 +32,34 @@ class UserServices {
 
         newUser.email = newUser.email.toLowerCase();
         newUser.password = await PasswordService.hashPassword(newUser.password);
-        return await userDAL.save(newUser);
+        const userId = await userDAL.save(newUser);
+
+        // Générer un token JWT pour la vérification par email
+        const token = jwt.sign(
+            {userId},
+            config.jwtEmailSecret,
+            {expiresIn: config.jwtEmailExpiration}
+        );
+
+        // Créer le lien de vérification
+        const verificationLink = `${config.frontUrl}/verify-email?token=${token}`;
+
+        // Envoyer l'email de vérification
+        const mailOptions = {
+            from: config.emailFrom,
+            to: newUser.email,
+            subject: 'Vérifiez votre compte Matcha',
+            html: `
+                <p>Bonjour ${newUser.first_name},</p>
+                <p>Merci de vous être inscrit sur Matcha. Veuillez cliquer sur le lien ci-dessous pour vérifier votre compte :</p>
+                <a href="${verificationLink}">Vérifier mon compte</a>
+                <p>Ce lien expirera dans ${config.jwtEmailExpiration}.</p>
+            `,
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        return userId;
     }
 
     async updateUser(userId: number, userUpdate: UserUpdateDto): Promise<void> {

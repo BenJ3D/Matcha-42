@@ -39,6 +39,8 @@ const router = Router();
  *                         type: string
  *                       is_online:
  *                         type: boolean
+ *                       is_verified:
+ *                         type: boolean
  *                       last_activity:
  *                         type: string
  *                         format: date-time
