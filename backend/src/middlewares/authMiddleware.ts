@@ -9,6 +9,7 @@ export interface AuthenticatedRequest extends Request {
 
 // Chemins à exclure
 const excludedPaths = [
+    {url: /^\/api\/verify-email(?:\/)?(?:\?.*)?$/, methods: ['GET']},
     {url: /^\/api\/login\/?$/, methods: ['POST']},
     {url: /^\/api\/login\/refresh\/?$/, methods: ['POST']},
     {url: /^\/api\/users\/?$/, methods: ['POST']},

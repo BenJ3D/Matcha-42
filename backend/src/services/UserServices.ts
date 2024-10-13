@@ -7,6 +7,9 @@ import {PasswordService} from "./PasswordService";
 import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
 import profileDAL from "../DataAccessLayer/ProfileDAL";
 import config from "../config/config";
+import transporter from "../config/mailer";
+import jwt from "jsonwebtoken";
+import EmailVerificationService from "./EmailVerificationService";
 
 class UserServices {
     async getAllUsers(): Promise<UserLightResponseDto[]> {
@@ -18,7 +21,7 @@ class UserServices {
     }
 
     async createUser(newUser: UserCreateDto): Promise<number> {
-        const requiredScore = config.user_password_strength_force;
+        const requiredScore = config.userPasswordStrengthForce;
 
         const passwordEvaluation = zxcvbn(newUser.password);
         if (passwordEvaluation.score < requiredScore) {
@@ -30,7 +33,11 @@ class UserServices {
 
         newUser.email = newUser.email.toLowerCase();
         newUser.password = await PasswordService.hashPassword(newUser.password);
-        return await userDAL.save(newUser);
+        const userId = await userDAL.save(newUser);
+        console.log(`DBG userID = ${JSON.stringify(userId)}`);
+        EmailVerificationService.sendVerificationEmail(userId, newUser.email, newUser.first_name);
+
+        return userId;
     }
 
     async updateUser(userId: number, userUpdate: UserUpdateDto): Promise<void> {

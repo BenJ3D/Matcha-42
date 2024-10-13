@@ -44,9 +44,12 @@ class UserDAL {
 
     save = async (newUser: UserCreateDto): Promise<number> => {
         try {
+            const [userId] = await db('users')
+                .insert(newUser)
+                .returning('id')
+                .then((rows) => rows.map(row => row.id));
 
-            const [userId] = await db('users').insert(newUser).returning('id');
-            console.log(`Nouvel utilisateur save avec id ${userId}`);
+            console.log(`Nouvel utilisateur sauvegardé avec id ${userId}`);
             return userId;
         } catch (e: any) {
             if (e.code === '23505') {  // Code PostgreSQL pour violation d'unicité
@@ -89,6 +92,7 @@ class UserDAL {
                     'locations.longitude',
                     'locations.city_name',
                     'users.is_online',
+                    'users.is_verified',
                     'users.last_activity',
                 )
                 .leftJoin('profiles', 'users.id', 'profiles.owner_user_id')
@@ -107,6 +111,7 @@ class UserDAL {
                 age: user.age,
                 gender: user.gender,
                 is_online: user.is_online,
+                is_verified: user.is_verified,
                 last_activity: user.last_activity,
             }));
         } catch (error) {
@@ -131,6 +136,7 @@ class UserDAL {
                     'profiles.gender',
                     'profiles.age',
                     'users.is_online',
+                    'users.is_verified',
                     'users.last_activity',
                     'profiles.fame_rating',
                     'profiles.main_photo_id',
@@ -219,6 +225,7 @@ class UserDAL {
                 gender: user.gender,
                 age: user.age,
                 is_online: user.is_online,
+                is_verified: user.is_verified,
                 last_activity: user.last_activity,
                 main_photo_id: user.main_photo_id,
                 location: {
@@ -280,6 +287,7 @@ class UserDAL {
                 'locations.longitude',
                 'locations.city_name',
                 'is_online',
+                'is_verified',
                 'last_activity'
             )
             .join('profiles', 'users.id', 'profiles.owner_user_id')
@@ -347,6 +355,7 @@ class UserDAL {
                 city_name: user.city_name
             } : undefined,
             is_online: user.is_online,
+            is_verified: user.is_verified,
             last_activity: user.last_activity
         }));
     }
@@ -361,6 +370,7 @@ class UserDAL {
                     'profiles.gender',
                     'photos.url as main_photo_url',
                     'users.is_online',
+                    'users.is_verified',
                     'users.last_activity',
                     'locations.latitude',
                     'locations.longitude',
@@ -378,6 +388,7 @@ class UserDAL {
                 gender: user.gender || null,
                 main_photo_url: user.main_photo_url || null,
                 is_online: user.is_online,
+                is_verified: user.is_verified,
                 last_activity: user.last_activity,
                 location: user.latitude && user.longitude ? {
                     latitude: parseFloat(user.latitude),
@@ -446,6 +457,7 @@ class UserDAL {
                 'locations.longitude',
                 'locations.city_name',
                 'users.is_online',
+                'users.is_verified',
                 'users.last_activity'
             )
 
@@ -467,6 +479,7 @@ class UserDAL {
                 city_name: user.city_name || undefined
             } : undefined,
             is_online: user.is_online,
+            is_verified: user.is_verified,
             last_activity: user.last_activity,
         }));
     }
