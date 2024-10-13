@@ -2,6 +2,7 @@ import {Request, Response} from 'express';
 import jwt from 'jsonwebtoken';
 import config from '../config/config';
 import db from '../config/knexConfig';
+import EmailVerificationService from "../services/EmailVerificationService";
 
 class EmailVerificationController {
     async verifyEmail(req: Request, res: Response) {
@@ -13,11 +14,8 @@ class EmailVerificationController {
 
         try {
             // Vérifier le token JWT
-            const decoded = jwt.verify(token, config.jwtEmailSecret) as { userId: number };
-            console.log('COUCOU **************')
-            console.log(decoded)
-            // Mettre à jour l'utilisateur comme vérifié
-            await db('users').where({id: decoded.userId}).update({is_verified: true});
+
+            await EmailVerificationService.verifyEmail(token);
 
             return res.status(200).json({message: 'Email vérifié avec succès.'});
         } catch (error) {

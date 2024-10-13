@@ -9,6 +9,7 @@ import profileDAL from "../DataAccessLayer/ProfileDAL";
 import config from "../config/config";
 import transporter from "../config/mailer";
 import jwt from "jsonwebtoken";
+import EmailVerificationService from "./EmailVerificationService";
 
 class UserServices {
     async getAllUsers(): Promise<UserLightResponseDto[]> {
@@ -33,31 +34,8 @@ class UserServices {
         newUser.email = newUser.email.toLowerCase();
         newUser.password = await PasswordService.hashPassword(newUser.password);
         const userId = await userDAL.save(newUser);
-
-        // Générer un token JWT pour la vérification par email
-        const token = jwt.sign(
-            {userId},
-            config.jwtEmailSecret,
-            {expiresIn: config.jwtEmailExpiration}
-        );
-
-        // Créer le lien de vérification
-        const verificationLink = `${config.frontUrl}/verify-email?token=${token}`;
-
-        // Envoyer l'email de vérification
-        const mailOptions = {
-            from: config.emailFrom,
-            to: newUser.email,
-            subject: 'Vérifiez votre compte Matcha',
-            html: `
-                <p>Bonjour ${newUser.first_name},</p>
-                <p>Merci de vous être inscrit sur Matcha. Veuillez cliquer sur le lien ci-dessous pour vérifier votre compte :</p>
-                <a href="${verificationLink}">Vérifier mon compte</a>
-                <p>Ce lien expirera dans ${config.jwtEmailExpiration}.</p>
-            `,
-        };
-
-        await transporter.sendMail(mailOptions);
+        console.log(`DBG userID = ${JSON.stringify(userId)}`);
+        EmailVerificationService.sendVerificationEmail(userId, newUser.email, newUser.first_name);
 
         return userId;
     }

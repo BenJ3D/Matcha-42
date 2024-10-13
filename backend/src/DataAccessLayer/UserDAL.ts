@@ -44,9 +44,12 @@ class UserDAL {
 
     save = async (newUser: UserCreateDto): Promise<number> => {
         try {
+            const [userId] = await db('users')
+                .insert(newUser)
+                .returning('id')
+                .then((rows) => rows.map(row => row.id));
 
-            const [userId] = await db('users').insert(newUser).returning('id');
-            console.log(`Nouvel utilisateur save avec id ${userId}`);
+            console.log(`Nouvel utilisateur sauvegardé avec id ${userId}`);
             return userId;
         } catch (e: any) {
             if (e.code === '23505') {  // Code PostgreSQL pour violation d'unicité
