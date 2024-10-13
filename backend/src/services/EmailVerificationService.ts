@@ -4,6 +4,7 @@ import db from '../config/knexConfig';
 import jwtService from "./JwtService";
 import {IJwtPayload} from "../types/IJwtPayload";
 import jwt from "jsonwebtoken";
+import UserServices from "./UserServices";
 
 class EmailVerificationService {
     async sendVerificationEmail(userId: number, email: string, firstName: string): Promise<void> {
@@ -48,9 +49,18 @@ class EmailVerificationService {
         try {
             const payload = jwtService.verifyGenericToken(token, config.jwtEmailSecret);
             if (!payload) {
-                throw {};
+                throw {
+                    status: 400,
+                    message: 'Impossible d\'envoyer l\'email de vérification.'
+                };
             }
             const userId = payload.id;
+
+            //Verifier si l' user est déjà is_verified=true
+            const user = await UserServices.getUserById(userId);
+            if (user?.is_verified) {
+                return {success: false, message: 'Utilisateur déjà vérifié.'};
+            }
 
             // Mettre à jour l'utilisateur comme vérifié
             const updatedRows = await db('users').where({id: userId}).update({is_verified: true});
