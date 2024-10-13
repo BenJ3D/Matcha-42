@@ -34,6 +34,7 @@ class EmailVerificationService {
             };
 
             console.log(`Sending verification email to ${email} with token: ${token} | payload: ${JSON.stringify(payload)}`);
+            console.log(`Validation link URL ${fullVerificationLink}`);
             await transporter.sendMail(mailOptions);
             console.log(`Verification email sent successfully to ${email} | id: ${JSON.stringify(userId)}`);
         } catch (error) {
