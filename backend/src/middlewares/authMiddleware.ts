@@ -17,6 +17,11 @@ const excludedPaths = [
     {url: /^\/api-docs\.json$/, methods: ['GET']}, // Exclure la route du JSON de documentation
 ];
 
+const excludedEmailVerificationPaths = [
+    {url: /^\/api\/users\/me$/, methods: ['GET']},
+    {url: /^\/api\/users\/$/, methods: ['DELETE']},
+];
+
 const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     // Vérif si le chemin de la requête est dans les chemins exclus
     const isExcluded = excludedPaths.some(excluded => {
@@ -53,6 +58,15 @@ const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: Ne
     const user = await UserServices.getUserById(payload.id);
     if (!user) {
         return res.status(401).json({error: 'Non autorisé : utilisateur supprimé ou inexistant'});
+    }
+    const isExcludedFromEmailVerification = excludedEmailVerificationPaths.some(excluded => {
+        const matchUrl = excluded.url.test(req.originalUrl);
+        const matchMethod = excluded.methods.includes(req.method);
+        return matchUrl && matchMethod;
+    });
+
+    if (!isExcludedFromEmailVerification && !user.is_verified) {
+        return res.status(401).json({error: 'Non autorisé : email utilisateur non vérifié'});
     }
     req.userId = payload.id;
 
