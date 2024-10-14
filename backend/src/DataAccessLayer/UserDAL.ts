@@ -7,6 +7,7 @@ import {Tag} from "../models/Tags";
 import {UserLoginPasswordCheckDto} from "../DTOs/users/UserLoginPasswordCheckDto";
 import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
 import {Gender} from "../models/Genders";
+import {UserEmailPatchDto} from "../DTOs/users/UserEmailPatchDto";
 
 class UserDAL {
 
@@ -37,7 +38,39 @@ class UserDAL {
                 throw e;  // La relancer directement
             } else {
                 console.error("Erreur lors de la mise à jour de l'utilisateur:", e);
-                throw {status: 500, message: "Erreur interne du serveur."};
+                throw {status: 400, message: "Erreur"};
+            }
+        }
+    };
+
+    emailUpdate = async (userId: number, userEmailPatch: UserEmailPatchDto): Promise<void> => {
+        try {
+            // Vérifie si l'utilisateur existe avant de tenter la mise à jour
+            const user = await db('users').where('id', userId).first();
+            if (!user) {
+                throw {status: 404, message: "Utilisateur non trouvé."};
+            }
+
+            // Effectuer la mise à jour
+            await db('users')
+                .where('id', userId)
+                .update(userEmailPatch);
+
+            console.log(`Utilisateur avec id ${userId} mis à jour.`);
+
+        } catch (e: any) {
+            if (e.code === '23505') {  // Violation d'unicité (par ex. email déjà pris)
+                console.error("Erreur: email déjà utilisé par un autre utilisateur.", e);
+                throw {status: 409, message: "Cet email est déjà pris."};
+            } else if (e.code === '23503') {  // Violation de contrainte de clé étrangère
+                console.error("Erreur: contrainte de clé étrangère non respectée.", e);
+                throw {status: 400, message: "La mise à jour viole une contrainte de clé étrangère."};
+            } else if (e.status === 404) {  // Cas où l'utilisateur n'est pas trouvé
+                console.error("Erreur: utilisateur non trouvé.", e);
+                throw e;  // La relancer directement
+            } else {
+                console.error("Erreur lors de la mise à jour de l'utilisateur:", e);
+                throw {status: 400, message: "Erreur"};
             }
         }
     };
@@ -85,6 +118,8 @@ class UserDAL {
                 .select(
                     'users.id',
                     'users.username',
+                    'users.fisrt_name',
+                    'users.last_name',
                     'photos.url as main_photo_url',
                     'profiles.age',
                     'profiles.gender',
@@ -102,6 +137,8 @@ class UserDAL {
             return users.map(user => ({
                 id: user.id,
                 username: user.username,
+                first_name: user.first_name,
+                last_name: user.last_name,
                 main_photo_url: user.main_photo_url || null,
                 location: user.latitude && user.longitude ? {
                     latitude: parseFloat(user.latitude),
@@ -279,6 +316,8 @@ class UserDAL {
             .select(
                 'users.id',
                 'users.username',
+                'users.first_name',
+                'users.last_name',
                 'profiles.age',
                 'profiles.fame_rating',
                 'profiles.gender as gender',
@@ -346,6 +385,8 @@ class UserDAL {
         return results.map(user => ({
             id: user.id,
             username: user.username,
+            first_name: user.first_name,
+            last_name: user.last_name,
             age: user.age,
             main_photo_url: user.main_photo_url,
             gender: user.gender,
@@ -366,6 +407,8 @@ class UserDAL {
                 .select(
                     'users.id',
                     'users.username',
+                    'users.first_name',
+                    'users.last_name',
                     'profiles.age',
                     'profiles.gender',
                     'photos.url as main_photo_url',
@@ -384,6 +427,8 @@ class UserDAL {
             return users.map(user => ({
                 id: user.id,
                 username: user.username,
+                first_name: user.first_name,
+                last_name: user.username,
                 age: user.age || null,
                 gender: user.gender || null,
                 main_photo_url: user.main_photo_url || null,
@@ -450,6 +495,8 @@ class UserDAL {
             .select(
                 'users.id',
                 'users.username',
+                'users.first_name',
+                'users.last_name',
                 'profiles.age',
                 'profiles.gender',
                 'photos.url as main_photo_url',
@@ -470,6 +517,8 @@ class UserDAL {
         return users.map(user => ({
             id: user.id,
             username: user.username,
+            first_name: user.first_name,
+            last_name: user.last_name,
             age: user.age || null,
             main_photo_url: user.main_photo_url || null,
             gender: user.gender || null,
