@@ -8,6 +8,8 @@ import {UserUpdateDtoValidation} from "../DTOs/users/UserUpdateDtoValidation";
 import {AuthenticatedRequest} from "../middlewares/authMiddleware";
 import {SearchValidationSchema} from "../DTOs/users/SearchValidationSchemaDto";
 import {VALID_SORT_FIELDS, VALID_ORDER_VALUES, SortField, SortOrder} from '../config/sortConfig';
+import {UserEmailPatchDtoValidation} from "../DTOs/users/UserEmailPatchDtoValidation";
+import {validateIdNumber} from "../utils/validateIdNumber";
 
 const userController = {
     getAllUsers: async (req: Request, res: Response) => {
@@ -36,7 +38,7 @@ const userController = {
             }
             res.json(user);
         } catch (error: any) {
-            res.status(500).json({error: error.message});
+            res.status(400).json({error: error.message});
 
         }
     },
@@ -100,9 +102,63 @@ const userController = {
         }
     },
 
+    patchUserEmail: async (req: AuthenticatedRequest, res: Response) => {
+        const {error, value: patchUser} = UserEmailPatchDtoValidation.validate(req.body);
+        if (error) {
+            return res.status(400).json({error: "Validation échouée", details: error.details});
+        }
+
+        try {
+            const userId = req.userId;
+            if (!userId) {
+                return res.status(401).json({error: "Non Authenticated"});
+            }
+            validateIdNumber(userId, res);
+            const existingUser = await userServices.getUserById(userId);
+            if (!existingUser) {
+                return res.status(404).json({message: "Utilisateur non trouvé."});
+            }
+
+            await userServices.patchEmailUser(existingUser, patchUser);
+            return res.status(200).json({message: "Email utilisateur mis à jour avec succès."});
+
+        } catch (e: any) {
+            if (e.code === '23505') {  // Violation d'unicité (par exemple, email déjà pris)
+                return res.status(409).json({error: "Cet email est déjà pris."});
+            }
+
+            res.status(e.status || 400).json({error: e.message || "Erreur"});
+        }
+    },
+
+    sendEmailForVerification: async (req: AuthenticatedRequest, res: Response) => {
+        try {
+            const userId = req.userId;
+            if (!userId) {
+                return res.status(401).json({error: "Non Authenticated"});
+            }
+            validateIdNumber(userId, res);
+            const existingUser = await userServices.getUserById(userId);
+            if (!existingUser) {
+                return res.status(404).json({message: "Utilisateur non trouvé."});
+            }
+
+            await userServices.sendEmailWithTokenEmailValidation(existingUser);
+            return res.status(200).json({message: "Email envoyé."});
+
+        } catch (e: any) {
+            if (e.code === '23505') {  // Violation d'unicité (par exemple, email déjà pris)
+                return res.status(409).json({error: "Cet email est déjà pris."});
+            }
+
+            res.status(e.status || 400).json({error: e.message || "Erreur"});
+        }
+    },
+
     deleteUser: async (req: AuthenticatedRequest, res: Response) => {
         try {
             const userId = req.userId;
+            validateIdNumber(userId, res);
             if (!userId) {
                 return res.status(401).json({error: "Non Authenticated"});
             }

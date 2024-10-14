@@ -73,6 +73,21 @@ class JwtService {
         }
         return null;
     }
+
+    // Décode un token JWT et récupère le payload sans vérification
+    decodeToken(token: string): IJwtPayload | null {
+        try {
+            const decoded = jwt.decode(token);
+            if (decoded && typeof decoded === 'object') {
+                return decoded as IJwtPayload;
+            }
+            return null;
+        } catch (error) {
+            console.error('Erreur de décodage du token JWT:', error);
+            return null;
+        }
+    }
+
 }
 
 export default new JwtService();

@@ -20,6 +20,7 @@ const excludedPaths = [
 const excludedEmailVerificationPaths = [
     {url: /^\/api\/users\/me$/, methods: ['GET']},
     {url: /^\/api\/users\/$/, methods: ['DELETE']},
+    {url: /^\/api\/verify-email\/resend\/?$/, methods: ['GET']},
 ];
 
 const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {

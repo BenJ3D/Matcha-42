@@ -1,10 +1,10 @@
 meta {
-  name: update my user
+  name: update my email
   type: http
-  seq: 6
+  seq: 8
 }
 
-put {
+patch {
   url: {{baseUrl}}/users/
   body: json
   auth: inherit
@@ -12,7 +12,6 @@ put {
 
 body:json {
   {
-    "first_name": "Leon",
-    "last_name": "Duppon"
+    "email": "jean.dupont@gmail.com"
   }
 }

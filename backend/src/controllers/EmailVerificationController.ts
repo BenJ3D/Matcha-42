@@ -1,7 +1,4 @@
 import {Request, Response} from 'express';
-import jwt from 'jsonwebtoken';
-import config from '../config/config';
-import db from '../config/knexConfig';
 import EmailVerificationService from "../services/EmailVerificationService";
 
 class EmailVerificationController {

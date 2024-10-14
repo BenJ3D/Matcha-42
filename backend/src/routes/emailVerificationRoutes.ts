@@ -1,5 +1,6 @@
 import {Router} from 'express';
 import EmailVerificationController from '../controllers/EmailVerificationController';
+import UserController from "../controllers/userController";
 
 const router = Router();
 
@@ -40,5 +41,24 @@ const router = Router();
  *                   example: "Token de vérification invalide ou expiré."
  */
 router.get('/', EmailVerificationController.verifyEmail);
+
+
+/**
+ * @swagger
+ * /verify-email/resend:
+ *   get:
+ *     summary: Renvoie un nouveau token de vérification à l'utilisateur
+ *     description: Permet à un utilisateur dont le token de vérification a expiré de recevoir un nouveau token par email.
+ *     tags:
+ *       - Authentification
+ *     responses:
+ *       200:
+ *         description: Email envoyé avec succès.
+ *       400:
+ *         description: Email déjà validé.
+ *       404:
+ *         description: Utilisateur non trouvé.
+ */
+router.get('/resend', UserController.sendEmailForVerification);
 
 export default router;

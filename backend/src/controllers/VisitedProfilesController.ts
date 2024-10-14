@@ -1,13 +1,13 @@
 import {Response} from 'express';
 import {AuthenticatedRequest} from '../middlewares/authMiddleware';
 import VisitedProfilesService from '../services/VisitedProfilesService';
-import {checkUserId} from "../utils/checkUserId";
+import {validateIdNumber} from "../utils/validateIdNumber";
 
 class VisitedProfilesController {
     async getMyVisits(req: AuthenticatedRequest, res: Response) {
         try {
             const userId = req.userId!;
-            checkUserId(userId, res);
+            validateIdNumber(userId, res);
 
             const {visitsMade, visitsReceived} = await VisitedProfilesService.getVisitHistoryForUser(userId);
             res.json({visitsMade, visitsReceived});
@@ -16,14 +16,14 @@ class VisitedProfilesController {
             res.status(error.status || 400).json({error: error.message || 'Erreur interne du serveur'});
         }
     }
-    
+
 
     async addVisit(req: AuthenticatedRequest, res: Response) {
         try {
             const visiterId = req.userId!;
             const visitedId = parseInt(req.params.userId, 10);
-            checkUserId(visiterId, res);
-            checkUserId(visitedId, res);
+            validateIdNumber(visiterId, res);
+            validateIdNumber(visitedId, res);
 
             await VisitedProfilesService.addVisit(visiterId, visitedId);
 
