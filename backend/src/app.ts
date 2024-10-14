@@ -12,6 +12,7 @@ import cors from 'cors';
 import initializeSockets from "./sockets";
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsDoc from 'swagger-jsdoc';
+import path from "path";
 
 const PORT = config.apiPortInternal ?? 8000;
 const DATABASE_URL = config.databaseUrl;
@@ -20,7 +21,7 @@ const app = express();
 // Configurer CORS
 app.use(cors({
     origin: 'http://localhost:4200',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
 }));
 
@@ -47,6 +48,9 @@ app.use(express.json());
 
 // Middleware pour gérer l'authentification des requêtes de manière globale
 app.use(authMiddleware);
+
+// Configurer le dossier 'uploads' comme dossier de fichiers statiques
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Routeur centralisé
 app.use('/api', routes);
