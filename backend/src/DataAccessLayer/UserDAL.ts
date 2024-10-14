@@ -484,7 +484,25 @@ class UserDAL {
     };
 
     async resetIsVerified(userId: number): Promise<void> {
-        await db('users').where('id', userId).update('is_verified', false);
+        try {
+            await db('users').where('id', userId).update('is_verified', false);
+        } catch (e: any) {
+            if (e.status === 404) {  // Cas où l'utilisateur n'est pas trouvé
+                console.error("Erreur: utilisateur non trouvé.", e);
+                throw e;  // La relancer directement
+            }
+        }
+    }
+
+    async validateUser(userId: number): Promise<void> {
+        try {
+            await db('users').where('id', userId).update('is_verified', true);
+        } catch (e: any) {
+            if (e.status === 404) {  // Cas où l'utilisateur n'est pas trouvé
+                console.error("Erreur: utilisateur non trouvé.", e);
+                throw e;  // La relancer directement
+            }
+        }
     }
 
     private getUserLightResponseList = async (userRows: { id: number }[]): Promise<UserLightResponseDto[]> => {

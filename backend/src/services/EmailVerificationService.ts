@@ -3,7 +3,6 @@ import config from '../config/config';
 import db from '../config/knexConfig';
 import jwtService from "./JwtService";
 import {IJwtPayload} from "../types/IJwtPayload";
-import jwt from "jsonwebtoken";
 import UserServices from "./UserServices";
 
 class EmailVerificationService {
@@ -14,7 +13,7 @@ class EmailVerificationService {
                 id: userId,
             }
 
-            const token: string = jwtService.generateGenericToken(payload, config.jwtEmailSecret, config.jwtEmailExpiration);
+            const token: string = jwtService.generateGenericToken(payload, config.jwtEmailSecret + email, config.jwtEmailExpiration);
 
             // Créer le lien de vérification
             const verificationLink = `${config.frontUrl}/callback`;
@@ -48,19 +47,32 @@ class EmailVerificationService {
 
     async verifyEmail(token: string): Promise<{ success: boolean, message: string }> {
         try {
-            const payload = jwtService.verifyGenericToken(token, config.jwtEmailSecret);
-            if (!payload) {
+
+            const userId = jwtService.decodeToken(token)?.id;
+            if (!userId) {
                 throw {
                     status: 400,
-                    message: 'Impossible d\'envoyer l\'email de vérification.'
+                    message: 'Token invalide.'
                 };
             }
-            const userId = payload.id;
 
             //Verifier si l' user est déjà is_verified=true
             const user = await UserServices.getUserById(userId);
-            if (user?.is_verified) {
+            if (!user) {
+                throw {
+                    status: 404,
+                    message: 'User not found.'
+                };
+            }
+            if (user.is_verified) {
                 return {success: false, message: 'Utilisateur déjà vérifié.'};
+            }
+            const payload = jwtService.verifyGenericToken(token, config.jwtEmailSecret + user.email);
+            if (!payload) {
+                throw {
+                    status: 400,
+                    message: 'Impossible de verifier l\'email.'
+                };
             }
 
             // Mettre à jour l'utilisateur comme vérifié

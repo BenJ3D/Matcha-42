@@ -47,14 +47,13 @@ class UserServices {
 
     async patchEmailUser(existingUser: UserResponseDto, userEmailPatchDto: UserEmailPatchDto): Promise<void> {
         const userId = existingUser.id;
-        const userMail = existingUser.email;
         const username = existingUser.username;
         if (existingUser.email == userEmailPatchDto.email) {
             throw {status: 409, message: 'Email identique à l\'actuel'};
         }
         await userDAL.emailUpdate(userId, userEmailPatchDto);
         await userDAL.resetIsVerified(userId);
-        await EmailVerificationService.sendVerificationEmail(userId, userMail, username);
+        await EmailVerificationService.sendVerificationEmail(userId, userEmailPatchDto.email, username);
     }
 
     async deleteUser(userId: number): Promise<void> {
