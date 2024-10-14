@@ -1,6 +1,6 @@
 import {Request, Response} from 'express';
 import TagsService from '../services/TagsService';
-import {checkUserId} from "../utils/checkUserId";
+import {validateIdNumber} from "../utils/validateIdNumber";
 
 class TagsController {
     async getAllTags(req: Request, res: Response) {

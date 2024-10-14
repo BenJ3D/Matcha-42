@@ -118,7 +118,7 @@ class UserDAL {
                 .select(
                     'users.id',
                     'users.username',
-                    'users.fisrt_name',
+                    'users.first_name',
                     'users.last_name',
                     'photos.url as main_photo_url',
                     'profiles.age',
@@ -482,6 +482,10 @@ class UserDAL {
             }
         }
     };
+
+    async resetIsVerified(userId: number): Promise<void> {
+        await db('users').where('id', userId).update('is_verified', false);
+    }
 
     private getUserLightResponseList = async (userRows: { id: number }[]): Promise<UserLightResponseDto[]> => {
         if (userRows.length === 0) {

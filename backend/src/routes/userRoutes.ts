@@ -202,6 +202,36 @@ router.get('/:id', validateIdMiddleware, UserController.getUserById);
  */
 router.put('/', UserController.updateUser);
 
+
+/**
+ * @swagger
+ * /users/:
+ *   put:
+ *     summary: Mettre à jour lemail de l'utilisateur authentifié
+ *     description: Met à jour l'email d'un utilisateur en fonction de son ID extrait de son token JWT.
+ *      Le compte devra à nouveau être validé par email.
+ *     tags:
+ *       - Utilisateurs
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: jean.dupont2@42Lyon.fr
+ *     responses:
+ *       200:
+ *         description: Utilisateur mis à jour avec succès.
+ *       400:
+ *         description: Erreur de validation.
+ *       404:
+ *         description: Utilisateur non trouvé.
+ */
+router.patch('/', UserController.patchUserEmail);
+
 /**
  * @swagger
  * /users/:

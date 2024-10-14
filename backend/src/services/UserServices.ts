@@ -10,6 +10,8 @@ import config from "../config/config";
 import transporter from "../config/mailer";
 import jwt from "jsonwebtoken";
 import EmailVerificationService from "./EmailVerificationService";
+import {UserEmailPatchDto} from "../DTOs/users/UserEmailPatchDto";
+import {User} from "../models/User";
 
 class UserServices {
     async getAllUsers(): Promise<UserLightResponseDto[]> {
@@ -36,12 +38,23 @@ class UserServices {
         const userId = await userDAL.save(newUser);
         console.log(`DBG userID = ${JSON.stringify(userId)}`);
         EmailVerificationService.sendVerificationEmail(userId, newUser.email, newUser.first_name);
-
         return userId;
     }
 
     async updateUser(userId: number, userUpdate: UserUpdateDto): Promise<void> {
         return await userDAL.update(userId, userUpdate);
+    }
+
+    async patchEmailUser(existingUser: UserResponseDto, userEmailPatchDto: UserEmailPatchDto): Promise<void> {
+        const userId = existingUser.id;
+        const userMail = existingUser.email;
+        const username = existingUser.username;
+        if (existingUser.email == userEmailPatchDto.email) {
+            throw {status: 409, message: 'Email identique à l\'actuel'};
+        }
+        await userDAL.emailUpdate(userId, userEmailPatchDto);
+        await userDAL.resetIsVerified(userId);
+        await EmailVerificationService.sendVerificationEmail(userId, userMail, username);
     }
 
     async deleteUser(userId: number): Promise<void> {
@@ -90,10 +103,8 @@ class UserServices {
             sortBy,
             order,
         };
-
         return await userDAL.advancedSearch(filters, userId, userGender);
     }
-
 }
 
 export default new UserServices();

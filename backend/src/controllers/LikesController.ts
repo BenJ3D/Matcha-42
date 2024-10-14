@@ -1,14 +1,14 @@
 import {Response} from 'express';
 import LikesService from '../services/LikesService';
 import {AuthenticatedRequest} from '../middlewares/authMiddleware';
-import {checkUserId} from "../utils/checkUserId";
+import {validateIdNumber} from "../utils/validateIdNumber";
 
 class LikesController {
     async getMyLikes(req: AuthenticatedRequest, res: Response) {
         try {
             const userId = req.userId!;
             const {likesGiven, likesReceived} = await LikesService.getUserLikes(userId);
-            checkUserId(userId, res);
+            validateIdNumber(userId, res);
             res.json({likesGiven, likesReceived});
         } catch (error: any) {
             console.error('Erreur lors de la récupération des likes:', error);
@@ -22,8 +22,8 @@ class LikesController {
             const userId = req.userId!;
             const targetUserId = parseInt(req.params.userId, 10);
 
-            checkUserId(userId, res);
-            checkUserId(targetUserId, res);
+            validateIdNumber(userId, res);
+            validateIdNumber(targetUserId, res);
 
             await LikesService.addLike(userId, targetUserId);
             res.status(200).json({message: 'Utilisateur liké avec succès'});
@@ -38,8 +38,8 @@ class LikesController {
             const userId = req.userId!;
             const targetUserId = parseInt(req.params.userId, 10);
 
-            checkUserId(userId, res);
-            checkUserId(targetUserId, res);
+            validateIdNumber(userId, res);
+            validateIdNumber(targetUserId, res);
 
             await LikesService.removeLike(userId, targetUserId);
             res.status(200).json({message: 'Like retiré avec succès'});

@@ -5,7 +5,7 @@
  * @param res - L'objet de réponse Express utilisé pour envoyer une réponse en cas d'ID invalide.
  * @throws {Error} Si l'ID n'est pas valide, une réponse avec le statut 400 sera renvoyée.
  */
-export function checkUserId(id: any, res: any): any {
+export function validateIdNumber(id: any, res: any): any {
     if (!isValidInterger(id)) {
         throw res.status(400).json({
             "error": {

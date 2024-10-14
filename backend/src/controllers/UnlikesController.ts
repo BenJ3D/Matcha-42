@@ -1,13 +1,13 @@
 import {Response} from 'express';
 import UnlikesService from '../services/UnlikesService';
 import {AuthenticatedRequest} from '../middlewares/authMiddleware';
-import {checkUserId} from "../utils/checkUserId";
+import {validateIdNumber} from "../utils/validateIdNumber";
 
 class UnlikesController {
     async getMyUnlikes(req: AuthenticatedRequest, res: Response) {
         try {
             const userId = req.userId!;
-            checkUserId(userId, res);
+            validateIdNumber(userId, res);
 
             const {unlikesGiven, unlikesReceived} = await UnlikesService.getUserUnlikes(userId);
             res.json({unlikesGiven, unlikesReceived});
@@ -21,8 +21,8 @@ class UnlikesController {
         try {
             const userId = req.userId!;
             const targetUserId = parseInt(req.params.userId, 10);
-            checkUserId(userId, res);
-            checkUserId(targetUserId, res);
+            validateIdNumber(userId, res);
+            validateIdNumber(targetUserId, res);
 
             await UnlikesService.addUnlike(userId, targetUserId);
             res.status(200).json({message: 'Utilisateur unliké avec succès'});
@@ -37,8 +37,8 @@ class UnlikesController {
             const userId = req.userId!;
             const targetUserId = parseInt(req.params.userId, 10);
 
-            checkUserId(userId, res);
-            checkUserId(targetUserId, res);
+            validateIdNumber(userId, res);
+            validateIdNumber(targetUserId, res);
 
             await UnlikesService.removeUnlike(userId, targetUserId);
             res.status(200).json({message: 'Unlike retiré avec succès'});
