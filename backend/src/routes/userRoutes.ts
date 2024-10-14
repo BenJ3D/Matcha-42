@@ -224,7 +224,7 @@ router.put('/', UserController.updateUser);
  *                 example: jean.dupont2@42Lyon.fr
  *     responses:
  *       200:
- *         description: Utilisateur mis à jour avec succès.
+ *         description: Email utilisateur mis à jour avec succès.
  *       400:
  *         description: Erreur de validation.
  *       404:

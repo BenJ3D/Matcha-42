@@ -56,6 +56,16 @@ class UserServices {
         await EmailVerificationService.sendVerificationEmail(userId, userEmailPatchDto.email, username);
     }
 
+    async sendEmailWithTokenEmailValidation(user: UserResponseDto): Promise<void> {
+        const userId = user.id;
+        const userEmail = user.email;
+        const username = user.username;
+        if (user.is_verified) {
+            throw {status: 409, message: 'Votre email est déjà vérifié'};
+        }
+        await EmailVerificationService.sendVerificationEmail(userId, userEmail, username);
+    }
+
     async deleteUser(userId: number): Promise<void> {
         return await userDAL.delete(userId);
     }
