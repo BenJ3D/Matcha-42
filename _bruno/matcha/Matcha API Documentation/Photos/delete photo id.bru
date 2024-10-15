@@ -1,0 +1,15 @@
+meta {
+  name: delete photo id
+  type: http
+  seq: 2
+}
+
+delete {
+  url: {{baseUrl}}/photos/24
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  photo: @file(/home/ben/Images/PrixCity07024.png)
+}
