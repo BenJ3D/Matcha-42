@@ -10,18 +10,29 @@ class PhotoService {
         // Vérifier le nombre de photos de l'utilisateur
         const photoCount = await PhotoDAL.getPhotoCountByUser(userId);
         if (photoCount >= 5) {
+            // Supprimer le fichier uploadé
+            fs.unlinkSync(file.path);
             throw {status: 400, message: 'Vous avez atteint la limite de 5 photos.'};
         }
 
         // Traiter l'image avec sharp
         const processedFilePath = path.join('./uploads', `processed-${file.filename}`);
-        await sharp(file.path)
-            .resize({width: 800})
-            .toFile(processedFilePath);
+
+        try {
+            await sharp(file.path)
+                .resize({width: 800})
+                .toFile(processedFilePath);
+        } catch (err) {
+            // Supprimer les fichiers temporaires
+            if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+            if (fs.existsSync(processedFilePath)) fs.unlinkSync(processedFilePath);
+            throw {status: 400, message: 'Le fichier fourni n\'est pas une image valide ou est corrompu.'};
+        }
 
         // Supprimer le fichier original
         fs.unlinkSync(file.path);
 
+        // Continuer le reste du traitement...
         // Déplacer le fichier traité vers le dossier uploads
         const uploadsDir = path.join(__dirname, '../../uploads');
         if (!fs.existsSync(uploadsDir)) {
