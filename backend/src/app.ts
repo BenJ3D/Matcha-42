@@ -12,6 +12,8 @@ import cors from 'cors';
 import initializeSockets from "./sockets";
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsDoc from 'swagger-jsdoc';
+import path from "path";
+import errorHandler from "./middlewares/errorHandler";
 
 const PORT = config.apiPortInternal ?? 8000;
 const DATABASE_URL = config.databaseUrl;
@@ -20,7 +22,7 @@ const app = express();
 // Configurer CORS
 app.use(cors({
     origin: 'http://localhost:4200',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
 }));
 
@@ -45,11 +47,17 @@ app.get('/api-docs.json', (req, res) => {
 // Middleware pour parser les JSON
 app.use(express.json());
 
+// Configurer le dossier 'uploads' comme dossier de fichiers statiques
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 // Middleware pour gérer l'authentification des requêtes de manière globale
 app.use(authMiddleware);
 
 // Routeur centralisé
 app.use('/api', routes);
+
+// Utiliser la middleware de gestion des erreurs après les routes
+app.use(errorHandler);
 
 // Test de connexion à la base de données
 query('SELECT NOW()')

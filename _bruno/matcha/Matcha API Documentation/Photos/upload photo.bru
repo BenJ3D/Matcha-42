@@ -1,0 +1,15 @@
+meta {
+  name: upload photo
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/photos
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  photo: @file(/home/ben/Images/bducrocq.jpg)
+}
