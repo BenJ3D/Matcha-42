@@ -1,22 +1,38 @@
+# Mémo pour lancer le script dans un env python :
+# #creer le python env
+# python3 -m venv pyenv   
+# #lancer le python env
+# source mon_env/bin/activate
+# #installer les dependance pip 
+# pip install faker requests
+
+
+
+
+
+
 import random
 import requests
 from faker import Faker
 import math
+import os
 
 # Initialize Faker to generate random names and information
 fake = Faker()
 fake.unique.clear()
 
+# Output file name
+output_file="fake_profiles-500users-Paris-200kms.sql"
 
 # OpenCageData API key
-opencage_api_key = 'xxxxxxxxxxxxxxxxxxxxxxxx'  # Replace with your actual API key OPENCAGE
+opencage_api_key = os.getenv('KEY_OPENCAGE')  # Replace with your actual API key OPENCAGE
 
 # Base location coordinates (e.g., Lyon)
-base_lat = 45.764043  # Latitude of Lyon
-base_lon = 4.835659   # Longitude of Lyon
-radius_km = 30        # Radius in kilometers
+base_lat = 48.8575  # Latitude of Paris
+base_lon = 2.3514   # Longitude of Paris
+radius_km = 200        # Radius in kilometers
 
-numberUserGenerated = 1000
+numberUserGenerated = 500
 
 # Initialize IDs starting from 1000 to avoid conflicts
 start_user_id = 100
@@ -244,7 +260,7 @@ for i in range(numberUserGenerated):
         sql_tags += f"INSERT INTO profile_tag (profile_id, profile_tag) VALUES ({current_profile_id}, {tag});\n"
 
 # Save the SQL commands to a file
-with open("fake_profiles.sql", "w", encoding="utf-8") as file:
+with open(output_file, "w", encoding="utf-8") as file:
     file.write("-- SQL commands to create 1000 users\n")
     file.write(sql_users)
     file.write("-- SQL commands to create 1000 locations\n")
