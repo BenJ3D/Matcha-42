@@ -23,11 +23,14 @@ start_location_id = 100
 
 # Define base locations with their coordinates, radius, and number of users
 base_locations = [
-    {'city_name': 'Lyon', 'lat': 45.7640, 'lon': 4.8357, 'radius_km': 20, 'num_users': 5},
-    {'city_name': 'Clermont-Ferrand', 'lat': 45.7935, 'lon': 3.0795, 'radius_km': 350, 'num_users': 5},
-    {'city_name': 'Paris', 'lat': 48.8566, 'lon': 2.3522, 'radius_km': 100, 'num_users': 5},
+    {'city_name': 'Lyon', 'lat': 45.7640, 'lon': 4.8357, 'radius_km': 20, 'num_users': 500},
+    {'city_name': 'Clermont-Ferrand', 'lat': 45.7935, 'lon': 3.0795, 'radius_km': 350, 'num_users': 1000},
+    {'city_name': 'Paris', 'lat': 48.8566, 'lon': 2.3522, 'radius_km': 100, 'num_users': 500},
     # Ajoutez d'autres villes avec leurs paramètres spécifiques
 ]
+
+# Define in seconde sleep time in while for
+sleeptime=1
 
 # Total number of users to generate (optional)
 numberUserGenerated = sum(location['num_users'] for location in base_locations)
@@ -204,7 +207,7 @@ for base_location in base_locations:
     city_base_name = base_location['city_name']
 
     for i in range(num_users):
-        time.sleep(2)
+        time.sleep(sleeptime)
         # Generate basic information for the user
         first_name = escape_single_quotes(fake.first_name())
         last_name = escape_single_quotes(fake.last_name())
