@@ -13,7 +13,7 @@ fake.unique.clear()
 output_file = "../resultSQL/fake_user_ultimate.sql"
 
 # OpenCageData API key
-opencage_api_key = os.getenv('KEY_OPENCAGE')  # Assurez-vous que votre clé API est définie dans la variable d'environnement
+opencage_api_key = os.getenv('KEY_OPENCAGE1')  # Assurez-vous que votre clé API est définie dans la variable d'environnement
 
 # Initialize IDs starting from 100 to avoid conflicts
 start_user_id = 100
@@ -23,9 +23,9 @@ start_location_id = 100
 
 # Define base locations with their coordinates, radius, and number of users
 base_locations = [
-    {'city_name': 'Lyon', 'lat': 45.7640, 'lon': 4.8357, 'radius_km': 20, 'num_users': 150},
-    {'city_name': 'Clermont-Ferrand', 'lat': 45.7935, 'lon': 3.0795, 'radius_km': 350, 'num_users': 200},
-    {'city_name': 'Paris', 'lat': 48.8566, 'lon': 2.3522, 'radius_km': 100, 'num_users': 150},
+    {'city_name': 'Lyon', 'lat': 45.7640, 'lon': 4.8357, 'radius_km': 20, 'num_users': 5},
+    {'city_name': 'Clermont-Ferrand', 'lat': 45.7935, 'lon': 3.0795, 'radius_km': 350, 'num_users': 5},
+    {'city_name': 'Paris', 'lat': 48.8566, 'lon': 2.3522, 'radius_km': 100, 'num_users': 5},
     # Ajoutez d'autres villes avec leurs paramètres spécifiques
 ]
 
