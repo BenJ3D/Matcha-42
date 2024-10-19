@@ -13,7 +13,7 @@ services:
       - db
 
   postgres:
-    image: postgres:16
+    image: postgis/postgis:16-master
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -56,6 +56,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    restart: always
     ports:
       - "4200:4200"
     volumes:

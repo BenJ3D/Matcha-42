@@ -20,8 +20,11 @@ class ProfileServices {
                 // Obtenir le nom de la ville à partir des coordonnées
                 const res = await geocoder.reverse({lat: latitude, lon: longitude});
                 let cityName = null;
-                if (res && res.length > 0 && res[0].city) {
-                    cityName = res[0].city;
+                if (res && res.length > 0) {
+                    if (res[0].city)
+                        cityName = res[0].city;
+                    else if (res[0].district)
+                        cityName = res[0].district;
                 }
                 console.log('DBG LOCATION :', res[0]);
 

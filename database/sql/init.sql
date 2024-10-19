@@ -244,8 +244,7 @@ CREATE TABLE "public"."photos" (
     "url" character varying(255) NOT NULL,
     "description" character varying(255),
     "owner_user_id" integer NOT NULL,
-    CONSTRAINT "picture_pkey" PRIMARY KEY ("photo_id"),
-    CONSTRAINT "picture_url_key" UNIQUE ("url")
+    CONSTRAINT "picture_pkey" PRIMARY KEY ("photo_id")
 ) WITH (oids = false);
 
 TRUNCATE "photos";
