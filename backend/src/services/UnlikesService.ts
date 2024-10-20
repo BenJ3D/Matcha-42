@@ -5,6 +5,8 @@ import {NotificationType} from "../models/Notifications";
 import NotificationsService from "./NotificationsService";
 import {UserLightResponseDto} from "../DTOs/users/UserLightResponseDto";
 import userDAL from "../DataAccessLayer/UserDAL";
+import UserServices from "./UserServices";
+import fameRatingConfig from "../config/fameRating.config";
 
 class UnlikesService {
     async getUserUnlikes(userId: number): Promise<{
@@ -38,6 +40,7 @@ class UnlikesService {
             throw {status: 404, message: 'Utilisateur cible non trouvé'};
         }
         await UnlikesDAL.addUnlike(userId, targetUserId);
+        await UserServices.updateFameRating(targetUserId, fameRatingConfig.unlike);
 
         //Suppression d'un eventuel like, catch vide pour ne pas retourné de 404 si le like n'existe pas
         try {
@@ -52,6 +55,7 @@ class UnlikesService {
 
     async removeUnlike(userId: number, targetUserId: number): Promise<void> {
         await UnlikesDAL.removeUnlike(userId, targetUserId);
+        await UserServices.updateFameRating(targetUserId, fameRatingConfig.disunlike);
     }
 
     async getUnlikedUserIds(userId: number): Promise<number[]> {

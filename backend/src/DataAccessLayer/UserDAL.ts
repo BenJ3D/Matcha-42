@@ -505,6 +505,17 @@ class UserDAL {
         }
     }
 
+    async updateFameRating(userId: number, newNote: number): Promise<void> {
+        try {
+            await db('profiles').where('owner_user_id', userId).update('fame_rating', newNote);
+        } catch (e: any) {
+            if (e.status === 404) {  // Cas où l'utilisateur n'est pas trouvé
+                console.error("Erreur: utilisateur non trouvé.", e);
+                throw e;  // La relancer directement
+            }
+        }
+    }
+
     private getUserLightResponseList = async (userRows: { id: number }[]): Promise<UserLightResponseDto[]> => {
         if (userRows.length === 0) {
             return [];
