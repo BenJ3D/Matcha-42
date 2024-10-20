@@ -3,6 +3,8 @@ import userDAL from '../DataAccessLayer/UserDAL';
 import {UserLightResponseDto} from '../DTOs/users/UserLightResponseDto';
 import NotificationsService from "./NotificationsService";
 import {NotificationType} from "../models/Notifications";
+import UserServices from "./UserServices";
+import fameRatingConfig from "../config/fameRating.config";
 
 class MatchesService {
     async getUserMatches(userId: number): Promise<UserLightResponseDto[]> {
@@ -25,6 +27,8 @@ class MatchesService {
 
     async createMatch(userId1: number, userId2: number): Promise<void> {
         await MatchesDAL.addMatch(userId1, userId2);
+        await UserServices.updateFameRating(userId1, fameRatingConfig.match);
+        await UserServices.updateFameRating(userId2, fameRatingConfig.match);
 
         // notifications MATCH pour les deux users
         await NotificationsService.createNotification(
@@ -42,6 +46,8 @@ class MatchesService {
     async deleteMatch(userId1: number, userId2: number): Promise<void> {
         try {
             await MatchesDAL.removeMatch(userId1, userId2);
+            await UserServices.updateFameRating(userId1, fameRatingConfig.unmatch);
+            await UserServices.updateFameRating(userId2, fameRatingConfig.unmatch);
             NotificationsService.createNotification(
                 userId2,
                 userId1,

@@ -12,6 +12,7 @@ import jwt from "jsonwebtoken";
 import EmailVerificationService from "./EmailVerificationService";
 import {UserEmailPatchDto} from "../DTOs/users/UserEmailPatchDto";
 import {User} from "../models/User";
+import UserDAL from "../DataAccessLayer/UserDAL";
 
 class UserServices {
     async getAllUsers(): Promise<UserLightResponseDto[]> {
@@ -114,6 +115,31 @@ class UserServices {
         };
         return await userDAL.advancedSearch(filters, userId, userGender);
     }
+
+    async updateFameRating(userId: number, addNote: number): Promise<void> {
+        // Récupérer le profil de l'utilisateur
+        const userProfile = await profileDAL.findByUserId(userId);
+        if (!userProfile) {
+            throw {status: 404, message: 'Profil non trouvé'};
+        }
+
+        // S'assurer que fame_rating est un nombre
+        const currentRating = Number(userProfile.fame_rating);
+        if (isNaN(currentRating)) {
+            throw {status: 400, message: 'fame_rating invalide'};
+        }
+
+        // Ajouter la note
+        let newNote = currentRating + addNote;
+        console.log(`NEW NOOOOOTE = ${newNote}`);
+        if (newNote < 0) {
+            newNote = 0;
+        } else if (newNote > 10) {
+            newNote = 10;
+        }
+        return await UserDAL.updateFameRating(userId, newNote);
+    }
+
 }
 
 export default new UserServices();

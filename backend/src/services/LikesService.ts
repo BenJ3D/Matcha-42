@@ -5,6 +5,8 @@ import userDAL from '../DataAccessLayer/UserDAL';
 import UnlikesService from "./UnlikesService";
 import NotificationsService from "./NotificationsService";
 import {NotificationType} from "../models/Notifications";
+import UserServices from "./UserServices";
+import fameRatingConfig from "../config/fameRating.config";
 
 class LikesService {
     async getUserLikes(userId: number): Promise<{
@@ -39,6 +41,7 @@ class LikesService {
         }
 
         await LikesDAL.addLike(userId, targetUserId);
+        await UserServices.updateFameRating(targetUserId, fameRatingConfig.like);
 
         //Suppression d'un eventuel unlike, catch vide pour ne pas retourné de 404 si le unlike n'existe pas
         try {
@@ -70,6 +73,7 @@ class LikesService {
 
     async removeLike(userId: number, targetUserId: number): Promise<void> {
         await LikesDAL.removeLike(userId, targetUserId);
+        await UserServices.updateFameRating(targetUserId, fameRatingConfig.dislike);
 
         //Supprimer un match s'il existe
         await MatchesService.deleteMatch(userId, targetUserId);

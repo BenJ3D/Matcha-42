@@ -331,7 +331,7 @@ CREATE TABLE "public"."profiles" (
     "main_photo_id" integer,
     "location" integer,
     "last_connection" timestamp,
-    "fame_rating" integer DEFAULT 0,
+    "fame_rating" numeric DEFAULT 0,
     CONSTRAINT "profile_onwer_user_id_key" UNIQUE ("owner_user_id"),
     CONSTRAINT "profile_pkey" PRIMARY KEY ("profile_id")
 ) WITH (oids = false);
