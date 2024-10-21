@@ -16,8 +16,6 @@ CREATE TABLE "public"."blocked_users" (
 ) WITH (oids = false);
 
 TRUNCATE "blocked_users";
-INSERT INTO "blocked_users" ("id", "blocker_id", "blocked_id", "blocked_at") VALUES
-(1,	1,	5,	'2024-08-30 16:23:50.336874');
 
 SELECT setval('blocked_users_id_seq', (SELECT MAX(id) FROM blocked_users));
 
@@ -36,9 +34,6 @@ CREATE TABLE "public"."fake_user_reporting" (
 ) WITH (oids = false);
 
 TRUNCATE "fake_user_reporting";
-INSERT INTO "fake_user_reporting" ("id", "user_who_reported", "reported_user", "reported_at") VALUES
-(2,	1,	5,	'2024-08-30 13:57:26.768062'),
-(1,	2,	5,	'2024-08-30 13:57:44.598757');
 
 SELECT setval('fake_user_reporting_id_seq', (SELECT MAX(id) FROM fake_user_reporting));
 
@@ -84,11 +79,6 @@ CREATE TABLE "public"."likes" (
 ) WITH (oids = false);
 
 TRUNCATE "likes";
-INSERT INTO "likes" ("like_id", "user", "user_liked") VALUES
-(1,	1,	3),
-(3,	1,	4),
-(4,	3,	1);
-
 SELECT setval('likes_like_id_seq', (SELECT MAX(like_id) FROM likes));
 
 
@@ -105,9 +95,6 @@ CREATE TABLE "public"."unlikes" (
 ) WITH (oids = false);
 
 TRUNCATE "unlikes";
-INSERT INTO "unlikes" ("unlike_id", "user", "user_unliked") VALUES
-(1,	1,	2);
-
 SELECT setval('unlikes_unlike_id_seq', (SELECT MAX(unlike_id) FROM unlikes));
 
 
@@ -125,51 +112,6 @@ CREATE TABLE "public"."locations" (
 ) WITH (oids = false);
 
 TRUNCATE "locations";
-INSERT INTO "locations" ("location_id", "latitude", "longitude", "city_name") VALUES
-(1,	45.764043,	4.835659,	'Lyon'),
-(2,	45.725137,	4.805528,	'Oullins'),
-(3,	45.771944,	4.880278,	'Villeurbanne'),
-(4,	45.5845,	5.2735,	'Bourgoin-Jallieu'),
-(5,	45.695727,	4.938801,	'Genas'),
-(6,	45.726752,	4.872246,	'Bron'),
-(7,	45.590401,	4.765579,	'Givors'),
-(8,	45.69601,	4.791272,	'Saint-Priest'),
-(9,	45.6168,	5.1477,	'Vienne'),
-(10,	45.683444,	4.76162,	'Saint-Genis-Laval'),
-(11,	45.823789,	4.876972,	'Caluire-et-Cuire'),
-(12,	45.696,	4.9031,	'Chassieu'),
-(13,	45.568237,	4.845326,	'Saint-Etienne'),
-(14,	45.5601,	4.8657,	'Brignais'),
-(15,	45.5515,	4.6785,	'Tarare'),
-(16,	45.8692,	4.2989,	'Roanne'),
-(17,	45.909193,	4.921142,	'Mâcon'),
-(18,	45.5786,	5.1069,	'Vénissieux'),
-(19,	45.711,	4.9144,	'Mions'),
-(20,	45.7042,	4.9722,	'Décines-Charpieu'),
-(28,	48.856613,	2.352222,	'Paris'),
-(30,	43.604652,	1.444209,	'Toulouse'),
-(31,	43.296482,	5.369780,	'Marseille'),
-(32,	44.837789,	-0.579180,	'Bordeaux'),
-(33,	47.218371,	-1.553621,	'Nantes'),
-(34,	49.443232,	1.099971,	'Rouen'),
-(35,	45.188529,	5.724524,	'Grenoble'),
-(36,	50.629250,	3.057256,	'Lille'),
-(37,	48.573405,	7.752111,	'Strasbourg'),
-(38,	48.692055,	6.184417,	'Nancy'),
-(39,	47.322047,	5.041480,	'Dijon'),
-(40,	43.610769,	3.876716,	'Montpellier'),
-(41,	45.777222,	3.087025,	'Clermont-Ferrand'),
-(42,	49.258329,	4.031696,	'Reims'),
-(43,	43.949317,	4.805528,	'Avignon'),
-(44,	49.494370,	0.107929,	'Le Havre'),
-(45,	43.836699,	4.360054,	'Nîmes'),
-(46,	47.280694,	5.927803,	'Besançon'),
-(47,	48.390394,	-4.486076,	'Brest'),
-(48,	50.632970,	3.058580,	'Villeneuve-d''Ascq'),
-(49,	50.367928,	3.081649,	'Valenciennes'),
-(50,	50.728443,	1.614700,	'Dunkerque'),
-(51,	49.894067,	2.295753,	'Amiens'),
-(52,	47.902733,	1.909020,	'Orléans');
 
 SELECT setval('locations_location_id_seq', (SELECT MAX(location_id) FROM locations));
 
@@ -188,8 +130,6 @@ CREATE TABLE "public"."matches" (
 ) WITH (oids = false);
 
 TRUNCATE "matches";
-INSERT INTO "matches" ("match_id", "user_1", "user_2", "matched_at") VALUES
-(1,	1,	3,	'2024-08-30 13:35:14.181296');
 
 SELECT setval('matches_match_id_seq', (SELECT MAX(match_id) FROM matches));
 
@@ -229,8 +169,6 @@ COMMENT ON COLUMN "public"."notifications"."target_user" IS 'user concerné qui 
 COMMENT ON COLUMN "public"."notifications"."source_user" IS 'Quel user est à l''origine de la notification';
 
 TRUNCATE "notifications";
-INSERT INTO "notifications" ("notification_id", "target_user", "has_read", "notified_at", "type", "source_user") VALUES
-(1,	3,	'f',	'2024-08-30 14:25:23.631109',	'LIKE',	1);
 
 SELECT setval('notifications_notification_id_seq', (SELECT MAX(notification_id) FROM notifications));
 
@@ -248,28 +186,6 @@ CREATE TABLE "public"."photos" (
 ) WITH (oids = false);
 
 TRUNCATE "photos";
-INSERT INTO "photos" ("photo_id", "url", "description", "owner_user_id") VALUES
-(1,	'https://example.com/photos/profile1_photo1.jpg',	NULL,	1),
-(2,	'https://example.com/photos/profile1_photo2.jpg',	NULL,	1),
-(3,	'https://example.com/photos/profile1_photo3.jpg',	NULL,	1),
-(4,	'https://example.com/photos/profile1_photo4.jpg',	NULL,	1),
-(5,	'https://example.com/photos/profile1_photo5.jpg',	NULL,	1),
-(6,	'https://example.com/photos/profile2_photo1.jpg',	NULL,	2),
-(7,	'https://example.com/photos/profile2_photo2.jpg',	NULL,	2),
-(8,	'https://example.com/photos/profile2_photo3.jpg',	NULL,	2),
-(9,	'https://example.com/photos/profile2_photo4.jpg',	NULL,	2),
-(10,	'https://example.com/photos/profile2_photo5.jpg',	NULL,	2),
-(11,	'https://example.com/photos/profile3_photo1.jpg',	NULL,	3),
-(12,	'https://example.com/photos/profile3_photo2.jpg',	NULL,	3),
-(13,	'https://example.com/photos/profile3_photo3.jpg',	NULL,	3),
-(14,	'https://example.com/photos/profile3_photo4.jpg',	NULL,	3),
-(15,	'https://example.com/photos/profile3_photo5.jpg',	NULL,	3),
-(16,	'https://example.com/photos/profile4_photo1.jpg',	NULL,	4),
-(17,	'https://example.com/photos/profile4_photo2.jpg',	NULL,	4),
-(18,	'https://example.com/photos/profile4_photo3.jpg',	NULL,	4),
-(19,	'https://example.com/photos/profile4_photo4.jpg',	NULL,	4),
-(20,	'https://example.com/photos/profile4_photo5.jpg',	NULL,	4);
-
 SELECT setval('picture_picture_id_seq', (SELECT MAX(photo_id) FROM photos));
 
 DROP TABLE IF EXISTS "profile_sexual_preferences";
@@ -285,15 +201,6 @@ CREATE TABLE "public"."profile_sexual_preferences" (
 ) WITH (oids = false);
 
 TRUNCATE "profile_sexual_preferences";
-INSERT INTO "profile_sexual_preferences" ("id", "profile_id", "gender_id") VALUES
-(2,	1,	6),
-(3,	2,	6),
-(4,	3,	5),
-(5,	3,	6),
-(6,	3,	7),
-(7,	4,	5),
-(8,	4,	13);
-
 SELECT setval('profile_sexual_preferences_id_seq', (SELECT MAX(id) FROM profile_sexual_preferences));
 
 DROP TABLE IF EXISTS "profile_tag";
@@ -304,17 +211,11 @@ CREATE TABLE "public"."profile_tag" (
     "id" integer DEFAULT nextval('profile_tag_id_seq') NOT NULL,
     "profile_id" bigint NOT NULL,
     "profile_tag" bigint NOT NULL,
-    CONSTRAINT "profile_tag_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "profile_tag_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "profile_tag_pk_1" UNIQUE ("profile_id", "profile_tag")
 ) WITH (oids = false);
 
 TRUNCATE "profile_tag";
-INSERT INTO "profile_tag" ("id", "profile_id", "profile_tag") VALUES
-(1,	1,	19),
-(2,	1,	21),
-(3,	1,	84),
-(4,	1,	98),
-(5,	3,	98);
-
 SELECT setval('profile_tag_id_seq', (SELECT MAX(id) FROM profile_tag));
 
 
@@ -339,12 +240,6 @@ CREATE TABLE "public"."profiles" (
 COMMENT ON COLUMN "public"."profiles"."location" IS 'Contient les coordonnées GPS du quartier utilisateur';
 
 TRUNCATE "profiles";
-INSERT INTO "profiles" ("profile_id", "owner_user_id", "biography", "gender", "age", "main_photo_id", "location", "last_connection", "fame_rating") VALUES
-(2,	2,	'Ouuep je mappel Bruno',	5,	25,	6,	NULL,	NULL, 6),
-(4,	4,	'HOlaaaaaaa',	6,	29,	17,	NULL,	NULL, 5),
-(1,	1,	'je mappel ben bonjour blablabal bal abla bla',	5,	34,	2,	1,	NULL, 9),
-(3,	3,	'Bonjour a tous :)',	6,	24,	13,	2,	NULL, 2);
-
 SELECT setval('profile_profile_id_seq', (SELECT MAX(profile_id) FROM profiles));
 
 DROP TABLE IF EXISTS "sso_type";
@@ -584,13 +479,6 @@ CREATE TABLE "public"."users" (
 COMMENT ON COLUMN "public"."users"."sso_type" IS 'Si bonus authentification via facebook, google.. Si NOT_NULL pas de password, si NULL, il faut un password';
 
 TRUNCATE "users";
-INSERT INTO "users" ("id", "username", "last_name", "first_name", "email", "password", "created_at", "sso_type", "profile_id") VALUES
-(5,	'FakeLucia',	'Fake',	'Lucia',	'lucia.fake@gmail.com',	'81dc9bdb52d04dc20036dbd8313ed055',	'2024-08-30 13:37:13.263763',	NULL,	NULL),
-(1,	'Ben3D',	'DUCROCQ',	'Benjamin',	'bducrocq42@gmail.com',	'81dc9bdb52d04dc20036dbd8313ed055',	'2024-08-30 10:10:02.474665',	NULL,	1),
-(4,	'Lulu84',	'NONNON',	'Lucienne',	'lucienne.nonnon@gmail.com',	'81dc9bdb52d04dc20036dbd8313ed055',	'2024-08-30 10:12:38.816452',	NULL,	4),
-(3,	'Celine63',	'OUIOUI',	'Céline',	'celine.ouioui@gmail.com',	'81dc9bdb52d04dc20036dbd8313ed055',	'2024-08-30 10:11:48.656352',	NULL,	3),
-(2,	'brunoFun',	'Funky',	'Bruno',	'bruno.fun@gmail.com',	'81dc9bdb52d04dc20036dbd8313ed055',	'2024-08-30 10:10:57.759031',	NULL,	2);
-
 SELECT setval('users_id_seq', (SELECT MAX(id) FROM users));
 
 DROP TABLE IF EXISTS "visited_profile_history";
@@ -607,11 +495,6 @@ CREATE TABLE "public"."visited_profile_history" (
 ) WITH (oids = false);
 
 TRUNCATE "visited_profile_history";
-INSERT INTO "visited_profile_history" ("id", "visiter_id", "visited_id", "viewed_at") VALUES
-(1,	1,	3, "2024-07-11 12:42:02.474665"),
-(3,	3,	1, "2024-08-23 22:42:02.474665"),
-(4,	2,	3, "2024-10-1 05:42:02.474665"),
-(5,	4,	1, "2024-06-15 20:42:02.474665");
 
 SELECT setval('visited_profile_history_id_seq', (SELECT MAX(id) FROM visited_profile_history));
 
@@ -648,17 +531,18 @@ ALTER TABLE "public"."profile_tag"
     REFERENCES profiles(profile_id) 
     ON DELETE CASCADE 
     NOT DEFERRABLE;
-ALTER TABLE ONLY "public"."profile_tag" ADD CONSTRAINT "profile_tag_fk2" FOREIGN KEY (profile_tag) REFERENCES tags(tag_id) NOT DEFERRABLE;
 
-ALTER TABLE ONLY "public"."profiles" ADD CONSTRAINT "profile_gender_fkey" FOREIGN KEY (gender) REFERENCES genders(gender_id) ON UPDATE CASCADE ON DELETE RESTRICT NOT DEFERRABLE;
-ALTER TABLE ONLY "public"."profiles" ADD CONSTRAINT "profile_onwer_user_id_fkey" FOREIGN KEY (owner_user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
-ALTER TABLE ONLY "public"."profiles" ADD CONSTRAINT "profile_photo_photo_id_fk" FOREIGN KEY (main_photo_id) REFERENCES photos(photo_id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
-ALTER TABLE ONLY "public"."profiles" ADD CONSTRAINT "profiles_locations_location_id_fk" FOREIGN KEY (location) REFERENCES locations(location_id) NOT DEFERRABLE;
 
-ALTER TABLE ONLY "public"."users" ADD CONSTRAINT "user_accounts_sso_type_sso_id_fk" FOREIGN KEY (sso_type) REFERENCES sso_type(sso_id) NOT DEFERRABLE;
-ALTER TABLE ONLY "public"."users" ADD CONSTRAINT "users_profile_id_fkey" FOREIGN KEY (profile_id) REFERENCES profiles(profile_id) ON UPDATE RESTRICT ON DELETE RESTRICT NOT DEFERRABLE;
+-- ALTER TABLE ONLY "public"."profile_tag" ADD CONSTRAINT "profile_tag_fk2" FOREIGN KEY (profile_tag) REFERENCES tags(tag_id) NOT DEFERRABLE;
+-- ALTER TABLE ONLY "public"."profiles" ADD CONSTRAINT "profile_gender_fkey" FOREIGN KEY (gender) REFERENCES genders(gender_id) ON UPDATE CASCADE ON DELETE RESTRICT NOT DEFERRABLE;
+-- ALTER TABLE ONLY "public"."profiles" ADD CONSTRAINT "profile_onwer_user_id_fkey" FOREIGN KEY (owner_user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+-- ALTER TABLE ONLY "public"."profiles" ADD CONSTRAINT "profile_photo_photo_id_fk" FOREIGN KEY (main_photo_id) REFERENCES photos(photo_id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+-- ALTER TABLE ONLY "public"."profiles" ADD CONSTRAINT "profiles_locations_location_id_fk" FOREIGN KEY (location) REFERENCES locations(location_id) NOT DEFERRABLE;
 
-ALTER TABLE ONLY "public"."visited_profile_history" ADD CONSTRAINT "visited_profile_history_user_id_fk" FOREIGN KEY (visited_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
-ALTER TABLE ONLY "public"."visited_profile_history" ADD CONSTRAINT "visited_profile_history_user_id_fk_2" FOREIGN KEY (visiter_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+-- ALTER TABLE ONLY "public"."users" ADD CONSTRAINT "user_accounts_sso_type_sso_id_fk" FOREIGN KEY (sso_type) REFERENCES sso_type(sso_id) NOT DEFERRABLE;
+-- ALTER TABLE ONLY "public"."users" ADD CONSTRAINT "users_profile_id_fkey" FOREIGN KEY (profile_id) REFERENCES profiles(profile_id) ON UPDATE RESTRICT ON DELETE RESTRICT NOT DEFERRABLE;
+
+-- ALTER TABLE ONLY "public"."visited_profile_history" ADD CONSTRAINT "visited_profile_history_user_id_fk" FOREIGN KEY (visited_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+-- ALTER TABLE ONLY "public"."visited_profile_history" ADD CONSTRAINT "visited_profile_history_user_id_fk_2" FOREIGN KEY (visiter_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
 
 -- 2024-09-03 18:02:01.553859+00
