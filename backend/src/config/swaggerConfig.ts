@@ -21,170 +21,6 @@ const swaggerDefinition: SwaggerDefinition = {
             },
         },
         schemas: {
-            // Schéma pour UserCreateDto
-            UserCreateDto: {
-                type: 'object',
-                required: ['username', 'first_name', 'last_name', 'email', 'password'],
-                properties: {
-                    username: {
-                        type: 'string',
-                        description: 'Nom d\'utilisateur',
-                        example: 'JeanDup',
-                    },
-                    first_name: {
-                        type: 'string',
-                        description: 'Prénom de l\'utilisateur',
-                        example: 'Jean',
-                    },
-                    last_name: {
-                        type: 'string',
-                        description: 'Nom de famille de l\'utilisateur',
-                        example: 'Dupont',
-                    },
-                    email: {
-                        type: 'string',
-                        description: 'Adresse email de l\'utilisateur',
-                        example: 'jean.dupont@mail.fr',
-                    },
-                    password: {
-                        type: 'string',
-                        description: 'Mot de passe de l\'utilisateur',
-                        example: 'Str0ngP@ssw0rd!',
-                    },
-                },
-            },
-            // Schéma pour UserUpdateDto
-            UserUpdateDto: {
-                type: 'object',
-                properties: {
-                    first_name: {
-                        type: 'string',
-                        description: 'Prénom de l\'utilisateur',
-                        example: 'Jean',
-                    },
-                    last_name: {
-                        type: 'string',
-                        description: 'Nom de famille de l\'utilisateur',
-                        example: 'Dupont',
-                    },
-                    email: {
-                        type: 'string',
-                        description: 'Adresse email de l\'utilisateur',
-                        example: 'jean.dupont@mail.fr',
-                    },
-                },
-            },
-            // Schéma pour UserResponseDto
-            UserResponseDto: {
-                type: 'object',
-                properties: {
-                    id: {
-                        type: 'integer',
-                        example: 1,
-                    },
-                    username: {
-                        type: 'string',
-                        example: 'JeanDup',
-                    },
-                    first_name: {
-                        type: 'string',
-                        example: 'Jean',
-                    },
-                    last_name: {
-                        type: 'string',
-                        example: 'Dupont',
-                    },
-                    email: {
-                        type: 'string',
-                        example: 'jean.dupont@mail.fr',
-                    },
-                    created_at: {
-                        type: 'string',
-                        format: 'date-time',
-                        example: '2024-08-30T10:10:02.474Z',
-                    },
-                    is_online: {
-                        type: 'boolean',
-                        example: true,
-                    },
-                    last_activity: {
-                        type: 'string',
-                        format: 'date-time',
-                        example: '2024-08-30T12:00:00.000Z',
-                    },
-                    profile_id: {
-                        type: 'integer',
-                        example: 1,
-                    },
-                    biography: {
-                        type: 'string',
-                        example: 'Passionné par le développement web...',
-                    },
-                    gender: {
-                        type: 'integer',
-                        example: 5,
-                    },
-                    age: {
-                        type: 'integer',
-                        example: 25,
-                    },
-                    main_photo_id: {
-                        type: 'integer',
-                        example: 6,
-                    },
-                    main_photo_url: {
-                        type: 'string',
-                        example: 'https://example.com/photos/profile1_photo1.jpg',
-                    },
-                    photos: {
-                        type: 'array',
-                        items: {
-                            $ref: '#/components/schemas/Photo',
-                        },
-                    },
-                    location: {
-                        type: 'object',
-                        properties: {
-                            latitude: {type: 'number', example: 45.764043},
-                            longitude: {type: 'number', example: 4.835659},
-                            city_name: {type: 'string', example: 'Lyon'},
-                        },
-                    },
-                    fame_rating: {
-                        type: 'integer',
-                        example: 9,
-                    },
-                    last_connection: {
-                        type: 'string',
-                        format: 'date-time',
-                        example: '2024-08-30T10:10:02.474Z',
-                    },
-                    likers: {
-                        type: 'array',
-                        items: {
-                            $ref: '#/components/schemas/UserLightResponseDto',
-                        },
-                    },
-                    visitors: {
-                        type: 'array',
-                        items: {
-                            $ref: '#/components/schemas/UserLightResponseDto',
-                        },
-                    },
-                    matchers: {
-                        type: 'array',
-                        items: {
-                            $ref: '#/components/schemas/UserLightResponseDto',
-                        },
-                    },
-                    blocked: {
-                        type: 'array',
-                        items: {
-                            $ref: '#/components/schemas/BlockedUserResponseDto',
-                        },
-                    },
-                },
-            },
             // Schéma pour UserLightResponseDto
             UserLightResponseDto: {
                 type: 'object',
@@ -195,7 +31,11 @@ const swaggerDefinition: SwaggerDefinition = {
                     },
                     username: {
                         type: 'string',
-                        example: 'JeanDup',
+                        example: 'johndoe',
+                    },
+                    main_photo_url: {
+                        type: 'string',
+                        example: 'https://example.com/photos/user1_photo.jpg',
                     },
                     age: {
                         type: 'integer',
@@ -205,19 +45,6 @@ const swaggerDefinition: SwaggerDefinition = {
                         type: 'integer',
                         example: 5,
                     },
-                    main_photo_url: {
-                        type: 'string',
-                        example: 'https://example.com/photos/profile1_photo1.jpg',
-                    },
-                    is_online: {
-                        type: 'boolean',
-                        example: true,
-                    },
-                    last_activity: {
-                        type: 'string',
-                        format: 'date-time',
-                        example: '2024-08-30T12:00:00.000Z',
-                    },
                     location: {
                         type: 'object',
                         properties: {
@@ -225,29 +52,6 @@ const swaggerDefinition: SwaggerDefinition = {
                             longitude: {type: 'number', example: 4.835659},
                             city_name: {type: 'string', example: 'Lyon'},
                         },
-                    },
-                },
-            },
-            // Schéma pour BlockedUserResponseDto
-            BlockedUserResponseDto: {
-                type: 'object',
-                properties: {
-                    id: {
-                        type: 'integer',
-                        example: 5,
-                    },
-                    username: {
-                        type: 'string',
-                        example: 'FakeLucia',
-                    },
-                    main_photo_url: {
-                        type: 'string',
-                        example: 'https://example.com/photos/profile5_photo1.jpg',
-                    },
-                    blocked_at: {
-                        type: 'string',
-                        format: 'date-time',
-                        example: '2024-08-30T16:23:50.336Z',
                     },
                 },
             },
@@ -497,70 +301,13 @@ const swaggerDefinition: SwaggerDefinition = {
                     },
                 },
             },
-            // Schéma pour NotificationType (Enum)
-            NotificationType: {
-                type: 'string',
-                enum: ['LIKE', 'UNLIKE', 'MATCH', 'NEW_MESSAGE', 'NEW_VISIT'],
-                example: 'LIKE',
-            },
-            // Schéma pour Notification
-            Notification: {
-                type: 'object',
-                properties: {
-                    notification_id: {
-                        type: 'integer',
-                        example: 1,
-                    },
-                    type: {
-                        $ref: '#/components/schemas/NotificationType',
-                    },
-                    target_user: {
-                        type: 'integer',
-                        example: 2,
-                    },
-                    source_user: {
-                        type: 'integer',
-                        example: 1,
-                    },
-                    content: {
-                        type: 'string',
-                        nullable: true,
-                        example: null,
-                    },
-                    notified_at: {
-                        type: 'string',
-                        format: 'date-time',
-                        example: '2024-08-30T14:25:23.631Z',
-                    },
-                    has_read: {
-                        type: 'boolean',
-                        example: false,
-                    },
-                },
-            },
-            // Schéma pour IJwtPayload
-            IJwtPayload: {
-                type: 'object',
-                properties: {
-                    id: {
-                        type: 'integer',
-                        example: 1,
-                    },
-                    exp: {
-                        type: 'integer',
-                        example: 1633024800,
-                    },
-                    iat: {
-                        type: 'integer',
-                        example: 1632988800,
-                    },
-                },
-            },
         },
     },
-    security: [{
-        BearerAuth: [],
-    }],
+    security: [
+        {
+            BearerAuth: [],
+        },
+    ],
 };
 
 const options: Options = {

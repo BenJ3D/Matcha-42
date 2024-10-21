@@ -28,6 +28,9 @@ logs:
 runlog:
 	$(DOCKER_COMPOSE) up --build
 
+rerunlog: fclean 
+	$(DOCKER_COMPOSE) up --build
+
 prune:
 	docker system prune -af
 

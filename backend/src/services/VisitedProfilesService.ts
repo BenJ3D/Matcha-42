@@ -26,27 +26,38 @@ class VisitedProfilesService {
         );
     }
 
-    async getVisitHistoryForUser(userId: number): Promise<(UserLightResponseDto & { viewed_at: Date })[]> {
-        const visits = await VisitedProfilesDAL.getVisitsForUser(userId);
-        const visiterIds = visits.map(visit => visit.visiter_id);
-
-        if (visiterIds.length === 0) {
-            return [];
-        }
-
-        // Récupérer les informations des visiteurs
-        const visitors = await UserDAL.getUsersByIds(visiterIds);
-
-        // Associer les visiteurs avec leurs dates de visite
-        const visitsWithDetails = visits.map(visit => {
-            const visitor = visitors.find(user => user.id === visit.visiter_id);
+    async getVisitHistoryForUser(userId: number): Promise<{
+        visitsMade: (UserLightResponseDto & { viewed_at: Date })[],
+        visitsReceived: (UserLightResponseDto & { viewed_at: Date })[]
+    }> {
+        // Visites reçues
+        const visitsReceived = await VisitedProfilesDAL.getVisitsForUser(userId);
+        const visiterIdsReceived = visitsReceived.map(visit => visit.visiter_id);
+        const visitorsReceived = visiterIdsReceived.length > 0 ? await UserDAL.getUsersByIds(visiterIdsReceived) : [];
+        const visitsReceivedWithDetails = visitsReceived.map(visit => {
+            const visitor = visitorsReceived.find(user => user.id === visit.visiter_id);
             return {
                 ...visitor!,
                 viewed_at: visit.viewed_at,
             };
         });
 
-        return visitsWithDetails;
+        // Visites effectuées
+        const visitsMade = await VisitedProfilesDAL.getVisitsMadeByUser(userId);
+        const visitedIdsMade = visitsMade.map(visit => visit.visited_id);
+        const visitedUsersMade = visitedIdsMade.length > 0 ? await UserDAL.getUsersByIds(visitedIdsMade) : [];
+        const visitsMadeWithDetails = visitsMade.map(visit => {
+            const visitedUser = visitedUsersMade.find(user => user.id === visit.visited_id);
+            return {
+                ...visitedUser!,
+                viewed_at: visit.viewed_at,
+            };
+        });
+
+        return {
+            visitsMade: visitsMadeWithDetails,
+            visitsReceived: visitsReceivedWithDetails
+        };
     }
 }
 

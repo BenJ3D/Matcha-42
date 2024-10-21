@@ -1,0 +1,15 @@
+meta {
+  name: like a user
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/likes/:userId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  userId: 4
+}

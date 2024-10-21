@@ -1,0 +1,15 @@
+meta {
+  name: delete a unlike user
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{baseUrl}}/unlikes/:userId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  userId: 
+}

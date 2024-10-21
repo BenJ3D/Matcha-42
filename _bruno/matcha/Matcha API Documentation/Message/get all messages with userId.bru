@@ -1,0 +1,15 @@
+meta {
+  name: get all messages with userId
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/messages/:userId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  userId: 4
+}

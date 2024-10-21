@@ -13,7 +13,7 @@ services:
       - db
 
   postgres:
-    image: postgres:16
+    image: postgis/postgis:16-master
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -28,7 +28,9 @@ services:
       - ${DATABASE_PORT}:5432
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./database/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./database/sql/01-init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./database/sql/02-extra.sql:/docker-entrypoint-initdb.d/02-extra.sql
     networks:
       - db
 
@@ -56,6 +58,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    restart: always
     ports:
       - "4200:4200"
     volumes:

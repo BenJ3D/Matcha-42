@@ -1,6 +1,10 @@
 import MatchesDAL from '../DataAccessLayer/MatchesDAL';
 import userDAL from '../DataAccessLayer/UserDAL';
 import {UserLightResponseDto} from '../DTOs/users/UserLightResponseDto';
+import NotificationsService from "./NotificationsService";
+import {NotificationType} from "../models/Notifications";
+import UserServices from "./UserServices";
+import fameRatingConfig from "../config/fameRating.config";
 
 class MatchesService {
     async getUserMatches(userId: number): Promise<UserLightResponseDto[]> {
@@ -23,14 +27,39 @@ class MatchesService {
 
     async createMatch(userId1: number, userId2: number): Promise<void> {
         await MatchesDAL.addMatch(userId1, userId2);
+        await UserServices.updateFameRating(userId1, fameRatingConfig.match);
+        await UserServices.updateFameRating(userId2, fameRatingConfig.match);
 
-        // TODO: Implémenter un message websocket pour notifier le front d'un nouveau match
+        // notifications MATCH pour les deux users
+        await NotificationsService.createNotification(
+            userId1,
+            userId2,
+            NotificationType.MATCH
+        );
+        await NotificationsService.createNotification(
+            userId2,
+            userId1,
+            NotificationType.MATCH
+        );
     }
 
     async deleteMatch(userId1: number, userId2: number): Promise<void> {
-        await MatchesDAL.removeMatch(userId1, userId2);
+        try {
+            await MatchesDAL.removeMatch(userId1, userId2);
+            await UserServices.updateFameRating(userId1, fameRatingConfig.unmatch);
+            await UserServices.updateFameRating(userId2, fameRatingConfig.unmatch);
+            NotificationsService.createNotification(
+                userId2,
+                userId1,
+                NotificationType.UNLIKE
+            );
+        } catch (e) {
 
-        // TODO: Implémenter un message websocket pour notifier le front de la suppression du match
+        }
+    }
+
+    async isMatched(userId1: number, userId2: number): Promise<boolean> {
+        return await MatchesDAL.isMatched(userId1, userId2);
     }
 }
 

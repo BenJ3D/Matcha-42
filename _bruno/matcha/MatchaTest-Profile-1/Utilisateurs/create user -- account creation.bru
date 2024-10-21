@@ -1,0 +1,21 @@
+meta {
+  name: create user -- account creation
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/users
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "helise69",
+    "first_name": "Helise",
+    "last_name": "SANSNOM",
+    "email": "helise@42lyon.fr",
+    "password": "1234"
+  }
+}

@@ -1,0 +1,19 @@
+meta {
+  name: set main photo id
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/photos/:id/set-main
+  body: multipartForm
+  auth: inherit
+}
+
+params:path {
+  id: 
+}
+
+body:multipart-form {
+  photo: @file(/home/ben/Images/PrixCity07024.png)
+}

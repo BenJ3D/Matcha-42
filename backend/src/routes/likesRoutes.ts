@@ -8,20 +8,24 @@ const router = Router();
  * @swagger
  * /likes:
  *   get:
- *     summary: Récupérer tous les likes de l'utilisateur authentifié
+ *     summary: Récupérer les likes de l'utilisateur (donnés et reçus)
  *     tags:
  *       - Likes
  *     security:
  *       - BearerAuth: []
  *     responses:
  *       200:
- *         description: Liste des likes
+ *         description: Listes des likes donnés et reçus
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 likes:
+ *                 likesGiven:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/UserLightResponseDto'
+ *                 likesReceived:
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/UserLightResponseDto'

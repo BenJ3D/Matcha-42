@@ -1,0 +1,15 @@
+meta {
+  name: verify email
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/verify-email?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiaWF0IjoxNzI5NDYzMTg2LCJleHAiOjE3Mjk4OTUxODZ9._KEBTRPVCTcxwBk0e-7UiBNh8TmTx7Ab6pdTryugt0o
+  body: none
+  auth: none
+}
+
+params:query {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiaWF0IjoxNzI5NDYzMTg2LCJleHAiOjE3Mjk4OTUxODZ9._KEBTRPVCTcxwBk0e-7UiBNh8TmTx7Ab6pdTryugt0o
+}

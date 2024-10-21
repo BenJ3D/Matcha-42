@@ -1,7 +1,7 @@
 import {Request, Response, NextFunction} from 'express';
 import JwtService from '../services/JwtService';
 import UserServices from "../services/UserServices";
-import {isValidId} from "../utils/validateId";
+import {isValidId} from "../utils/isValidId";
 
 export interface AuthenticatedRequest extends Request {
     userId?: number;
@@ -9,11 +9,19 @@ export interface AuthenticatedRequest extends Request {
 
 // Chemins à exclure
 const excludedPaths = [
+    {url: /^\/api\/verify-email(?:\/)?(?:\?.*)?$/, methods: ['GET']},
     {url: /^\/api\/login\/?$/, methods: ['POST']},
     {url: /^\/api\/login\/refresh\/?$/, methods: ['POST']},
     {url: /^\/api\/users\/?$/, methods: ['POST']},
-    {url: /^\/api-docs\/?$/, methods: ['GET']}, // Exclure la route de documentation
-    {url: /^\/api-docs\.json$/, methods: ['GET']}, // Exclure la route du JSON de documentation
+    {url: /^\/api-docs\/?$/, methods: ['GET']},
+    {url: /^\/api-docs\.json$/, methods: ['GET']},
+    {url: /^\/uploads\/?$/, methods: ['GET']},
+];
+
+const excludedEmailVerificationPaths = [
+    {url: /^\/api\/users\/me$/, methods: ['GET']},
+    {url: /^\/api\/users\/$/, methods: ['DELETE']},
+    {url: /^\/api\/verify-email\/resend\/?$/, methods: ['GET']},
 ];
 
 const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
@@ -52,6 +60,15 @@ const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: Ne
     const user = await UserServices.getUserById(payload.id);
     if (!user) {
         return res.status(401).json({error: 'Non autorisé : utilisateur supprimé ou inexistant'});
+    }
+    const isExcludedFromEmailVerification = excludedEmailVerificationPaths.some(excluded => {
+        const matchUrl = excluded.url.test(req.originalUrl);
+        const matchMethod = excluded.methods.includes(req.method);
+        return matchUrl && matchMethod;
+    });
+
+    if (!isExcludedFromEmailVerification && !user.is_verified) {
+        return res.status(401).json({error: 'Non autorisé : email utilisateur non vérifié'});
     }
     req.userId = payload.id;
 

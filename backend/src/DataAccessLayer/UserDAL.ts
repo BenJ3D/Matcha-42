@@ -7,6 +7,7 @@ import {Tag} from "../models/Tags";
 import {UserLoginPasswordCheckDto} from "../DTOs/users/UserLoginPasswordCheckDto";
 import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
 import {Gender} from "../models/Genders";
+import {UserEmailPatchDto} from "../DTOs/users/UserEmailPatchDto";
 
 class UserDAL {
 
@@ -37,16 +38,51 @@ class UserDAL {
                 throw e;  // La relancer directement
             } else {
                 console.error("Erreur lors de la mise à jour de l'utilisateur:", e);
-                throw {status: 500, message: "Erreur interne du serveur."};
+                throw {status: 400, message: "Erreur"};
+            }
+        }
+    };
+
+    emailUpdate = async (userId: number, userEmailPatch: UserEmailPatchDto): Promise<void> => {
+        try {
+            // Vérifie si l'utilisateur existe avant de tenter la mise à jour
+            const user = await db('users').where('id', userId).first();
+            if (!user) {
+                throw {status: 404, message: "Utilisateur non trouvé."};
+            }
+
+            // Effectuer la mise à jour
+            await db('users')
+                .where('id', userId)
+                .update(userEmailPatch);
+
+            console.log(`Utilisateur avec id ${userId} mis à jour.`);
+
+        } catch (e: any) {
+            if (e.code === '23505') {  // Violation d'unicité (par ex. email déjà pris)
+                console.error("Erreur: email déjà utilisé par un autre utilisateur.", e);
+                throw {status: 409, message: "Cet email est déjà pris."};
+            } else if (e.code === '23503') {  // Violation de contrainte de clé étrangère
+                console.error("Erreur: contrainte de clé étrangère non respectée.", e);
+                throw {status: 400, message: "La mise à jour viole une contrainte de clé étrangère."};
+            } else if (e.status === 404) {  // Cas où l'utilisateur n'est pas trouvé
+                console.error("Erreur: utilisateur non trouvé.", e);
+                throw e;  // La relancer directement
+            } else {
+                console.error("Erreur lors de la mise à jour de l'utilisateur:", e);
+                throw {status: 400, message: "Erreur"};
             }
         }
     };
 
     save = async (newUser: UserCreateDto): Promise<number> => {
         try {
+            const [userId] = await db('users')
+                .insert(newUser)
+                .returning('id')
+                .then((rows) => rows.map(row => row.id));
 
-            const [userId] = await db('users').insert(newUser).returning('id');
-            console.log(`Nouvel utilisateur save avec id ${userId}`);
+            console.log(`Nouvel utilisateur sauvegardé avec id ${userId}`);
             return userId;
         } catch (e: any) {
             if (e.code === '23505') {  // Code PostgreSQL pour violation d'unicité
@@ -82,12 +118,17 @@ class UserDAL {
                 .select(
                     'users.id',
                     'users.username',
+                    'users.first_name',
+                    'users.last_name',
                     'photos.url as main_photo_url',
                     'profiles.age',
                     'profiles.gender',
                     'locations.latitude',
                     'locations.longitude',
-                    'locations.city_name'
+                    'locations.city_name',
+                    'users.is_online',
+                    'users.is_verified',
+                    'users.last_activity',
                 )
                 .leftJoin('profiles', 'users.id', 'profiles.owner_user_id')
                 .leftJoin('photos', 'profiles.main_photo_id', 'photos.photo_id')
@@ -96,6 +137,8 @@ class UserDAL {
             return users.map(user => ({
                 id: user.id,
                 username: user.username,
+                first_name: user.first_name,
+                last_name: user.last_name,
                 main_photo_url: user.main_photo_url || null,
                 location: user.latitude && user.longitude ? {
                     latitude: parseFloat(user.latitude),
@@ -103,7 +146,10 @@ class UserDAL {
                     city_name: user.city_name || undefined
                 } : undefined,
                 age: user.age,
-                gender: user.gender
+                gender: user.gender,
+                is_online: user.is_online,
+                is_verified: user.is_verified,
+                last_activity: user.last_activity,
             }));
         } catch (error) {
             console.error("Error fetching users:", error);
@@ -126,6 +172,9 @@ class UserDAL {
                     'profiles.biography',
                     'profiles.gender',
                     'profiles.age',
+                    'users.is_online',
+                    'users.is_verified',
+                    'users.last_activity',
                     'profiles.fame_rating',
                     'profiles.main_photo_id',
                     'profiles.last_connection',
@@ -212,6 +261,9 @@ class UserDAL {
                 biography: user.biography,
                 gender: user.gender,
                 age: user.age,
+                is_online: user.is_online,
+                is_verified: user.is_verified,
+                last_activity: user.last_activity,
                 main_photo_id: user.main_photo_id,
                 location: {
                     latitude: parseFloat(user.latitude),
@@ -260,19 +312,22 @@ class UserDAL {
         userId: number,
         userGender: number
     ): Promise<UserLightResponseDto[]> {
-        console.log('user gender : ' + userGender);
-
         const query = db('users')
             .select(
                 'users.id',
                 'users.username',
+                'users.first_name',
+                'users.last_name',
                 'profiles.age',
                 'profiles.fame_rating',
                 'profiles.gender as gender',
                 'photos.url as main_photo_url',
                 'locations.latitude',
                 'locations.longitude',
-                'locations.city_name'
+                'locations.city_name',
+                'is_online',
+                'is_verified',
+                'last_activity'
             )
             .join('profiles', 'users.id', 'profiles.owner_user_id')
             .join('profile_sexual_preferences', 'profiles.profile_id', 'profile_sexual_preferences.profile_id')
@@ -330,6 +385,8 @@ class UserDAL {
         return results.map(user => ({
             id: user.id,
             username: user.username,
+            first_name: user.first_name,
+            last_name: user.last_name,
             age: user.age,
             main_photo_url: user.main_photo_url,
             gender: user.gender,
@@ -337,7 +394,10 @@ class UserDAL {
                 latitude: user.latitude,
                 longitude: user.longitude,
                 city_name: user.city_name
-            } : undefined
+            } : undefined,
+            is_online: user.is_online,
+            is_verified: user.is_verified,
+            last_activity: user.last_activity
         }));
     }
 
@@ -347,9 +407,14 @@ class UserDAL {
                 .select(
                     'users.id',
                     'users.username',
+                    'users.first_name',
+                    'users.last_name',
                     'profiles.age',
                     'profiles.gender',
                     'photos.url as main_photo_url',
+                    'users.is_online',
+                    'users.is_verified',
+                    'users.last_activity',
                     'locations.latitude',
                     'locations.longitude',
                     'locations.city_name'
@@ -362,9 +427,14 @@ class UserDAL {
             return users.map(user => ({
                 id: user.id,
                 username: user.username,
+                first_name: user.first_name,
+                last_name: user.username,
                 age: user.age || null,
                 gender: user.gender || null,
                 main_photo_url: user.main_photo_url || null,
+                is_online: user.is_online,
+                is_verified: user.is_verified,
+                last_activity: user.last_activity,
                 location: user.latitude && user.longitude ? {
                     latitude: parseFloat(user.latitude),
                     longitude: parseFloat(user.longitude),
@@ -373,7 +443,76 @@ class UserDAL {
             }));
         } catch (error) {
             console.error('Erreur lors de la récupération des utilisateurs:', error);
-            throw {status: 500, message: 'Impossible de récupérer les utilisateurs'};
+            throw {status: 400, message: 'Impossible de récupérer les utilisateurs'};
+        }
+    }
+
+    async updateOnlineStatus(userId: number, newStatus: boolean): Promise<void> {
+        try {
+            // Vérifie si l'utilisateur existe avant de tenter la mise à jour
+            const user = await db('users').where('id', userId).first();
+            if (!user) {
+                throw {status: 404, message: "Utilisateur non trouvé."};
+            }
+
+            // Effectuer la mise à jour
+            await db('users')
+                .where('id', userId)
+                .update('is_online', newStatus);
+
+            await db('users')
+                .where('id', userId)
+                .update('last_activity', new Date().toISOString());
+
+            console.log(`Utilisateur avec id ${userId} mis à jour.`);
+
+        } catch (e: any) {
+            if (e.code === '23505') {  // Violation d'unicité (par ex. email déjà pris)
+                console.error("Erreur: email déjà utilisé par un autre utilisateur.", e);
+                throw {status: 409, message: "Cet email est déjà pris."};
+            } else if (e.code === '23503') {  // Violation de contrainte de clé étrangère
+                console.error("Erreur: contrainte de clé étrangère non respectée.", e);
+                throw {status: 400, message: "La mise à jour viole une contrainte de clé étrangère."};
+            } else if (e.status === 404) {  // Cas où l'utilisateur n'est pas trouvé
+                console.error("Erreur: utilisateur non trouvé.", e);
+                throw e;  // La relancer directement
+            } else {
+                console.error("Erreur lors de la mise à jour de l'utilisateur:", e);
+                throw {status: 400, message: "Erreur"};
+            }
+        }
+    };
+
+    async resetIsVerified(userId: number): Promise<void> {
+        try {
+            await db('users').where('id', userId).update('is_verified', false);
+        } catch (e: any) {
+            if (e.status === 404) {  // Cas où l'utilisateur n'est pas trouvé
+                console.error("Erreur: utilisateur non trouvé.", e);
+                throw e;  // La relancer directement
+            }
+        }
+    }
+
+    async validateUser(userId: number): Promise<void> {
+        try {
+            await db('users').where('id', userId).update('is_verified', true);
+        } catch (e: any) {
+            if (e.status === 404) {  // Cas où l'utilisateur n'est pas trouvé
+                console.error("Erreur: utilisateur non trouvé.", e);
+                throw e;  // La relancer directement
+            }
+        }
+    }
+
+    async updateFameRating(userId: number, newNote: number): Promise<void> {
+        try {
+            await db('profiles').where('owner_user_id', userId).update('fame_rating', newNote);
+        } catch (e: any) {
+            if (e.status === 404) {  // Cas où l'utilisateur n'est pas trouvé
+                console.error("Erreur: utilisateur non trouvé.", e);
+                throw e;  // La relancer directement
+            }
         }
     }
 
@@ -389,13 +528,19 @@ class UserDAL {
             .select(
                 'users.id',
                 'users.username',
+                'users.first_name',
+                'users.last_name',
                 'profiles.age',
                 'profiles.gender',
                 'photos.url as main_photo_url',
                 'locations.latitude',
                 'locations.longitude',
-                'locations.city_name'
+                'locations.city_name',
+                'users.is_online',
+                'users.is_verified',
+                'users.last_activity'
             )
+
             .leftJoin('profiles', 'users.id', 'profiles.owner_user_id')
             .leftJoin('photos', 'profiles.main_photo_id', 'photos.photo_id')
             .leftJoin('locations', 'profiles.location', 'locations.location_id')
@@ -405,6 +550,8 @@ class UserDAL {
         return users.map(user => ({
             id: user.id,
             username: user.username,
+            first_name: user.first_name,
+            last_name: user.last_name,
             age: user.age || null,
             main_photo_url: user.main_photo_url || null,
             gender: user.gender || null,
@@ -412,7 +559,10 @@ class UserDAL {
                 latitude: parseFloat(user.latitude),
                 longitude: parseFloat(user.longitude),
                 city_name: user.city_name || undefined
-            } : undefined
+            } : undefined,
+            is_online: user.is_online,
+            is_verified: user.is_verified,
+            last_activity: user.last_activity,
         }));
     }
 
@@ -424,6 +574,7 @@ class UserDAL {
             .first();
         return photo ? photo.url : null;
     }
+
 }
 
 export default new UserDAL();

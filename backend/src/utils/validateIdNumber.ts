@@ -1,7 +1,3 @@
-export function checkIsValidId(id: any) {
-    return Number.isInteger(id) && id >= 0 && id <= 2147483647;
-}
-
 /**
  * Valide un ID en vérifiant s'il est conforme aux critères spécifiés.
  *
@@ -9,8 +5,8 @@ export function checkIsValidId(id: any) {
  * @param res - L'objet de réponse Express utilisé pour envoyer une réponse en cas d'ID invalide.
  * @throws {Error} Si l'ID n'est pas valide, une réponse avec le statut 400 sera renvoyée.
  */
-export function isValidId(id: any, res: any): any {
-    if (!checkIsValidId(id)) {
+export function validateIdNumber(id: any, res: any): any {
+    if (!isValidInterger(id)) {
         throw res.status(400).json({
             "error": {
                 "message": "ID invalide",
@@ -18,3 +14,8 @@ export function isValidId(id: any, res: any): any {
         })
     }
 }
+
+function isValidInterger(id: any) {
+    return Number.isInteger(id) && id >= 0 && id <= 2147483647;
+}
+    

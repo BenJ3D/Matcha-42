@@ -43,6 +43,21 @@ class JwtService {
         }
     }
 
+    // Crée un token avec un secret variable, utilisé pour token validation email
+    generateGenericToken(payload: IJwtPayload, secret: string, expiration: string): string {
+        return jwt.sign(payload, secret, {expiresIn: expiration});
+    }
+
+    // Vérifie un token, utiliser pour le token email
+    verifyGenericToken(token: string, secret: string): IJwtPayload | null {
+        try {
+            return jwt.verify(token, secret) as IJwtPayload;
+        } catch (error) {
+            console.error('Erreur de validation du refresh token:', error);
+            return null;
+        }
+    }
+
     // Génère à la fois un access token et un refresh token
     generateTokens(payload: IJwtPayload): { accessToken: string, refreshToken: string } {
         const accessToken = this.generateAccessToken(payload);
@@ -58,6 +73,21 @@ class JwtService {
         }
         return null;
     }
+
+    // Décode un token JWT et récupère le payload sans vérification
+    decodeToken(token: string): IJwtPayload | null {
+        try {
+            const decoded = jwt.decode(token);
+            if (decoded && typeof decoded === 'object') {
+                return decoded as IJwtPayload;
+            }
+            return null;
+        } catch (error) {
+            console.error('Erreur de décodage du token JWT:', error);
+            return null;
+        }
+    }
+
 }
 
 export default new JwtService();

@@ -1,0 +1,11 @@
+meta {
+  name: resend email token
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/verify-email/resend
+  body: none
+  auth: inherit
+}

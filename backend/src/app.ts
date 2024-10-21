@@ -7,24 +7,26 @@ import routes from './routes/indexRoutes';
 import {query} from './config/db';
 import {QueryResult} from 'pg';
 import authMiddleware from "./middlewares/authMiddleware";
-import swaggerJsDoc from 'swagger-jsdoc';
-import swaggerUi from 'swagger-ui-express';
 import swaggerOptions from './config/swaggerConfig';
-import {initializeSockets, onlineUsers} from './sockets/index';
-import JwtService from "./services/JwtService";
 import cors from 'cors';
+import initializeSockets from "./sockets";
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsDoc from 'swagger-jsdoc';
+import path from "path";
+import errorHandler from "./middlewares/errorHandler";
 
-const PORT = config.port || 8000;
-const DATABASE_URL = config.database_url;
+const PORT = config.apiPortInternal ?? 8000;
+const DATABASE_URL = config.databaseUrl;
 const app = express();
 
 // Configurer CORS
 app.use(cors({
     origin: 'http://localhost:4200',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
 }));
 
+// const onlineUsers = new Map<number, Socket>();
 if (!PORT) {
     throw new Error('La variable d\'environnement PORT est manquante.');
 }
@@ -45,11 +47,17 @@ app.get('/api-docs.json', (req, res) => {
 // Middleware pour parser les JSON
 app.use(express.json());
 
+// Configurer le dossier 'uploads' comme dossier de fichiers statiques
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 // Middleware pour gérer l'authentification des requêtes de manière globale
 app.use(authMiddleware);
 
 // Routeur centralisé
 app.use('/api', routes);
+
+// Utiliser la middleware de gestion des erreurs après les routes
+app.use(errorHandler);
 
 // Test de connexion à la base de données
 query('SELECT NOW()')
@@ -75,32 +83,12 @@ const io = new Server(httpServer, {
     }
 });
 
-io.use((socket, next) => {
-    const token = socket.handshake.auth.token || socket.handshake.query.token;
-
-    console.log(token);
-    if (!token) {
-        return next(new Error("Authentication error"));
-    }
-
-    try {
-        const payload = JwtService.verifyAccessToken(token);
-        if (payload && payload.id) {
-            socket.data.userId = payload.id;
-            return next();
-        } else {
-            return next(new Error("Authentication error"));
-        }
-    } catch (error) {
-        return next(new Error("Authentication error"));
-    }
-});
-// Initialiser Socket.IO avec les gestionnaires d'événements
+//Init logique sockets
 initializeSockets(io);
 
 httpServer.listen(PORT, () => {
     console.log(`Serveur en cours d'exécution sur le PORT: ${PORT}`);
-    console.log(`Connecté à la base de données: ${config.database_name}`);
+    console.log(`Connecté à la base de données: ${config.databaseName}`);
 }).on('error', (error: Error) => {
     throw new Error(error.message);
 });

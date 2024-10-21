@@ -181,6 +181,16 @@ class ProfileDAL {
             throw {status: 500, message: "Erreur interne du serveur."};
         }
     }
+
+    async updateMainPhoto(userId: number, photoId: number | null): Promise<void> {
+        const profile = await this.findByUserId(userId);
+        if (!profile) {
+            throw {status: 404, message: 'Profil non trouvé.'};
+        }
+
+        await db('profiles').where('owner_user_id', userId).update({main_photo_id: photoId});
+    }
+
 }
 
 export default new ProfileDAL();

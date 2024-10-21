@@ -5,17 +5,28 @@ import userDAL from '../DataAccessLayer/UserDAL';
 import UnlikesService from "./UnlikesService";
 import NotificationsService from "./NotificationsService";
 import {NotificationType} from "../models/Notifications";
+import UserServices from "./UserServices";
+import fameRatingConfig from "../config/fameRating.config";
 
 class LikesService {
-    async getUserLikes(userId: number): Promise<UserLightResponseDto[]> {
-        const likes = await LikesDAL.getLikesByUserId(userId);
-        if (likes.length === 0) {
-            return [];
-        }
+    async getUserLikes(userId: number): Promise<{
+        likesGiven: UserLightResponseDto[],
+        likesReceived: UserLightResponseDto[]
+    }> {
+        // Likes donnés
+        const likesGiven = await LikesDAL.getLikesByUserId(userId);
+        const likesGivenUserIds = likesGiven.map(like => like.user_liked);
+        const likesGivenUsers = likesGivenUserIds.length > 0 ? await userDAL.getUsersByIds(likesGivenUserIds) : [];
 
-        const likedUserIds = likes.map(like => like.user_liked);
-        const likedUsers = await userDAL.getUsersByIds(likedUserIds);
-        return likedUsers;
+        // Likes reçus
+        const likesReceived = await LikesDAL.getLikesReceivedByUserId(userId);
+        const likesReceivedUserIds = likesReceived.map(like => like.user);
+        const likesReceivedUsers = likesReceivedUserIds.length > 0 ? await userDAL.getUsersByIds(likesReceivedUserIds) : [];
+
+        return {
+            likesGiven: likesGivenUsers,
+            likesReceived: likesReceivedUsers
+        };
     }
 
     async addLike(userId: number, targetUserId: number): Promise<void> {
@@ -30,6 +41,7 @@ class LikesService {
         }
 
         await LikesDAL.addLike(userId, targetUserId);
+        await UserServices.updateFameRating(targetUserId, fameRatingConfig.like);
 
         //Suppression d'un eventuel unlike, catch vide pour ne pas retourné de 404 si le unlike n'existe pas
         try {
@@ -44,17 +56,7 @@ class LikesService {
         if (isMutual) {
             await MatchesService.createMatch(userId, targetUserId);
 
-            // MATCH notifications pour les deux users
-            await NotificationsService.createNotification(
-                userId,
-                targetUserId,
-                NotificationType.MATCH
-            );
-            await NotificationsService.createNotification(
-                targetUserId,
-                userId,
-                NotificationType.MATCH
-            );
+
         } else {
             // LIKE notification pour target user
             await NotificationsService.createNotification(
@@ -62,7 +64,7 @@ class LikesService {
                 userId,
                 NotificationType.LIKE
             );
-        
+
             // TODO: Implémenter un message websocket pour notifier un nouveau match
         }
 
@@ -71,6 +73,7 @@ class LikesService {
 
     async removeLike(userId: number, targetUserId: number): Promise<void> {
         await LikesDAL.removeLike(userId, targetUserId);
+        await UserServices.updateFameRating(targetUserId, fameRatingConfig.dislike);
 
         //Supprimer un match s'il existe
         await MatchesService.deleteMatch(userId, targetUserId);

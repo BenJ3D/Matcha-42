@@ -1,15 +1,14 @@
 import {Socket, Server} from "socket.io";
-import {Notification} from "../../models/Notifications";
+import {CreateMessageDto} from "../../DTOs/chat/CreateMessageDto";
 
+const messageEventHandler = (socket: Socket, io: Server) => {
 
-const notificationEventHandler = (socket: Socket, io: Server) => {
+    socket.on('message', (data: CreateMessageDto) => {
 
-    socket.on('notification', (data: Notification) => {
-        console.log("Reçu 'notification' avec les données:\n message = ", data);
-        console.log("Reçu 'notification' avec les données:\n message = ", data.content + "\ntype: " + data.type);
+        console.log(`DBG MESSAGE EVENT\n${JSON.stringify(data)}\n`)
         // Traiter les données reçues et éventuellement émettre des événements
-        io.emit<string>('userid', {message: 'Événement reçu et traité'});
+        socket.emit<string>('blabla', {message: 'Événement reçu et traité'});
     });
 };
 
-export default notificationEventHandler;
+export default messageEventHandler;

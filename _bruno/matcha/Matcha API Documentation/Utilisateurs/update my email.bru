@@ -1,0 +1,17 @@
+meta {
+  name: update my email
+  type: http
+  seq: 8
+}
+
+patch {
+  url: {{baseUrl}}/users/
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "email": "jean.dupont@gmail.com"
+  }
+}
