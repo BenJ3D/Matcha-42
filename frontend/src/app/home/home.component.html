@@ -1,18 +1,29 @@
 <div class="home-container">
-	<mat-card #swipeCard class="profile-card" [class.animate-right]="animateRight" [class.animate-left]="animateLeft">
-	  <img mat-card-image [src]="currentProfile.imageUrl + '?id=' + currentProfile.id" [alt]="currentProfile.name" loading="">
-	  <mat-card-content>
-		<h2>{{ currentProfile.name }}, {{ currentProfile.age }}</h2>
-		<p>{{ currentProfile.bio }}</p>
-	  </mat-card-content>
-	</mat-card>
-  
-	<div class="action-buttons">
-	  <button mat-fab color="warn" (click)="onPassClick()">
-		<mat-icon>close</mat-icon>
-	  </button>
-	  <button mat-fab color="primary" (click)="onLikeClick()">
-		<mat-icon>favorite</mat-icon>
-	  </button>
-	</div>
+  @if (currentProfile) {
+  <mat-card
+    #swipeCard
+    class="profile-card"
+    [class.animate-right]="animateRight"
+    [class.animate-left]="animateLeft"
+  >
+    <img
+      mat-card-image
+      [src]="currentProfile.main_photo_url + '?id=' + currentProfile.id"
+      [alt]="currentProfile.username"
+      loading=""
+    />
+    <mat-card-content>
+      <h2>{{ currentProfile.username }}, {{ currentProfile.age }}</h2>
+    </mat-card-content>
+  </mat-card>
+  }
+
+  <div class="action-buttons">
+    <button mat-fab color="warn" (click)="onPassClick()">
+      <mat-icon>close</mat-icon>
+    </button>
+    <button mat-fab color="primary" (click)="onLikeClick()">
+      <mat-icon>favorite</mat-icon>
+    </button>
   </div>
+</div>

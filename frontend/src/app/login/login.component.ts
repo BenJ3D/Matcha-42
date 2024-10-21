@@ -1,6 +1,11 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
@@ -22,19 +27,23 @@ import { AuthService } from '../../services/auth.service';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatFormFieldModule
+    MatFormFieldModule,
   ],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent {
   form: FormGroup;
   isLoading = false;
 
-  constructor(private fb: FormBuilder, private router: Router, private authService: AuthService) {
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private authService: AuthService
+  ) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(4)]]
+      password: ['', [Validators.required, Validators.minLength(4)]],
     });
   }
 
@@ -46,27 +55,25 @@ export class LoginComponent {
 
     const loginData = this.form.value;
 
-    this.authService.login(loginData).subscribe(
-      {
-        next: (response) => {
-          this.isLoading = false;
+    this.authService.login(loginData).subscribe({
+      next: (response) => {
+        this.isLoading = false;
 
-          localStorage.setItem('accessToken', response.accessToken)
-          localStorage.setItem('refreshToken', response.refreshToken)
+        localStorage.setItem('accessToken', response.accessToken);
+        localStorage.setItem('refreshToken', response.refreshToken);
 
-          this.goToMain();
-        },
-        error: (error) => {
-          console.log(error)
-          this.isLoading = false;
-          this.form.enable();
-          return `Error: ${error.message}`;
-        },
-        complete: () => {
-          console.log("Complete")
-        }
-      }
-    )
+        this.goToMain();
+      },
+      error: (error) => {
+        console.log(error);
+        this.isLoading = false;
+        this.form.enable();
+        return `Error: ${error.message}`;
+      },
+      complete: () => {
+        console.log('Complete');
+      },
+    });
   }
 
   goToMain(): void {
