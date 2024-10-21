@@ -304,7 +304,8 @@ CREATE TABLE "public"."profile_tag" (
     "id" integer DEFAULT nextval('profile_tag_id_seq') NOT NULL,
     "profile_id" bigint NOT NULL,
     "profile_tag" bigint NOT NULL,
-    CONSTRAINT "profile_tag_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "profile_tag_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "profile_tag_pk_1" UNIQUE ("profile_id", "profile_tag")
 ) WITH (oids = false);
 
 TRUNCATE "profile_tag";
@@ -608,10 +609,10 @@ CREATE TABLE "public"."visited_profile_history" (
 
 TRUNCATE "visited_profile_history";
 INSERT INTO "visited_profile_history" ("id", "visiter_id", "visited_id", "viewed_at") VALUES
-(1,	1,	3, "2024-07-11 12:42:02.474665"),
-(3,	3,	1, "2024-08-23 22:42:02.474665"),
-(4,	2,	3, "2024-10-1 05:42:02.474665"),
-(5,	4,	1, "2024-06-15 20:42:02.474665");
+(1,	1,	3, '2024-07-11 12:42:02.474665'),
+(3,	3,	1, '2024-08-23 22:42:02.474665'),
+(4,	2,	3, '2024-10-1 05:42:02.474665'),
+(5,	4,	1, '2024-06-15 20:42:02.474665');
 
 SELECT setval('visited_profile_history_id_seq', (SELECT MAX(id) FROM visited_profile_history));
 
@@ -648,17 +649,18 @@ ALTER TABLE "public"."profile_tag"
     REFERENCES profiles(profile_id) 
     ON DELETE CASCADE 
     NOT DEFERRABLE;
-ALTER TABLE ONLY "public"."profile_tag" ADD CONSTRAINT "profile_tag_fk2" FOREIGN KEY (profile_tag) REFERENCES tags(tag_id) NOT DEFERRABLE;
 
-ALTER TABLE ONLY "public"."profiles" ADD CONSTRAINT "profile_gender_fkey" FOREIGN KEY (gender) REFERENCES genders(gender_id) ON UPDATE CASCADE ON DELETE RESTRICT NOT DEFERRABLE;
-ALTER TABLE ONLY "public"."profiles" ADD CONSTRAINT "profile_onwer_user_id_fkey" FOREIGN KEY (owner_user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
-ALTER TABLE ONLY "public"."profiles" ADD CONSTRAINT "profile_photo_photo_id_fk" FOREIGN KEY (main_photo_id) REFERENCES photos(photo_id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
-ALTER TABLE ONLY "public"."profiles" ADD CONSTRAINT "profiles_locations_location_id_fk" FOREIGN KEY (location) REFERENCES locations(location_id) NOT DEFERRABLE;
 
-ALTER TABLE ONLY "public"."users" ADD CONSTRAINT "user_accounts_sso_type_sso_id_fk" FOREIGN KEY (sso_type) REFERENCES sso_type(sso_id) NOT DEFERRABLE;
-ALTER TABLE ONLY "public"."users" ADD CONSTRAINT "users_profile_id_fkey" FOREIGN KEY (profile_id) REFERENCES profiles(profile_id) ON UPDATE RESTRICT ON DELETE RESTRICT NOT DEFERRABLE;
+-- ALTER TABLE ONLY "public"."profile_tag" ADD CONSTRAINT "profile_tag_fk2" FOREIGN KEY (profile_tag) REFERENCES tags(tag_id) NOT DEFERRABLE;
+-- ALTER TABLE ONLY "public"."profiles" ADD CONSTRAINT "profile_gender_fkey" FOREIGN KEY (gender) REFERENCES genders(gender_id) ON UPDATE CASCADE ON DELETE RESTRICT NOT DEFERRABLE;
+-- ALTER TABLE ONLY "public"."profiles" ADD CONSTRAINT "profile_onwer_user_id_fkey" FOREIGN KEY (owner_user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+-- ALTER TABLE ONLY "public"."profiles" ADD CONSTRAINT "profile_photo_photo_id_fk" FOREIGN KEY (main_photo_id) REFERENCES photos(photo_id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+-- ALTER TABLE ONLY "public"."profiles" ADD CONSTRAINT "profiles_locations_location_id_fk" FOREIGN KEY (location) REFERENCES locations(location_id) NOT DEFERRABLE;
 
-ALTER TABLE ONLY "public"."visited_profile_history" ADD CONSTRAINT "visited_profile_history_user_id_fk" FOREIGN KEY (visited_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
-ALTER TABLE ONLY "public"."visited_profile_history" ADD CONSTRAINT "visited_profile_history_user_id_fk_2" FOREIGN KEY (visiter_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+-- ALTER TABLE ONLY "public"."users" ADD CONSTRAINT "user_accounts_sso_type_sso_id_fk" FOREIGN KEY (sso_type) REFERENCES sso_type(sso_id) NOT DEFERRABLE;
+-- ALTER TABLE ONLY "public"."users" ADD CONSTRAINT "users_profile_id_fkey" FOREIGN KEY (profile_id) REFERENCES profiles(profile_id) ON UPDATE RESTRICT ON DELETE RESTRICT NOT DEFERRABLE;
+
+-- ALTER TABLE ONLY "public"."visited_profile_history" ADD CONSTRAINT "visited_profile_history_user_id_fk" FOREIGN KEY (visited_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+-- ALTER TABLE ONLY "public"."visited_profile_history" ADD CONSTRAINT "visited_profile_history_user_id_fk_2" FOREIGN KEY (visiter_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
 
 -- 2024-09-03 18:02:01.553859+00
