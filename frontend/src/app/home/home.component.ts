@@ -60,7 +60,7 @@ export class HomeComponent implements AfterViewInit {
   }
 
   fetchProfiles() {
-    this.http.get<UserProfile[]>('http://localhost:8000/api/users').subscribe({
+    this.http.get<UserProfile[]>('http://localhost:8000/api/users/search').subscribe({
       next: (profiles) => {
         console.log('Profils reçus de l\'API :', profiles);
         this.profiles = profiles.map((profile: any) => ({
