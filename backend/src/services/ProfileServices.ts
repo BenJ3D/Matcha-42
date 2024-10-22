@@ -2,8 +2,13 @@ import profileDAL from '../DataAccessLayer/ProfileDAL';
 import {ProfileCreateDto} from '../DTOs/profiles/ProfileCreateDto';
 import {ProfileUpdateDto} from '../DTOs/profiles/ProfileUpdateDto';
 import {ProfileResponseDto} from '../DTOs/profiles/ProfileResponseDto';
-import geocoder from "../config/geocoder";
 import locationDAL from "../DataAccessLayer/LocationDAL";
+import {Entry} from "node-geocoder";
+import {reverseGeocodeOpenCage} from "../utils/reverseGeocodeOpenCage";
+
+interface EntryExtended extends Entry {
+    _normalized_city: string;
+}
 
 class ProfileServices {
     async getProfileByUserId(userId: number): Promise<ProfileResponseDto | null> {
@@ -18,15 +23,7 @@ class ProfileServices {
 
             try {
                 // Obtenir le nom de la ville à partir des coordonnées
-                const res = await geocoder.reverse({lat: latitude, lon: longitude});
-                let cityName = null;
-                if (res && res.length > 0) {
-                    if (res[0].city)
-                        cityName = res[0].city;
-                    else if (res[0].district)
-                        cityName = res[0].district;
-                }
-                console.log('DBG LOCATION :', res[0]);
+                const cityName = await reverseGeocodeOpenCage(latitude, longitude);
 
                 // Vérifier si la localisation existe déjà
                 let location = await locationDAL.findByCoordinates(latitude, longitude);
@@ -65,12 +62,7 @@ class ProfileServices {
 
             try {
                 // Obtenir le nom de la ville à partir des coordonnées
-                const res = await geocoder.reverse({lat: latitude, lon: longitude});
-                let cityName = null;
-                if (res && res.length > 0 && res[0].city) {
-                    cityName = res[0].city;
-                }
-                console.log('DBG LOCATION :', res[0]);
+                const cityName = await reverseGeocodeOpenCage(latitude, longitude);
 
                 // Vérifier si la localisation existe déjà
                 let location = await locationDAL.findByCoordinates(latitude, longitude);
