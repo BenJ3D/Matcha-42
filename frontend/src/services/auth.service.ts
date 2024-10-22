@@ -16,6 +16,10 @@ interface AuthResponse {
   refreshToken: string;
 }
 
+interface SignupResponse {
+  userId: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -24,8 +28,8 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  signup(signupData: any): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/users`, signupData);
+  signup(signupData: any): Observable<SignupResponse> {
+    return this.http.post<SignupResponse>(`${this.apiUrl}/users`, signupData);
   }
 
   login(loginData: any): Observable<AuthResponse> {
