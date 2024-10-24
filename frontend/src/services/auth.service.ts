@@ -28,6 +28,12 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
+  verifyEmail(token: string): Observable<{ message: string }> {
+    return this.http.get<{ message: string }>(
+      `${this.apiUrl}/verify-email?token=${token}`
+    );
+  }
+
   signup(signupData: any): Observable<SignupResponse> {
     return this.http.post<SignupResponse>(`${this.apiUrl}/users`, signupData);
   }
