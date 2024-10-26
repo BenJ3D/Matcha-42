@@ -16,6 +16,10 @@ interface AuthResponse {
   refreshToken: string;
 }
 
+interface SignupResponse {
+  userId: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -24,8 +28,14 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  signup(signupData: any): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/users`, signupData);
+  verifyEmail(token: string): Observable<{ message: string }> {
+    return this.http.get<{ message: string }>(
+      `${this.apiUrl}/verify-email?token=${token}`
+    );
+  }
+
+  signup(signupData: any): Observable<SignupResponse> {
+    return this.http.post<SignupResponse>(`${this.apiUrl}/users`, signupData);
   }
 
   login(loginData: any): Observable<AuthResponse> {
