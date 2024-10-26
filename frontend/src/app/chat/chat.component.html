@@ -1,19 +1,19 @@
+<!-- src/app/chat/chat.component.html -->
 <div class="chat-container" [ngClass]="{'conversation-selected': selectedUser}">
-	<div class="conversation-list">
-	  <mat-list>
-		<mat-list-item *ngFor="let user of chatUsers" (click)="selectConversation(user)">
-		  <div class="conversation-item">
-			<mat-icon matListAvatar>account_circle</mat-icon>
-			<span class="user-name">{{ user.name }}</span>
-			<span class="unread-badge" *ngIf="user.unread > 0">{{ user.unread }}</span>
-		  </div>
-		</mat-list-item>
-	  </mat-list>
-	</div>
-	<app-conversation 
-	  *ngIf="selectedUser" 
-	  [user]="selectedUser"
-	  (close)="closeConversation()"
-	></app-conversation>
+  <div class="conversation-list">
+    <mat-list>
+      <mat-list-item *ngFor="let user of chatUsers" (click)="selectConversation(user)">
+        <div class="conversation-item">
+          <mat-icon matListAvatar>account_circle</mat-icon>
+          <span class="user-name">{{ user.name }}</span>
+          <span class="unread-badge" *ngIf="user.unread > 0">{{ user.unread }}</span>
+        </div>
+      </mat-list-item>
+    </mat-list>
   </div>
-  
+  <app-conversation
+    *ngIf="selectedUser"
+    [user]="selectedUser"
+    (close)="closeConversation()"
+  ></app-conversation>
+</div>

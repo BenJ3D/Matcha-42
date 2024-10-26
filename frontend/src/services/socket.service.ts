@@ -1,9 +1,9 @@
-// src/app/services/socket.service.ts
 import { Injectable, OnDestroy } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { AuthService } from './auth.service';
-import { User } from '../models/user.model'; // Assurez-vous d'avoir un modèle User approprié
+import { UserResponseDto } from '../DTOs/users/UserResponseDto';
+import { CreateMessageDto } from '../DTOs/chat/CreateMessageDto';
 
 @Injectable({
   providedIn: 'root',
@@ -14,10 +14,15 @@ export class SocketService implements OnDestroy {
   public isConnected$ = this.socketConnected$.asObservable();
 
   constructor(private authService: AuthService) {
-    // Écoutez les changements d'authentification pour établir ou fermer la connexion
-    this.authService.user$.subscribe((user) => {
+    // Écouter les changements d'authentification pour établir ou fermer la connexion
+    this.authService.user$.subscribe((user: UserResponseDto | null) => {
+        console.log("HELLLOOOO 1");
       if (user && user.is_verified) {
-        this.connectSocket(user.accessToken);
+        console.log("HELLLOOOO 2");
+        const token = localStorage.getItem('accessToken');
+        if (!token)
+          return;
+        this.connectSocket(token);
       } else {
         this.disconnectSocket();
       }
@@ -37,17 +42,17 @@ export class SocketService implements OnDestroy {
     });
 
     this.socket.on('connect', () => {
-      console.log('Connected to Socket.IO server');
+      console.log('Connecté au serveur Socket.IO');
       this.socketConnected$.next(true);
     });
 
     this.socket.on('disconnect', (reason: string) => {
-      console.log('Disconnected from Socket.IO server:', reason);
+      console.log('Déconnecté du serveur Socket.IO:', reason);
       this.socketConnected$.next(false);
     });
 
     this.socket.on('connect_error', (error: any) => {
-      console.error('Connection error:', error);
+      console.error('Erreur de connexion Socket.IO:', error);
       this.socketConnected$.next(false);
     });
   }
