@@ -16,9 +16,7 @@ export class SocketService implements OnDestroy {
   constructor(private authService: AuthService) {
     // Écouter les changements d'authentification pour établir ou fermer la connexion
     this.authService.user$.subscribe((user: UserResponseDto | null) => {
-        console.log("HELLLOOOO 1");
       if (user && user.is_verified) {
-        console.log("HELLLOOOO 2");
         const token = localStorage.getItem('accessToken');
         if (!token)
           return;

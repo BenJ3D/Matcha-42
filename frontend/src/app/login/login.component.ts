@@ -26,13 +26,13 @@ import {MatIconModule} from "@angular/material/icon";
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
-    MatCardModule,           // Ajout du module MatCard
-    MatFormFieldModule,      // Ajout du module MatFormField
-    MatInputModule,          // Ajout du module MatInput
-    MatButtonModule,         // Ajout du module MatButton
-    MatProgressSpinnerModule,// Ajout du module MatProgressSpinner
-    MatIconModule,           // Ajout du module MatIcon
-    RouterModule,            // Pour RouterLink
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    MatIconModule,
+    RouterModule,
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],

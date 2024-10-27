@@ -8,15 +8,8 @@ import { MatInputModule } from '@angular/material/input';
 import { CreateMessageDto } from '../../DTOs/chat/CreateMessageDto';
 import { SocketService } from '../../services/socket.service';
 import { Subscription } from 'rxjs';
-import { UserResponseDto } from '../../DTOs/users/UserResponseDto';
 import {ChatUserDto} from "../../DTOs/chat/ChatUserDto";
-
-interface Message {
-  id: number;
-  content: string;
-  sender: 'user' | 'other';
-  timestamp: Date;
-}
+import {MessageDto} from "../../DTOs/chat/MessageDto";
 
 @Component({
   selector: 'app-conversation',
@@ -29,10 +22,10 @@ export class ConversationComponent implements OnInit, OnDestroy {
   @Input() user: ChatUserDto | null = null;
   @Output() close = new EventEmitter<void>();
 
-  messages: Message[] = [
-    { id: 1, content: 'Hey there!', sender: 'other', timestamp: new Date(Date.now() - 3600000) },
-    { id: 2, content: 'Hi! How are you?', sender: 'user', timestamp: new Date(Date.now() - 3540000) },
-    { id: 3, content: 'I\'m good, thanks! How about you?', sender: 'other', timestamp: new Date(Date.now() - 3480000) },
+  messages: MessageDto[] = [
+    { message_id: 1, content: 'Hey there!', target_user: 2, owner_user: 4,created_at: new Date(Date.now() - 3600000) },
+    { message_id: 2, content: 'Hi! How are you?', target_user: 3, owner_user: 4,created_at: new Date(Date.now() - 3540000) },
+    { message_id: 3, content: 'I\'m good, thanks! How about you?', target_user: 2, owner_user: 4,created_at: new Date(Date.now() - 3480000) },
   ];
 
   newMessage: string = '';
@@ -42,8 +35,8 @@ export class ConversationComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Écouter les nouveaux messages spécifiques à la conversation
-    this.messageSubscription = this.socketService.on<Message>('chat message').subscribe((msg) => {
-      if (msg.sender !== 'user' && this.user && msg.content) { // Filtrer les messages reçus
+    this.messageSubscription = this.socketService.on<MessageDto>('message').subscribe((msg) => {
+      if (msg.target_user !== this.user?.id && this.user && msg.content) { // Filtrer les messages reçus
         this.messages.push(msg);
       }
     });
@@ -55,13 +48,15 @@ export class ConversationComponent implements OnInit, OnDestroy {
         target_user: this.user.id,
         content: this.newMessage.trim(),
       };
-      this.socketService.emit('send message', messageDto);
-      this.messages.push({
-        id: this.messages.length + 1,
-        content: this.newMessage.trim(),
-        sender: 'user',
-        timestamp: new Date()
-      });
+      // this.socketService.emit('message', messageDto);
+      // this.messages.push({
+      //   message_id: this.messages.length + 1,
+      //   content: this.newMessage.trim(),
+      //   owner_user: 1,
+      //   target_user: 2,
+      //   created_at: new Date()
+      // });
+
       this.newMessage = '';
     }
   }
