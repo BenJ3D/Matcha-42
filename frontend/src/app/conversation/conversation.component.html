@@ -1,23 +1,36 @@
-<!-- src/app/conversation/conversation.component.html -->
+<!-- conversation.component.html -->
 <div class="conversation-container">
   <div class="conversation-header">
-    <button mat-icon-button (click)="close.emit()">
+    <button mat-icon-button (click)="closeConversation()">
       <mat-icon>arrow_back</mat-icon>
     </button>
     <h2>{{ user?.name }}</h2>
   </div>
   <div class="message-list" #scrollContainer>
-<!--    <div *ngFor="let message of messages"-->
-<!--         [ngClass]="{'message': true, 'user-message': message.target_user === 'user', 'other-message': message.owner_user === 'other'}">-->
-<!--      <div class="message-content">-->
-<!--        {{ message.content }}-->
-<!--        <div class="message-timestamp">{{ message.created_at | date:'shortTime' }}</div>-->
-<!--      </div>-->
-<!--    </div>-->
+    <div
+      *ngFor="let message of messages"
+      [ngClass]="{
+        message: true,
+        'user-message': message.owner_user === getCurrentUserId(),
+        'other-message': message.owner_user !== getCurrentUserId()
+      }"
+    >
+      <div class="message-content">
+        {{ message.content }}
+        <div class="message-timestamp">
+          {{ message.created_at | date: 'shortTime' }}
+        </div>
+      </div>
+    </div>
   </div>
   <div class="message-input">
     <mat-form-field appearance="outline" class="message-field">
-      <input matInput [(ngModel)]="newMessage" placeholder="Type a message..." (keyup.enter)="sendMessage()">
+      <input
+        matInput
+        [(ngModel)]="newMessage"
+        placeholder="Tapez un message..."
+        (keyup.enter)="sendMessage()"
+      />
       <button mat-icon-button matSuffix color="primary" (click)="sendMessage()">
         <mat-icon>send</mat-icon>
       </button>

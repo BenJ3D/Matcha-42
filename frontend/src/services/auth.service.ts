@@ -145,7 +145,7 @@ export class AuthService {
     }
   }
 
-  getCurrentUser(): Observable<UserResponseDto> {
+  getCurrentUser(): Observable<UserResponseDto| null> {
     if (!this.isBrowser) {
       return of(null as any);
     }

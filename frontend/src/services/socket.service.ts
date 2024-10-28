@@ -1,9 +1,10 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
-import { BehaviorSubject, Observable } from 'rxjs';
+import {BehaviorSubject, Observable, Subject} from 'rxjs';
 import { AuthService } from './auth.service';
 import { UserResponseDto } from '../DTOs/users/UserResponseDto';
 import { CreateMessageDto } from '../DTOs/chat/CreateMessageDto';
+import {Message} from "../models/Message";
 
 @Injectable({
   providedIn: 'root',
@@ -42,6 +43,7 @@ export class SocketService implements OnDestroy {
     this.socket.on('connect', () => {
       console.log('Connecté au serveur Socket.IO');
       this.socketConnected$.next(true);
+      this.registerSocketListeners();
     });
 
     this.socket.on('disconnect', (reason: string) => {
@@ -53,7 +55,9 @@ export class SocketService implements OnDestroy {
       console.error('Erreur de connexion Socket.IO:', error);
       this.socketConnected$.next(false);
     });
+
   }
+
 
   private disconnectSocket(): void {
     if (this.socket) {
@@ -90,4 +94,24 @@ export class SocketService implements OnDestroy {
   ngOnDestroy(): void {
     this.disconnectSocket();
   }
+
+
+
+  private messagesSubject = new Subject<Message>();
+  public messages$ = this.messagesSubject.asObservable();
+
+  private registerSocketListeners(): void {
+    this.socket.on('message', (data: Message) => {
+      console.log("Event Message : " + JSON.stringify(data));
+      this.messagesSubject.next(data);
+    });
+
+    this.socket.on('notification', (data: Message) => {
+      console.log("Event Notification : " + JSON.stringify(data));
+    });
+
+
+    //TODO: ajouter event notification + des Observables appropriés
+  }
+
 }

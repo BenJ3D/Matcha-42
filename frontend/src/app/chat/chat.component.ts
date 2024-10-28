@@ -1,22 +1,18 @@
+// chat.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { SocketService } from '../../services/socket.service';
+import { AuthService } from '../../services/auth.service';
+import { HttpClient } from '@angular/common/http';
+import { ChatUserDto } from '../../DTOs/chat/ChatUserDto';
+import { MessageDto } from '../../DTOs/chat/MessageDto';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { ConversationComponent } from '../conversation/conversation.component';
-import { Subscription } from 'rxjs';
-import { SocketService } from '../../services/socket.service';
-import { CreateMessageDto } from '../../DTOs/chat/CreateMessageDto';
-import { ChatUserDto } from "../../DTOs/chat/ChatUserDto";
-import { AuthService } from '../../services/auth.service';
-import { HttpClient } from '@angular/common/http';
-
-interface ChatMessage {
-  message_id: number;
-  content: string;
-  created_at: string;
-  owner_user: number;
-  target_user: number;
-}
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import {MatLine} from "@angular/material/core";
 
 @Component({
   selector: 'app-chat',
@@ -26,12 +22,15 @@ interface ChatMessage {
     MatListModule,
     MatIconModule,
     ConversationComponent,
+    MatCardModule,
+    MatButtonModule,
+    MatLine,
   ],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.scss'],
 })
 export class ChatComponent implements OnInit, OnDestroy {
-  messages: ChatMessage[] = [];
+  messages: MessageDto[] = [];
   chatUsers: ChatUserDto[] = [];
   selectedUser: ChatUserDto | null = null;
   newMessage: string = '';
@@ -48,15 +47,18 @@ export class ChatComponent implements OnInit, OnDestroy {
     // Récupérer la liste des matches via l'API
     this.fetchMatches();
 
-    // Écouter les événements 'message' émis par le backend
-    this.messageSubscription = this.socketService.on<ChatMessage>('message').subscribe((msg) => {
+    // S'abonner aux messages globaux
+    this.messageSubscription = this.socketService.messages$.subscribe((msg) => {
       // Vérifier si le message concerne l'utilisateur sélectionné
       if (
-        (msg.owner_user === this.authService.getCurrentUserId() && msg.target_user === this.selectedUser?.id) ||
-        (msg.owner_user === this.selectedUser?.id && msg.target_user === this.authService.getCurrentUserId())
+        (msg.owner_user === this.getCurrentUserId() && msg.target_user === this.selectedUser?.id) ||
+        (msg.owner_user === this.selectedUser?.id && msg.target_user === this.getCurrentUserId())
       ) {
         this.messages.push(msg);
       }
+
+      // Mettre à jour les indicateurs de messages non lus
+      this.updateUnreadCounts(msg);
     });
   }
 
@@ -81,7 +83,8 @@ export class ChatComponent implements OnInit, OnDestroy {
   selectConversation(user: ChatUserDto): void {
     this.selectedUser = user;
     this.fetchMessages(user.id);
-    // Optionnel : marquer les messages comme lus
+    // Réinitialiser le compteur de non lus pour cet utilisateur
+    user.unread = 0;
   }
 
   /**
@@ -89,7 +92,7 @@ export class ChatComponent implements OnInit, OnDestroy {
    * @param userId L'ID de l'utilisateur avec qui récupérer les messages.
    */
   fetchMessages(userId: number): void {
-    this.http.get<ChatMessage[]>(`http://localhost:8000/api/messages/${userId}`).subscribe({
+    this.http.get<MessageDto[]>(`http://localhost:8000/api/messages/${userId}`).subscribe({
       next: (msgs) => {
         this.messages = msgs;
       },
@@ -100,21 +103,33 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Envoie un message à l'utilisateur sélectionné.
+   * Met à jour le compteur de messages non lus pour les utilisateurs.
+   * @param msg Le message reçu.
+   */
+  private updateUnreadCounts(msg: MessageDto): void {
+    const otherUserId =
+      msg.owner_user === this.getCurrentUserId() ? msg.target_user : msg.owner_user;
+    const chatUser = this.chatUsers.find((user) => user.id === otherUserId);
+
+    if (chatUser && otherUserId !== this.selectedUser?.id) {
+      chatUser.unread = (chatUser.unread || 0) + 1;
+    }
+  }
+
+  /**
+   * Envoie un message à l'utilisateur sélectionné via une requête HTTP POST.
    */
   sendMessage(): void {
     if (this.newMessage.trim() && this.selectedUser) {
-      const messageDto: CreateMessageDto = {
+      const messageDto = {
         target_user: this.selectedUser.id,
         content: this.newMessage.trim(),
       };
 
-      this.http.post<ChatMessage>('http://localhost:8000/api/messages', messageDto).subscribe({
+      this.http.post<MessageDto>('http://localhost:8000/api/messages', messageDto).subscribe({
         next: (msg) => {
           // Ajouter le message à la liste localement
           this.messages.push(msg);
-          // Émettre l'événement via SocketService si nécessaire
-          // this.socketService.emit('send message', msg);
           this.newMessage = '';
         },
         error: (error) => {
@@ -139,5 +154,12 @@ export class ChatComponent implements OnInit, OnDestroy {
     if (this.userSubscription) {
       this.userSubscription.unsubscribe();
     }
+  }
+
+  /**
+   * Récupère l'ID de l'utilisateur actuel à partir de AuthService.
+   */
+  getCurrentUserId(): number {
+    return this.authService.getCurrentUserId();
   }
 }
