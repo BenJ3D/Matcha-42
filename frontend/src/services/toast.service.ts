@@ -17,4 +17,16 @@ export class ToastService {
 
     this.snackBar.open(message, action, defaultConfig);
   }
+
+  showWithAction(message: string, action: string, onAction: () => void, config?: MatSnackBarConfig): void {
+    const defaultConfig: MatSnackBarConfig = {
+      duration: 0,
+      verticalPosition: 'top',
+      horizontalPosition: 'center',
+    };
+    const snackBarRef = this.snackBar.open(message, action, defaultConfig);
+
+    snackBarRef.onAction().subscribe(() => {
+      onAction();
+    });
 }

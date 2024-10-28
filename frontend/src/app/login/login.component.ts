@@ -33,6 +33,7 @@ import { ToastService } from '../../services/toast.service';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
+
 export class LoginComponent {
   form: FormGroup;
   isLoading = false;
@@ -53,35 +54,29 @@ export class LoginComponent {
     if (this.form.valid) {
       this.isLoading = true;
       this.form.disable();
+
+      const loginData = this.form.value;
+
+      this.authService.login(loginData).subscribe({
+        next: (response) => {
+          this.isLoading = false;
+
+          localStorage.setItem('accessToken', response.accessToken);
+          localStorage.setItem('refreshToken', response.refreshToken);
+
+          this.router.navigate(['/home']);
+        },
+        error: (error) => {
+          console.log(error);
+          this.isLoading = false;
+          this.form.enable();
+        },
+        complete: () => {
+          console.log('Complete');
+        },
+      });
+      this.form.enable();
     }
-
-    const loginData = this.form.value;
-
-    this.authService.login(loginData).subscribe({
-      next: (response) => {
-        this.isLoading = false;
-
-        localStorage.setItem('accessToken', response.accessToken);
-        localStorage.setItem('refreshToken', response.refreshToken);
-
-        this.goToMain();
-      },
-      error: (error) => {
-        console.log(error);
-        this.isLoading = false;
-        this.form.enable();
-        const errorMessage = error.error?.error || 'An unexpected error occurred.';
-        this.toastService.show(errorMessage, 'Close');
-        // return `Error: ${error.message}`;
-      },
-      complete: () => {
-        console.log('Complete');
-      },
-    });
-  }
-
-  goToMain(): void {
-    this.router.navigate(['/home']);
   }
 
   loginWithGoogle(): void {
