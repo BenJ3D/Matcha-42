@@ -70,7 +70,8 @@ export class LoginComponent {
         console.log(error);
         this.isLoading = false;
         this.form.enable();
-        this.toastService.show(error.error.error, 'Close');
+        const errorMessage = error.error?.error || 'An unexpected error occurred.';
+        this.toastService.show(errorMessage, 'Close');
         // return `Error: ${error.message}`;
       },
       complete: () => {

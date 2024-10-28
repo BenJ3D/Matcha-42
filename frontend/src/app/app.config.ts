@@ -10,6 +10,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from '../services/auth.interceptor';
+import { HttpInterceptorService } from '../services/http.interceptor';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,7 +19,9 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(),
     provideAnimationsAsync(),
     provideHttpClient(
-      withInterceptors([authInterceptor])
+      withInterceptors([authInterceptor, HttpInterceptorService]), {
+        multi: true,
+      }
     ),
     importProvidersFrom([
       MatButtonModule,
@@ -25,6 +29,7 @@ export const appConfig: ApplicationConfig = {
       MatFormFieldModule,
       MatInputModule,
       MatIconModule,
+      MatSnackBarModule,
     ]),
   ],
 };
