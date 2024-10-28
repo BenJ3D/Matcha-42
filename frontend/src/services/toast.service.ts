@@ -28,7 +28,7 @@ export class ToastService {
     config?: MatSnackBarConfig
   ): void {
     const defaultConfig: MatSnackBarConfig = {
-      duration: 0,
+      duration: 8000,
       verticalPosition: 'top',
       horizontalPosition: 'center',
     };

@@ -12,7 +12,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error) => {
-      if (error.status === 401 && error.error?.message === 'Non autorisé : email utilisateur non vérifié') {
+      if (error.status === 401 && error.error?.error === 'Non autorisé : email utilisateur non vérifié') {
         console.log('Erreur de vérification d\'email détectée.');
         toastService.showWithAction(
           'Votre email n\'a pas été vérifié.',
