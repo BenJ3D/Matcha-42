@@ -38,8 +38,10 @@ export class AuthService {
     );
   }
 
-  resendVerificationEmail(): Observable<ResendVerificationResponse> {
-    return this.http.post<ResendVerificationResponse>(`${this.apiUrl}/verify-email/resend`, {});
+  resendVerificationEmail(): Observable<{ message: string }> {
+    return this.http.get<{ message: string }>(
+      `${this.apiUrl}/verify-email/resend`
+    );
   }
 
   signup(signupData: any): Observable<SignupResponse> {
