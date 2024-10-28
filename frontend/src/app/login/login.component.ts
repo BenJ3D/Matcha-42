@@ -53,7 +53,6 @@ export class LoginComponent {
   onSubmit(): void {
     if (this.form.valid) {
       this.isLoading = true;
-      this.form.disable();
 
       const loginData = this.form.value;
 
@@ -75,7 +74,6 @@ export class LoginComponent {
           console.log('Complete');
         },
       });
-      this.form.enable();
     }
   }
 
