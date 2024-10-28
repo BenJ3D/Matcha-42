@@ -14,6 +14,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -39,7 +40,8 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private toastService: ToastService
   ) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -68,7 +70,8 @@ export class LoginComponent {
         console.log(error);
         this.isLoading = false;
         this.form.enable();
-        return `Error: ${error.message}`;
+        this.toastService.show(error.error.error, 'Close');
+        // return `Error: ${error.message}`;
       },
       complete: () => {
         console.log('Complete');
