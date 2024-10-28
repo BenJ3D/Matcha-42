@@ -46,12 +46,16 @@ export class ConversationComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Écouter les messages globaux
+    // this.fetchMessages(this.getCurrentUserId());
     this.messageSubscription = this.socketService.messages$.subscribe((msg) => {
       if (
         (msg.owner_user === this.getCurrentUserId() && msg.target_user === this.user?.id) ||
         (msg.owner_user === this.user?.id && msg.target_user === this.getCurrentUserId())
       ) {
+        console.log('DBG message : ' + msg);
+
         this.messages.push(msg);
+        console.log('DBG messages[] : ' + JSON.stringify(this.messages));
         this.scrollToBottom();
       }
     });
@@ -70,7 +74,6 @@ export class ConversationComponent implements OnInit, OnDestroy {
       this.http.post<MessageDto>('http://localhost:8000/api/messages', messageDto).subscribe({
         next: (msg) => {
           // Ajouter le message localement
-          // this.messages.push(msg);
           this.newMessage = '';
           this.scrollToBottom();
         },
