@@ -35,6 +35,7 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.scss'],
 })
+
 export class SignupComponent {
   form: FormGroup;
   isLoading = false;
@@ -43,9 +44,9 @@ export class SignupComponent {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
   ) {
-    const formOptions: AbstractControlOptions = {
+    const formOptions = {
       validators: this.checkPasswords,
     };
 
@@ -96,15 +97,6 @@ export class SignupComponent {
         console.log(error);
         this.isLoading = false;
         this.form.enable();
-        
-        if (error.error && error.error.error) {
-          // The backend sends { "error": "..." }
-          this.signupError = error.error.error;
-        } else if (error.message) {
-          this.signupError = `Error: ${error.message}`;
-        } else {
-          this.signupError = 'Signup failed. Please try again.';
-        }
       },
       complete: () => {
         console.log('Complete');

@@ -55,11 +55,9 @@ export class ChatComponent implements OnInit, OnDestroy {
       ) {
         const messageExists = this.messages.some(m => m.message_id === msg.message_id);
         if (!messageExists) {
-          this.messages.push(msg);
-          // Trier les messages par date de création
-          this.messages.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+          this.messages = [...this.messages, msg].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
           this.scrollToBottom();
-          this.cdr.detectChanges(); // Rafraîchir la détection des changements
+          // Vous pouvez retirer `this.cdr.detectChanges();` ici car le changement de référence devrait suffire
         }
       }
 

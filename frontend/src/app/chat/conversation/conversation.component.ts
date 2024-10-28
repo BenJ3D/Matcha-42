@@ -46,21 +46,13 @@ export class ConversationComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Écouter les messages globaux
+
+    // S'abonner aux messages globaux
     this.messageSubscription = this.socketService.messages$.subscribe((msg) => {
-      if (
-        (msg.owner_user === this.getCurrentUserId() && msg.target_user === this.user?.id) ||
-        (msg.owner_user === this.user?.id && msg.target_user === this.getCurrentUserId())
-      ) {
-        const messageExists = this.messages.some(m => m.message_id === msg.message_id);
-        if (!messageExists) {
-          this.messages.push(msg);
-          this.messages.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-          this.scrollToBottom();
-          this.cdr.detectChanges();
-        }
-      }
+      this.scrollToBottom();
+      this.cdr.markForCheck(); // Demander une vérification des changements
     });
+
 
     // Scroll au bas lors du chargement initial
     this.scrollToBottom();

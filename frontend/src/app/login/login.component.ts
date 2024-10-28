@@ -1,23 +1,17 @@
 import { Component } from '@angular/core';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Router, RouterLink, RouterModule} from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { LoginDto } from '../../DTOs/login/LoginDto';
 import { LoginResponseDTO } from '../../DTOs/login/LoginResponseDTO';
-import {
-  MatCard,
-  MatCardActions,
-  MatCardContent,
-  MatCardHeader,
-  MatCardModule,
-  MatCardTitle
-} from "@angular/material/card";
-import {MatFormField, MatFormFieldModule, MatLabel} from "@angular/material/form-field";
-import {MatInput, MatInputModule} from "@angular/material/input";
-import {MatAnchor, MatButton, MatButtonModule} from "@angular/material/button";
-import {MatProgressSpinner, MatProgressSpinnerModule} from "@angular/material/progress-spinner";
-import {CommonModule, NgIf} from "@angular/common";
-import {MatIconModule} from "@angular/material/icon";
+import { Router, RouterModule } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { ToastService } from '../../services/toast.service';
+import {CommonModule} from "@angular/common";
 
 @Component({
   selector: 'app-login',
@@ -37,6 +31,7 @@ import {MatIconModule} from "@angular/material/icon";
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
+
 export class LoginComponent {
   form: FormGroup;
   isLoading = false;
@@ -45,41 +40,37 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private toastService: ToastService
   ) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(4)]],
+      password: ['', [Validators.required, Validators.minLength(5)]],
     });
   }
 
   onSubmit(): void {
     if (this.form.valid) {
       this.isLoading = true;
-      this.form.disable();
 
-      const loginData: LoginDto = this.form.value;
-      console.log('Step 1')
+      const loginData = this.form.value;
+
       this.authService.login(loginData).subscribe({
-        next: (response: LoginResponseDTO) => {
-      console.log('Step 2')
-          if (response && response.user.is_verified) {
-            // La connexion Socket est gérée automatiquement par le SocketService via AuthService
-            this.router.navigate(['/home']);
-          } else {
-            this.loginError = 'Votre compte n\'est pas vérifié.';
-            this.authService.logout();
-          }
+        next: (response) => {
           this.isLoading = false;
+
+          localStorage.setItem('accessToken', response.accessToken);
+          localStorage.setItem('refreshToken', response.refreshToken);
+
+          this.router.navigate(['/home']);
         },
         error: (error) => {
-          console.error('Erreur de connexion:', error);
-          this.loginError = error.error?.message || 'Erreur lors de la connexion.';
+          console.log(error);
           this.isLoading = false;
           this.form.enable();
         },
         complete: () => {
-          console.log('Connexion terminée');
+          console.log('Complete');
         },
       });
     }

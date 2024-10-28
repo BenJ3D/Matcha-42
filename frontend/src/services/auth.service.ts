@@ -10,6 +10,12 @@ import {Router} from "@angular/router";
 import { isPlatformBrowser } from '@angular/common';
 import bootstrap from "../main.server";
 
+
+
+interface SignupResponse {
+  userId: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -60,8 +66,14 @@ export class AuthService {
     );
   }
 
-  signup(signupData: any): Observable<SignupResponseDto> {
-    return this.http.post<SignupResponseDto>(`${this.apiUrl}/users`, signupData);
+  resendVerificationEmail(): Observable<{ message: string }> {
+    return this.http.get<{ message: string }>(
+      `${this.apiUrl}/verify-email/resend`
+    );
+  }
+
+  signup(signupData: any): Observable<SignupResponse> {
+    return this.http.post<SignupResponse>(`${this.apiUrl}/users`, signupData);
   }
 
   login(loginData: LoginDto): Observable<LoginResponseDTO> {
