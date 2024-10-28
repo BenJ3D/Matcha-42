@@ -1,18 +1,16 @@
-/* conversation.component.scss */
 .conversation-container {
   display: flex;
   flex-direction: column;
-  //height: 100%;
   height: 93vh;
   width: 100%;
 }
 
 .conversation-header {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   padding: 8px;
   border-bottom: 1px solid #ccc;
-  flex-shrink: 0;
 }
 
 .conversation-header h2 {
@@ -21,7 +19,7 @@
 }
 
 .message-list {
-  flex: 1;
+  flex: 1 1 auto;
   overflow-y: auto;
   padding: 16px;
   display: flex;
@@ -59,11 +57,11 @@
 }
 
 .message-input {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   padding: 8px;
   border-top: 1px solid #ccc;
-  flex-shrink: 0;
 }
 
 .message-input mat-form-field {
@@ -72,4 +70,19 @@
 
 .message-input button {
   margin-left: 8px;
+}
+
+/* Styles pour les petits écrans */
+@media (max-width: 600px) {
+  .conversation-container {
+    height: 93vh;
+  }
+
+  .conversation-header h2 {
+    font-size: 1.2em;
+  }
+
+  .message {
+    max-width: 90%;
+  }
 }

@@ -1,7 +1,8 @@
-/* chat.component.scss */
 .chat-container {
   display: flex;
+  flex: 1;
   height: calc(100vh - 56px);
+  width: 100%;
 }
 
 .chat-users-card {
@@ -9,6 +10,7 @@
   max-width: 300px;
   border-right: 1px solid #ccc;
   overflow-y: auto;
+  transition: transform 0.3s ease-in-out;
 }
 
 .chat-conversation-card {
@@ -28,4 +30,26 @@
   padding: 2px 6px;
   font-size: 12px;
   margin-left: auto;
+}
+
+/* Styles pour les petits écrans */
+@media (max-width: 600px) {
+  .chat-container {
+    flex-direction: column;
+  }
+
+  .chat-users-card {
+    width: 100%;
+    max-width: none;
+    border-right: none;
+    border-bottom: 1px solid #ccc;
+    /* Lorsque caché, déplacez hors de l'écran */
+    &.hidden {
+      display: none;
+    }
+  }
+
+  .chat-conversation-card {
+    width: 100%;
+  }
 }

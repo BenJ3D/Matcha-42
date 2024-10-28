@@ -1,21 +1,22 @@
-// conversation.component.ts
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { SocketService } from '../../services/socket.service';
-import { AuthService } from '../../services/auth.service';
-import { ChatUserDto } from '../../DTOs/chat/ChatUserDto';
-import { MessageDto } from '../../DTOs/chat/MessageDto';
-import { CreateMessageDto } from '../../DTOs/chat/CreateMessageDto';
+import { SocketService } from '../../../services/socket.service';
+import { AuthService } from '../../../services/auth.service';
+import { MessageDto } from '../../../DTOs/chat/MessageDto';
+import { CreateMessageDto } from '../../../DTOs/chat/CreateMessageDto';
 import { HttpClient } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { UserLightResponseDto } from "../../../DTOs/users/UserLightResponseDto";
+import { MatIconModule} from "@angular/material/icon";
+import {CommonModule, DatePipe, NgClass, NgForOf} from "@angular/common";
+import { MatFormFieldModule} from "@angular/material/form-field";
+import {FormsModule} from "@angular/forms";
+import {MatButtonModule} from "@angular/material/button";
+import { MatInputModule} from "@angular/material/input";
 
 @Component({
   selector: 'app-conversation',
+  templateUrl: './conversation.component.html',
+  styleUrls: ['./conversation.component.scss'],
   standalone: true,
   imports: [
     CommonModule,
@@ -25,40 +26,44 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatInputModule,
     MatFormFieldModule,
   ],
-  templateUrl: './conversation.component.html',
-  styleUrls: ['./conversation.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConversationComponent implements OnInit, OnDestroy {
-  @Input() user: ChatUserDto | null = null;
+  @Input() user: UserLightResponseDto | null = null;
+  @Input() messages: MessageDto[] = [];
   @Output() close = new EventEmitter<void>();
 
-  messages: MessageDto[] = [];
   newMessage: string = '';
   private messageSubscription!: Subscription;
 
-  @ViewChild('scrollContainer') scrollContainer!: ElementRef;
+  @ViewChild('messageList') messageList!: ElementRef;
 
   constructor(
     private socketService: SocketService,
     private authService: AuthService,
-    private http: HttpClient
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     // Écouter les messages globaux
-    // this.fetchMessages(this.getCurrentUserId());
     this.messageSubscription = this.socketService.messages$.subscribe((msg) => {
       if (
         (msg.owner_user === this.getCurrentUserId() && msg.target_user === this.user?.id) ||
         (msg.owner_user === this.user?.id && msg.target_user === this.getCurrentUserId())
       ) {
-        console.log('DBG message : ' + msg);
-
-        this.messages.push(msg);
-        console.log('DBG messages[] : ' + JSON.stringify(this.messages));
-        this.scrollToBottom();
+        const messageExists = this.messages.some(m => m.message_id === msg.message_id);
+        if (!messageExists) {
+          this.messages.push(msg);
+          this.messages.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+          this.scrollToBottom();
+          this.cdr.detectChanges();
+        }
       }
     });
+
+    // Scroll au bas lors du chargement initial
+    this.scrollToBottom();
   }
 
   /**
@@ -73,9 +78,10 @@ export class ConversationComponent implements OnInit, OnDestroy {
 
       this.http.post<MessageDto>('http://localhost:8000/api/messages', messageDto).subscribe({
         next: (msg) => {
-          // Ajouter le message localement
           this.newMessage = '';
           this.scrollToBottom();
+          this.cdr.detectChanges();
+          // Le message sera ajouté via le socket, donc pas besoin de l'ajouter ici
         },
         error: (error) => {
           console.error('Erreur lors de l\'envoi du message:', error);
@@ -89,10 +95,10 @@ export class ConversationComponent implements OnInit, OnDestroy {
    */
   private scrollToBottom(): void {
     setTimeout(() => {
-      if (this.scrollContainer && this.scrollContainer.nativeElement) {
-        this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
+      if (this.messageList && this.messageList.nativeElement) {
+        this.messageList.nativeElement.scrollTop = this.messageList.nativeElement.scrollHeight;
       }
-    }, 0);
+    }, 100);
   }
 
   /**
@@ -113,22 +119,5 @@ export class ConversationComponent implements OnInit, OnDestroy {
    */
   getCurrentUserId(): number {
     return this.authService.getCurrentUserId();
-  }
-
-  /**
-   * Récupère les messages de la conversation avec un utilisateur spécifique.
-   * Cette méthode peut être appelée depuis le composant parent.
-   * @param userId L'ID de l'utilisateur avec qui récupérer les messages.
-   */
-  fetchMessages(userId: number): void {
-    this.http.get<MessageDto[]>(`http://localhost:8000/api/messages/${userId}`).subscribe({
-      next: (msgs) => {
-        this.messages = msgs;
-        this.scrollToBottom();
-      },
-      error: (error) => {
-        console.error('Erreur lors de la récupération des messages:', error);
-      },
-    });
   }
 }
