@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {AuthService} from "../services/auth.service";
+import {SocketService} from "../services/socket.service";
 
 @Component({
   selector: 'app-root',
@@ -12,6 +13,6 @@ import {AuthService} from "../services/auth.service";
 })
 export class AppComponent {
   title = 'frontend';
-  constructor() {
+  constructor(private socketService: SocketService) {
   }
 }

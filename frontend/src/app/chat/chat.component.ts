@@ -6,7 +6,6 @@ import { ConversationComponent } from '../conversation/conversation.component';
 import { Subscription } from 'rxjs';
 import { SocketService } from '../../services/socket.service';
 import { CreateMessageDto } from '../../DTOs/chat/CreateMessageDto';
-import { UserResponseDto } from '../../DTOs/users/UserResponseDto';
 import { ChatUserDto } from "../../DTOs/chat/ChatUserDto";
 import { AuthService } from '../../services/auth.service';
 import { HttpClient } from '@angular/common/http';
@@ -27,7 +26,6 @@ interface ChatMessage {
     MatListModule,
     MatIconModule,
     ConversationComponent,
-    // Ajoutez d'autres modules nécessaires
   ],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.scss'],

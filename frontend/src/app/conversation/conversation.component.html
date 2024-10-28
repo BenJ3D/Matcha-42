@@ -7,13 +7,13 @@
     <h2>{{ user?.name }}</h2>
   </div>
   <div class="message-list" #scrollContainer>
-    <div *ngFor="let message of messages"
-         [ngClass]="{'message': true, 'user-message': message.target_user === 'user', 'other-message': message.owner_user === 'other'}">
-      <div class="message-content">
-        {{ message.content }}
-        <div class="message-timestamp">{{ message.created_at | date:'shortTime' }}</div>
-      </div>
-    </div>
+<!--    <div *ngFor="let message of messages"-->
+<!--         [ngClass]="{'message': true, 'user-message': message.target_user === 'user', 'other-message': message.owner_user === 'other'}">-->
+<!--      <div class="message-content">-->
+<!--        {{ message.content }}-->
+<!--        <div class="message-timestamp">{{ message.created_at | date:'shortTime' }}</div>-->
+<!--      </div>-->
+<!--    </div>-->
   </div>
   <div class="message-input">
     <mat-form-field appearance="outline" class="message-field">
