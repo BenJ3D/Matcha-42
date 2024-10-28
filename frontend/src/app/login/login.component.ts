@@ -45,7 +45,7 @@ export class LoginComponent {
   ) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(4)]],
+      password: ['', [Validators.required, Validators.minLength(5)]],
     });
   }
 
@@ -70,7 +70,8 @@ export class LoginComponent {
         console.log(error);
         this.isLoading = false;
         this.form.enable();
-        this.toastService.show(error.error.error, 'Close');
+        const errorMessage = error.error?.error || 'An unexpected error occurred.';
+        this.toastService.show(errorMessage, 'Close');
         // return `Error: ${error.message}`;
       },
       complete: () => {
