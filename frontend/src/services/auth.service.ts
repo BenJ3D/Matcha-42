@@ -1,16 +1,13 @@
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Injectable, Inject, PLATFORM_ID } from '@angular/core'
-import {BehaviorSubject, map, Observable, of, tap} from 'rxjs';
-import {LoginResponseDTO} from "../DTOs/login/LoginResponseDTO";
-import {catchError} from "rxjs/operators";
-import {UserResponseDto} from "../DTOs/users/UserResponseDto";
-import {LoginDto} from "../DTOs/login/LoginDto";
-import {SignupResponseDto} from "../DTOs/signup/SignupResponseDto";
-import {Router} from "@angular/router";
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
+import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
-import bootstrap from "../main.server";
-
-
+import { LoginResponseDTO } from "../DTOs/login/LoginResponseDTO";
+import { UserResponseDto } from "../DTOs/users/UserResponseDto";
+import { LoginDto } from "../DTOs/login/LoginDto";
+import { SignupResponseDto } from "../DTOs/signup/SignupResponseDto";
 
 interface SignupResponse {
   userId: number;
@@ -31,9 +28,7 @@ export class AuthService {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
-
     if (this.isBrowser) {
-      this.loadCurrentUser();
       const accessToken = localStorage.getItem('accessToken');
       const refreshToken = localStorage.getItem('refreshToken');
       if (accessToken && refreshToken) {
@@ -45,6 +40,13 @@ export class AuthService {
           }
         });
       }
+    }
+  }
+
+  // Méthode pour initialiser la récupération de l'utilisateur
+  initUser(): void {
+    if (this.isBrowser) {
+      this.loadCurrentUser();
     }
   }
 
@@ -77,10 +79,9 @@ export class AuthService {
   }
 
   login(loginData: LoginDto): Observable<LoginResponseDTO> {
-        console.log('hey');
     return this.http.post<LoginResponseDTO>(`${this.apiUrl}/login`, loginData).pipe(
       tap((response) => {
-        if(this.isBrowser) {
+        if (this.isBrowser) {
           localStorage.setItem('accessToken', response.accessToken);
           localStorage.setItem('refreshToken', response.refreshToken);
           console.log(response);
@@ -139,6 +140,7 @@ export class AuthService {
   private loadCurrentUser(): void {
     console.log('try load user (auth.service.ts:114)')
     const accessToken = localStorage.getItem('accessToken');
+    console.warn("accessToken ? : ", accessToken);
     if (accessToken) {
       // Récupérer les informations de l'utilisateur depuis le backend
       this.getCurrentUser().subscribe({
@@ -157,7 +159,7 @@ export class AuthService {
     }
   }
 
-  getCurrentUser(): Observable<UserResponseDto| null> {
+  getCurrentUser(): Observable<UserResponseDto | null> {
     if (!this.isBrowser) {
       return of(null as any);
     }
@@ -173,5 +175,4 @@ export class AuthService {
     const user = this.userSubject.value;
     return user ? user.id : 0; // Ajustez selon votre structure UserResponseDto
   }
-
 }

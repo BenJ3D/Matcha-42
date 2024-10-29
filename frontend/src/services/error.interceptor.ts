@@ -1,17 +1,17 @@
-// error.interceptor.ts
 import { HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { inject, Injector } from '@angular/core';
 import { ToastService } from './toast.service';
-import { AuthService } from './auth.service';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
+import {AuthService} from "./auth.service";
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const toastService = inject(ToastService);
-  const authService = inject(AuthService);
+  const injector = inject(Injector); // Injecter l'injecteur ici, au lieu d'injecter directement AuthService
 
   return next(req).pipe(
     catchError((error) => {
+      const authService = injector.get(AuthService); // Récupérer AuthService uniquement quand c'est nécessaire
       if (error.status === 401 && error.error?.error === 'Non autorisé : email utilisateur non vérifié') {
         console.log('Erreur de vérification d\'email détectée.');
         toastService.showWithAction(
