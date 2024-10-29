@@ -28,4 +28,9 @@ export const routes: Routes = [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
     ],
   },
+  {
+    path: 'edit-profile',
+    loadComponent: () => import('./edit-profile/edit-profile.component').then((m) => m.EditProfileComponent),
+    canActivate: [authGuard]
+  },
 ];
