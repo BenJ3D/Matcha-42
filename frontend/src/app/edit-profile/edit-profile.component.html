@@ -1,1 +1,52 @@
-<p>edit-profile works!</p>
+<!-- edit-profile.component.html -->
+<div class="edit-profile-container">
+	<mat-card>
+	  <mat-card-header>
+		<mat-card-title>Complétez votre profil</mat-card-title>
+	  </mat-card-header>
+	  <mat-card-content>
+		<form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+		  <!-- Biographie -->
+		  <mat-form-field appearance="outline">
+			<mat-label>Biographie</mat-label>
+			<textarea matInput formControlName="biography" rows="4" required></textarea>
+			<mat-error *ngIf="profileForm.get('biography')?.hasError('required')">
+			  La biographie est requise
+			</mat-error>
+		  </mat-form-field>
+  
+		  <!-- Genre -->
+		  <mat-form-field appearance="outline">
+			<mat-label>Genre</mat-label>
+			<mat-select formControlName="gender" required>
+			  <!-- Remplissez les options avec les genres disponibles -->
+			  <mat-option *ngFor="let gender of genders" [value]="gender.gender_id">
+				{{ gender.name }}
+			  </mat-option>
+			</mat-select>
+			<mat-error *ngIf="profileForm.get('gender')?.hasError('required')">
+			  Le genre est requis
+			</mat-error>
+		  </mat-form-field>
+  
+		  <!-- Âge -->
+		  <mat-form-field appearance="outline">
+			<mat-label>Âge</mat-label>
+			<input matInput type="number" formControlName="age" required>
+			<mat-error *ngIf="profileForm.get('age')?.hasError('required')">
+			  L'âge est requis
+			</mat-error>
+		  </mat-form-field>
+  
+		  <!-- Autres champs : main_photo_id, location, tags, sexualPreferences -->
+  
+		  <!-- Bouton de soumission -->
+		  <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid || isLoading">
+			<mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+			<span *ngIf="!isLoading">Enregistrer</span>
+		  </button>
+		</form>
+	  </mat-card-content>
+	</mat-card>
+  </div>
+  
