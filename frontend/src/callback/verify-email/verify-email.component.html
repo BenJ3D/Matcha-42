@@ -1,0 +1,13 @@
+<div class="verification-container">
+  <mat-card>
+    <mat-card-content>
+      @if (isLoading) {
+      <p>{{ verificationMessage }}</p>
+      <mat-spinner></mat-spinner>
+      } @else {
+      <p>{{ verificationMessage }}</p>
+      <button mat-button routerLink="/login">Go to Login</button>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

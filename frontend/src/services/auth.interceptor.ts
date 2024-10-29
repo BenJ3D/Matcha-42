@@ -9,5 +9,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       })
     : req;
 
+  console.log('Request:', clonedRequest);
   return next(clonedRequest);
 };

@@ -5,12 +5,28 @@
 	  </mat-card-header>
 	  <mat-card-content>
 		<form [formGroup]="form" (ngSubmit)="onSubmit()">
+		  <!-- Username Field -->
 		  <mat-form-field appearance="outline">
-			<mat-label>Name</mat-label>
-			<input matInput formControlName="name" required>
-			<mat-error *ngIf="form.get('name')?.hasError('required')">Name is required</mat-error>
+			<mat-label>Username</mat-label>
+			<input matInput formControlName="username" required>
+			<mat-error *ngIf="form.get('username')?.hasError('required')">Username is required</mat-error>
 		  </mat-form-field>
   
+		  <!-- First Name Field -->
+		  <mat-form-field appearance="outline">
+			<mat-label>First Name</mat-label>
+			<input matInput formControlName="first_name" required>
+			<mat-error *ngIf="form.get('first_name')?.hasError('required')">First Name is required</mat-error>
+		  </mat-form-field>
+  
+		  <!-- Last Name Field -->
+		  <mat-form-field appearance="outline">
+			<mat-label>Last Name</mat-label>
+			<input matInput formControlName="last_name" required>
+			<mat-error *ngIf="form.get('last_name')?.hasError('required')">Last Name is required</mat-error>
+		  </mat-form-field>
+  
+		  <!-- Email Field -->
 		  <mat-form-field appearance="outline">
 			<mat-label>Email</mat-label>
 			<input matInput type="email" formControlName="email" required>
@@ -18,11 +34,14 @@
 			<mat-error *ngIf="form.get('email')?.hasError('email')">Invalid email format</mat-error>
 		  </mat-form-field>
   
+		  <!-- Password Fields -->
 		  <mat-form-field appearance="outline">
 			<mat-label>Password</mat-label>
 			<input matInput type="password" formControlName="password" required>
 			<mat-error *ngIf="form.get('password')?.hasError('required')">Password is required</mat-error>
-			<mat-error *ngIf="form.get('password')?.hasError('minlength')">Password must be at least 5 characters long</mat-error>
+			<mat-error *ngIf="form.get('password')?.hasError('minlength')">
+			  Password must be at least 5 characters long
+			</mat-error>
 		  </mat-form-field>
   
 		  <mat-form-field appearance="outline">
@@ -32,11 +51,13 @@
 			<mat-error *ngIf="form.hasError('notSame')">Passwords do not match</mat-error>
 		  </mat-form-field>
   
+		  <!-- Sign Up Button -->
 		  <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || isLoading">
 			<mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
 			<span *ngIf="!isLoading">Sign Up</span>
 		  </button>
   
+		  <!-- Google Sign Up Button -->
 		  <button mat-stroked-button type="button" (click)="signupWithGoogle()" class="google-signup">
 			<mat-icon>login</mat-icon>
 			Sign up with Google
@@ -48,3 +69,4 @@
 	  </mat-card-actions>
 	</mat-card>
   </div>
+  

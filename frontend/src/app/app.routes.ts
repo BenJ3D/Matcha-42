@@ -4,6 +4,10 @@ import { authGuard } from '../services/auth.guard';
 
 export const routes: Routes = [
   {
+    path: 'callback/verify-email',
+    loadComponent: () => import('../callback/verify-email/verify-email.component').then((m) => m.VerifyEmailComponent),
+  },
+  {
     path: 'login',
     loadComponent: () => import('./login/login.component').then((m) => m.LoginComponent),
   },

@@ -21,7 +21,7 @@ const app = express();
 
 // Configurer CORS
 app.use(cors({
-    origin: 'http://localhost:4200',
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
 }));
@@ -78,7 +78,7 @@ const httpServer = createServer(app);
 // Configurer CORS pour SocketIO
 const io = new Server(httpServer, {
     cors: {
-        origin: "http://localhost:4200",
+        origin: "*",
         methods: ["GET", "POST"]
     }
 });

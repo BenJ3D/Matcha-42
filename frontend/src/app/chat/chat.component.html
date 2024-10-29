@@ -1,19 +1,29 @@
-<div class="chat-container" [ngClass]="{'conversation-selected': selectedUser}">
-	<div class="conversation-list">
-	  <mat-list>
-		<mat-list-item *ngFor="let user of chatUsers" (click)="selectConversation(user)">
-		  <div class="conversation-item">
-			<mat-icon matListAvatar>account_circle</mat-icon>
-			<span class="user-name">{{ user.name }}</span>
-			<span class="unread-badge" *ngIf="user.unread > 0">{{ user.unread }}</span>
-		  </div>
-		</mat-list-item>
-	  </mat-list>
-	</div>
-	<app-conversation 
-	  *ngIf="selectedUser" 
-	  [user]="selectedUser"
-	  (close)="closeConversation()"
-	></app-conversation>
-  </div>
-  
+<div class="chat-container">
+  <mat-card
+    class="chat-users-card"
+    [class.hidden]="isMobile && selectedUser"
+  >
+    <mat-card-header>
+      <mat-card-title>Chats</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-list>
+        <mat-list-item
+          *ngFor="let user of chatUsers"
+          (click)="selectConversation(user)"
+          [class.selected]="user === selectedUser"
+        >
+          <div class="text-2xl">{{user.username}}</div>
+        </mat-list-item>
+      </mat-list>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="chat-conversation-card" *ngIf="selectedUser">
+    <app-conversation
+      [user]="selectedUser"
+      [messages]="messages"
+      (close)="closeConversation()">
+    </app-conversation>
+  </mat-card>
+</div>
