@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { authGuard } from '../services/auth.guard';
+import {PageNotFoundComponent} from "./page-not-found/page-not-found.component";
 
 export const routes: Routes = [
   {
@@ -26,6 +27,7 @@ export const routes: Routes = [
       { path: 'notification', loadComponent: () => import('./notification/notification.component').then(m => m.NotificationComponent), canActivate: [authGuard] },
       { path: 'profile', loadComponent: () => import('./profile/profile.component').then(m => m.ProfileComponent), canActivate: [authGuard] },
       { path: '', redirectTo: 'home', pathMatch: 'full' },
+      { path: '**', component: PageNotFoundComponent }
     ],
   },
 ];

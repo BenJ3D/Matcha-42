@@ -9,6 +9,7 @@ import {MatCardModule} from "@angular/material/card";
 import {MatListModule} from "@angular/material/list";
 import {ConversationComponent} from "./conversation/conversation.component";
 import {CommonModule, NgForOf, NgIf} from "@angular/common";
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
   selector: 'app-chat',
@@ -23,6 +24,8 @@ import {CommonModule, NgForOf, NgIf} from "@angular/common";
   standalone: true
 })
 export class ChatComponent implements OnInit, OnDestroy {
+  private route: ActivatedRoute
+
   messages: MessageDto[] = [];
   chatUsers: UserLightResponseDto[] = [];
   selectedUser: UserLightResponseDto | null = null;

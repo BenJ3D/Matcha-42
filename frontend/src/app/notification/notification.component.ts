@@ -5,7 +5,7 @@ import {CommonModule} from "@angular/common";
 import {MatListModule} from "@angular/material/list";
 import {MatIconModule} from "@angular/material/icon";
 import {Router} from "@angular/router";
-import {NotificationsReceiveDto} from "../../DTOs/notifications/NotificationsReceiveDto"; // Assurez-vous de définir ce DTO
+import {NotificationsReceiveDto} from "../../DTOs/notifications/NotificationsReceiveDto";
 
 @Component({
   selector: 'app-notification',
