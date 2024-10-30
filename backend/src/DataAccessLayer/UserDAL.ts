@@ -494,6 +494,31 @@ class UserDAL {
         }
     }
 
+    async getUsernameByUserId(userId: number): Promise<string | undefined> {
+        try {
+            const user = await db('users')
+                .select('username')
+                .where('id', userId)
+                .first();
+
+            return user?.username;
+        } catch (error: any) {
+            console.error("Erreur lors de la récupération de l'utilisateur :", error);
+            throw error; // Relance l'erreur pour qu'elle puisse être gérée par l'appelant
+        }
+    }
+
+    async getFirstnameByUserId(userId: number): Promise<string | undefined> {
+        try {
+            return db('users').where('id', userId).select('first_name').first();
+        } catch (e: any) {
+            if (e.status === 404) {  // Cas où l'utilisateur n'est pas trouvé
+                console.error("Erreur: utilisateur non trouvé.", e);
+                throw e;  // La relancer directement
+            }
+        }
+    }
+
     async validateUser(userId: number): Promise<void> {
         try {
             await db('users').where('id', userId).update('is_verified', true);

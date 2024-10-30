@@ -5,6 +5,7 @@ import {IJwtPayload} from '../types/IJwtPayload';
 import userServices from "../services/UserServices";
 import {UserResponseDto} from "../DTOs/users/UserResponseDto";
 import UserServices from "../services/UserServices";
+import notificationEventHandler from "./events/notification";
 
 const initializeSockets = (io: Server) => {
     io.use(async (socket: Socket, next) => {
@@ -41,6 +42,8 @@ const initializeSockets = (io: Server) => {
             userServices.setOnlineUser(userId);
         }
         onlineUsers.get(userId)!.add(socket);
+
+        notificationEventHandler(socket, io);
 
         // Gérer la déconnexion
         socket.on("disconnect", () => {

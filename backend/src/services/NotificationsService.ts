@@ -1,6 +1,9 @@
 import NotificationsDAL from '../DataAccessLayer/NotificationsDAL';
 import {NotificationType, Notification} from '../models/Notifications';
 import {onlineUsers} from '../sockets/events/onlineUsers';
+import {NotificationEmitDto} from "../DTOs/notification/NotificationEmitDto";
+import UserServices from "./UserServices";
+import UserDAL from "../DataAccessLayer/UserDAL";
 
 class NotificationsService {
     async createNotification(
@@ -8,16 +11,17 @@ class NotificationsService {
         sourceUserId: number,
         type: NotificationType
     ): Promise<Notification> {
+        const source_username = await UserDAL.getUsernameByUserId(sourceUserId);
         const notification = await NotificationsDAL.createNotification(
             targetUserId,
             sourceUserId,
+            source_username ?? 'Bifrost63',
             type
         );
 
         // Vérifier si l'utilisateur cible est en ligne
         const userSockets = onlineUsers.get(targetUserId);
         if (userSockets) {
-
             userSockets.forEach((socket) => {
                 socket.emit('notification', notification);
             });

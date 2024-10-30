@@ -5,6 +5,7 @@ class NotificationsDAL {
     async createNotification(
         targetUserId: number,
         sourceUserId: number,
+        sourceUserName: string,
         type: NotificationType
     ): Promise<Notification> {
         try {
@@ -15,6 +16,7 @@ class NotificationsDAL {
                     type,
                     has_read: false,
                     notified_at: new Date(),
+                    source_username: sourceUserName,
                 })
                 .returning('*');
 
@@ -54,7 +56,7 @@ class NotificationsDAL {
         try {
             await db('notifications')
                 .whereIn('notification_id', notificationIds)
-                .andWhere('target_user', userId)
+                .andWhere('target_user', userId) //evite qu'un autre user puisse modifier cette notification
                 .update({has_read: true});
         } catch (error) {
             console.error('Error updating notifications:', error);
@@ -69,7 +71,7 @@ class NotificationsDAL {
         try {
             await db('notifications')
                 .where('notification_id', notificationId)
-                .andWhere('target_user', userId)
+                .andWhere('target_user', userId) //evite qu'un autre user puisse supprimer cette notification
                 .del();
         } catch (error) {
             console.error('Error deleting notification:', error);

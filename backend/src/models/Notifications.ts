@@ -13,6 +13,7 @@ export interface Notification {
     type: NotificationType;
     target_user: number;
     source_user: number;
+    source_username: string;
     content: string | null;
     notified_at: Date;
     has_read: boolean;
