@@ -21,12 +21,12 @@ export const routes: Routes = [
     component: DashboardComponent,
     canActivate: [authGuard],
     children: [
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: 'home', loadComponent: () => import('./home/home.component').then(m => m.HomeComponent), canActivate: [authGuard] },
       { path: 'nearby', loadComponent: () => import('./nearby/nearby.component').then(m => m.NearbyComponent), canActivate: [authGuard] },
       { path: 'chat', loadComponent: () => import('./chat/chat.component').then(m => m.ChatComponent), canActivate: [authGuard] },
       { path: 'notification', loadComponent: () => import('./notification/notification.component').then(m => m.NotificationComponent), canActivate: [authGuard] },
       { path: 'profile', loadComponent: () => import('./profile/profile.component').then(m => m.ProfileComponent), canActivate: [authGuard] },
-      { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: '**', component: PageNotFoundComponent }
     ],
   },

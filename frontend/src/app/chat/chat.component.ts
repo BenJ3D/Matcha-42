@@ -24,7 +24,6 @@ import {ActivatedRoute} from "@angular/router";
   standalone: true
 })
 export class ChatComponent implements OnInit, OnDestroy {
-  private route: ActivatedRoute
 
   messages: MessageDto[] = [];
   chatUsers: UserLightResponseDto[] = [];
@@ -38,7 +37,9 @@ export class ChatComponent implements OnInit, OnDestroy {
     private socketService: SocketService,
     private authService: AuthService,
     private http: HttpClient,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute
+
   ) {}
 
   ngOnInit(): void {
@@ -46,6 +47,13 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     // Récupérer la liste des matches via l'API
     this.fetchMatches();
+
+    this.route.queryParams.subscribe(params => {
+      const userId = +params['id']; // Convertir en nombre
+      if (userId) {
+        this.selectConversationById(userId);
+      }
+    });
 
     // S'abonner aux messages globaux
     this.messageSubscription = this.socketService.messages$.subscribe((msg) => {
@@ -84,17 +92,42 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Sélectionne une conversation en fonction de l'ID de l'utilisateur.
+   * @param userId L'ID de l'utilisateur avec qui ouvrir la conversation.
+   */
+  selectConversationById(userId: number): void {
+    const user = this.chatUsers.find(u => u.id === userId);
+    if (user) {
+      this.selectConversation(user);
+    } else {
+      // Si l'utilisateur n'est pas encore chargé, attendre que les matches soient récupérés
+      this.fetchMatches().then(() => {
+        const userAfterFetch = this.chatUsers.find(u => u.id === userId);
+        if (userAfterFetch) {
+          this.selectConversation(userAfterFetch);
+        } else {
+          console.warn(`Utilisateur avec ID ${userId} non trouvé.`);
+        }
+      });
+    }
+  }
+
+  /**
    * Récupère la liste des utilisateurs avec qui l'utilisateur est en match.
    */
-  fetchMatches(): void {
-    this.http.get<UserLightResponseDto[]>('http://localhost:8000/api/matches').subscribe({
-      next: (users) => {
-        this.chatUsers = users;
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('Erreur lors de la récupération des matches:', error);
-      },
+  fetchMatches(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.http.get<UserLightResponseDto[]>('http://localhost:8000/api/matches').subscribe({
+        next: (users) => {
+          this.chatUsers = users;
+          this.cdr.detectChanges();
+          resolve();
+        },
+        error: (error) => {
+          console.error('Erreur lors de la récupération des matches:', error);
+          reject(error);
+        },
+      });
     });
   }
 

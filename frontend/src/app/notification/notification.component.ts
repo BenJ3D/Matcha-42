@@ -34,7 +34,7 @@ export class NotificationComponent implements OnInit, OnDestroy {
   onNotificationClick(notification: NotificationsReceiveDto): void {
     if (!notification.has_read) {
       notification.has_read = true;
-      // Émettre un événement pour notifier le serveur que la notification a été lue
+      // Émettre un événement pour notifier le serveur que la notification a été lue TODO
       this.socketService.emit('notification read', { id: notification.notification_id });
     }
     this.navigateToRelevantPage(notification);
@@ -47,7 +47,8 @@ export class NotificationComponent implements OnInit, OnDestroy {
       case 'UNLIKE':
       case 'MATCH':
       case 'NEW_MESSAGE':
-        this.router.navigate(['/chat', notification.notification_id]);
+        console.log('Naviguer vers /chat avec id:', notification.source_user);
+        this.router.navigate(['/chat'], { queryParams: { id: notification.source_user } });
         break;
       case 'NEW_VISIT':
 
