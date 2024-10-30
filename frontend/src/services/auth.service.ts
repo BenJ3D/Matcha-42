@@ -20,7 +20,7 @@ export class AuthService {
   private apiUrl = 'http://localhost:8000/api';
   private userSubject = new BehaviorSubject<UserResponseDto | null>(null);
   public user$ = this.userSubject.asObservable();
-  private isBrowser: boolean;
+  private readonly isBrowser: boolean;
 
   constructor(
     private http: HttpClient,
@@ -138,11 +138,8 @@ export class AuthService {
   }
 
   private loadCurrentUser(): void {
-    console.log('try load user (auth.service.ts:114)')
     const accessToken = localStorage.getItem('accessToken');
-    console.warn("accessToken ? : ", accessToken);
     if (accessToken) {
-      // Récupérer les informations de l'utilisateur depuis le backend
       this.getCurrentUser().subscribe({
         next: (user) => {
           if (user && user.is_verified) {

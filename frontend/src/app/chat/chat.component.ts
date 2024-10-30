@@ -31,8 +31,6 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   private messageSubscription!: Subscription;
 
-  @ViewChild('messageList') messageList!: ElementRef;
-
   constructor(
     private socketService: SocketService,
     private authService: AuthService,
@@ -56,7 +54,6 @@ export class ChatComponent implements OnInit, OnDestroy {
         const messageExists = this.messages.some(m => m.message_id === msg.message_id);
         if (!messageExists) {
           this.messages = [...this.messages, msg].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-          this.scrollToBottom();
           // Vous pouvez retirer `this.cdr.detectChanges();` ici car le changement de référence devrait suffire
         }
       }
@@ -122,7 +119,6 @@ export class ChatComponent implements OnInit, OnDestroy {
         this.messages = msgs.messages;
         // Trier les messages par date de création
         this.messages.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-        this.scrollToBottom();
         this.cdr.detectChanges();
       },
       error: (error) => {
@@ -158,7 +154,6 @@ export class ChatComponent implements OnInit, OnDestroy {
       this.http.post<MessageDto>('http://localhost:8000/api/messages', messageDto).subscribe({
         next: (msg) => {
           this.newMessage = '';
-          this.scrollToBottom();
           this.cdr.detectChanges();
           // Le message sera ajouté via le socket, donc pas besoin de l'ajouter ici
         },
@@ -192,14 +187,4 @@ export class ChatComponent implements OnInit, OnDestroy {
     return this.authService.getCurrentUserId();
   }
 
-  /**
-   * Fait défiler automatiquement la liste des messages vers le bas.
-   */
-  private scrollToBottom(): void {
-    setTimeout(() => {
-      if (this.messageList && this.messageList.nativeElement) {
-        this.messageList.nativeElement.scrollTop = this.messageList.nativeElement.scrollHeight;
-      }
-    }, 100);
-  }
 }
