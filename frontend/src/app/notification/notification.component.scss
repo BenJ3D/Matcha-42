@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 .notification-container {
   display: flex;
   flex-direction: column;
@@ -34,6 +38,16 @@ h1 {
   flex: 1;
   display: flex;
   flex-direction: column;
+}
+
+.delete-icon {
+  cursor: pointer;
+  margin-left: auto;
+  color: gray;
+}
+
+.delete-icon:hover {
+  color: red;
 }
 
 .description {
