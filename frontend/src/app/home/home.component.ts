@@ -76,9 +76,9 @@ export class HomeComponent implements AfterViewInit {
         console.log('Profils après mapping:', this.profiles);
       },
       error: (error) => {
-        if (error.error?.error == 'Profil non trouvé') {
-          this.router.navigate(['/profile'])
-        }
+        // if (error.error?.error == 'Profil non trouvé') {
+        //   this.router.navigate(['/profile'])
+        // }
         console.error('Erreur lors de la récupération des profils:', error);
       }
     });
