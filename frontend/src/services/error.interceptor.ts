@@ -1,25 +1,25 @@
-import { HttpInterceptorFn } from '@angular/common/http';
-import { inject, Injector } from '@angular/core';
-import { ToastService } from './toast.service';
-import { catchError } from 'rxjs/operators';
-import { throwError } from 'rxjs';
+import {HttpInterceptorFn} from '@angular/common/http';
+import {inject, Injector} from '@angular/core';
+import {ToastService} from './toast.service';
+import {catchError} from 'rxjs/operators';
+import {throwError} from 'rxjs';
 import {AuthService} from "./auth.service";
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const toastService = inject(ToastService);
-  const injector = inject(Injector); // Injecter l'injecteur ici, au lieu d'injecter directement AuthService
+  const injector = inject(Injector); // Inject the injector here, instead of directly injecting AuthService
 
   return next(req).pipe(
     catchError((error) => {
-      const authService = injector.get(AuthService); // Récupérer AuthService uniquement quand c'est nécessaire
-      if (error.status === 401 && error.error?.error === 'Non autorisé : email utilisateur non vérifié') {
-        console.log('Erreur de vérification d\'email détectée.');
+      const authService = injector.get(AuthService); // Retrieve AuthService only when necessary
+      if (error.status === 401 && error.error?.error === 'Unauthorized: user email not verified') {
+        console.log('Email verification error detected.');
         toastService.showWithAction(
-          'Votre email n\'a pas été vérifié.',
+          'Your email has not been verified.',
           'Resend',
           () => authService.resendVerificationEmail().subscribe({
-            next: () => toastService.show('Email de vérification renvoyé avec succès.', 'Close'),
-            error: (err) => toastService.show('Erreur lors du renvoi de l\'email.', 'Close')
+            next: () => toastService.show('Verification email resent successfully.', 'Close'),
+            error: (err) => toastService.show('Error resending the email.', 'Close')
           })
         );
       } else if (error.status >= 400 && error.status < 500) {
@@ -27,8 +27,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           error.error?.error ||
           error.error?.message ||
           error.message ||
-          'Une erreur inattendue est survenue.';
-        toastService.show(errorMessage, 'Fermer');
+          'An unexpected error occurred.';
+        toastService.show(errorMessage, 'Close');
       }
       return throwError(() => error);
     })
