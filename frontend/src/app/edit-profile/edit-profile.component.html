@@ -1,52 +1,98 @@
 <!-- edit-profile.component.html -->
 <div class="edit-profile-container">
-	<mat-card>
-	  <mat-card-header>
-		<mat-card-title>Complétez votre profil</mat-card-title>
-	  </mat-card-header>
-	  <mat-card-content>
-		<form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
-		  <!-- Biographie -->
-		  <mat-form-field appearance="outline">
-			<mat-label>Biographie</mat-label>
-			<textarea matInput formControlName="biography" rows="4" required></textarea>
-			<mat-error *ngIf="profileForm.get('biography')?.hasError('required')">
-			  La biographie est requise
-			</mat-error>
-		  </mat-form-field>
-  
-		  <!-- Genre -->
-		  <mat-form-field appearance="outline">
-			<mat-label>Genre</mat-label>
-			<mat-select formControlName="gender" required>
-			  <!-- Remplissez les options avec les genres disponibles -->
-			  <mat-option *ngFor="let gender of genders" [value]="gender.gender_id">
-				{{ gender.name }}
-			  </mat-option>
-			</mat-select>
-			<mat-error *ngIf="profileForm.get('gender')?.hasError('required')">
-			  Le genre est requis
-			</mat-error>
-		  </mat-form-field>
-  
-		  <!-- Âge -->
-		  <mat-form-field appearance="outline">
-			<mat-label>Âge</mat-label>
-			<input matInput type="number" formControlName="age" required>
-			<mat-error *ngIf="profileForm.get('age')?.hasError('required')">
-			  L'âge est requis
-			</mat-error>
-		  </mat-form-field>
-  
-		  <!-- Autres champs : main_photo_id, location, tags, sexualPreferences -->
-  
-		  <!-- Bouton de soumission -->
-		  <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid || isLoading">
-			<mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
-			<span *ngIf="!isLoading">Enregistrer</span>
-		  </button>
-		</form>
-	  </mat-card-content>
-	</mat-card>
-  </div>
-  
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Editez votre profil</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+        <!-- Biographie -->
+        <mat-form-field appearance="outline">
+          <mat-label>Biographie</mat-label>
+          <textarea matInput formControlName="biography" rows="4" required></textarea>
+          <mat-error *ngIf="profileForm.get('biography')?.hasError('required')">
+            La biographie est requise
+          </mat-error>
+          <mat-error *ngIf="profileForm.get('biography')?.hasError('maxlength')">
+            La biographie ne doit pas dépasser 1024 caractères
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Genre -->
+        <mat-form-field appearance="outline">
+          <mat-label>Genre</mat-label>
+          <mat-select formControlName="gender" required>
+            <mat-option *ngFor="let gender of genders" [value]="gender.gender_id">
+              {{ gender.name }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="profileForm.get('gender')?.hasError('required')">
+            Le genre est requis
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Préférences sexuelles -->
+        <mat-form-field appearance="outline">
+          <mat-label>Préférences sexuelles</mat-label>
+          <mat-select formControlName="sexualPreferences" multiple required>
+            <mat-option *ngFor="let preference of genders" [value]="preference.gender_id">
+              {{ preference.name }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="profileForm.get('sexualPreferences')?.hasError('required')">
+            Les préférences sexuelles sont requises
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Âge -->
+        <mat-form-field appearance="outline">
+          <mat-label>Âge</mat-label>
+          <input matInput type="number" formControlName="age" required>
+          <mat-error *ngIf="profileForm.get('age')?.hasError('required')">
+            L'âge est requis
+          </mat-error>
+          <mat-error *ngIf="profileForm.get('age')?.hasError('min')">
+            L'âge minimum est de 18 ans
+          </mat-error>
+          <mat-error *ngIf="profileForm.get('age')?.hasError('max')">
+            L'âge maximum est de 120 ans
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Tags (Intérêts) -->
+        <mat-form-field appearance="outline">
+          <mat-label>Tags (Intérêts)</mat-label>
+          <mat-select formControlName="tags" multiple>
+            <mat-option *ngFor="let tag of tags" [value]="tag.tag_id">
+              {{ tag.tag_name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Ville -->
+        <mat-form-field appearance="outline">
+          <mat-label>Ville</mat-label>
+          <input matInput formControlName="city" required>
+          <mat-error *ngIf="profileForm.get('city')?.hasError('required')">
+            La ville est requise
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Bouton de soumission -->
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="profileForm.invalid || isLoading"
+        >
+          <mat-progress-spinner
+            *ngIf="isLoading"
+            diameter="20"
+            mode="indeterminate"
+          ></mat-progress-spinner>
+          <span *ngIf="!isLoading">Enregistrer</span>
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

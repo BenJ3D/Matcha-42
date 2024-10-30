@@ -17,7 +17,10 @@ export class ProfileGuard implements CanActivate {
   canActivate(): Observable<boolean> {
     return this.profileService.getMyProfile().pipe(
       map(profile => {
-        return true;
+        if (profile) {
+          return true;
+        }
+        return false;
       }),
       catchError(error => {
         if (error.status === 404) {
