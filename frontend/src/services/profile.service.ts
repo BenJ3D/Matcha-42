@@ -7,6 +7,7 @@ import { ProfileUpdateDto } from '../DTOs/profiles/ProfileUpdateDto';
 import { ProfileResponseDto } from '../DTOs/profiles/ProfileResponseDto';
 import { Gender } from '../models/Genders'
 import { Tag } from '../models/Tags';
+import { UserResponseDto } from '../DTOs/users/UserResponseDto';
 
 @Injectable({
   providedIn: 'root',
@@ -20,8 +21,8 @@ export class ProfileService {
     return this.http.post<{ profileId: number }>(`${this.apiUrl}/profiles`, profileData);
   }
 
-  getMyProfile(): Observable<ProfileResponseDto> {
-    return this.http.get<ProfileResponseDto>(`${this.apiUrl}/users/me`);
+  getMyProfile(): Observable<UserResponseDto> {
+    return this.http.get<UserResponseDto>(`${this.apiUrl}/users/me`);
   }
 
   updateProfile(profileData: ProfileUpdateDto): Observable<void> {
