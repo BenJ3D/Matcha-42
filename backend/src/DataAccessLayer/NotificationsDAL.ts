@@ -6,7 +6,7 @@ class NotificationsDAL {
         targetUserId: number,
         sourceUserId: number,
         type: NotificationType
-    ): Promise<number> {
+    ): Promise<Notification> {
         try {
             const [notification] = await db('notifications')
                 .insert({
@@ -16,9 +16,9 @@ class NotificationsDAL {
                     has_read: false,
                     notified_at: new Date(),
                 })
-                .returning('notification_id');
+                .returning('*');
 
-            return notification.notification_id;
+            return notification;
         } catch (error) {
             console.error('Error creating notification:', error);
             throw new Error('Could not create notification');

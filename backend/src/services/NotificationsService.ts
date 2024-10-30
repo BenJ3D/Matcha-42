@@ -7,8 +7,8 @@ class NotificationsService {
         targetUserId: number,
         sourceUserId: number,
         type: NotificationType
-    ): Promise<number> {
-        const notificationId = await NotificationsDAL.createNotification(
+    ): Promise<Notification> {
+        const notification = await NotificationsDAL.createNotification(
             targetUserId,
             sourceUserId,
             type
@@ -17,15 +17,12 @@ class NotificationsService {
         // Vérifier si l'utilisateur cible est en ligne
         const userSockets = onlineUsers.get(targetUserId);
         if (userSockets) {
+
             userSockets.forEach((socket) => {
-                socket.emit('notification', {
-                    notification_id: notificationId,
-                    type,
-                    source_user_id: sourceUserId,
-                });
+                socket.emit('notification', notification);
             });
         }
-        return notificationId;
+        return notification;
     }
 
     async getNotificationsForUser(
