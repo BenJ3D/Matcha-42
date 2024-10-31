@@ -7,11 +7,11 @@ import {AuthService} from "./auth.service";
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const toastService = inject(ToastService);
-  const injector = inject(Injector); // Injecter l'injecteur ici, au lieu d'injecter directement AuthService
+  const injector = inject(Injector);
 
   return next(req).pipe(
     catchError((error) => {
-      const authService = injector.get(AuthService); // Récupérer AuthService uniquement quand c'est nécessaire
+      const authService = injector.get(AuthService);
       if (error.status === 401 && error.error?.error === 'Non autorisé : email utilisateur non vérifié') {
         console.log('Erreur de vérification d\'email détectée.');
         toastService.showWithAction(
