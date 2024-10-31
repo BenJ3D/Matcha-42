@@ -6,18 +6,15 @@ import { map, tap, catchError } from 'rxjs/operators';
 import { UserResponseDto } from '../DTOs/users/UserResponseDto';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ProfileGuard implements CanActivate {
-  constructor(
-    private profileService: ProfileService,
-    private router: Router
-  ) {}
+  constructor(private profileService: ProfileService, private router: Router) {}
 
   canActivate(): Observable<boolean> {
     return this.profileService.getMyProfile().pipe(
       map((user: UserResponseDto) => !!user.profile_id),
-      tap(hasProfile => {
+      tap((hasProfile) => {
         if (!hasProfile) {
           this.router.navigate(['/edit-profile']);
         }
@@ -25,7 +22,7 @@ export class ProfileGuard implements CanActivate {
       catchError((error) => {
         this.router.navigate(['/edit-profile']);
         return of(false);
-      }),
+      })
     );
   }
 }
