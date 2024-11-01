@@ -8,21 +8,38 @@
        [routerLink]="tab.path"
        routerLinkActive #rla="routerLinkActive"
        [active]="rla.isActive">
-      <!-- Ajoutez le badge uniquement pour les onglets 'chat' et 'notification' -->
-      <ng-container *ngIf="tab.path === 'chat' || tab.path === 'notification'; else defaultIcon">
+
+      <!-- Cas pour l'onglet 'chat' -->
+      <ng-container *ngIf="tab.path === 'chat'; else notificationBadge">
         <mat-icon aria-hidden="false"
-                  [matBadge]="tab.path === 'chat' ? (messageMarker ? '.' : null) : (notificationMarker ? countNotificationMarker : null)"
+                  [matBadge]="(messageMarker$ | async) ? '.' : null"
                   matBadgeColor="warn"
                   matBadgeOverlap="false"
                   matBadgeSize="small"
-                  matBadgeClass="badge-custom"
-        >
+                  matBadgeClass="badge-custom">
           {{ tab.icon }}
         </mat-icon>
       </ng-container>
+
+      <!-- Cas pour l'onglet 'notification' -->
+      <ng-template #notificationBadge>
+        <ng-container *ngIf="tab.path === 'notification'; else defaultIcon">
+          <mat-icon aria-hidden="false"
+                    [matBadge]="(notificationMarker$ | async) ? (countNotificationMarker$ | async) : null"
+                    matBadgeColor="warn"
+                    matBadgeOverlap="false"
+                    matBadgeSize="small"
+                    matBadgeClass="badge-custom">
+            {{ tab.icon }}
+          </mat-icon>
+        </ng-container>
+      </ng-template>
+
+      <!-- Icône par défaut pour les autres onglets -->
       <ng-template #defaultIcon>
         <mat-icon>{{ tab.icon }}</mat-icon>
       </ng-template>
+
       <span class="tab-label">{{ tab.label }}</span>
     </a>
   </nav>
