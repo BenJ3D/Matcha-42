@@ -43,9 +43,11 @@ export class NotificationComponent implements OnInit, OnDestroy {
     this.notificationSubscription = this.socketService.on<NotificationsReceiveDto>('notification').subscribe((notification) => {
       this.notifications.unshift(notification); // Ajouter en haut de la liste
     });
-    this.socketService.on('fetch_notifications').subscribe(() => { //refresh list after deleted notification
+
+    this.socketService.on('fetch_notifications').subscribe(() => { // Rafraîchir la liste après suppression d'une notification
       this.fetchNotification();
     });
+
     this.fetchNotification();
   }
 
@@ -58,7 +60,31 @@ export class NotificationComponent implements OnInit, OnDestroy {
   readNotification(notification: NotificationsReceiveDto): void {
     if (!notification.has_read) {
       this.socketService.emit('notification_read', {data: [notification.notification_id]});
+      // Mettre à jour l'état local
+      notification.has_read = true;
+      this.cdr.detectChanges();
     }
+  }
+
+  readAllNotifications(): void {
+    const unreadIds = this.notifications
+      .filter(notification => !notification.has_read)
+      .map(notification => notification.notification_id);
+
+    if (unreadIds.length > 0) {
+      this.socketService.emit('notification_read', {data: unreadIds});
+      // Mettre à jour l'état local
+      this.notifications.forEach(notification => {
+        if (!notification.has_read) {
+          notification.has_read = true;
+        }
+      });
+      this.cdr.detectChanges();
+    }
+  }
+
+  hasUnreadNotification(): boolean {
+    return this.notifications.some(notification => !notification.has_read)
   }
 
   deleteNotification(notification: NotificationsReceiveDto): void {
@@ -69,23 +95,15 @@ export class NotificationComponent implements OnInit, OnDestroy {
     // Implémenter la navigation en fonction du type de notification
     switch (notification.type) {
       case 'LIKE':
-        this.router.navigate(['/profile'], {queryParams: {id: notification.source_user}});
-        break;
       case 'UNLIKE':
+      case 'NEW_VISIT':
         this.router.navigate(['/profile'], {queryParams: {id: notification.source_user}});
         break;
       case 'MATCH':
-        console.log('POURQUOI ?????', notification.type);
-        this.router.navigate(['/chat'], {queryParams: {id: notification.source_user}});
-        break;
       case 'NEW_MESSAGE':
         console.log('Naviguer vers /chat avec id :', notification.source_user);
         this.router.navigate(['/chat'], {queryParams: {id: notification.source_user}});
         break;
-      case 'NEW_VISIT':
-        this.router.navigate(['/profile'], {queryParams: {id: notification.source_user}});
-        break;
-
       default:
         break;
     }
@@ -112,7 +130,7 @@ export class NotificationComponent implements OnInit, OnDestroy {
       case 'LIKE':
         return 'liked you';
       case 'MATCH':
-        return 'You have new match !';
+        return 'You have a new match!';
       case 'UNLIKE':
         return 'unliked you';
       case 'NEW_VISIT':
@@ -135,14 +153,14 @@ export class NotificationComponent implements OnInit, OnDestroy {
    */
   fetchNotification(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.apiService.get<NotificationsReceiveDto[]>('notifications?includeRead=true').subscribe({ //TODO: url env
+      this.apiService.get<NotificationsReceiveDto[]>('notifications?includeRead=true').subscribe({
         next: (notifications) => {
           this.notifications = notifications;
           this.cdr.detectChanges();
           resolve();
         },
         error: (error) => {
-          console.error('Erreur lors de la récupération des matches:', error);
+          console.error('Erreur lors de la récupération des notifications:', error);
           reject(error);
         },
       });
@@ -150,12 +168,12 @@ export class NotificationComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Like un user en retour d'un like.
+   * Like un utilisateur en retour d'un like.
    */
   likingBack(notification: NotificationsReceiveDto): Promise<void> {
     return new Promise((resolve, reject) => {
       this.readNotification(notification);
-      this.apiService.post(`likes/${notification.source_user}`, {}).subscribe({//TODO: url env
+      this.apiService.post(`likes/${notification.source_user}`, {}).subscribe({
         next: () => {
           resolve();
         },
@@ -166,6 +184,4 @@ export class NotificationComponent implements OnInit, OnDestroy {
       });
     });
   }
-
-
 }

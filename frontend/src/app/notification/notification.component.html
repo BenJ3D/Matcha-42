@@ -1,41 +1,52 @@
 <div class="notification-container p-4">
-  <div class="text-xl font-bold mb-4">Notifications</div>
+  <!-- En-tête avec le titre et le bouton "Read All" -->
+  <div class="flex flex-col sm:flex-row justify-between items-center text-xl font-bold mb-4">
+    <span>Notifications</span>
+    <button
+      *ngIf="hasUnreadNotification()"
+      class="mt-2 sm:mt-0 text-blue-500 hover:text-blue-700 text-sm"
+      (click)="readAllNotifications()"
+    >
+      Read All
+    </button>
+  </div>
+
+  <!-- Liste des notifications -->
   <div class="notification-list space-y-4">
-    @if (notifications.length > 0) {
+    <div *ngIf="notifications.length > 0; else noNotifications">
       <div
         class="notification-item flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white rounded-lg shadow hover:bg-gray-100 cursor-pointer"
         *ngFor="let notification of notifications"
         (click)="onNotificationClick(notification)"
         [ngClass]="{ 'unread-notification bg-gray-50': !notification.has_read }"
       >
-        <!-- Left Section: Icon and Text -->
+        <!-- Section gauche : Icône et Texte -->
         <div class="flex flex-1 flex-col sm:flex-row sm:items-center">
-          <!-- Notification Icon -->
+          <!-- Icône de la notification -->
           <mat-icon class="notification-icon text-2xl mr-0 sm:mr-4 mb-2 sm:mb-0">
             {{ getNotificationIcon(notification.type) }}
           </mat-icon>
 
-          <!-- Notification Text -->
+          <!-- Texte de la notification -->
           <div class="notification-text flex flex-col">
             <div class="flex flex-wrap sm:flex-nowrap items-center space-x-0 sm:space-x-2">
               <div class="text-xl font-semibold">{{ notification.source_username }}</div>
               <div class="description text-gray-600">{{ getNotificationMessage(notification.type) }}</div>
-              @if (notification.type == 'LIKE') {
-                <button
-                  class="mt-2 sm:mt-0 hover:text-white hover:font-bold hover:bg-emerald-800 px-4 rounded-2xl py-2 text-sm"
-                  (click)="likingBack(notification); $event.stopPropagation()"
-                >
-                  Liking back
-                </button>
-              }
+              <button
+                *ngIf="notification.type === 'LIKE'"
+                class="mt-2 sm:mt-0 hover:text-white hover:font-bold hover:bg-emerald-800 px-4 rounded-2xl py-2 text-sm"
+                (click)="likingBack(notification); $event.stopPropagation()"
+              >
+                Liking back
+              </button>
             </div>
             <small class="timestamp text-gray-500">{{ notification.notified_at | date: 'short' }}</small>
           </div>
         </div>
 
-        <!-- Right Section: Indicators and Delete Icon -->
+        <!-- Section droite : Indicateurs et Icône de suppression -->
         <div class="flex items-center mt-2 sm:mt-0">
-          <!-- Unread Indicator -->
+          <!-- Indicateur non lu -->
           <mat-icon *ngIf="!notification.has_read" class="unread-indicator text-red-500 mr-4">
             fiber_manual_record
           </mat-icon>
@@ -50,10 +61,12 @@
           </mat-icon>
         </div>
       </div>
-    } @else {
+    </div>
+    <!-- Template alternatif si aucune notification n'est présente -->
+    <ng-template #noNotifications>
       <div class="flex justify-center items-center h-full text-gray-500">
         Vous n'avez pas de notifications pour le moment
       </div>
-    }
+    </ng-template>
   </div>
 </div>
