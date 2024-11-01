@@ -42,10 +42,9 @@ export class NotificationComponent implements OnInit, OnDestroy {
     this.notificationSubscription = this.socketService.on<NotificationsReceiveDto>('notification').subscribe((notification) => {
       this.notifications.unshift(notification); // Ajouter en haut de la liste
     });
-    // this.socketService.on('fetch_notifications').subscribe(() => {
-    //   console.log("NOTIF FETCH IN NotificationComponent")
-    //   this.fetchNotification();
-    // });
+    this.socketService.on('fetch_notifications').subscribe(() => { //refresh list after deleted notification
+      this.fetchNotification();
+    });
     this.fetchNotification();
   }
 

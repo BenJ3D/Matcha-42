@@ -1,15 +1,15 @@
-import {Component, OnInit, OnDestroy, HostListener, ChangeDetectorRef, ViewChild, ElementRef} from '@angular/core';
+import {Component, OnInit, OnDestroy, HostListener, ChangeDetectorRef} from '@angular/core';
 import {Subscription} from 'rxjs';
 import {SocketService} from '../../services/socket.service';
 import {AuthService} from '../../services/auth.service';
-import {HttpClient} from '@angular/common/http';
 import {MessageDto} from '../../DTOs/chat/MessageDto';
 import {UserLightResponseDto} from "../../DTOs/users/UserLightResponseDto";
 import {MatCardModule} from "@angular/material/card";
 import {MatListModule} from "@angular/material/list";
 import {ConversationComponent} from "./conversation/conversation.component";
-import {CommonModule, NgForOf, NgIf} from "@angular/common";
+import {CommonModule} from "@angular/common";
 import {ActivatedRoute} from "@angular/router";
+import {ApiService} from '../../services/api.service';
 
 @Component({
   selector: 'app-chat',
@@ -36,7 +36,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   constructor(
     private socketService: SocketService,
     private authService: AuthService,
-    private http: HttpClient,
+    private apiService: ApiService,
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute
   ) {
@@ -120,7 +120,7 @@ export class ChatComponent implements OnInit, OnDestroy {
    */
   fetchMatches(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.http.get<UserLightResponseDto[]>('http://localhost:8000/api/matches').subscribe({
+      this.apiService.get<UserLightResponseDto[]>('matches').subscribe({
         next: (users) => {
           this.chatUsers = users;
           this.cdr.detectChanges();
@@ -153,7 +153,7 @@ export class ChatComponent implements OnInit, OnDestroy {
    * @param userId L'ID de l'utilisateur avec qui récupérer les messages.
    */
   fetchMessages(userId: number): void {
-    this.http.get<any>(`http://localhost:8000/api/messages/${userId}`).subscribe({
+    this.apiService.get<any>(`messages/${userId}`).subscribe({
       next: (msgs) => {
         this.messages = msgs.messages;
         // Trier les messages par date de création

@@ -1,48 +1,58 @@
-<div class="notification-container">
-  <div class="text-xl font-bold">Notifications</div>
-  <div class="notification-list">
+<div class="notification-container p-4">
+  <div class="text-xl font-bold mb-4">Notifications</div>
+  <div class="notification-list space-y-4">
     @if (notifications.length > 0) {
       <div
-        class="notification-item"
+        class="notification-item flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white rounded-lg shadow hover:bg-gray-100 cursor-pointer"
         *ngFor="let notification of notifications"
         (click)="onNotificationClick(notification)"
-        [ngClass]="{ 'unread-notification': !notification.has_read }"
+        [ngClass]="{ 'unread-notification bg-gray-50': !notification.has_read }"
       >
-        <!-- Notification Icon -->
-        <mat-icon class="notification-icon">
-          {{ getNotificationIcon(notification.type) }}
-        </mat-icon>
+        <!-- Left Section: Icon and Text -->
+        <div class="flex flex-1 flex-col sm:flex-row sm:items-center">
+          <!-- Notification Icon -->
+          <mat-icon class="notification-icon text-2xl mr-0 sm:mr-4 mb-2 sm:mb-0">
+            {{ getNotificationIcon(notification.type) }}
+          </mat-icon>
 
-        <!-- Notification Text -->
-        <div class="notification-text">
-          <div class="flex flex-grow space-x-2 items-center">
-            <div class="text-xl font-semibold">{{ notification.source_username }}</div>
-            <div class="description">{{ getNotificationMessage(notification.type) }}</div>
-            @if (notification.type == 'LIKE') {
-              <button class="hover:text-white hover:font-bold hover:bg-emerald-800 px-4 rounded-2xl py-2"
-                      (click)="likingBack(notification); $event.stopPropagation()">Liking back
-              </button>
-            }
+          <!-- Notification Text -->
+          <div class="notification-text flex flex-col">
+            <div class="flex flex-wrap sm:flex-nowrap items-center space-x-0 sm:space-x-2">
+              <div class="text-xl font-semibold">{{ notification.source_username }}</div>
+              <div class="description text-gray-600">{{ getNotificationMessage(notification.type) }}</div>
+              @if (notification.type == 'LIKE') {
+                <button
+                  class="mt-2 sm:mt-0 hover:text-white hover:font-bold hover:bg-emerald-800 px-4 rounded-2xl py-2 text-sm"
+                  (click)="likingBack(notification); $event.stopPropagation()"
+                >
+                  Liking back
+                </button>
+              }
+            </div>
+            <small class="timestamp text-gray-500">{{ notification.notified_at | date: 'short' }}</small>
           </div>
-          <small class="timestamp">{{ notification.notified_at | date: 'short' }}</small>
         </div>
 
-        <!-- Unread Indicator -->
-        <mat-icon *ngIf="!notification.has_read" class="unread-indicator">
-          fiber_manual_record
-        </mat-icon>
+        <!-- Right Section: Indicators and Delete Icon -->
+        <div class="flex items-center mt-2 sm:mt-0">
+          <!-- Unread Indicator -->
+          <mat-icon *ngIf="!notification.has_read" class="unread-indicator text-red-500 mr-4">
+            fiber_manual_record
+          </mat-icon>
 
-        <!-- Bouton Corbeille -->
-        <mat-icon
-          class="delete-icon"
-          (click)="deleteNotification(notification); $event.stopPropagation()"
-          matTooltip="Delete notification"
-        >
-          delete
-        </mat-icon>
+          <!-- Bouton Corbeille -->
+          <mat-icon
+            class="delete-icon text-gray-400 hover:text-red-500"
+            (click)="deleteNotification(notification); $event.stopPropagation()"
+            matTooltip="Delete notification"
+          >
+            delete
+          </mat-icon>
+        </div>
       </div>
     } @else {
-      <div class="flex justify-center items-center h-full ">You have no notifications at the moment
+      <div class="flex justify-center items-center h-full text-gray-500">
+        Vous n'avez pas de notifications pour le moment
       </div>
     }
   </div>
