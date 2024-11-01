@@ -54,7 +54,6 @@ export class ConversationComponent implements OnInit, OnDestroy {
     private socketService: SocketService,
     private apiService: ApiService,
     private authService: AuthService,
-    private http: HttpClient,
     private cdr: ChangeDetectorRef
   ) {
   }

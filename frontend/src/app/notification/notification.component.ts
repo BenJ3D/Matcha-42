@@ -11,6 +11,7 @@ import {HttpClient} from "@angular/common/http";
 import {NotificationType} from "../../models/Notifications";
 import {MatTooltip} from "@angular/material/tooltip";
 import {MatCardHeader, MatCardModule, MatCardTitle} from "@angular/material/card";
+import {ApiService} from "../../services/api.service";
 
 @Component({
   selector: 'app-notification',
@@ -31,8 +32,8 @@ export class NotificationComponent implements OnInit, OnDestroy {
 
   constructor(
     private socketService: SocketService,
+    private apiService: ApiService,
     private router: Router,
-    private http: HttpClient,
     private cdr: ChangeDetectorRef
   ) {
   }
@@ -130,11 +131,11 @@ export class NotificationComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Récupère la liste des utilisateurs avec qui l'utilisateur est en match.
+   * Récupère la liste des notifications
    */
   fetchNotification(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.http.get<NotificationsReceiveDto[]>('http://localhost:8000/api/notifications?includeRead=true').subscribe({ //TODO: url env
+      this.apiService.get<NotificationsReceiveDto[]>('notifications?includeRead=true').subscribe({ //TODO: url env
         next: (notifications) => {
           this.notifications = notifications;
           this.cdr.detectChanges();
@@ -154,7 +155,7 @@ export class NotificationComponent implements OnInit, OnDestroy {
   likingBack(notification: NotificationsReceiveDto): Promise<void> {
     return new Promise((resolve, reject) => {
       this.readNotification(notification);
-      this.http.post(`http://localhost:8000/api/likes/${notification.source_user}`, {}).subscribe({//TODO: url env
+      this.apiService.post(`likes/${notification.source_user}`, {}).subscribe({//TODO: url env
         next: () => {
           resolve();
         },

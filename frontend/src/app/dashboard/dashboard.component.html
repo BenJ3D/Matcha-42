@@ -11,7 +11,7 @@
       <!-- Ajoutez le badge uniquement pour les onglets 'chat' et 'notification' -->
       <ng-container *ngIf="tab.path === 'chat' || tab.path === 'notification'; else defaultIcon">
         <mat-icon aria-hidden="false"
-                  [matBadge]="tab.path === 'chat' ? (messageMarker ? '.' : null) : (notificationMarker ? '.' : null)"
+                  [matBadge]="tab.path === 'chat' ? (messageMarker ? '.' : null) : (notificationMarker ? countNotificationMarker : null)"
                   matBadgeColor="warn"
                   matBadgeOverlap="false"
                   matBadgeSize="small"
@@ -24,7 +24,6 @@
         <mat-icon>{{ tab.icon }}</mat-icon>
       </ng-template>
       <span class="tab-label">{{ tab.label }}</span>
-      <div class="w-1 h-h bg-amber-500 text-orange-600"></div>
     </a>
   </nav>
   <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
