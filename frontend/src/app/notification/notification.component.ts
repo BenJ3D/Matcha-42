@@ -43,7 +43,6 @@ export class NotificationComponent implements OnInit, OnDestroy {
       this.notifications.unshift(notification); // Ajouter en haut de la liste
     });
     this.socketService.on('fetch_notifications').subscribe(() => {
-      console.log("COUCOUUUU CEST FETCH NOTIFICATIONNNN");
       this.fetchNotification();
     });
     this.fetchNotification();
@@ -51,12 +50,15 @@ export class NotificationComponent implements OnInit, OnDestroy {
 
   onNotificationClick(notification: NotificationsReceiveDto): void {
     console.log(notification);
-    if (!notification.has_read) {
-      this.socketService.emit('notification_read', {data: [notification.notification_id]});
-    }
+    this.readNotification(notification);
     this.navigateToRelevantPage(notification);
   }
 
+  readNotification(notification: NotificationsReceiveDto): void {
+    if (!notification.has_read) {
+      this.socketService.emit('notification_read', {data: [notification.notification_id]});
+    }
+  }
 
   deleteNotification(notification: NotificationsReceiveDto): void {
     this.socketService.emit('notification_delete', {data: notification.notification_id});
@@ -132,7 +134,7 @@ export class NotificationComponent implements OnInit, OnDestroy {
    */
   fetchNotification(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.http.get<NotificationsReceiveDto[]>('http://localhost:8000/api/notifications?includeRead=true').subscribe({
+      this.http.get<NotificationsReceiveDto[]>('http://localhost:8000/api/notifications?includeRead=true').subscribe({ //TODO: url env
         next: (notifications) => {
           this.notifications = notifications;
           this.cdr.detectChanges();
@@ -151,7 +153,8 @@ export class NotificationComponent implements OnInit, OnDestroy {
    */
   likingBack(notification: NotificationsReceiveDto): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.http.post(`http://localhost:8000/api/likes/${notification.source_user}`, {}).subscribe({
+      this.readNotification(notification);
+      this.http.post(`http://localhost:8000/api/likes/${notification.source_user}`, {}).subscribe({//TODO: url env
         next: () => {
           resolve();
         },
@@ -163,12 +166,5 @@ export class NotificationComponent implements OnInit, OnDestroy {
     });
   }
 
-
-  likingBack2(notification: NotificationsReceiveDto): void {
-    console.log(notification);
-    if (!notification.has_read) {
-      this.socketService.emit('notification_read', {data: [notification.notification_id]});
-    }
-  }
 
 }
