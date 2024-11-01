@@ -4,12 +4,27 @@
   </div>
   <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="bottom-tab-bar">
     <a mat-tab-link
-      *ngFor="let tab of tabs"
-      [routerLink]="tab.path"
-      routerLinkActive #rla="routerLinkActive"
-      [active]="rla.isActive">
-      <mat-icon>{{tab.icon}}</mat-icon>
-      <span class="tab-label">{{tab.label}}</span>
+       *ngFor="let tab of tabs"
+       [routerLink]="tab.path"
+       routerLinkActive #rla="routerLinkActive"
+       [active]="rla.isActive">
+      <!-- Ajoutez le badge uniquement pour les onglets 'chat' et 'notification' -->
+      <ng-container *ngIf="tab.path === 'chat' || tab.path === 'notification'; else defaultIcon">
+        <mat-icon aria-hidden="false"
+                  [matBadge]="tab.path === 'chat' ? (messageMarker ? '.' : null) : (notificationMarker ? '.' : null)"
+                  matBadgeColor="warn"
+                  matBadgeOverlap="false"
+                  matBadgeSize="small"
+                  matBadgeClass="badge-custom"
+        >
+          {{ tab.icon }}
+        </mat-icon>
+      </ng-container>
+      <ng-template #defaultIcon>
+        <mat-icon>{{ tab.icon }}</mat-icon>
+      </ng-template>
+      <span class="tab-label">{{ tab.label }}</span>
+      <div class="w-1 h-h bg-amber-500 text-orange-600"></div>
     </a>
   </nav>
   <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>

@@ -24,6 +24,7 @@ class NotificationsService {
         if (userSockets) {
             userSockets.forEach((socket) => {
                 socket.emit('notification', notification);
+                socket.emit('reload_chat', notification);
             });
         }
         return notification;

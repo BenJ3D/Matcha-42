@@ -1,10 +1,10 @@
-import { Component, OnInit, OnDestroy, HostListener, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { SocketService } from '../../services/socket.service';
-import { AuthService } from '../../services/auth.service';
-import { HttpClient } from '@angular/common/http';
-import { MessageDto } from '../../DTOs/chat/MessageDto';
-import { UserLightResponseDto } from "../../DTOs/users/UserLightResponseDto";
+import {Component, OnInit, OnDestroy, HostListener, ChangeDetectorRef, ViewChild, ElementRef} from '@angular/core';
+import {Subscription} from 'rxjs';
+import {SocketService} from '../../services/socket.service';
+import {AuthService} from '../../services/auth.service';
+import {HttpClient} from '@angular/common/http';
+import {MessageDto} from '../../DTOs/chat/MessageDto';
+import {UserLightResponseDto} from "../../DTOs/users/UserLightResponseDto";
 import {MatCardModule} from "@angular/material/card";
 import {MatListModule} from "@angular/material/list";
 import {ConversationComponent} from "./conversation/conversation.component";
@@ -39,12 +39,15 @@ export class ChatComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute
-
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.checkIfMobile();
 
+    this.socketService.on('reload_chat').subscribe(() => {
+      this.fetchMatches();
+    });
     // Récupérer la liste des matches via l'API
     this.fetchMatches();
 
@@ -175,29 +178,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     // if (chatUser && otherUserId !== this.selectedUser?.id) {
     //   chatUser.unread = (chatUser.unread || 0) + 1;
     // }
-  }
-
-  /**
-   * Envoie un message à l'utilisateur sélectionné via une requête HTTP POST.
-   */
-  sendMessage(): void {
-    if (this.newMessage.trim() && this.selectedUser) {
-      const messageDto = {
-        target_user: this.selectedUser.id,
-        content: this.newMessage.trim(),
-      };
-
-      this.http.post<MessageDto>('http://localhost:8000/api/messages', messageDto).subscribe({
-        next: (msg) => {
-          this.newMessage = '';
-          this.cdr.detectChanges();
-          // Le message sera ajouté via le socket, donc pas besoin de l'ajouter ici
-        },
-        error: (error) => {
-          console.error('Erreur lors de l\'envoi du message:', error);
-        },
-      });
-    }
   }
 
   /**
