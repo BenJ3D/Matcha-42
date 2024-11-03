@@ -11,9 +11,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error) => {
-      const authService = injector.get(AuthService); // Retrieve AuthService only when necessary
-      if (error.status === 401 && error.error?.error === 'Unauthorized: user email not verified') {
-        console.log('Email verification error detected.');
+      if (error.status === 401 && error.error?.error === 'Non autorisé : email utilisateur non vérifié') {
+      const authService = injector.get(AuthService);
+        console.log('Erreur de vérification d\'email détectée.');
         toastService.showWithAction(
           'Your email has not been verified.',
           'Resend',
