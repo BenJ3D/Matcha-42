@@ -63,6 +63,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // Abonnement aux notifications en temps réel
     const notificationSub = this.socketService.on<NotificationsReceiveDto>('notification').subscribe(notification => {
       if (notification.type === NotificationType.NEW_MESSAGE) {
+        console.log('MESSAGE ICIIII')
         this._messageMarker$.next(true);
       }
       this.fetchNotification();

@@ -4,6 +4,7 @@ import {BehaviorSubject, Observable, Subject} from 'rxjs';
 import {AuthService} from './auth.service';
 import {UserResponseDto} from '../DTOs/users/UserResponseDto';
 import {Message} from "../models/Message";
+import {MessageDto} from "../DTOs/chat/MessageDto";
 
 @Injectable({
   providedIn: 'root',
@@ -95,11 +96,11 @@ export class SocketService implements OnDestroy {
   }
 
 
-  private messagesSubject = new Subject<Message>();
+  private messagesSubject = new Subject<MessageDto>();
   public messages$ = this.messagesSubject.asObservable();
 
   private registerSocketListeners(): void {
-    this.socket.on('message', (data: Message) => {
+    this.socket.on('message', (data: MessageDto) => {
       this.messagesSubject.next(data);
     });
 

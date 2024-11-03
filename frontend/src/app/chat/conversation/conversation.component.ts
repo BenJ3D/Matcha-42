@@ -89,10 +89,8 @@ export class ConversationComponent implements OnInit, OnDestroy {
           // Le message sera ajouté via le socket, donc pas besoin de l'ajouter ici
         },
         error: (error) => {
-          console.error('Erreur lors de l\'envoi du message:', error);
         },
       });
-
     }
   }
 
