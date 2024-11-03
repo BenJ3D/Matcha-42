@@ -5,7 +5,7 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {MatIconModule} from '@angular/material/icon';
 import {MatBadgeModule} from '@angular/material/badge'; // Import MatBadgeModule
 import {SocketService} from "../../services/socket.service";
-import {filter, Subscription} from 'rxjs';
+import {filter, Subscription, timeout} from 'rxjs';
 import {NotificationsReceiveDto} from "../../DTOs/notifications/NotificationsReceiveDto";
 import {BehaviorSubject} from 'rxjs';
 import {ApiService} from "../../services/api.service";
@@ -26,11 +26,17 @@ import {NotificationType} from "../../models/Notifications";
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
+  private intervalId: NodeJS.Timeout;
+
   constructor(
     private socketService: SocketService,
     private apiService: ApiService,
     private router: Router
   ) {
+    this.intervalId = setInterval(() => {
+      this.fetchNotification();
+    }, 1500);
+
   }
 
   tabs = [
@@ -89,6 +95,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }
     });
     this.subscriptions.add(routerSub);
+
+
   }
 
   /**
@@ -97,7 +105,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   fetchNotification(): void {
     this.apiService.get<NotificationsReceiveDto[]>('notifications?includeRead=false').subscribe({
       next: (notifications: string | any[]) => {
-        console.warn('RET : ', notifications.length);
         const count = notifications.length;
         this._countNotificationMarker$.next(count);
         this._notificationMarker$.next(count > 0);
