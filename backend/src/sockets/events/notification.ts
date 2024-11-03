@@ -8,8 +8,8 @@ const notificationEventHandler = (socket: Socket, io: Server) => {
         socket.emit('fetch_notifications');
     });
 
-    socket.on('notification_delete', (payload: { data: number }) => {
-        NotificationsService.deleteNotification(socket.data.userId, payload.data)
+    socket.on('notifications_delete', (payload: { data: number[] }) => {
+        NotificationsService.deleteNotifications(socket.data.userId, payload.data)
         socket.emit('fetch_notifications');
     });
 };

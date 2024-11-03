@@ -44,11 +44,11 @@ class NotificationsService {
         await NotificationsDAL.markNotificationsAsRead(userId, notificationIds);
     }
 
-    async deleteNotification(
+    async deleteNotifications(
         userId: number,
-        notificationId: number
+        notificationIds: number[]
     ): Promise<void> {
-        await NotificationsDAL.deleteNotification(notificationId, userId);
+        await NotificationsDAL.deleteNotifications(notificationIds, userId);
     }
 }
 

@@ -46,7 +46,7 @@ class NotificationsController {
             if (isNaN(notificationId)) {
                 return res.status(400).json({error: 'Invalid notification ID'});
             }
-            await NotificationsService.deleteNotification(userId, notificationId);
+            await NotificationsService.deleteNotifications(userId, [notificationId]);
             res.status(200).json({message: 'Notification deleted'});
         } catch (error: any) {
             console.error('Error deleting notification:', error);

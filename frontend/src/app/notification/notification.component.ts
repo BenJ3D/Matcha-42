@@ -87,8 +87,28 @@ export class NotificationComponent implements OnInit, OnDestroy {
     return this.notifications.some(notification => !notification.has_read)
   }
 
+  hasNotifications(): boolean {
+    return this.notifications.length > 0;
+  }
+
   deleteNotification(notification: NotificationsReceiveDto): void {
-    this.socketService.emit('notification_delete', {data: notification.notification_id});
+    this.socketService.emit('notifications_delete', {data: [notification.notification_id]});
+  }
+
+  deleteAllNotifications(): void {
+    const unreadIds = this.notifications
+      .map(notification => notification.notification_id);
+
+    if (unreadIds.length > 0) {
+      this.socketService.emit('notifications_delete', {data: unreadIds});
+      // Mettre à jour l'état local
+      this.notifications.forEach(notification => {
+        if (!notification.has_read) {
+          notification.has_read = true;
+        }
+      });
+      this.cdr.detectChanges();
+    }
   }
 
   navigateToRelevantPage(notification: NotificationsReceiveDto): void {

@@ -64,13 +64,13 @@ class NotificationsDAL {
         }
     }
 
-    async deleteNotification(
-        notificationId: number,
+    async deleteNotifications(
+        notificationIds: number[],
         userId: number
     ): Promise<void> {
         try {
             await db('notifications')
-                .where('notification_id', notificationId)
+                .whereIn('notification_id', notificationIds)
                 .andWhere('target_user', userId) //evite qu'un autre user puisse supprimer cette notification
                 .del();
         } catch (error) {
