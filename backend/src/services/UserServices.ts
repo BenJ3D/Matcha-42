@@ -140,6 +140,10 @@ class UserServices {
         return await UserDAL.updateFameRating(userId, newNote);
     }
 
+    async getUsernameByUserId(userId: number): Promise<string | undefined> {
+        return await UserDAL.getUsernameByUserId(userId);
+    }
+
 }
 
 export default new UserServices();

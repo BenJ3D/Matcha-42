@@ -5,8 +5,9 @@ class NotificationsDAL {
     async createNotification(
         targetUserId: number,
         sourceUserId: number,
+        sourceUserName: string,
         type: NotificationType
-    ): Promise<number> {
+    ): Promise<Notification> {
         try {
             const [notification] = await db('notifications')
                 .insert({
@@ -15,10 +16,11 @@ class NotificationsDAL {
                     type,
                     has_read: false,
                     notified_at: new Date(),
+                    source_username: sourceUserName,
                 })
-                .returning('notification_id');
+                .returning('*');
 
-            return notification.notification_id;
+            return notification;
         } catch (error) {
             console.error('Error creating notification:', error);
             throw new Error('Could not create notification');
@@ -54,7 +56,7 @@ class NotificationsDAL {
         try {
             await db('notifications')
                 .whereIn('notification_id', notificationIds)
-                .andWhere('target_user', userId)
+                .andWhere('target_user', userId) //evite qu'un autre user puisse modifier cette notification
                 .update({has_read: true});
         } catch (error) {
             console.error('Error updating notifications:', error);
@@ -62,14 +64,14 @@ class NotificationsDAL {
         }
     }
 
-    async deleteNotification(
-        notificationId: number,
+    async deleteNotifications(
+        notificationIds: number[],
         userId: number
     ): Promise<void> {
         try {
             await db('notifications')
-                .where('notification_id', notificationId)
-                .andWhere('target_user', userId)
+                .whereIn('notification_id', notificationIds)
+                .andWhere('target_user', userId) //evite qu'un autre user puisse supprimer cette notification
                 .del();
         } catch (error) {
             console.error('Error deleting notification:', error);

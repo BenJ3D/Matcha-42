@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { authGuard } from '../services/auth.guard';
+import {PageNotFoundComponent} from "./page-not-found/page-not-found.component";
 import { ProfileGuard } from '../services/profile.guard';
 
 export const routes: Routes = [
@@ -21,12 +22,13 @@ export const routes: Routes = [
     component: DashboardComponent,
     canActivate: [authGuard],
     children: [
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: 'home', loadComponent: () => import('./home/home.component').then(m => m.HomeComponent), canActivate: [authGuard, ProfileGuard] },
       { path: 'nearby', loadComponent: () => import('./nearby/nearby.component').then(m => m.NearbyComponent), canActivate: [authGuard, ProfileGuard] },
       { path: 'chat', loadComponent: () => import('./chat/chat.component').then(m => m.ChatComponent), canActivate: [authGuard, ProfileGuard] },
       { path: 'notification', loadComponent: () => import('./notification/notification.component').then(m => m.NotificationComponent), canActivate: [authGuard, ProfileGuard] },
       { path: 'profile', loadComponent: () => import('./profile/profile.component').then(m => m.ProfileComponent), canActivate: [authGuard, ProfileGuard] },
-      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      { path: '**', component: PageNotFoundComponent }
     ],
   },
   {

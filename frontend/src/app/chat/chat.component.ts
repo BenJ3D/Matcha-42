@@ -1,14 +1,15 @@
-import { Component, OnInit, OnDestroy, HostListener, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { SocketService } from '../../services/socket.service';
-import { AuthService } from '../../services/auth.service';
-import { HttpClient } from '@angular/common/http';
-import { MessageDto } from '../../DTOs/chat/MessageDto';
-import { UserLightResponseDto } from "../../DTOs/users/UserLightResponseDto";
+import {Component, OnInit, OnDestroy, HostListener, ChangeDetectorRef} from '@angular/core';
+import {Subscription} from 'rxjs';
+import {SocketService} from '../../services/socket.service';
+import {AuthService} from '../../services/auth.service';
+import {MessageDto} from '../../DTOs/chat/MessageDto';
+import {UserLightResponseDto} from "../../DTOs/users/UserLightResponseDto";
 import {MatCardModule} from "@angular/material/card";
 import {MatListModule} from "@angular/material/list";
 import {ConversationComponent} from "./conversation/conversation.component";
-import {CommonModule, NgForOf, NgIf} from "@angular/common";
+import {CommonModule} from "@angular/common";
+import {ActivatedRoute} from "@angular/router";
+import {ApiService} from '../../services/api.service';
 
 @Component({
   selector: 'app-chat',
@@ -23,6 +24,7 @@ import {CommonModule, NgForOf, NgIf} from "@angular/common";
   standalone: true
 })
 export class ChatComponent implements OnInit, OnDestroy {
+
   messages: MessageDto[] = [];
   chatUsers: UserLightResponseDto[] = [];
   selectedUser: UserLightResponseDto | null = null;
@@ -31,20 +33,30 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   private messageSubscription!: Subscription;
 
-  @ViewChild('messageList') messageList!: ElementRef;
-
   constructor(
     private socketService: SocketService,
     private authService: AuthService,
-    private http: HttpClient,
-    private cdr: ChangeDetectorRef
-  ) {}
+    private apiService: ApiService,
+    private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute
+  ) {
+  }
 
   ngOnInit(): void {
     this.checkIfMobile();
 
+    this.socketService.on('reload_chat').subscribe(() => {
+      this.fetchMatches();
+    });
     // Récupérer la liste des matches via l'API
     this.fetchMatches();
+
+    this.route.queryParams.subscribe(params => {
+      const userId = +params['id']; // Convertir en nombre
+      if (userId) {
+        this.selectConversationById(userId);
+      }
+    });
 
     // S'abonner aux messages globaux
     this.messageSubscription = this.socketService.messages$.subscribe((msg) => {
@@ -56,7 +68,6 @@ export class ChatComponent implements OnInit, OnDestroy {
         const messageExists = this.messages.some(m => m.message_id === msg.message_id);
         if (!messageExists) {
           this.messages = [...this.messages, msg].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-          this.scrollToBottom();
           // Vous pouvez retirer `this.cdr.detectChanges();` ici car le changement de référence devrait suffire
         }
       }
@@ -84,17 +95,42 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Sélectionne une conversation en fonction de l'ID de l'utilisateur.
+   * @param userId L'ID de l'utilisateur avec qui ouvrir la conversation.
+   */
+  selectConversationById(userId: number): void {
+    const user = this.chatUsers.find(u => u.id === userId);
+    if (user) {
+      this.selectConversation(user);
+    } else {
+      // Si l'utilisateur n'est pas encore chargé, attendre que les matches soient récupérés
+      this.fetchMatches().then(() => {
+        const userAfterFetch = this.chatUsers.find(u => u.id === userId);
+        if (userAfterFetch) {
+          this.selectConversation(userAfterFetch);
+        } else {
+          console.warn(`Utilisateur avec ID ${userId} non trouvé.`);
+        }
+      });
+    }
+  }
+
+  /**
    * Récupère la liste des utilisateurs avec qui l'utilisateur est en match.
    */
-  fetchMatches(): void {
-    this.http.get<UserLightResponseDto[]>('http://localhost:8000/api/matches').subscribe({
-      next: (users) => {
-        this.chatUsers = users;
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('Erreur lors de la récupération des matches:', error);
-      },
+  fetchMatches(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.apiService.get<UserLightResponseDto[]>('matches').subscribe({
+        next: (users) => {
+          this.chatUsers = users;
+          this.cdr.detectChanges();
+          resolve();
+        },
+        error: (error) => {
+          console.error('Erreur lors de la récupération des matches:', error);
+          reject(error);
+        },
+      });
     });
   }
 
@@ -117,12 +153,11 @@ export class ChatComponent implements OnInit, OnDestroy {
    * @param userId L'ID de l'utilisateur avec qui récupérer les messages.
    */
   fetchMessages(userId: number): void {
-    this.http.get<any>(`http://localhost:8000/api/messages/${userId}`).subscribe({
+    this.apiService.get<any>(`messages/${userId}`).subscribe({
       next: (msgs) => {
         this.messages = msgs.messages;
         // Trier les messages par date de création
         this.messages.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-        this.scrollToBottom();
         this.cdr.detectChanges();
       },
       error: (error) => {
@@ -143,30 +178,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     // if (chatUser && otherUserId !== this.selectedUser?.id) {
     //   chatUser.unread = (chatUser.unread || 0) + 1;
     // }
-  }
-
-  /**
-   * Envoie un message à l'utilisateur sélectionné via une requête HTTP POST.
-   */
-  sendMessage(): void {
-    if (this.newMessage.trim() && this.selectedUser) {
-      const messageDto = {
-        target_user: this.selectedUser.id,
-        content: this.newMessage.trim(),
-      };
-
-      this.http.post<MessageDto>('http://localhost:8000/api/messages', messageDto).subscribe({
-        next: (msg) => {
-          this.newMessage = '';
-          this.scrollToBottom();
-          this.cdr.detectChanges();
-          // Le message sera ajouté via le socket, donc pas besoin de l'ajouter ici
-        },
-        error: (error) => {
-          console.error('Erreur lors de l\'envoi du message:', error);
-        },
-      });
-    }
   }
 
   /**
@@ -192,14 +203,4 @@ export class ChatComponent implements OnInit, OnDestroy {
     return this.authService.getCurrentUserId();
   }
 
-  /**
-   * Fait défiler automatiquement la liste des messages vers le bas.
-   */
-  private scrollToBottom(): void {
-    setTimeout(() => {
-      if (this.messageList && this.messageList.nativeElement) {
-        this.messageList.nativeElement.scrollTop = this.messageList.nativeElement.scrollHeight;
-      }
-    }, 100);
-  }
 }

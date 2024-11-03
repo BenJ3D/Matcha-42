@@ -1,10 +1,10 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { io, Socket } from 'socket.io-client';
+import {Injectable, OnDestroy} from '@angular/core';
+import {io, Socket} from 'socket.io-client';
 import {BehaviorSubject, Observable, Subject} from 'rxjs';
-import { AuthService } from './auth.service';
-import { UserResponseDto } from '../DTOs/users/UserResponseDto';
-import { CreateMessageDto } from '../DTOs/chat/CreateMessageDto';
+import {AuthService} from './auth.service';
+import {UserResponseDto} from '../DTOs/users/UserResponseDto';
 import {Message} from "../models/Message";
+import {MessageDto} from "../DTOs/chat/MessageDto";
 
 @Injectable({
   providedIn: 'root',
@@ -96,19 +96,18 @@ export class SocketService implements OnDestroy {
   }
 
 
-
-  private messagesSubject = new Subject<Message>();
+  private messagesSubject = new Subject<MessageDto>();
   public messages$ = this.messagesSubject.asObservable();
 
   private registerSocketListeners(): void {
-    this.socket.on('message', (data: Message) => {
-      console.log("Event Message : " + JSON.stringify(data));
+    this.socket.on('message', (data: MessageDto) => {
       this.messagesSubject.next(data);
     });
 
-    this.socket.on('notification', (data: Message) => {
-      console.log("Event Notification : " + JSON.stringify(data));
-    });
+    // this.socket.on('notification', (data: NotificationsReceiveDto) => {
+    // });
+    // this.socket.on('fetch_notifications', () => {
+    // });
 
 
     //TODO: ajouter event notification + des Observables appropriés

@@ -139,7 +139,7 @@ CREATE SEQUENCE messages_message_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 21474836
 
 CREATE TABLE "public"."messages" (
     "message_id" integer DEFAULT nextval('messages_message_id_seq') NOT NULL,
-    "content" character varying(500) NOT NULL,
+    "content" character varying(50) NOT NULL,
     "created_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     "owner_user" integer NOT NULL,
     "target_user" integer NOT NULL,
@@ -161,6 +161,7 @@ CREATE TABLE "public"."notifications" (
     "notified_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     "type" enum_notif_type NOT NULL,
     "source_user" integer NOT NULL,
+    "source_username" character varying(500) NOT NULL,
     CONSTRAINT "notifications_pk" PRIMARY KEY ("notification_id")
 ) WITH (oids = false);
 

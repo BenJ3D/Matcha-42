@@ -1,16 +1,21 @@
 import NotificationsDAL from '../DataAccessLayer/NotificationsDAL';
 import {NotificationType, Notification} from '../models/Notifications';
 import {onlineUsers} from '../sockets/events/onlineUsers';
+import {NotificationEmitDto} from "../DTOs/notification/NotificationEmitDto";
+import UserServices from "./UserServices";
+import UserDAL from "../DataAccessLayer/UserDAL";
 
 class NotificationsService {
     async createNotification(
         targetUserId: number,
         sourceUserId: number,
         type: NotificationType
-    ): Promise<number> {
-        const notificationId = await NotificationsDAL.createNotification(
+    ): Promise<Notification> {
+        const source_username = await UserDAL.getUsernameByUserId(sourceUserId);
+        const notification = await NotificationsDAL.createNotification(
             targetUserId,
             sourceUserId,
+            source_username ?? 'Bifrost63',
             type
         );
 
@@ -18,14 +23,11 @@ class NotificationsService {
         const userSockets = onlineUsers.get(targetUserId);
         if (userSockets) {
             userSockets.forEach((socket) => {
-                socket.emit('notification', {
-                    notification_id: notificationId,
-                    type,
-                    source_user_id: sourceUserId,
-                });
+                socket.emit('notification', notification);
+                socket.emit('reload_chat', notification);
             });
         }
-        return notificationId;
+        return notification;
     }
 
     async getNotificationsForUser(
@@ -42,11 +44,11 @@ class NotificationsService {
         await NotificationsDAL.markNotificationsAsRead(userId, notificationIds);
     }
 
-    async deleteNotification(
+    async deleteNotifications(
         userId: number,
-        notificationId: number
+        notificationIds: number[]
     ): Promise<void> {
-        await NotificationsDAL.deleteNotification(notificationId, userId);
+        await NotificationsDAL.deleteNotifications(notificationIds, userId);
     }
 }
 

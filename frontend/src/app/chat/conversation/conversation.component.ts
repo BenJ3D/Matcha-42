@@ -1,17 +1,29 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { SocketService } from '../../../services/socket.service';
-import { AuthService } from '../../../services/auth.service';
-import { MessageDto } from '../../../DTOs/chat/MessageDto';
-import { CreateMessageDto } from '../../../DTOs/chat/CreateMessageDto';
-import { HttpClient } from '@angular/common/http';
-import { UserLightResponseDto } from "../../../DTOs/users/UserLightResponseDto";
-import { MatIconModule} from "@angular/material/icon";
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef
+} from '@angular/core';
+import {Subscription} from 'rxjs';
+import {SocketService} from '../../../services/socket.service';
+import {AuthService} from '../../../services/auth.service';
+import {MessageDto} from '../../../DTOs/chat/MessageDto';
+import {CreateMessageDto} from '../../../DTOs/chat/CreateMessageDto';
+import {HttpClient} from '@angular/common/http';
+import {UserLightResponseDto} from "../../../DTOs/users/UserLightResponseDto";
+import {MatIconModule} from "@angular/material/icon";
 import {CommonModule, DatePipe, NgClass, NgForOf} from "@angular/common";
-import { MatFormFieldModule} from "@angular/material/form-field";
+import {MatFormFieldModule} from "@angular/material/form-field";
 import {FormsModule} from "@angular/forms";
 import {MatButtonModule} from "@angular/material/button";
-import { MatInputModule} from "@angular/material/input";
+import {MatInputModule} from "@angular/material/input";
+import {ApiService} from "../../../services/api.service";
 
 @Component({
   selector: 'app-conversation',
@@ -40,10 +52,11 @@ export class ConversationComponent implements OnInit, OnDestroy {
 
   constructor(
     private socketService: SocketService,
+    private apiService: ApiService,
     private authService: AuthService,
-    private http: HttpClient,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
 
@@ -68,7 +81,7 @@ export class ConversationComponent implements OnInit, OnDestroy {
         content: this.newMessage.trim(),
       };
 
-      this.http.post<MessageDto>('http://localhost:8000/api/messages', messageDto).subscribe({
+      this.apiService.post<MessageDto>('messages', messageDto).subscribe({
         next: (msg) => {
           this.newMessage = '';
           this.scrollToBottom();
@@ -76,7 +89,6 @@ export class ConversationComponent implements OnInit, OnDestroy {
           // Le message sera ajouté via le socket, donc pas besoin de l'ajouter ici
         },
         error: (error) => {
-          console.error('Erreur lors de l\'envoi du message:', error);
         },
       });
     }

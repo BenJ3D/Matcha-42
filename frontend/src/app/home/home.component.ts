@@ -4,7 +4,7 @@ import {
   ElementRef,
   AfterViewInit,
   PLATFORM_ID,
-  Inject,
+  Inject, OnInit,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
@@ -33,7 +33,7 @@ interface UserProfile {
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
-export class HomeComponent implements AfterViewInit {
+export class HomeComponent implements AfterViewInit, OnInit {
   @ViewChild('swipeCard') swipeCard!: ElementRef;
 
   currentProfileIndex: number = 0;
@@ -69,7 +69,7 @@ export class HomeComponent implements AfterViewInit {
           id: profile.id,
           username: profile.username || 'Anonymous',
           main_photo_url: profile.main_photo_url || 'https://example.com/default-photo.jpg',
-          location: profile.location || { city_name: 'Unknown City', latitude: 0, longitude: 0 },
+          location: profile.location || {city_name: 'Unknown City', latitude: 0, longitude: 0},
           age: profile.age || 'Unknown',
           gender: profile.gender || 'Unknown'
         }));

@@ -1,14 +1,17 @@
 import {Socket, Server} from "socket.io";
-import {CreateMessageDto} from "../../DTOs/chat/CreateMessageDto";
+import NotificationsService from "../../services/NotificationsService";
 
-const messageEventHandler = (socket: Socket, io: Server) => {
+const notificationEventHandler = (socket: Socket, io: Server) => {
 
-    socket.on('message', (data: CreateMessageDto) => {
+    socket.on('notification_read', (payload: { data: number[] }) => {
+        NotificationsService.markNotificationsAsRead(socket.data.userId, payload.data)
+        socket.emit('fetch_notifications');
+    });
 
-        console.log(`DBG MESSAGE EVENT\n${JSON.stringify(data)}\n`)
-        // Traiter les données reçues et éventuellement émettre des événements
-        socket.emit<string>('blabla', {message: 'Événement reçu et traité'});
+    socket.on('notifications_delete', (payload: { data: number[] }) => {
+        NotificationsService.deleteNotifications(socket.data.userId, payload.data)
+        socket.emit('fetch_notifications');
     });
 };
 
-export default messageEventHandler;
+export default notificationEventHandler;
