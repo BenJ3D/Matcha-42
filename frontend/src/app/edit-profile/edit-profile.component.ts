@@ -23,6 +23,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { ProfileUpdateDto } from '../../DTOs/profiles/ProfileUpdateDto';
 import { ProfileCreateDto } from '../../DTOs/profiles/ProfileCreateDto';
+import { HttpClient } from '@angular/common/http';
+import { debounce, debounceTime } from 'rxjs';
 
 @Component({
   selector: 'app-edit-profile',
@@ -55,7 +57,8 @@ export class EditProfileComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private profileService: ProfileService,
-    private router: Router
+    private router: Router,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -63,10 +66,24 @@ export class EditProfileComponent implements OnInit {
       biography: ['', [Validators.required, Validators.maxLength(1024)]],
       gender: [null, [Validators.required]],
       sexualPreferences: [[], [Validators.required]],
-      age: [null, [Validators.required, Validators.min(18), Validators.max(120)]],
+      age: [
+        null,
+        [Validators.required, Validators.min(18), Validators.max(120)],
+      ],
       tags: [[]],
       city: ['', Validators.required],
+      location: this.fb.group({
+        latitude: [null],
+        longitude: [null],
+      }),
     });
+
+    this.profileForm
+      .get('city')
+      ?.valueChanges.pipe(debounceTime(500))
+      .subscribe((cityName) => {
+        this.searchCityCoordinates(cityName);
+      });
 
     this.loadGenders();
     this.loadTags();
@@ -92,6 +109,46 @@ export class EditProfileComponent implements OnInit {
     this.profileService.getGenders().subscribe({
       next: (genders) => (this.genders = genders),
       error: (err) => console.error('Error loading genders', err),
+    });
+  }
+
+  searchCityCoordinates(cityName: string) {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+      cityName
+    )}&format=json&limit=1`;
+    const headers = {
+      'Accept-Language': 'fr',
+      'User-Agent': 'matcha - matcha@example.com',
+    };
+
+    this.http.get<any[]>(url, { headers }).subscribe({
+      next: (results) => {
+        if (results && results.length > 0) {
+          // console.log('Ville trouvée :', results[0].display_name); // To remove
+          const latitude = parseFloat(results[0].lat);
+          const longitude = parseFloat(results[0].lon);
+          this.profileForm.patchValue({
+            location: {
+              latitude: latitude,
+              longitude: longitude,
+            },
+          });
+        } else {
+          console.warn('Aucune ville trouvée pour :', cityName);
+          this.profileForm.patchValue({
+            location: {
+              latitude: null,
+              longitude: null,
+            },
+          });
+        }
+      },
+      error: (error) => {
+        console.error(
+          'Erreur lors de la récupération des coordonnées :',
+          error
+        );
+      },
     });
   }
 
@@ -124,11 +181,10 @@ export class EditProfileComponent implements OnInit {
         sexualPreferences: formValues.sexualPreferences,
         age: formValues.age,
         tags: formValues.tags,
-        // location: {
-        //   latitude: null,
-        //   longitude: null,
-        //   city_name: formValues.city,
-        // },
+        location: {
+          latitude: formValues.location.latitude,
+          longitude: formValues.location.longitude
+        },
       };
 
       if (this.existingProfile) {
@@ -197,7 +253,9 @@ export class EditProfileComponent implements OnInit {
     if (confirm('Are you sure you want to delete this photo?')) {
       this.profileService.deletePhoto(photo.photo_id).subscribe({
         next: () => {
-          this.photos = this.photos.filter((p) => p.photo_id !== photo.photo_id);
+          this.photos = this.photos.filter(
+            (p) => p.photo_id !== photo.photo_id
+          );
           console.log('Photo deleted successfully');
         },
         error: (error) => {

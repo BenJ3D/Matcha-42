@@ -35,7 +35,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) {
     this.intervalId = setInterval(() => {
       this.fetchNotification();
-    }, 1500);
+    }, 1500000);
 
   }
 
