@@ -74,8 +74,14 @@
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>City</mat-label>
           <input matInput formControlName="city" required>
+          <mat-icon matSuffix *ngIf="isCityValid" color="primary"
+            >check_circle</mat-icon
+          >
           <mat-error *ngIf="profileForm.get('city')?.hasError('required')">
             City is required
+          </mat-error>
+          <mat-error *ngIf="profileForm.get('city')?.hasError('invalidCity')">
+            City is invalid
           </mat-error>
         </mat-form-field>
 

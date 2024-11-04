@@ -53,6 +53,7 @@ export class EditProfileComponent implements OnInit {
   existingProfile: boolean = false;
   photos: Photo[] = [];
   user: UserResponseDto | null = null;
+  isCityValid: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -113,18 +114,15 @@ export class EditProfileComponent implements OnInit {
   }
 
   searchCityCoordinates(cityName: string) {
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-      cityName
-    )}&format=json&limit=1`;
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`;
     const headers = {
       'Accept-Language': 'fr',
       'User-Agent': 'matcha - matcha@example.com',
     };
-
+  
     this.http.get<any[]>(url, { headers }).subscribe({
       next: (results) => {
         if (results && results.length > 0) {
-          // console.log('Ville trouvée :', results[0].display_name); // To remove
           const latitude = parseFloat(results[0].lat);
           const longitude = parseFloat(results[0].lon);
           this.profileForm.patchValue({
@@ -133,6 +131,7 @@ export class EditProfileComponent implements OnInit {
               longitude: longitude,
             },
           });
+          this.isCityValid = true;
         } else {
           console.warn('Aucune ville trouvée pour :', cityName);
           this.profileForm.patchValue({
@@ -141,13 +140,12 @@ export class EditProfileComponent implements OnInit {
               longitude: null,
             },
           });
+          this.isCityValid = false;
         }
       },
       error: (error) => {
-        console.error(
-          'Erreur lors de la récupération des coordonnées :',
-          error
-        );
+        console.error('Erreur lors de la récupération des coordonnées :', error);
+        this.isCityValid = false;
       },
     });
   }

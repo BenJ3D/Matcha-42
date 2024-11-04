@@ -1,0 +1,4309 @@
+export interface CreateMessageDto {
+    target_user: number;
+    content: string;
+}import {Message} from "../../models/Message";
+
+export interface MessageDto extends Message{}
+export interface LoginDto {
+    email: string;
+    password: string;
+}import {UserResponseDto} from "../users/UserResponseDto";
+
+export interface LoginResponseDTO {
+    user: UserResponseDto;
+    accessToken: string;
+    refreshToken: string;
+}import {Notification} from '../../models/Notifications'
+
+export interface NotificationsReceiveDto extends Notification {}
+import joi from 'joi';
+
+export interface LocationDto {
+    latitude: number;
+    longitude: number;
+}
+
+export interface ProfileCreateDto {
+    biography: string;
+    gender: number;
+    age: number;
+    main_photo_id?: number;
+    location?: LocationDto;
+    tags?: number[];
+    sexualPreferences?: number[];
+}
+
+export const LocationDtoValidation = joi.object({
+    latitude: joi.number().required(),
+    longitude: joi.number().required(),
+});
+
+export const ProfileCreateDtoValidation = joi.object({
+    biography: joi.string().max(1024).required(),
+    gender: joi.number().integer().required(),
+    age: joi.number().integer().min(18).max(120).required(),
+    main_photo_id: joi.number().integer(),
+    location: LocationDtoValidation,
+    tags: joi.array().items(joi.number().integer()).unique(),
+    sexualPreferences: joi.array().items(joi.number().integer()).unique(),
+});
+import {Photo} from "../../models/Photo";
+import {Tag} from "../../models/Tags";
+
+export interface ProfileResponseDto {
+    profile_id: number;
+    owner_user_id: number;
+    biography: string;
+    gender: number;
+    age: number;
+    main_photo_id?: number;
+    main_photo_url?: string;
+    photos?: Photo[];
+    location?: {
+        location_id: number;
+        latitude: number;
+        longitude: number;
+        city_name?: string;
+    };
+    tags?: Tag[];
+    fame_rating: number;
+    last_connection?: Date;
+}
+import joi from 'joi';
+import {LocationDtoValidation} from "./ProfileCreateDto";
+
+export interface LocationDto {
+    latitude: number;
+    longitude: number;
+}
+
+export interface ProfileUpdateDto {
+    biography: string;
+    gender: number;
+    age: number;
+    main_photo_id?: number;
+    location?: LocationDto;
+    tags?: number[];
+    sexualPreferences?: number[];
+}
+
+export const ProfileUpdateDtoValidation = joi.object({
+    biography: joi.string().max(1024),
+    gender: joi.number().integer(),
+    age: joi.number().integer().min(18),
+    main_photo_id: joi.number().integer(),
+    location: LocationDtoValidation,
+    tags: joi.array().items(joi.number().integer()).unique().messages({
+        'array.unique': 'Les tags doivent être uniques.',
+    }),
+    sexualPreferences: joi.array().items(joi.number().integer()).unique().messages({
+        'array.unique': 'Les préférences sexuelles doivent être uniques.',
+    }),
+});
+export interface SignupResponseDto {
+    userId: number;
+}
+
+export interface BlockedUserResponseDto {
+    id: number;
+    username: string;
+    main_photo_url: string;
+    blocked_at: Date;
+}export interface UserCreateDto {
+    username: string;
+    last_name: string;
+    first_name: string;
+    email: string;
+    password: string;
+}
+export interface UserEmailPatchDto {
+    email: string;
+}export interface UserLightResponseDto {
+    id: number;
+    username: string;
+    first_name: string;
+    last_name: string;
+    age: number;
+    main_photo_url: string;
+    location?: {
+        latitude: number;
+        longitude: number;
+        city_name?: string;
+    };
+    gender: number;
+    is_online: boolean;
+    last_activity: Date;
+}export interface UserLoginPasswordCheckDto {
+    id: number;
+    password: string;
+}import {UserLightResponseDto} from "./UserLightResponseDto";
+import {Photo} from "../../models/Photo";
+import {Tag} from "../../models/Tags";
+import {BlockedUserResponseDto} from "./BlockedUserResponseDto";
+import {Gender} from "../../models/Genders"
+
+//Fourni un user complet pour les get ciblés byId avec toutes les infos profile / listes de like/match etc
+export interface UserResponseDto extends UserLightResponseDto {
+    id: number;
+    email: string;
+    created_at: Date;
+    profile_id: number;
+    biography: string;
+    gender: number;
+    age: number;
+    is_online: boolean;
+    is_verified: boolean;
+    last_activity: Date;
+    main_photo_id?: number;
+    photos: Photo[];
+    sexualPreferences?: Gender[];
+    tags?: Tag[];
+    location?: {
+        latitude: number;
+        longitude: number;
+        city_name?: string;
+    };
+    fame_rating: number;
+    last_connection?: Date;
+    likers?: UserLightResponseDto[];
+    visitors?: UserLightResponseDto[];
+    matchers?: UserLightResponseDto[];
+    blocked?: BlockedUserResponseDto[];
+}export interface UserUpdateDto {
+    last_name: string;
+    first_name: string;
+}<div class="app-container">
+  <router-outlet></router-outlet>
+</div>
+.app-container {
+	height: 100vh;
+	width: 100vw;
+	overflow-x: hidden;
+  }import { TestBed } from '@angular/core/testing';
+import { AppComponent } from './app.component';
+
+describe('AppComponent', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [AppComponent],
+    }).compileComponents();
+  });
+
+  it('should create the app', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    expect(app).toBeTruthy();
+  });
+
+  it(`should have the 'frontend' title`, () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    expect(app.title).toEqual('frontend');
+  });
+
+  it('should render title', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, frontend');
+  });
+});
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import {AuthService} from "../services/auth.service";
+import {SocketService} from "../services/socket.service";
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [RouterOutlet, CommonModule, MatSnackBarModule],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss'],
+})
+export class AppComponent {
+  title = 'frontend';
+  constructor(private socketService: SocketService) {
+  }
+}
+import { mergeApplicationConfig, ApplicationConfig } from '@angular/core';
+import { provideServerRendering } from '@angular/platform-server';
+import { appConfig } from './app.config';
+
+const serverConfig: ApplicationConfig = {
+  providers: [
+    provideServerRendering()
+  ]
+};
+
+export const config = mergeApplicationConfig(appConfig, serverConfig);
+import {APP_INITIALIZER, ApplicationConfig, importProvidersFrom} from '@angular/core';
+import {provideRouter} from '@angular/router';
+import {routes} from './app.routes';
+import {provideClientHydration} from '@angular/platform-browser';
+import {provideAnimationsAsync} from '@angular/platform-browser/animations/async';
+import {MatButtonModule} from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatIconModule} from '@angular/material/icon';
+import {MatInputModule} from '@angular/material/input';
+import {provideHttpClient, withFetch, withInterceptors} from '@angular/common/http';
+import {authInterceptor} from '../services/auth.interceptor';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {errorInterceptor} from "../services/error.interceptor";
+import {AuthService} from "../services/auth.service";
+
+export function initializeApp(authService: AuthService) {
+  return (): Promise<void> => {
+    return new Promise((resolve) => {
+      authService.initUser();
+      resolve();
+    });
+  };
+}
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideRouter(routes),
+    provideClientHydration(),
+    provideAnimationsAsync(),
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([authInterceptor, errorInterceptor])
+    ),
+    importProvidersFrom([
+      MatButtonModule,
+      MatCardModule,
+      MatFormFieldModule,
+      MatInputModule,
+      MatIconModule,
+      MatSnackBarModule,
+    ]),
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeApp,
+      deps: [AuthService],
+      multi: true,
+    },
+  ],
+};
+import { Routes } from '@angular/router';
+import { DashboardComponent } from './dashboard/dashboard.component';
+import { authGuard } from '../services/auth.guard';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { ProfileGuard } from '../services/profile.guard';
+
+export const routes: Routes = [
+  {
+    path: 'callback/verify-email',
+    loadComponent: () =>
+      import('../callback/verify-email/verify-email.component').then(
+        (m) => m.VerifyEmailComponent
+      ),
+  },
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./login/login.component').then((m) => m.LoginComponent),
+  },
+  {
+    path: 'signup',
+    loadComponent: () =>
+      import('./signup/signup.component').then((m) => m.SignupComponent),
+  },
+  {
+    path: '',
+    component: DashboardComponent,
+    canActivate: [authGuard],
+    children: [
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      {
+        path: 'home',
+        loadComponent: () =>
+          import('./home/home.component').then((m) => m.HomeComponent),
+        canActivate: [authGuard, ProfileGuard],
+      },
+      {
+        path: 'nearby',
+        loadComponent: () =>
+          import('./nearby/nearby.component').then((m) => m.NearbyComponent),
+        canActivate: [authGuard, ProfileGuard],
+      },
+      {
+        path: 'chat',
+        loadComponent: () =>
+          import('./chat/chat.component').then((m) => m.ChatComponent),
+        canActivate: [authGuard, ProfileGuard],
+      },
+      {
+        path: 'notification',
+        loadComponent: () =>
+          import('./notification/notification.component').then(
+            (m) => m.NotificationComponent
+          ),
+        canActivate: [authGuard, ProfileGuard],
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./profile/profile.component').then((m) => m.ProfileComponent),
+        canActivate: [authGuard, ProfileGuard],
+      },
+    ],
+  },
+  {
+    path: 'edit-profile',
+    loadComponent: () =>
+      import('./edit-profile/edit-profile.component').then(
+        (m) => m.EditProfileComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./page-not-found/page-not-found.component').then(
+        (m) => m.PageNotFoundComponent
+      ),
+  },
+];
+<div class="chat-container">
+  <mat-card
+    class="chat-users-card"
+    [class.hidden]="isMobile && selectedUser"
+  >
+    <mat-card-header>
+      <mat-card-title>Chats</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-list>
+        <mat-list-item
+          *ngFor="let user of chatUsers"
+          (click)="selectConversation(user)"
+          [class.selected]="user === selectedUser"
+        >
+          <div class="text-2xl">{{user.username}}</div>
+        </mat-list-item>
+      </mat-list>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="chat-conversation-card" *ngIf="selectedUser">
+    <app-conversation
+      [user]="selectedUser"
+      [messages]="messages"
+      (close)="closeConversation()">
+    </app-conversation>
+  </mat-card>
+</div>
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.chat-container {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 56px);
+  width: 100%;
+}
+
+.chat-users-card {
+  width: 30%;
+  max-width: 300px;
+  border-right: 1px solid #ccc;
+  overflow-y: auto;
+  transition: transform 0.3s ease-in-out;
+}
+
+.chat-conversation-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.mat-list-item.selected {
+  background-color: #e0e0e0;
+}
+
+.unread-badge {
+  background-color: #3f51b5;
+  color: white;
+  border-radius: 12px;
+  padding: 2px 6px;
+  font-size: 12px;
+  margin-left: auto;
+}
+
+/* Styles pour les petits écrans */
+@media (max-width: 600px) {
+  .chat-container {
+    flex-direction: column;
+  }
+
+  .chat-users-card {
+    width: 100%;
+    max-width: none;
+    border-right: none;
+    border-bottom: 1px solid #ccc;
+    /* Lorsque caché, déplacez hors de l'écran */
+    &.hidden {
+      display: none;
+    }
+  }
+
+  .chat-conversation-card {
+    width: 100%;
+  }
+}
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { ChatComponent } from './chat.component';
+
+describe('ChatComponent', () => {
+  let component: ChatComponent;
+  let fixture: ComponentFixture<ChatComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [ChatComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(ChatComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+import {Component, OnInit, OnDestroy, HostListener, ChangeDetectorRef} from '@angular/core';
+import {Subscription} from 'rxjs';
+import {SocketService} from '../../services/socket.service';
+import {AuthService} from '../../services/auth.service';
+import {MessageDto} from '../../DTOs/chat/MessageDto';
+import {UserLightResponseDto} from "../../DTOs/users/UserLightResponseDto";
+import {MatCardModule} from "@angular/material/card";
+import {MatListModule} from "@angular/material/list";
+import {ConversationComponent} from "./conversation/conversation.component";
+import {CommonModule} from "@angular/common";
+import {ActivatedRoute} from "@angular/router";
+import {ApiService} from '../../services/api.service';
+
+@Component({
+  selector: 'app-chat',
+  templateUrl: './chat.component.html',
+  styleUrls: ['./chat.component.scss'],
+  imports: [
+    CommonModule,
+    MatListModule,
+    MatCardModule,
+    ConversationComponent,
+  ],
+  standalone: true
+})
+export class ChatComponent implements OnInit, OnDestroy {
+
+  messages: MessageDto[] = [];
+  chatUsers: UserLightResponseDto[] = [];
+  selectedUser: UserLightResponseDto | null = null;
+  newMessage: string = '';
+  public isMobile: boolean = false;
+
+  private messageSubscription!: Subscription;
+
+  constructor(
+    private socketService: SocketService,
+    private authService: AuthService,
+    private apiService: ApiService,
+    private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute
+  ) {
+  }
+
+  ngOnInit(): void {
+    this.checkIfMobile();
+
+    this.socketService.on('reload_chat').subscribe(() => {
+      this.fetchMatches();
+    });
+    // Récupérer la liste des matches via l'API
+    this.fetchMatches();
+
+    this.route.queryParams.subscribe(params => {
+      const userId = +params['id']; // Convertir en nombre
+      if (userId) {
+        this.selectConversationById(userId);
+      }
+    });
+
+    // S'abonner aux messages globaux
+    this.messageSubscription = this.socketService.messages$.subscribe((msg) => {
+      // Vérifier si le message concerne l'utilisateur sélectionné
+      if (
+        (msg.owner_user === this.getCurrentUserId() && msg.target_user === this.selectedUser?.id) ||
+        (msg.owner_user === this.selectedUser?.id && msg.target_user === this.getCurrentUserId())
+      ) {
+        const messageExists = this.messages.some(m => m.message_id === msg.message_id);
+        if (!messageExists) {
+          this.messages = [...this.messages, msg].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+          // Vous pouvez retirer `this.cdr.detectChanges();` ici car le changement de référence devrait suffire
+        }
+      }
+
+      // Mettre à jour les indicateurs de messages non lus
+      this.updateUnreadCounts(msg);
+    });
+  }
+
+  /**
+   * Détecte les changements de taille de la fenêtre.
+   * Utilisé par le décorateur @HostListener.
+   */
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.checkIfMobile();
+  }
+
+  /**
+   * Vérifie si la taille de la fenêtre correspond à un écran mobile.
+   */
+  checkIfMobile() {
+    this.isMobile = window.innerWidth <= 600;
+    this.cdr.detectChanges(); // Rafraîchir la détection des changements
+  }
+
+  /**
+   * Sélectionne une conversation en fonction de l'ID de l'utilisateur.
+   * @param userId L'ID de l'utilisateur avec qui ouvrir la conversation.
+   */
+  selectConversationById(userId: number): void {
+    const user = this.chatUsers.find(u => u.id === userId);
+    if (user) {
+      this.selectConversation(user);
+    } else {
+      // Si l'utilisateur n'est pas encore chargé, attendre que les matches soient récupérés
+      this.fetchMatches().then(() => {
+        const userAfterFetch = this.chatUsers.find(u => u.id === userId);
+        if (userAfterFetch) {
+          this.selectConversation(userAfterFetch);
+        } else {
+          console.warn(`Utilisateur avec ID ${userId} non trouvé.`);
+        }
+      });
+    }
+  }
+
+  /**
+   * Récupère la liste des utilisateurs avec qui l'utilisateur est en match.
+   */
+  fetchMatches(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.apiService.get<UserLightResponseDto[]>('matches').subscribe({
+        next: (users) => {
+          this.chatUsers = users;
+          this.cdr.detectChanges();
+          resolve();
+        },
+        error: (error) => {
+          console.error('Erreur lors de la récupération des matches:', error);
+          reject(error);
+        },
+      });
+    });
+  }
+
+  /**
+   * Sélectionne une conversation avec un utilisateur spécifique.
+   * @param user L'utilisateur sélectionné.
+   */
+  selectConversation(user: UserLightResponseDto): void {
+    this.selectedUser = user;
+    this.fetchMessages(user.id);
+    // Réinitialiser le compteur de non lus pour cet utilisateur
+    if (this.isMobile) {
+      // Sur mobile, cacher la liste des utilisateurs
+      // La classe 'hidden' est gérée via [class.hidden] dans le template
+    }
+  }
+
+  /**
+   * Récupère les messages de la conversation avec un utilisateur spécifique.
+   * @param userId L'ID de l'utilisateur avec qui récupérer les messages.
+   */
+  fetchMessages(userId: number): void {
+    this.apiService.get<any>(`messages/${userId}`).subscribe({
+      next: (msgs) => {
+        this.messages = msgs.messages;
+        // Trier les messages par date de création
+        this.messages.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Erreur lors de la récupération des messages:', error);
+      },
+    });
+  }
+
+  /**
+   * Met à jour le compteur de messages non lus pour les utilisateurs.
+   * @param msg Le message reçu.
+   */
+  private updateUnreadCounts(msg: MessageDto): void {
+    const otherUserId =
+      msg.owner_user === this.getCurrentUserId() ? msg.target_user : msg.owner_user;
+    const chatUser = this.chatUsers.find((user) => user.id === otherUserId);
+
+    // if (chatUser && otherUserId !== this.selectedUser?.id) {
+    //   chatUser.unread = (chatUser.unread || 0) + 1;
+    // }
+  }
+
+  /**
+   * Ferme la conversation actuelle.
+   */
+  closeConversation(): void {
+    this.selectedUser = null;
+    this.messages = [];
+    this.cdr.detectChanges();
+  }
+
+  ngOnDestroy(): void {
+    if (this.messageSubscription) {
+      this.messageSubscription.unsubscribe();
+    }
+    // Aucun abonnement supplémentaire à nettoyer
+  }
+
+  /**
+   * Récupère l'ID de l'utilisateur actuel à partir de AuthService.
+   */
+  getCurrentUserId(): number {
+    return this.authService.getCurrentUserId();
+  }
+
+}
+<div class="conversation-container">
+  <div class="conversation-header">
+    <button mat-icon-button (click)="closeConversation()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h2>{{ user?.username }}</h2>
+  </div>
+  <div class="message-list" #messageList>
+    <div
+      *ngFor="let message of messages"
+      [ngClass]="{
+        message: true,
+        'user-message': message.owner_user === getCurrentUserId(),
+        'other-message': message.owner_user !== getCurrentUserId()
+      }"
+    >
+      <div class="message-content">
+        {{ message.content }}
+        <div class="message-timestamp">
+          {{ message.created_at | date: 'shortTime' }}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="message-input">
+    <mat-form-field appearance="outline" class="message-field">
+      <input
+        matInput
+        [(ngModel)]="newMessage"
+        placeholder="Tapez un message..."
+        (keyup.enter)="sendMessage()"
+      />
+      <button mat-icon-button matSuffix color="primary" (click)="sendMessage()">
+        <mat-icon>send</mat-icon>
+      </button>
+    </mat-form-field>
+  </div>
+</div>
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.conversation-container {
+  display: flex;
+  flex-direction: column;
+  height: 93vh;
+  width: 100%;
+}
+
+.conversation-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+}
+
+.conversation-header h2 {
+  margin: 0;
+  margin-left: 16px;
+}
+
+.message-list {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.message {
+  max-width: 70%;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  border-radius: 20px;
+  word-wrap: break-word;
+}
+
+.message-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.message-timestamp {
+  font-size: 10px;
+  color: #888;
+  margin-top: 4px;
+  text-align: right;
+}
+
+.user-message {
+  align-self: flex-end;
+  background-color: #dcf8c6;
+}
+
+.other-message {
+  align-self: flex-start;
+  background-color: #f1f0f0;
+}
+
+.message-input {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-top: 1px solid #ccc;
+}
+
+.message-input mat-form-field {
+  flex: 1;
+}
+
+.message-input button {
+  margin-left: 8px;
+}
+
+/* Styles pour les petits écrans */
+@media (max-width: 600px) {
+  .conversation-container {
+    height: 93vh;
+  }
+
+  .conversation-header h2 {
+    font-size: 1.2em;
+  }
+
+  .message {
+    max-width: 90%;
+  }
+}
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { ConversationComponent } from './conversation.component';
+
+describe('ConversationComponent', () => {
+  let component: ConversationComponent;
+  let fixture: ComponentFixture<ConversationComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [ConversationComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(ConversationComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef
+} from '@angular/core';
+import {Subscription} from 'rxjs';
+import {SocketService} from '../../../services/socket.service';
+import {AuthService} from '../../../services/auth.service';
+import {MessageDto} from '../../../DTOs/chat/MessageDto';
+import {CreateMessageDto} from '../../../DTOs/chat/CreateMessageDto';
+import {HttpClient} from '@angular/common/http';
+import {UserLightResponseDto} from "../../../DTOs/users/UserLightResponseDto";
+import {MatIconModule} from "@angular/material/icon";
+import {CommonModule, DatePipe, NgClass, NgForOf} from "@angular/common";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {FormsModule} from "@angular/forms";
+import {MatButtonModule} from "@angular/material/button";
+import {MatInputModule} from "@angular/material/input";
+import {ApiService} from "../../../services/api.service";
+
+@Component({
+  selector: 'app-conversation',
+  templateUrl: './conversation.component.html',
+  styleUrls: ['./conversation.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatIconModule,
+    MatButtonModule,
+    MatInputModule,
+    MatFormFieldModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class ConversationComponent implements OnInit, OnDestroy {
+  @Input() user: UserLightResponseDto | null = null;
+  @Input() messages: MessageDto[] = [];
+  @Output() close = new EventEmitter<void>();
+
+  newMessage: string = '';
+  private messageSubscription!: Subscription;
+
+  @ViewChild('messageList') messageList!: ElementRef;
+
+  constructor(
+    private socketService: SocketService,
+    private apiService: ApiService,
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
+  ) {
+  }
+
+  ngOnInit(): void {
+
+    // S'abonner aux messages globaux
+    this.messageSubscription = this.socketService.messages$.subscribe((msg) => {
+      this.scrollToBottom();
+      this.cdr.markForCheck(); // Demander une vérification des changements
+    });
+
+
+    // Scroll au bas lors du chargement initial
+    this.scrollToBottom();
+  }
+
+  /**
+   * Envoie un message à l'utilisateur sélectionné via une requête HTTP POST.
+   */
+  sendMessage(): void {
+    if (this.newMessage.trim() && this.user) {
+      const messageDto: CreateMessageDto = {
+        target_user: this.user.id,
+        content: this.newMessage.trim(),
+      };
+
+      this.apiService.post<MessageDto>('messages', messageDto).subscribe({
+        next: (msg) => {
+          this.newMessage = '';
+          this.scrollToBottom();
+          this.cdr.detectChanges();
+          // Le message sera ajouté via le socket, donc pas besoin de l'ajouter ici
+        },
+        error: (error) => {
+        },
+      });
+    }
+  }
+
+  /**
+   * Fait défiler automatiquement la liste des messages vers le bas.
+   */
+  private scrollToBottom(): void {
+    setTimeout(() => {
+      if (this.messageList && this.messageList.nativeElement) {
+        this.messageList.nativeElement.scrollTop = this.messageList.nativeElement.scrollHeight;
+      }
+    }, 100);
+  }
+
+  /**
+   * Ferme la conversation.
+   */
+  closeConversation(): void {
+    this.close.emit();
+  }
+
+  ngOnDestroy(): void {
+    if (this.messageSubscription) {
+      this.messageSubscription.unsubscribe();
+    }
+  }
+
+  /**
+   * Récupère l'ID de l'utilisateur actuel à partir de AuthService.
+   */
+  getCurrentUserId(): number {
+    return this.authService.getCurrentUserId();
+  }
+}
+<div class="custom-toast">
+  <span>{{ data.message }}</span>
+  <button mat-button (click)="data.action()">{{ data.actionText }}</button>
+</div>.custom-toast {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { CustomToastComponent } from './custom-toast.component';
+
+describe('CustomToastComponent', () => {
+  let component: CustomToastComponent;
+  let fixture: ComponentFixture<CustomToastComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [CustomToastComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(CustomToastComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+import { Component, Inject } from '@angular/core';
+import { MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
+
+@Component({
+  selector: 'app-custom-toast',
+  standalone: true,
+  imports: [],
+  templateUrl: './custom-toast.component.html',
+  styleUrl: './custom-toast.component.scss'
+})
+export class CustomToastComponent {
+  constructor(@Inject(MAT_SNACK_BAR_DATA) public data: any) {}
+}
+<div class="dashboard-container">
+  <div class="content-area">
+    <router-outlet></router-outlet>
+  </div>
+  <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="bottom-tab-bar">
+    <a mat-tab-link
+       *ngFor="let tab of tabs"
+       [routerLink]="tab.path"
+       routerLinkActive #rla="routerLinkActive"
+       [active]="rla.isActive">
+
+      <!-- Cas pour l'onglet 'chat' -->
+      <ng-container *ngIf="tab.path === 'chat'; else notificationBadge">
+        <mat-icon aria-hidden="false"
+                  [matBadge]="(messageMarker$ | async) ? '.' : null"
+                  matBadgeColor="warn"
+                  matBadgeOverlap="false"
+                  matBadgeSize="small"
+        >
+          {{ tab.icon }}
+        </mat-icon>
+      </ng-container>
+
+      <!-- Cas pour l'onglet 'notification' -->
+      <ng-template #notificationBadge>
+        <ng-container *ngIf="tab.path === 'notification'; else defaultIcon">
+          <mat-icon aria-hidden="false"
+                    [matBadge]="(notificationMarker$ | async) ? (countNotificationMarker$ | async) : null"
+                    matBadgeColor="warn"
+                    matBadgeOverlap="false"
+                    matBadgeSize="small"
+          >
+            {{ tab.icon }}
+          </mat-icon>
+        </ng-container>
+      </ng-template>
+
+      <!-- Icône par défaut pour les autres onglets -->
+      <ng-template #defaultIcon>
+        <mat-icon>{{ tab.icon }}</mat-icon>
+      </ng-template>
+
+      <span class="tab-label">{{ tab.label }}</span>
+    </a>
+  </nav>
+  <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
+</div>
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-x: hidden;
+}
+
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.bottom-tab-bar {
+  position: fixed;
+  z-index: 1000;
+  height: 56px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+::ng-deep .mat-tab-links {
+  display: flex;
+  justify-content: space-around;
+}
+
+a {
+  flex: 1;
+  text-align: center;
+  padding: 12px 0;
+  color: #333;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  &.mat-tab-link-active {
+    color: #3f51b5;
+  }
+}
+
+.tab-label {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.badge-custom {
+  @apply text-orange-500;
+  color: #ff5252;
+
+}
+
+@media (max-width: 428px) {
+  .tab-label {
+    display: none;
+  }
+}
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { DashboardComponent } from './dashboard.component';
+
+describe('DashboardComponent', () => {
+  let component: DashboardComponent;
+  let fixture: ComponentFixture<DashboardComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [DashboardComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(DashboardComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {NavigationEnd, Router, RouterModule, RouterOutlet} from '@angular/router';
+import {MatTabsModule} from '@angular/material/tabs';
+import {MatIconModule} from '@angular/material/icon';
+import {MatBadgeModule} from '@angular/material/badge'; // Import MatBadgeModule
+import {SocketService} from "../../services/socket.service";
+import {filter, Subscription, timeout} from 'rxjs';
+import {NotificationsReceiveDto} from "../../DTOs/notifications/NotificationsReceiveDto";
+import {BehaviorSubject} from 'rxjs';
+import {ApiService} from "../../services/api.service";
+import {NotificationType} from "../../models/Notifications";
+
+@Component({
+  selector: 'app-dashboard',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    RouterOutlet,
+    MatTabsModule,
+    MatIconModule,
+    MatBadgeModule // Ajoute MatBadgeModule ici
+  ],
+  templateUrl: './dashboard.component.html',
+  styleUrls: ['./dashboard.component.scss']
+})
+export class DashboardComponent implements OnInit, OnDestroy {
+  private intervalId: NodeJS.Timeout;
+
+  constructor(
+    private socketService: SocketService,
+    private apiService: ApiService,
+    private router: Router
+  ) {
+    this.intervalId = setInterval(() => {
+      this.fetchNotification();
+    }, 1500000);
+
+  }
+
+  tabs = [
+    {path: 'home', icon: 'home', label: 'Home'},
+    {path: 'nearby', icon: 'near_me', label: 'Nearby'},
+    {path: 'chat', icon: 'chat', label: 'Chat'},
+    {path: 'notification', icon: 'notifications', label: 'Notifications'},
+    {path: 'profile', icon: 'person', label: 'Profile'}
+  ];
+
+  // Utilisation de BehaviorSubject pour gérer l'état réactif
+  private _countNotificationMarker$ = new BehaviorSubject<number>(0);
+  countNotificationMarker$ = this._countNotificationMarker$.asObservable();
+
+  private _notificationMarker$ = new BehaviorSubject<boolean>(false);
+  notificationMarker$ = this._notificationMarker$.asObservable();
+
+  private _messageMarker$ = new BehaviorSubject<boolean>(false);
+  messageMarker$ = this._messageMarker$.asObservable();
+
+  private subscriptions: Subscription = new Subscription();
+
+  ngOnInit(): void {
+    // Abonnement aux notifications en temps réel
+    const notificationSub = this.socketService.on<NotificationsReceiveDto>('notification').subscribe(notification => {
+      if (notification.type === NotificationType.NEW_MESSAGE) {
+        console.log('MESSAGE ICIIII')
+        this._messageMarker$.next(true);
+      }
+      this.fetchNotification();
+    });
+    this.subscriptions.add(notificationSub);
+
+    // Abonnement pour rafraîchir la liste des notifications
+    const fetchNotificationsSub = this.socketService.on('fetch_notifications').subscribe(() => {
+      this.fetchNotification();
+    });
+    this.subscriptions.add(fetchNotificationsSub);
+
+    // Abonnement pour les nouveaux messages
+    const fetchMessagesSub = this.socketService.on('fetch_messages').subscribe(() => {
+      this._messageMarker$.next(true);
+    });
+    this.subscriptions.add(fetchMessagesSub);
+
+    // Récupérer les notifications initiales
+    this.fetchNotification();
+
+    // Réinitialiser les marqueurs lors de la navigation
+    const routerSub = this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.fetchNotification();
+      const currentPath = event.urlAfterRedirects.split('/')[1];
+      if (currentPath === 'chat') {
+        this._messageMarker$.next(false);
+      }
+    });
+    this.subscriptions.add(routerSub);
+
+
+  }
+
+  /**
+   * Récupère la liste des notifications non lues
+   */
+  fetchNotification(): void {
+    this.apiService.get<NotificationsReceiveDto[]>('notifications?includeRead=false').subscribe({
+      next: (notifications: string | any[]) => {
+        const count = notifications.length;
+        this._countNotificationMarker$.next(count);
+        this._notificationMarker$.next(count > 0);
+      },
+      error: (error: any) => {
+        console.error('Erreur lors de la récupération des notifications :', error);
+      },
+    });
+  }
+
+  ngOnDestroy(): void {
+    // Désabonner tous les abonnements pour éviter les fuites de mémoire
+    this.subscriptions.unsubscribe();
+  }
+}
+<!-- src/app/components/edit-profile/edit-profile.component.html -->
+
+<div class="edit-profile-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ existingProfile ? 'Edit Your Profile' : 'Create Your Profile' }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+        <!-- Biography -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Biography</mat-label>
+          <textarea matInput formControlName="biography" rows="4" required></textarea>
+          <mat-error *ngIf="profileForm.get('biography')?.hasError('required')">
+            Biography is required
+          </mat-error>
+          <mat-error *ngIf="profileForm.get('biography')?.hasError('maxlength')">
+            Biography cannot exceed 1024 characters
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Gender -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Gender</mat-label>
+          <mat-select formControlName="gender" required>
+            <mat-option *ngFor="let gender of genders" [value]="gender.gender_id">
+              {{ gender.name }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="profileForm.get('gender')?.hasError('required')">
+            Gender is required
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Sexual Preferences -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Sexual Preferences</mat-label>
+          <mat-select formControlName="sexualPreferences" multiple required>
+            <mat-option *ngFor="let preference of genders" [value]="preference.gender_id">
+              {{ preference.name }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="profileForm.get('sexualPreferences')?.hasError('required')">
+            Sexual preferences are required
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Age -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Age</mat-label>
+          <input matInput type="number" formControlName="age" required>
+          <mat-error *ngIf="profileForm.get('age')?.hasError('required')">
+            Age is required
+          </mat-error>
+          <mat-error *ngIf="profileForm.get('age')?.hasError('min')">
+            Minimum age is 18
+          </mat-error>
+          <mat-error *ngIf="profileForm.get('age')?.hasError('max')">
+            Maximum age is 120
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Tags (Interests) -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Tags (Interests)</mat-label>
+          <mat-select formControlName="tags" multiple>
+            <mat-option *ngFor="let tag of tags" [value]="tag.tag_id">
+              {{ tag.tag_name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- City -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>City</mat-label>
+          <input matInput formControlName="city" required>
+          <mat-error *ngIf="profileForm.get('city')?.hasError('required')">
+            City is required
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Photo Upload Section -->
+        <div class="photo-upload-section">
+          <h3>Upload Photos</h3>
+          <input type="file" (change)="onPhotoSelected($event)" multiple accept="image/*" />
+          <div class="photo-preview">
+            <div class="photo-item" *ngFor="let photo of photos">
+              <img [src]="photo.url" [alt]="user?.username || 'User Photo'" />
+              <button mat-icon-button color="warn" (click)="deletePhoto(photo)">
+                <mat-icon>delete</mat-icon>
+              </button>
+              <button mat-icon-button color="primary" (click)="setAsMainPhoto(photo)" *ngIf="user?.main_photo_id !== photo.photo_id">
+                <mat-icon>star</mat-icon>
+              </button>
+              <span *ngIf="user?.main_photo_id === photo.photo_id">Main Photo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="profileForm.invalid || isLoading"
+          class="full-width"
+        >
+          <mat-progress-spinner
+            *ngIf="isLoading"
+            diameter="20"
+            mode="indeterminate"
+            color="accent"
+          ></mat-progress-spinner>
+          <span *ngIf="!isLoading">{{ existingProfile ? 'Update Profile' : 'Create Profile' }}</span>
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
+/* src/app/components/edit-profile/edit-profile.component.scss */
+
+.edit-profile-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+
+  mat-card {
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+  }
+
+  .full-width {
+    width: 100%;
+  }
+
+  .photo-upload-section {
+    margin-top: 20px;
+
+    h3 {
+      margin-bottom: 10px;
+    }
+
+    input[type='file'] {
+      margin-bottom: 10px;
+    }
+
+    .photo-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-bottom: 10px;
+
+      .photo-item {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        button {
+          position: absolute;
+          top: 5px;
+          right: 5px;
+        }
+
+        span {
+          position: absolute;
+          bottom: 5px;
+          left: 5px;
+          background-color: rgba(0, 0, 0, 0.5);
+          color: #fff;
+          padding: 2px 4px;
+          border-radius: 3px;
+          font-size: 12px;
+        }
+
+        button[color='primary'] {
+          top: auto;
+          bottom: 5px;
+          right: auto;
+          left: 5px;
+        }
+      }
+    }
+  }
+}
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { EditProfileComponent } from './edit-profile.component';
+
+describe('EditProfileComponent', () => {
+  let component: EditProfileComponent;
+  let fixture: ComponentFixture<EditProfileComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [EditProfileComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(EditProfileComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+import { Component, OnInit } from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+  FormsModule,
+} from '@angular/forms';
+import { ProfileService } from '../../services/profile.service';
+import { Router, RouterModule } from '@angular/router';
+import { Gender } from '../../models/Genders';
+import { Tag } from '../../models/Tags';
+import { UserResponseDto } from '../../DTOs/users/UserResponseDto';
+import { Photo } from '../../models/Photo';
+
+import { CommonModule } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
+import { ProfileUpdateDto } from '../../DTOs/profiles/ProfileUpdateDto';
+import { ProfileCreateDto } from '../../DTOs/profiles/ProfileCreateDto';
+import { HttpClient } from '@angular/common/http';
+import { debounce, debounceTime } from 'rxjs';
+
+@Component({
+  selector: 'app-edit-profile',
+  templateUrl: './edit-profile.component.html',
+  styleUrls: ['./edit-profile.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    RouterModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatInputModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    MatIconModule,
+  ],
+})
+export class EditProfileComponent implements OnInit {
+  profileForm!: FormGroup;
+  isLoading = false;
+  genders: Gender[] = [];
+  tags: Tag[] = [];
+  existingProfile: boolean = false;
+  photos: Photo[] = [];
+  user: UserResponseDto | null = null;
+
+  constructor(
+    private fb: FormBuilder,
+    private profileService: ProfileService,
+    private router: Router,
+    private http: HttpClient
+  ) {}
+
+  ngOnInit(): void {
+    this.profileForm = this.fb.group({
+      biography: ['', [Validators.required, Validators.maxLength(1024)]],
+      gender: [null, [Validators.required]],
+      sexualPreferences: [[], [Validators.required]],
+      age: [
+        null,
+        [Validators.required, Validators.min(18), Validators.max(120)],
+      ],
+      tags: [[]],
+      city: ['', Validators.required],
+      location: this.fb.group({
+        latitude: [null],
+        longitude: [null],
+      }),
+    });
+
+    this.profileForm
+      .get('city')
+      ?.valueChanges.pipe(debounceTime(500))
+      .subscribe((cityName) => {
+        this.searchCityCoordinates(cityName);
+      });
+
+    this.loadGenders();
+    this.loadTags();
+
+    this.profileService.getMyProfile().subscribe({
+      next: (user) => {
+        this.user = user;
+        if (user.profile_id) {
+          this.existingProfile = true;
+          this.populateForm(user);
+          if (user.photos) {
+            this.photos = user.photos;
+          }
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching profile:', error);
+      },
+    });
+  }
+
+  loadGenders() {
+    this.profileService.getGenders().subscribe({
+      next: (genders) => (this.genders = genders),
+      error: (err) => console.error('Error loading genders', err),
+    });
+  }
+
+  searchCityCoordinates(cityName: string) {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+      cityName
+    )}&format=json&limit=1`;
+    const headers = {
+      'Accept-Language': 'fr',
+      'User-Agent': 'matcha - matcha@example.com',
+    };
+
+    this.http.get<any[]>(url, { headers }).subscribe({
+      next: (results) => {
+        if (results && results.length > 0) {
+          // console.log('Ville trouvée :', results[0].display_name); // To remove
+          const latitude = parseFloat(results[0].lat);
+          const longitude = parseFloat(results[0].lon);
+          this.profileForm.patchValue({
+            location: {
+              latitude: latitude,
+              longitude: longitude,
+            },
+          });
+        } else {
+          console.warn('Aucune ville trouvée pour :', cityName);
+          this.profileForm.patchValue({
+            location: {
+              latitude: null,
+              longitude: null,
+            },
+          });
+        }
+      },
+      error: (error) => {
+        console.error(
+          'Erreur lors de la récupération des coordonnées :',
+          error
+        );
+      },
+    });
+  }
+
+  loadTags() {
+    this.profileService.getTags().subscribe({
+      next: (tags) => (this.tags = tags),
+      error: (err) => console.error('Error loading tags', err),
+    });
+  }
+
+  populateForm(user: UserResponseDto) {
+    this.profileForm.patchValue({
+      biography: user.biography || '',
+      gender: user.gender || null,
+      sexualPreferences: user.sexualPreferences?.map((g) => g.gender_id) || [],
+      age: user.age || null,
+      tags: user.tags?.map((t) => t.tag_id) || [],
+      city: user.location?.city_name || '',
+    });
+  }
+
+  onSubmit(): void {
+    if (this.profileForm.valid) {
+      this.isLoading = true;
+      const formValues = this.profileForm.value;
+
+      const profileData: ProfileCreateDto | ProfileUpdateDto = {
+        biography: formValues.biography,
+        gender: formValues.gender,
+        sexualPreferences: formValues.sexualPreferences,
+        age: formValues.age,
+        tags: formValues.tags,
+        location: {
+          latitude: formValues.location.latitude,
+          longitude: formValues.location.longitude
+        },
+      };
+
+      if (this.existingProfile) {
+        this.profileService.updateProfile(profileData).subscribe({
+          next: () => {
+            this.isLoading = false;
+            this.router.navigate(['/profile']);
+          },
+          error: (error) => {
+            this.isLoading = false;
+            console.error('Error updating profile:', error);
+          },
+        });
+      } else {
+        this.profileService.createProfile(profileData).subscribe({
+          next: () => {
+            this.isLoading = false;
+            this.router.navigate(['/profile']);
+          },
+          error: (error) => {
+            this.isLoading = false;
+            console.error('Error creating profile:', error);
+          },
+        });
+      }
+    } else {
+      console.warn('Form is invalid');
+    }
+  }
+
+  onPhotoSelected(event: any) {
+    const files: FileList = event.target.files;
+    if (files.length > 0) {
+      for (let i = 0; i < files.length; i++) {
+        this.uploadPhoto(files[i]);
+      }
+    }
+  }
+
+  uploadPhoto(file: File) {
+    this.profileService.uploadPhoto(file).subscribe({
+      next: (photo) => {
+        this.photos.push(photo);
+      },
+      error: (error) => {
+        console.error('Error uploading photo:', error);
+      },
+    });
+  }
+
+  setAsMainPhoto(photo: Photo) {
+    this.profileService.setMainPhoto(photo.photo_id).subscribe({
+      next: () => {
+        console.log('Main photo set successfully');
+        if (this.user) {
+          this.user.main_photo_url = photo.url;
+        }
+      },
+      error: (error) => {
+        console.error('Error setting main photo:', error);
+      },
+    });
+  }
+
+  deletePhoto(photo: Photo) {
+    if (confirm('Are you sure you want to delete this photo?')) {
+      this.profileService.deletePhoto(photo.photo_id).subscribe({
+        next: () => {
+          this.photos = this.photos.filter(
+            (p) => p.photo_id !== photo.photo_id
+          );
+          console.log('Photo deleted successfully');
+        },
+        error: (error) => {
+          console.error('Error deleting photo:', error);
+        },
+      });
+    }
+  }
+}
+<div class="home-container">
+  @if (currentProfile) {
+  <mat-card
+    #swipeCard
+    class="profile-card"
+    [class.animate-right]="animateRight"
+    [class.animate-left]="animateLeft"
+  >
+    <img
+      mat-card-image
+      [src]="currentProfile.main_photo_url + '?id=' + currentProfile.id"
+      [alt]="currentProfile.username"
+      loading=""
+    />
+    <mat-card-content>
+      <h2>{{ currentProfile.username }}, {{ currentProfile.age }}</h2>
+    </mat-card-content>
+  </mat-card>
+  }
+
+  <div class="action-buttons">
+    <button mat-fab color="warn" (click)="onPassClick()">
+      <mat-icon>close</mat-icon>
+    </button>
+    <button mat-fab color="primary" (click)="onLikeClick()">
+      <mat-icon>favorite</mat-icon>
+    </button>
+  </div>
+</div>
+// home.component.scss
+.home-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: calc(100vh - 112px);
+	padding: 20px;
+	overflow-y: auto;
+	overflow-x: hidden;
+  }
+  
+  .profile-card {
+	width: 100%;
+	max-width: 400px;
+	margin-bottom: 20px;
+  
+	img {
+	  height: 300px;
+	  width: 100%;
+	  object-fit: cover;
+	}
+  
+	&.animate-right {
+	  animation: swipeRight 0.5s forwards;
+	}
+  
+	&.animate-left {
+	  animation: swipeLeft 0.5s forwards;
+	}
+  }
+  
+  .action-buttons {
+	display: flex;
+	justify-content: space-around;
+	width: 100%;
+	max-width: 300px;
+	margin-top: 20px;
+  }
+  
+  @keyframes swipeRight {
+	to {
+	  transform: translateX(150%) rotate(30deg);
+	  opacity: 0;
+	}
+  }
+  
+  @keyframes swipeLeft {
+	to {
+	  transform: translateX(-150%) rotate(-30deg);
+	  opacity: 0;
+	}
+  }
+  
+  @media (max-width: 600px) {
+	.profile-card {
+	  max-width: 300px;
+  
+	  img {
+		height: 250px;
+	  }
+	}
+  }
+  
+  @media (max-height: 600px) {
+	.home-container {
+	  height: auto;
+	  min-height: calc(100vh - 112px);
+	}
+  }import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { HomeComponent } from './home.component';
+
+describe('HomeComponent', () => {
+  let component: HomeComponent;
+  let fixture: ComponentFixture<HomeComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [HomeComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(HomeComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+import {
+  Component,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  PLATFORM_ID,
+  Inject, OnInit,
+} from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+
+interface UserProfile {
+  id: number;
+  username: string;
+  main_photo_url: string | null;
+  age: number | null;
+  gender: number | null;
+  location?: {
+    latitude: number;
+    longitude: number;
+    city_name: string;
+  };
+}
+
+@Component({
+  selector: 'app-home',
+  standalone: true,
+  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule],
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss'],
+})
+export class HomeComponent implements AfterViewInit, OnInit {
+  @ViewChild('swipeCard') swipeCard!: ElementRef;
+
+  currentProfileIndex: number = 0;
+  animateRight: Boolean = false;
+  animateLeft: Boolean = false;
+  profiles: UserProfile[] = [];
+
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private http: HttpClient,
+    private router: Router
+  ) {}
+
+  get currentProfile(): UserProfile {
+    return this.profiles[this.currentProfileIndex];
+  }
+
+  ngOnInit() {
+    this.fetchProfiles();
+  }
+
+  ngAfterViewInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.initSwipeGesture();
+    }
+  }
+
+  fetchProfiles() {
+    this.http.get<UserProfile[]>('http://localhost:8000/api/users/search').subscribe({
+      next: (profiles) => {
+        console.log('Profils reçus de l\'API :', profiles);
+        this.profiles = profiles.map((profile: any) => ({
+          id: profile.id,
+          username: profile.username || 'Anonymous',
+          main_photo_url: profile.main_photo_url || 'https://example.com/default-photo.jpg',
+          location: profile.location || {city_name: 'Unknown City', latitude: 0, longitude: 0},
+          age: profile.age || 'Unknown',
+          gender: profile.gender || 'Unknown'
+        }));
+        console.log('Profils après mapping:', this.profiles);
+      },
+      error: (error) => {
+        // if (error.error?.error == 'Profil non trouvé') {
+        //   this.router.navigate(['/profile'])
+        // }
+        console.error('Erreur lors de la récupération des profils:', error);
+      }
+    });
+  }
+
+  async initSwipeGesture() {
+    if (isPlatformBrowser(this.platformId) && this.swipeCard?.nativeElement) {
+      const Hammer = (await import('hammerjs')).default;
+      const hammer = new Hammer(this.swipeCard.nativeElement);
+      hammer.on('swipeleft swiperight', (event: any) => {
+        this.onSwipe(event.type === 'swiperight');
+      });
+    } else {
+      console.warn('Swipe card element is not available.');
+    }
+  }
+
+  onSwipe(liked: boolean) {
+    if (liked) {
+      console.log('Liked profile:', this.currentProfile.username);
+      this.animateRight = true;
+    } else {
+      console.log('Passed profile:', this.currentProfile.username);
+      this.animateLeft = true;
+    }
+
+    setTimeout(() => {
+      this.nextProfile();
+      this.resetAnimations();
+    }, 500);
+  }
+
+  nextProfile() {
+    this.currentProfileIndex =
+      (this.currentProfileIndex + 1) % this.profiles.length;
+  }
+
+  resetAnimations() {
+    this.animateRight = false;
+    this.animateLeft = false;
+  }
+
+  onLikeClick() {
+    this.onSwipe(true);
+  }
+
+  onPassClick() {
+    this.onSwipe(false);
+  }
+}
+<div class="login-container">
+	<mat-card>
+	  <mat-card-header>
+		<mat-card-title>Login</mat-card-title>
+	  </mat-card-header>
+	  <mat-card-content>
+		<form [formGroup]="form" (ngSubmit)="onSubmit()">
+		  <mat-form-field appearance="outline">
+			<mat-label>Email</mat-label>
+			<input matInput type="email" formControlName="email" required>
+			<mat-error *ngIf="form.get('email')?.hasError('required')">Email is required</mat-error>
+			<mat-error *ngIf="form.get('email')?.hasError('email')">Invalid email format</mat-error>
+		  </mat-form-field>
+  
+		  <mat-form-field appearance="outline">
+			<mat-label>Password</mat-label>
+			<input matInput type="password" formControlName="password" required>
+			<mat-error *ngIf="form.get('password')?.hasError('required')">Password is required</mat-error>
+			<mat-error *ngIf="form.get('password')?.hasError('minlength')">Password must be at least 5 characters long</mat-error>
+		  </mat-form-field>
+  
+		  <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || isLoading">
+			<mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+			<span *ngIf="!isLoading">Login</span>
+		  </button>
+  
+		  <button mat-stroked-button type="button" (click)="loginWithGoogle()" class="google-login">
+			<mat-icon>login</mat-icon>
+			Login with Google
+		  </button>
+		</form>
+	  </mat-card-content>
+	  <mat-card-actions>
+		<a mat-button routerLink="/signup">Don't have an account? Sign up</a>
+	  </mat-card-actions>
+	</mat-card>
+  </div>.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f5f5f5;
+
+  mat-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+  }
+
+  mat-card-header {
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  mat-card-content {
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+  }
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  button {
+    width: 100%;
+    height: 40px;
+  }
+
+  .google-login {
+    margin-top: 10px;
+    
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+
+  mat-card-actions {
+    justify-content: center;
+    padding: 16px 0 0;
+  }
+}import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { LoginComponent } from './login.component';
+
+describe('LoginComponent', () => {
+  let component: LoginComponent;
+  let fixture: ComponentFixture<LoginComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [LoginComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(LoginComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+import { Component } from '@angular/core';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import { AuthService } from '../../services/auth.service';
+import { LoginDto } from '../../DTOs/login/LoginDto';
+import { LoginResponseDTO } from '../../DTOs/login/LoginResponseDTO';
+import { Router, RouterModule } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { ToastService } from '../../services/toast.service';
+import {CommonModule} from "@angular/common";
+
+@Component({
+  selector: 'app-login',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    MatIconModule,
+    RouterModule,
+  ],
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss'],
+})
+
+export class LoginComponent {
+  form: FormGroup;
+  isLoading = false;
+  loginError: string | null = null;
+
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private authService: AuthService,
+    private toastService: ToastService
+  ) {
+    this.form = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(5)]],
+    });
+  }
+
+  onSubmit(): void {
+    if (this.form.valid) {
+      this.isLoading = true;
+
+      const loginData = this.form.value;
+
+      this.authService.login(loginData).subscribe({
+        next: (response) => {
+          this.isLoading = false;
+
+          localStorage.setItem('accessToken', response.accessToken);
+          localStorage.setItem('refreshToken', response.refreshToken);
+
+          this.router.navigate(['/home']);
+        },
+        error: (error) => {
+          console.log(error);
+          this.isLoading = false;
+          this.form.enable();
+        },
+        complete: () => {
+          console.log('Complete');
+        },
+      });
+    }
+  }
+
+  loginWithGoogle(): void {
+    // Implémenter la logique de login avec Google
+    console.log('Connexion avec Google cliquée');
+  }
+}
+import { Injectable } from '@angular/core';
+import { HammerGestureConfig } from '@angular/platform-browser';
+import * as Hammer from 'hammerjs';
+
+@Injectable()
+export class MyHammerConfig extends HammerGestureConfig {
+  override overrides = <any>{
+    swipe: { direction: Hammer.DIRECTION_HORIZONTAL },
+  };
+}
+<div class="nearby-container">
+	<div id="map"></div>
+  </div>.nearby-container {
+	height: calc(100vh - 56px);
+	width: 100%;
+	position: relative;
+	z-index: 1;
+  }
+  
+  #map {
+	height: 100%;
+	width: 100%;
+  }
+  
+  .custom-div-icon {
+	background: none;
+	border: none;
+  }
+  
+  .custom-div-icon .material-icons {
+	font-size: 30px;
+	margin-left: -7px;
+	margin-top: -5px;
+  }import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { NearbyComponent } from './nearby.component';
+
+describe('NearbyComponent', () => {
+  let component: NearbyComponent;
+  let fixture: ComponentFixture<NearbyComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [NearbyComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(NearbyComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+import { Component, OnInit, AfterViewInit, PLATFORM_ID, Inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+
+interface NearbyUser {
+  id: number;
+  name: string;
+  age: number;
+  lat: number;
+  lng: number;
+}
+
+@Component({
+  selector: 'app-nearby',
+  standalone: true,
+  imports: [CommonModule, MatIconModule],
+  templateUrl: './nearby.component.html',
+  styleUrls: ['./nearby.component.scss']
+})
+export class NearbyComponent implements OnInit, AfterViewInit {
+  private map: any;
+  private L: any;
+  private currentPosition: any = { lat: 48.198850, lng: 6.351160 }; // Your current location
+
+  nearbyUsers: NearbyUser[] = [];
+
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+
+  ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadLeaflet();
+    }
+  }
+
+  ngAfterViewInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.initMap();
+    }
+  }
+
+  private async loadLeaflet(): Promise<void> {
+    if (!this.L) {
+      this.L = await import('leaflet');
+    }
+  }
+
+  private async initMap(): Promise<void> {
+    await this.loadLeaflet();
+    
+    this.map = this.L.map('map').setView([this.currentPosition.lat, this.currentPosition.lng], 13);
+
+    this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(this.map);
+
+    this.addCurrentPositionMarker();
+    this.generateNearbyUsers();
+    this.addNearbyUsersMarkers();
+
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        this.currentPosition = { lat: position.coords.latitude, lng: position.coords.longitude };
+        this.map.setView([this.currentPosition.lat, this.currentPosition.lng], 13);
+        this.addCurrentPositionMarker();
+        this.generateNearbyUsers();
+        this.addNearbyUsersMarkers();
+      });
+    }
+  }
+
+  private addCurrentPositionMarker(): void {
+    const icon = this.L.divIcon({
+      className: 'custom-div-icon',
+      html: "<mat-icon class='material-icons' style='color: #3388ff;'>place</mat-icon>",
+      iconSize: [30, 30],
+      iconAnchor: [15, 30]
+    });
+
+    this.L.marker([this.currentPosition.lat, this.currentPosition.lng], { icon: icon })
+      .addTo(this.map)
+      .bindPopup('You are here')
+      .openPopup();
+  }
+
+  private generateNearbyUsers(): void {
+    // Generate 5 random users within approximately 5km of the current position
+    const names = ['Alice', 'Bob', 'Charlie', 'Diana', 'Ethan'];
+    this.nearbyUsers = [];
+    for (let i = 0; i < 5; i++) {
+      const lat = this.currentPosition.lat + (Math.random() - 0.5) * 0.05;
+      const lng = this.currentPosition.lng + (Math.random() - 0.5) * 0.05;
+      this.nearbyUsers.push({
+        id: i + 1,
+        name: names[i],
+        age: 20 + Math.floor(Math.random() * 20),
+        lat: lat,
+        lng: lng
+      });
+    }
+    console.log('Generated nearby users:', this.nearbyUsers);
+  }
+
+  private addNearbyUsersMarkers(): void {
+    this.nearbyUsers.forEach(user => {
+      const icon = this.L.divIcon({
+        className: 'custom-div-icon',
+        html: "<mat-icon class='material-icons' style='color: #ff3366;'>person_pin</mat-icon>",
+        iconSize: [30, 30],
+        iconAnchor: [15, 30]
+      });
+
+      this.L.marker([user.lat, user.lng], { icon: icon })
+        .addTo(this.map)
+        .bindPopup(`${user.name}, ${user.age}`);
+    });
+  }
+}<div class="notification-container p-4">
+  <!-- En-tête avec le titre et le bouton "Read All" -->
+  <div class="flex flex-col sm:flex-row justify-between items-center text-xl font-bold mb-4">
+    <span>Notifications</span>
+    <div class="space-x-4">
+      <button
+        *ngIf="hasUnreadNotification()"
+        class="mt-2 sm:mt-0 text-blue-500 hover:text-blue-700 text-sm"
+        (click)="readAllNotifications()"
+      >
+        Read All
+      </button>
+      <button
+        *ngIf="hasNotifications()"
+        class="mt-2 sm:mt-0 text-blue-500 hover:text-red-700 text-sm"
+        (click)="deleteAllNotifications()"
+      >
+        Delete All
+      </button>
+    </div>
+  </div>
+
+  <!-- Liste des notifications -->
+  <div class="notification-list space-y-4">
+    <div *ngIf="notifications.length > 0; else noNotifications">
+      <div
+        class="notification-item flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white rounded-lg shadow hover:bg-gray-100 cursor-pointer"
+        *ngFor="let notification of notifications"
+        (click)="onNotificationClick(notification)"
+        [ngClass]="{ 'unread-notification bg-gray-50': !notification.has_read }"
+      >
+        <!-- Section gauche : Icône et Texte -->
+        <div class="flex flex-1 flex-col sm:flex-row sm:items-center">
+          <!-- Icône de la notification -->
+          <mat-icon class="notification-icon text-2xl mr-0 sm:mr-4 mb-2 sm:mb-0">
+            {{ getNotificationIcon(notification.type) }}
+          </mat-icon>
+
+          <!-- Texte de la notification -->
+          <div class="notification-text flex flex-col">
+            <div class="flex flex-wrap sm:flex-nowrap items-center space-x-0 sm:space-x-2">
+              <div class="text-xl font-semibold">{{ notification.source_username }}</div>
+              <div class="description text-gray-600">{{ getNotificationMessage(notification.type) }}</div>
+              <button
+                *ngIf="notification.type === 'LIKE'"
+                class="mt-2 sm:mt-0 hover:text-white hover:font-bold hover:bg-emerald-800 px-4 rounded-2xl py-2 text-sm"
+                (click)="likingBack(notification); $event.stopPropagation()"
+              >
+                Liking back
+              </button>
+            </div>
+            <small class="timestamp text-gray-500">{{ notification.notified_at | date: 'short' }}</small>
+          </div>
+        </div>
+
+        <!-- Section droite : Indicateurs et Icône de suppression -->
+        <div class="flex items-center mt-2 sm:mt-0">
+          <!-- Indicateur non lu -->
+          <mat-icon *ngIf="!notification.has_read" class="unread-indicator text-red-500 mr-4">
+            fiber_manual_record
+          </mat-icon>
+
+          <!-- Bouton Corbeille -->
+          <mat-icon
+            class="delete-icon text-gray-400 hover:text-red-500"
+            (click)="deleteNotification(notification); $event.stopPropagation()"
+            matTooltip="Delete notification"
+          >
+            delete
+          </mat-icon>
+        </div>
+      </div>
+    </div>
+    <!-- Template alternatif si aucune notification n'est présente -->
+    <ng-template #noNotifications>
+      <div class="flex justify-center items-center h-full text-gray-500">
+        Vous n'avez pas de notifications pour le moment
+      </div>
+    </ng-template>
+  </div>
+</div>
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.notification-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 56px);
+  padding: 16px;
+}
+
+h1 {
+  margin: 0 0 16px 0;
+}
+
+.notification-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.notification-item {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  cursor: pointer;
+}
+
+.notification-item:hover {
+  background-color: #f0f0f0;
+}
+
+.notification-icon {
+  font-size: 24px;
+  margin-right: 16px;
+}
+
+.notification-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.delete-icon {
+  cursor: pointer;
+  margin-left: auto;
+  color: gray;
+}
+
+.delete-icon:hover {
+  color: red;
+}
+
+.description {
+  margin: 0;
+}
+
+.timestamp {
+  color: #888;
+}
+
+.unread-indicator {
+  color: #3f51b5;
+  margin-left: 16px;
+}
+
+.unread-notification .description {
+  font-weight: bold;
+}
+
+@media (max-width: 312px) {
+  .notification-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .notification-icon {
+    margin-right: 0;
+    margin-bottom: 8px;
+  }
+
+  .unread-indicator {
+    margin-left: 0;
+    margin-top: 8px;
+  }
+}
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { NotificationComponent } from './notification.component';
+
+describe('NotificationComponent', () => {
+  let component: NotificationComponent;
+  let fixture: ComponentFixture<NotificationComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [NotificationComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(NotificationComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+import {Component, OnInit, OnDestroy, ChangeDetectorRef} from '@angular/core';
+import {Subscription} from 'rxjs';
+import {SocketService} from '../../services/socket.service';
+import {CommonModule} from "@angular/common";
+import {MatListModule} from "@angular/material/list";
+import {MatIconModule} from "@angular/material/icon";
+import {Router} from "@angular/router";
+import {NotificationsReceiveDto} from "../../DTOs/notifications/NotificationsReceiveDto";
+import {UserLightResponseDto} from "../../DTOs/users/UserLightResponseDto";
+import {HttpClient} from "@angular/common/http";
+import {NotificationType} from "../../models/Notifications";
+import {MatTooltip} from "@angular/material/tooltip";
+import {MatCardHeader, MatCardModule, MatCardTitle} from "@angular/material/card";
+import {ApiService} from "../../services/api.service";
+
+@Component({
+  selector: 'app-notification',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatListModule,
+    MatIconModule,
+    MatTooltip,
+    MatCardModule,
+  ],
+  templateUrl: './notification.component.html',
+  styleUrls: ['./notification.component.scss'],
+})
+export class NotificationComponent implements OnInit, OnDestroy {
+  notifications: NotificationsReceiveDto[] = [];
+  private notificationSubscription!: Subscription;
+
+  constructor(
+    private socketService: SocketService,
+    private apiService: ApiService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {
+  }
+
+  ngOnInit(): void {
+    // Écouter les notifications en temps réel
+    this.notificationSubscription = this.socketService.on<NotificationsReceiveDto>('notification').subscribe((notification) => {
+      this.notifications.unshift(notification); // Ajouter en haut de la liste
+    });
+
+    this.socketService.on('fetch_notifications').subscribe(() => { // Rafraîchir la liste après suppression d'une notification
+      this.fetchNotification();
+    });
+
+    this.fetchNotification();
+  }
+
+  onNotificationClick(notification: NotificationsReceiveDto): void {
+    console.log(notification);
+    this.readNotification(notification);
+    this.navigateToRelevantPage(notification);
+  }
+
+  readNotification(notification: NotificationsReceiveDto): void {
+    if (!notification.has_read) {
+      this.socketService.emit('notification_read', {data: [notification.notification_id]});
+      // Mettre à jour l'état local
+      notification.has_read = true;
+      this.cdr.detectChanges();
+    }
+  }
+
+  readAllNotifications(): void {
+    const unreadIds = this.notifications
+      .filter(notification => !notification.has_read)
+      .map(notification => notification.notification_id);
+
+    if (unreadIds.length > 0) {
+      this.socketService.emit('notification_read', {data: unreadIds});
+      // Mettre à jour l'état local
+      this.notifications.forEach(notification => {
+        if (!notification.has_read) {
+          notification.has_read = true;
+        }
+      });
+      this.cdr.detectChanges();
+    }
+  }
+
+  hasUnreadNotification(): boolean {
+    return this.notifications.some(notification => !notification.has_read)
+  }
+
+  hasNotifications(): boolean {
+    return this.notifications.length > 0;
+  }
+
+  deleteNotification(notification: NotificationsReceiveDto): void {
+    this.socketService.emit('notifications_delete', {data: [notification.notification_id]});
+  }
+
+  deleteAllNotifications(): void {
+    const unreadIds = this.notifications
+      .map(notification => notification.notification_id);
+
+    if (unreadIds.length > 0) {
+      this.socketService.emit('notifications_delete', {data: unreadIds});
+      // Mettre à jour l'état local
+      this.notifications.forEach(notification => {
+        if (!notification.has_read) {
+          notification.has_read = true;
+        }
+      });
+      this.cdr.detectChanges();
+    }
+  }
+
+  navigateToRelevantPage(notification: NotificationsReceiveDto): void {
+    // Implémenter la navigation en fonction du type de notification
+    switch (notification.type) {
+      case 'LIKE':
+      case 'UNLIKE':
+      case 'NEW_VISIT':
+        this.router.navigate(['/profile'], {queryParams: {id: notification.source_user}});
+        break;
+      case 'MATCH':
+      case 'NEW_MESSAGE':
+        console.log('Naviguer vers /chat avec id :', notification.source_user);
+        this.router.navigate(['/chat'], {queryParams: {id: notification.source_user}});
+        break;
+      default:
+        break;
+    }
+  }
+
+  getNotificationIcon(type: NotificationType): string {
+    switch (type) {
+      case 'LIKE':
+      case 'MATCH':
+        return 'favorite';
+      case 'UNLIKE':
+        return 'favorite_border';
+      case 'NEW_VISIT':
+        return 'visibility';
+      case 'NEW_MESSAGE':
+        return 'chat';
+      default:
+        return 'notifications';
+    }
+  }
+
+  getNotificationMessage(type: NotificationType): string {
+    switch (type) {
+      case 'LIKE':
+        return 'liked you';
+      case 'MATCH':
+        return 'You have a new match!';
+      case 'UNLIKE':
+        return 'unliked you';
+      case 'NEW_VISIT':
+        return 'visited your profile';
+      case 'NEW_MESSAGE':
+        return 'sent you a new message';
+      default:
+        return 'notifications';
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.notificationSubscription) {
+      this.notificationSubscription.unsubscribe();
+    }
+  }
+
+  /**
+   * Récupère la liste des notifications
+   */
+  fetchNotification(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.apiService.get<NotificationsReceiveDto[]>('notifications?includeRead=true').subscribe({
+        next: (notifications) => {
+          this.notifications = notifications;
+          this.cdr.detectChanges();
+          resolve();
+        },
+        error: (error) => {
+          console.error('Erreur lors de la récupération des notifications:', error);
+          reject(error);
+        },
+      });
+    });
+  }
+
+  /**
+   * Like un utilisateur en retour d'un like.
+   */
+  likingBack(notification: NotificationsReceiveDto): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.readNotification(notification);
+      this.apiService.post(`likes/${notification.source_user}`, {}).subscribe({
+        next: () => {
+          resolve();
+        },
+        error: (error) => {
+          console.warn('Erreur lors du like:', error);
+          reject(error);
+        },
+      });
+    });
+  }
+}
+<!-- page-not-found.component.html -->
+<div class="page-not-found-container">
+  <mat-card class="error-card">
+    <div class="error-content">
+      <h1 class="error-code">404</h1>
+      <p class="error-message">Oups ! La page que vous recherchez n'existe pas.</p>
+      <button mat-raised-button color="primary" routerLink="/home">
+        Retour à l'accueil
+      </button>
+    </div>
+    <div class="error-illustration">
+      <!-- Vous pouvez utiliser une image SVG ou PNG moderne ici -->
+<!--      <img src="assets/404-illustration.svg" alt="Erreur 404">-->
+    </div>
+  </mat-card>
+</div>
+/* page-not-found.component.scss */
+.page-not-found-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f5f5f5;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.error-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 40px;
+  max-width: 800px;
+  width: 100%;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  background-color: #ffffff;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    padding: 20px;
+  }
+}
+
+.error-content {
+  flex: 1;
+  text-align: left;
+
+  @media (max-width: 768px) {
+    text-align: center;
+  }
+
+  .error-code {
+    font-size: 6rem;
+    margin: 0;
+    color: #ff5252;
+  }
+
+  .error-message {
+    font-size: 1.5rem;
+    margin: 20px 0;
+    color: #333333;
+  }
+
+  button {
+    margin-top: 10px;
+  }
+}
+
+.error-illustration {
+  flex: 1;
+  text-align: right;
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  @media (max-width: 768px) {
+    text-align: center;
+    margin-top: 20px;
+  }
+}
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { PageNotFoundComponent } from './page-not-found.component';
+
+describe('PageNotFoundComponent', () => {
+  let component: PageNotFoundComponent;
+  let fixture: ComponentFixture<PageNotFoundComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [PageNotFoundComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(PageNotFoundComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+// page-not-found.component.ts
+import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { CommonModule } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
+
+@Component({
+  selector: 'app-page-not-found',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatButtonModule,
+    MatCardModule
+  ],
+  templateUrl: './page-not-found.component.html',
+  styleUrls: ['./page-not-found.component.scss']
+})
+export class PageNotFoundComponent {}
+<!-- src/app/components/profile/profile.component.html -->
+
+<div class="profile-container" *ngIf="user">
+  <mat-card class="profile-card">
+    <div class="profile-header">
+      <img
+        [src]="user.main_photo_url || 'assets/default-profile.png'"
+        [alt]="user.username"
+        class="profile-picture"
+      />
+      <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+      <p class="username">{{ '@' + user.username }}</p>
+    </div>
+    <mat-card-content>
+      <p><strong>Email:</strong> {{ user.email }}</p>
+      <p><strong>Gender:</strong> {{ getGenderName(user.gender) }}</p>
+      <p>
+        <strong>Interested In:</strong>
+        {{ getSexualPreferencesNames(user.sexualPreferences) }}
+      </p>
+      <p><strong>Bio:</strong> {{ user.biography }}</p>
+      <p>
+        <strong>Interests:</strong>
+        <span *ngFor="let tag of user.tags">{{ tag.tag_name }} </span>
+      </p>
+      <p><strong>Fame Rating:</strong> {{ user.fame_rating }}</p>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-button color="primary" (click)="onEditProfile()">
+        Edit Profile
+      </button>
+      <button mat-button color="warn" (click)="onDeleteProfile()">
+        Delete Profile
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+  <div class="profile-images" *ngIf="user.photos && user.photos.length">
+    <h3>Gallery</h3>
+    <div class="images-grid">
+      <div class="photo-item" *ngFor="let photo of user.photos">
+        <img [src]="photo.url" [alt]="user.username" />
+        <button mat-icon-button color="warn" (click)="deletePhoto(photo)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!user">
+  <p>Loading profile...</p>
+</div>
+/* profile.component.scss */
+.profile-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+  }
+  
+  .profile-card {
+    width: 100%;
+    max-width: 600px;
+    padding: 15px;
+  }
+  
+  .profile-header {
+    text-align: center;
+  }
+  
+  .profile-picture {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 16px;
+  }
+  
+  .username {
+    color: gray;
+    margin-bottom: 16px;
+  }
+  
+  .profile-images {
+    width: 100%;
+    max-width: 600px;
+    margin-top: 32px;
+  }
+  
+  .images-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .images-grid img {
+    width: calc(33% - 8px);
+    height: 100px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+  
+  @media (max-width: 600px) {
+    .profile-card,
+    .profile-images {
+      max-width: 100%;
+    }
+  
+    .images-grid img {
+      width: calc(50% - 8px);
+    }
+  }
+  import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { ProfileComponent } from './profile.component';
+
+describe('ProfileComponent', () => {
+  let component: ProfileComponent;
+  let fixture: ComponentFixture<ProfileComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [ProfileComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(ProfileComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+import { Component, OnInit } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
+import { ProfileService } from '../../services/profile.service';
+import { UserResponseDto } from '../../DTOs/users/UserResponseDto';
+import { Gender } from '../../models/Genders';
+import { Tag } from '../../models/Tags';
+import { Photo } from '../../models/Photo';
+
+import { CommonModule } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+
+@Component({
+  selector: 'app-profile',
+  templateUrl: './profile.component.html',
+  styleUrls: ['./profile.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+  ],
+})
+export class ProfileComponent implements OnInit {
+  user: UserResponseDto | null = null;
+  genders: Gender[] = [];
+  tags: Tag[] = [];
+
+  constructor(
+    private router: Router,
+    private profileService: ProfileService
+  ) {}
+
+  ngOnInit() {
+    this.loadUserProfile();
+    this.loadGenders();
+  }
+
+  loadUserProfile() {
+    this.profileService.getMyProfile().subscribe({
+      next: (user) => {
+        this.user = user;
+      },
+      error: (error) => {
+        console.error('Error fetching user profile:', error);
+        if (error.status === 401) {
+          this.router.navigate(['/login']);
+        }
+      },
+    });
+  }
+
+  loadGenders() {
+    this.profileService.getGenders().subscribe({
+      next: (genders) => {
+        this.genders = genders;
+      },
+      error: (error) => {
+        console.error('Error fetching genders:', error);
+      },
+    });
+  }
+
+  getGenderName(genderId: number): string {
+    const gender = this.genders.find((g) => g.gender_id === genderId);
+    return gender ? gender.name : 'Unknown';
+  }
+
+  getSexualPreferencesNames(preferences: Gender[] | undefined): string {
+    if (!preferences) return '';
+    return preferences.map((g) => g.name).join(', ');
+  }
+
+  onEditProfile() {
+    this.router.navigate(['/edit-profile']);
+  }
+
+  deletePhoto(photo: Photo) {
+    if (confirm('Are you sure you want to delete this photo?')) {
+      this.profileService.deletePhoto(photo.photo_id).subscribe({
+        next: () => {
+          if (this.user) {
+            this.user.photos = this.user.photos.filter((p) => p.photo_id !== photo.photo_id);
+          }
+          console.log('Photo deleted successfully');
+        },
+        error: (error) => {
+          console.error('Error deleting photo:', error);
+        },
+      });
+    }
+  }
+
+  onDeleteProfile() {
+    if (confirm('Are you sure you want to delete your profile? This action cannot be undone.')) {
+      this.profileService.deleteProfile().subscribe({
+        next: () => {
+          console.log('Profile deleted successfully');
+          this.router.navigate(['/edit-profile']);
+        },
+        error: (error) => {
+          console.error('Error deleting profile:', error);
+        },
+      });
+    }
+  }
+}
+<div class="signup-container">
+	<mat-card>
+	  <mat-card-header>
+		<mat-card-title>Sign Up</mat-card-title>
+	  </mat-card-header>
+	  <mat-card-content>
+		<form [formGroup]="form" (ngSubmit)="onSubmit()">
+		  <!-- Username Field -->
+		  <mat-form-field appearance="outline">
+			<mat-label>Username</mat-label>
+			<input matInput formControlName="username" required>
+			<mat-error *ngIf="form.get('username')?.hasError('required')">Username is required</mat-error>
+		  </mat-form-field>
+  
+		  <!-- First Name Field -->
+		  <mat-form-field appearance="outline">
+			<mat-label>First Name</mat-label>
+			<input matInput formControlName="first_name" required>
+			<mat-error *ngIf="form.get('first_name')?.hasError('required')">First Name is required</mat-error>
+		  </mat-form-field>
+  
+		  <!-- Last Name Field -->
+		  <mat-form-field appearance="outline">
+			<mat-label>Last Name</mat-label>
+			<input matInput formControlName="last_name" required>
+			<mat-error *ngIf="form.get('last_name')?.hasError('required')">Last Name is required</mat-error>
+		  </mat-form-field>
+  
+		  <!-- Email Field -->
+		  <mat-form-field appearance="outline">
+			<mat-label>Email</mat-label>
+			<input matInput type="email" formControlName="email" required>
+			<mat-error *ngIf="form.get('email')?.hasError('required')">Email is required</mat-error>
+			<mat-error *ngIf="form.get('email')?.hasError('email')">Invalid email format</mat-error>
+		  </mat-form-field>
+  
+		  <!-- Password Fields -->
+		  <mat-form-field appearance="outline">
+			<mat-label>Password</mat-label>
+			<input matInput type="password" formControlName="password" required>
+			<mat-error *ngIf="form.get('password')?.hasError('required')">Password is required</mat-error>
+			<mat-error *ngIf="form.get('password')?.hasError('minlength')">
+			  Password must be at least 5 characters long
+			</mat-error>
+		  </mat-form-field>
+  
+		  <mat-form-field appearance="outline">
+			<mat-label>Confirm Password</mat-label>
+			<input matInput type="password" formControlName="confirmPassword" required>
+			<mat-error *ngIf="form.get('confirmPassword')?.hasError('required')">Confirm Password is required</mat-error>
+			<mat-error *ngIf="form.hasError('notSame')">Passwords do not match</mat-error>
+		  </mat-form-field>
+  
+		  <!-- Sign Up Button -->
+		  <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || isLoading">
+			<mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+			<span *ngIf="!isLoading">Sign Up</span>
+		  </button>
+  
+		  <!-- Google Sign Up Button -->
+		  <button mat-stroked-button type="button" (click)="signupWithGoogle()" class="google-signup">
+			<mat-icon>login</mat-icon>
+			Sign up with Google
+		  </button>
+		</form>
+	  </mat-card-content>
+	  <mat-card-actions>
+		<a mat-button routerLink="/login">Already have an account? Login</a>
+	  </mat-card-actions>
+	</mat-card>
+  </div>
+  .signup-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100vh;
+	background-color: #f5f5f5;
+	overflow-y: auto;
+	padding: 20px;
+  
+	mat-card {
+	  width: 100%;
+	  max-width: 400px;
+	  padding: 20px;
+	}
+  
+	mat-card-header {
+	  justify-content: center;
+	  margin-bottom: 20px;
+	}
+  
+	mat-card-content {
+	  form {
+		display: flex;
+		flex-direction: column;
+		// gap: 16px;
+	  }
+	}
+  
+	mat-form-field {
+	  width: 100%;
+	}
+  
+	button {
+	  width: 100%;
+	  height: 40px;
+	}
+  
+	.google-signup {
+	  margin-top: 10px;
+	  
+	  mat-icon {
+		margin-right: 8px;
+	  }
+	}
+  
+	mat-card-actions {
+	  justify-content: center;
+	  padding: 16px 0 0;
+	}
+  }import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { SignupComponent } from './signup.component';
+
+describe('SignupComponent', () => {
+  let component: SignupComponent;
+  let fixture: ComponentFixture<SignupComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [SignupComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(SignupComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {
+  AbstractControl,
+  AbstractControlOptions,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { AuthService } from '../../services/auth.service';
+
+@Component({
+  selector: 'app-signup',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule,
+    MatCardModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatFormFieldModule,
+  ],
+  templateUrl: './signup.component.html',
+  styleUrls: ['./signup.component.scss'],
+})
+
+export class SignupComponent {
+  form: FormGroup;
+  isLoading = false;
+  signupError: string | null = null;
+
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private authService: AuthService,
+  ) {
+    const formOptions = {
+      validators: this.checkPasswords,
+    };
+
+    this.form = this.fb.group(
+      {
+        username: ['', Validators.required],
+        first_name: ['', Validators.required],
+        last_name: ['', Validators.required],
+        email: ['', [Validators.required, Validators.email]],
+        password: ['', [Validators.required, Validators.minLength(5)]],
+        confirmPassword: ['', Validators.required],
+      },
+      formOptions
+    );
+  }
+
+  checkPasswords(group: AbstractControl): ValidationErrors | null {
+    const pass = group.get('password')?.value;
+    const confirmPass = group.get('confirmPassword')?.value;
+    return pass === confirmPass ? null : { notSame: true };
+  }
+
+  onSubmit(): void {
+    if (this.form.invalid) {
+      console.log('Invalid form');
+      return;
+    }
+
+    this.isLoading = true;
+    this.form.disable();
+
+    const formValues = this.form.value;
+
+    const signupData = {
+      username: formValues.username,
+      first_name: formValues.first_name,
+      last_name: formValues.last_name,
+      email: formValues.email,
+      password: formValues.password,
+    };
+
+    this.authService.signup(signupData).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.router.navigate(['/login']);
+      },
+      error: (error: any) => {
+        console.log(error);
+        this.isLoading = false;
+        this.form.enable();
+      },
+      complete: () => {
+        console.log('Complete');
+      },
+    });
+  }
+
+  signupWithGoogle(): void {
+    // Implement Google signup logic here
+    console.log('Google signup clicked');
+  }
+}<div class="verification-container">
+  <mat-card>
+    <mat-card-content>
+      @if (isLoading) {
+      <p>{{ verificationMessage }}</p>
+      <mat-spinner></mat-spinner>
+      } @else {
+      <p>{{ verificationMessage }}</p>
+      <button mat-button routerLink="/login">Go to Login</button>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { VerifyEmailComponent } from './verify-email.component';
+
+describe('VerifyEmailComponent', () => {
+  let component: VerifyEmailComponent;
+  let fixture: ComponentFixture<VerifyEmailComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [VerifyEmailComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(VerifyEmailComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+
+@Component({
+  selector: 'app-verify-email',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatProgressSpinnerModule,
+    MatButtonModule,
+  ],
+  templateUrl: './verify-email.component.html',
+  styleUrls: ['./verify-email.component.scss'],
+})
+export class VerifyEmailComponent implements OnInit {
+  verificationMessage: string = 'Verifying your email...';
+  isLoading: boolean = true;
+
+  constructor(
+    private route: ActivatedRoute,
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    const token = this.route.snapshot.queryParamMap.get('token');
+
+    if (token) {
+      this.authService.verifyEmail(token).subscribe({
+        next: (response: { message: string }) => {
+          this.verificationMessage = response.message;
+          this.isLoading = false;
+          setTimeout(() => {
+            this.router.navigate(['/login']);
+          }, 2000);
+        },
+        error: (error: any) => {
+          console.error('Verification error:', error);
+          this.verificationMessage =
+            error?.error?.message || 'An error occurred while verifying your email.';
+          this.isLoading = false;
+        },
+        complete: () => {
+          console.log('Verification completed.');
+        }        
+      });
+    } else {
+      this.verificationMessage = 'Verification token not found in the URL.';
+      this.isLoading = false;
+    }
+  }
+}
+export const PORT_API = '8000';
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Frontend</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body class="mat-typography">
+  <app-root></app-root>
+</body>
+</html>
+import { bootstrapApplication } from '@angular/platform-browser';
+import { AppComponent } from './app/app.component';
+import { config } from './app/app.config.server';
+
+const bootstrap = () => bootstrapApplication(AppComponent, config);
+
+export default bootstrap;
+import { bootstrapApplication } from '@angular/platform-browser';
+import { appConfig } from './app/app.config';
+import { AppComponent } from './app/app.component';
+
+bootstrapApplication(AppComponent, appConfig)
+  .catch((err) => console.error(err));
+export interface BlockedUser {
+    id: number;
+    blocker_id: number;
+    blocked_id: number;
+    blocked_at: Date;
+}export interface Gender {
+    gender_id: number;
+    name: string;
+    description?: string;
+}
+export interface Like {
+    like_id: number;
+    user: number;
+    user_liked: number;
+}interface Location {
+    location_id: number;
+    latitude: number;
+    longitude: number;
+    city_name?: string;
+}
+export interface Matches {
+    match_id: number;
+    user_1: number;
+    user_2: number;
+    matched_at: Date;
+}export interface Message {
+    message_id: number;
+    content: string;
+    created_at: Date;
+    owner_user: number;
+    target_user: number;
+}// Enum for Notification Types
+export enum NotificationType {
+    LIKE = 'LIKE',
+    UNLIKE = 'UNLIKE',
+    MATCH = 'MATCH',
+    NEW_MESSAGE = 'NEW_MESSAGE',
+    NEW_VISIT = 'NEW_VISIT',
+}
+
+// Interface for Notification Model
+export interface Notification {
+    notification_id: number;
+    type: NotificationType;
+    target_user: number;
+    source_user: number;
+    source_username: string;
+    content: string | null;
+    notified_at: Date;
+    has_read: boolean;
+}
+export interface Photo {
+    photo_id: number;
+    url: string;
+    description?: string;
+    owner_user_id: number;
+}
+interface Profile {
+    profile_id: number;
+    owner_user_id: number;
+    biography: string;
+    gender: number;
+    age: number;
+    main_photo_id?: number; // => photo_id
+    location?: Location;
+    last_connection?: Date;
+}
+export interface Tag {
+    tag_id: number;
+    tag_name: string;
+}
+export interface Unlike {
+    unlike_id: number;
+    user: number;
+    user_unliked: number;
+}export interface User {
+    id: number;
+    username: string;
+    last_name: string;
+    first_name: string;
+    email: string;
+    password?: string;
+    created_at: Date;
+    is_online: boolean;
+    // sso_type?: number;
+}export interface Visit {
+    id: number;
+    visiter_id: number;
+    visited_id: number;
+    viewed_at: Date;
+}import {Injectable} from '@angular/core';
+import {HttpClient, HttpParams, HttpHeaders} from '@angular/common/http';
+import {ConfigService} from './config.service';
+import {Observable} from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ApiService {
+  private apiUrl: string;
+
+  constructor(private http: HttpClient, private configService: ConfigService) {
+    this.apiUrl = this.configService.apiUrl;
+  }
+
+  /**
+   * Effectue une requête GET.
+   * @param endpoint L'endpoint de l'API (ex: 'messages').
+   * @param params Les paramètres de requête optionnels.
+   * @param headers Les en-têtes de requête optionnels.
+   * @returns Observable de type T.
+   */
+  get<T>(endpoint: string, params?: HttpParams, headers?: HttpHeaders): Observable<T> {
+    return this.http.get<T>(`${this.apiUrl}${endpoint}`, {params, headers});
+  }
+
+  /**
+   * Effectue une requête POST.
+   * @param endpoint L'endpoint de l'API (ex: 'messages').
+   * @param body Le corps de la requête.
+   * @param headers Les en-têtes de requête optionnels.
+   * @returns Observable de type T.
+   */
+  post<T>(endpoint: string, body: any, headers?: HttpHeaders): Observable<T> {
+    return this.http.post<T>(`${this.apiUrl}${endpoint}`, body, {headers});
+  }
+
+  /**
+   * Effectue une requête PUT.
+   * @param endpoint L'endpoint de l'API.
+   * @param body Le corps de la requête.
+   * @param headers Les en-têtes de requête optionnels.
+   * @returns Observable de type T.
+   */
+  put<T>(endpoint: string, body: any, headers?: HttpHeaders): Observable<T> {
+    return this.http.put<T>(`${this.apiUrl}${endpoint}`, body, {headers});
+  }
+
+  /**
+   * Effectue une requête DELETE.
+   * @param endpoint L'endpoint de l'API.
+   * @param headers Les en-têtes de requête optionnels.
+   * @returns Observable de type T.
+   */
+  delete<T>(endpoint: string, headers?: HttpHeaders): Observable<T> {
+    return this.http.delete<T>(`${this.apiUrl}${endpoint}`, {headers});
+  }
+}
+import { TestBed } from '@angular/core/testing';
+import { CanActivateFn } from '@angular/router';
+
+import { authGuard } from './auth.guard';
+
+describe('authGuard', () => {
+  const executeGuard: CanActivateFn = (...guardParameters) => 
+      TestBed.runInInjectionContext(() => authGuard(...guardParameters));
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+  });
+
+  it('should be created', () => {
+    expect(executeGuard).toBeTruthy();
+  });
+});
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from './auth.service';
+import { catchError, map } from 'rxjs/operators';
+
+export const authGuard: CanActivateFn = (route, state) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  return authService.isTokenValid().pipe(
+    map(isValid => {
+      if (!isValid) {
+        router.navigate(['/login']);
+        return false;
+      }
+      return true;
+    }),
+    catchError((error) => {
+      if (error.status === 401) { 
+      router.navigate(['/login']);
+      }
+      return [false];
+    })
+  );
+};
+import { TestBed } from '@angular/core/testing';
+import { HttpInterceptorFn } from '@angular/common/http';
+
+import { authInterceptor } from './auth.interceptor';
+
+describe('authInterceptor', () => {
+  const interceptor: HttpInterceptorFn = (req, next) => 
+    TestBed.runInInjectionContext(() => authInterceptor(req, next));
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+  });
+
+  it('should be created', () => {
+    expect(interceptor).toBeTruthy();
+  });
+});
+import { HttpInterceptorFn } from '@angular/common/http';
+
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const token = localStorage.getItem('accessToken');
+
+  const clonedRequest = token
+    ? req.clone({
+        headers: req.headers.set('Authorization', `Bearer ${token}`),
+      })
+    : req;
+  return next(clonedRequest);
+};
+import { TestBed } from '@angular/core/testing';
+
+import { AuthService } from './auth.service';
+
+describe('AuthService', () => {
+  let service: AuthService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(AuthService);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+});
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
+import { Router } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
+import { LoginResponseDTO } from "../DTOs/login/LoginResponseDTO";
+import { UserResponseDto } from "../DTOs/users/UserResponseDto";
+import { LoginDto } from "../DTOs/login/LoginDto";
+import { SignupResponseDto } from "../DTOs/signup/SignupResponseDto";
+
+interface SignupResponse {
+  userId: number;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class AuthService {
+  private apiUrl = 'http://localhost:8000/api';
+  private userSubject = new BehaviorSubject<UserResponseDto | null>(null);
+  public user$ = this.userSubject.asObservable();
+  private readonly isBrowser: boolean;
+
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+    if (this.isBrowser) {
+      const accessToken = localStorage.getItem('accessToken');
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (accessToken && refreshToken) {
+        this.isTokenValid().subscribe((isValid) => {
+          if (isValid) {
+            this.fetchUserProfile().subscribe();
+          } else {
+            this.logout();
+          }
+        });
+      }
+    }
+  }
+
+  // Méthode pour initialiser la récupération de l'utilisateur
+  initUser(): void {
+    if (this.isBrowser) {
+      this.loadCurrentUser();
+    }
+  }
+
+  // Méthode pour récupérer le profil utilisateur
+  fetchUserProfile(): Observable<UserResponseDto> {
+    return this.http.get<UserResponseDto>(`${this.apiUrl}/users/me`).pipe(
+      tap((user) => this.userSubject.next(user)),
+      catchError((error) => {
+        console.error('Erreur lors de la récupération du profil utilisateur:', error);
+        this.logout();
+        return of(null as any);
+      })
+    );
+  }
+
+  verifyEmail(token: string): Observable<{ message: string }> {
+    return this.http.get<{ message: string }>(
+      `${this.apiUrl}/verify-email?token=${token}`
+    );
+  }
+
+  resendVerificationEmail(): Observable<{ message: string }> {
+    return this.http.get<{ message: string }>(
+      `${this.apiUrl}/verify-email/resend`
+    );
+  }
+
+  signup(signupData: any): Observable<SignupResponse> {
+    return this.http.post<SignupResponse>(`${this.apiUrl}/users`, signupData);
+  }
+
+  login(loginData: LoginDto): Observable<LoginResponseDTO> {
+    return this.http.post<LoginResponseDTO>(`${this.apiUrl}/login`, loginData).pipe(
+      tap((response) => {
+        if (this.isBrowser) {
+          localStorage.setItem('accessToken', response.accessToken);
+          localStorage.setItem('refreshToken', response.refreshToken);
+          console.log(response);
+        }
+        this.userSubject.next(response.user);
+      }),
+      catchError((error) => {
+        console.error('Erreur de connexion:', error);
+        return of(null as any);
+      })
+    );
+  }
+
+  logout(): void {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    this.userSubject.next(null);
+    this.router.navigate(['/login']);
+  }
+
+  isTokenValid(): Observable<boolean> {
+    if (!this.isBrowser) {
+      return of(false);
+    }
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      return of(false);
+    }
+
+    return this.http
+      .get<{ valid: boolean }>(`${this.apiUrl}/verify-token`)
+      .pipe(map((response) => response.valid));
+  }
+
+  // Méthode pour rafraîchir le token (optionnelle)
+  refreshToken(): Observable<any> {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (!refreshToken) {
+      return of(null);
+    }
+
+    return this.http.post<any>(`${this.apiUrl}/refresh-token`, { refreshToken }).pipe(
+      tap((response) => {
+        localStorage.setItem('accessToken', response.accessToken);
+        localStorage.setItem('refreshToken', response.refreshToken);
+        this.userSubject.next(response.user);
+      }),
+      catchError((error) => {
+        console.error('Erreur de rafraîchissement du token:', error);
+        this.logout();
+        return of(null);
+      })
+    );
+  }
+
+  private loadCurrentUser(): void {
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+      this.getCurrentUser().subscribe({
+        next: (user) => {
+          if (user && user.is_verified) {
+            this.userSubject.next(user);
+          } else {
+            this.logout();
+          }
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement de l\'utilisateur:', error);
+          this.logout();
+        },
+      });
+    }
+  }
+
+  getCurrentUser(): Observable<UserResponseDto | null> {
+    if (!this.isBrowser) {
+      return of(null as any);
+    }
+    return this.http.get<UserResponseDto>(`${this.apiUrl}/users/me`).pipe(
+      catchError((error) => {
+        console.error('Erreur lors de la récupération de l\'utilisateur:', error);
+        return of(null as any);
+      })
+    );
+  }
+
+  getCurrentUserId(): number {
+    const user = this.userSubject.value;
+    return user ? user.id : 0; // Ajustez selon votre structure UserResponseDto
+  }
+}
+import {Injectable} from '@angular/core';
+import {PORT_API} from "../config/global.env";
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ConfigService {
+  public serverUrl: string;
+
+  constructor() {
+    this.serverUrl = this.determineServerUrl();
+  }
+
+  private determineServerUrl(): string {
+    const protocol = window.location.protocol; // 'http:' ou 'https:'
+    const host = window.location.hostname; // 'localhost', '192.168.x.x', 'votredomaine.com', etc.
+    return `${protocol}//${host}:${PORT_API}/`;
+  }
+
+  get apiUrl(): string {
+    return `${this.serverUrl}api/`;
+  }
+}
+import {HttpInterceptorFn} from '@angular/common/http';
+import {inject, Injector} from '@angular/core';
+import {ToastService} from './toast.service';
+import {catchError} from 'rxjs/operators';
+import {throwError} from 'rxjs';
+import {AuthService} from "./auth.service";
+
+export const errorInterceptor: HttpInterceptorFn = (req, next) => {
+  const toastService = inject(ToastService);
+  const injector = inject(Injector); // Inject the injector here, instead of directly injecting AuthService
+
+  return next(req).pipe(
+    catchError((error) => {
+      if (error.status === 401 && error.error?.error === 'Non autorisé : email utilisateur non vérifié') {
+      const authService = injector.get(AuthService);
+        console.log('Erreur de vérification d\'email détectée.');
+        toastService.showWithAction(
+          'Your email has not been verified.',
+          'Resend',
+          () => authService.resendVerificationEmail().subscribe({
+            next: () => toastService.show('Verification email resent successfully.', 'Close'),
+            error: (err) => toastService.show('Error resending the email.', 'Close')
+          })
+        );
+      } else if (error.status >= 400 && error.status < 500) {
+        const errorMessage =
+          error.error?.error ||
+          error.error?.message ||
+          error.message ||
+          'An unexpected error occurred.';
+        toastService.show(errorMessage, 'Close');
+      }
+      return throwError(() => error);
+    })
+  );
+};
+import { TestBed } from '@angular/core/testing';
+import { CanActivateFn } from '@angular/router';
+
+import { profileGuard } from './profile.guard';
+
+describe('profileGuard', () => {
+  const executeGuard: CanActivateFn = (...guardParameters) => 
+      TestBed.runInInjectionContext(() => profileGuard(...guardParameters));
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+  });
+
+  it('should be created', () => {
+    expect(executeGuard).toBeTruthy();
+  });
+});
+import { Injectable } from '@angular/core';
+import { CanActivate, Router } from '@angular/router';
+import { ProfileService } from '../services/profile.service';
+import { Observable, of } from 'rxjs';
+import { map, tap, catchError } from 'rxjs/operators';
+import { UserResponseDto } from '../DTOs/users/UserResponseDto';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class ProfileGuard implements CanActivate {
+  constructor(private profileService: ProfileService, private router: Router) {}
+
+  canActivate(): Observable<boolean> {
+    return this.profileService.getMyProfile().pipe(
+      map((user: UserResponseDto) => !!user.profile_id),
+      tap((hasProfile) => {
+        if (!hasProfile) {
+          this.router.navigate(['/edit-profile']);
+        }
+      }),
+      catchError((error) => {
+        this.router.navigate(['/edit-profile']);
+        return of(false);
+      })
+    );
+  }
+}
+import { TestBed } from '@angular/core/testing';
+
+import { ProfileService } from './profile.service';
+
+describe('ProfileService', () => {
+  let service: ProfileService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(ProfileService);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+});
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+import { ProfileCreateDto } from '../DTOs/profiles/ProfileCreateDto';
+import { ProfileUpdateDto } from '../DTOs/profiles/ProfileUpdateDto';
+import { UserResponseDto } from '../DTOs/users/UserResponseDto';
+import { Gender } from '../models/Genders';
+import { Tag } from '../models/Tags';
+import { Photo } from '../models/Photo';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class ProfileService {
+  private apiUrl = 'http://localhost:8000/api';
+
+  constructor(private http: HttpClient) {}
+
+  createProfile(profileData: ProfileCreateDto): Observable<{ profileId: number }> {
+    return this.http.post<{ profileId: number }>(`${this.apiUrl}/profiles`, profileData);
+  }
+
+  updateProfile(profileData: ProfileUpdateDto): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/profiles`, profileData);
+  }
+
+  deleteProfile(): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/profiles`);
+  }
+
+  getMyProfile(): Observable<UserResponseDto> {
+    return this.http.get<UserResponseDto>(`${this.apiUrl}/users/me`);
+  }
+
+  getGenders(): Observable<Gender[]> {
+    return this.http.get<Gender[]>(`${this.apiUrl}/genders`);
+  }
+
+  getTags(): Observable<Tag[]> {
+    return this.http.get<Tag[]>(`${this.apiUrl}/tags`);
+  }
+
+  uploadPhoto(photo: File, description?: string): Observable<Photo> {
+    const formData = new FormData();
+    formData.append('photo', photo);
+    if (description) {
+      formData.append('description', description);
+    }
+
+    return this.http.post<Photo>(`${this.apiUrl}/photos`, formData);
+  }
+
+  setMainPhoto(photoId: number): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/photos/${photoId}/set-main`, {});
+  }
+
+  deletePhoto(photoId: number): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/photos/${photoId}`);
+  }
+}
+import {Injectable, OnDestroy} from '@angular/core';
+import {io, Socket} from 'socket.io-client';
+import {BehaviorSubject, Observable, Subject} from 'rxjs';
+import {AuthService} from './auth.service';
+import {UserResponseDto} from '../DTOs/users/UserResponseDto';
+import {Message} from "../models/Message";
+import {MessageDto} from "../DTOs/chat/MessageDto";
+
+@Injectable({
+  providedIn: 'root',
+})
+export class SocketService implements OnDestroy {
+  private socket!: Socket;
+  private socketConnected$ = new BehaviorSubject<boolean>(false);
+  public isConnected$ = this.socketConnected$.asObservable();
+
+  constructor(private authService: AuthService) {
+    // Écouter les changements d'authentification pour établir ou fermer la connexion
+    this.authService.user$.subscribe((user: UserResponseDto | null) => {
+      if (user && user.is_verified) {
+        const token = localStorage.getItem('accessToken');
+        if (!token)
+          return;
+        this.connectSocket(token);
+      } else {
+        this.disconnectSocket();
+      }
+    });
+  }
+
+  private connectSocket(token: string): void {
+    if (this.socket && this.socket.connected) {
+      return;
+    }
+
+    this.socket = io('ws://localhost:8000', {
+      transports: ['websocket'],
+      auth: {
+        token: token,
+      },
+    });
+
+    this.socket.on('connect', () => {
+      console.log('Connecté au serveur Socket.IO');
+      this.socketConnected$.next(true);
+      this.registerSocketListeners();
+    });
+
+    this.socket.on('disconnect', (reason: string) => {
+      console.log('Déconnecté du serveur Socket.IO:', reason);
+      this.socketConnected$.next(false);
+    });
+
+    this.socket.on('connect_error', (error: any) => {
+      console.error('Erreur de connexion Socket.IO:', error);
+      this.socketConnected$.next(false);
+    });
+
+  }
+
+
+  private disconnectSocket(): void {
+    if (this.socket) {
+      this.socket.disconnect();
+      this.socketConnected$.next(false);
+    }
+  }
+
+  // Méthode pour émettre des événements
+  emit(event: string, data?: any): void {
+    if (this.socket && this.socket.connected) {
+      this.socket.emit(event, data);
+    }
+  }
+
+  // Méthode pour écouter des événements
+  on<T>(event: string): Observable<T> {
+    return new Observable<T>((subscriber) => {
+      if (this.socket) {
+        this.socket.on(event, (data: T) => {
+          subscriber.next(data);
+        });
+      }
+
+      // Nettoyage lorsque l'abonné se désabonne
+      return () => {
+        if (this.socket) {
+          this.socket.off(event);
+        }
+      };
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.disconnectSocket();
+  }
+
+
+  private messagesSubject = new Subject<MessageDto>();
+  public messages$ = this.messagesSubject.asObservable();
+
+  private registerSocketListeners(): void {
+    this.socket.on('message', (data: MessageDto) => {
+      this.messagesSubject.next(data);
+    });
+
+    // this.socket.on('notification', (data: NotificationsReceiveDto) => {
+    // });
+    // this.socket.on('fetch_notifications', () => {
+    // });
+
+
+    //TODO: ajouter event notification + des Observables appropriés
+  }
+
+}
+import { TestBed } from '@angular/core/testing';
+
+import { ToastService } from './toast.service';
+
+describe('ToastService', () => {
+  let service: ToastService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(ToastService);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+});
+import { Injectable } from '@angular/core';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class ToastService {
+  constructor(private snackBar: MatSnackBar) {}
+
+  show(
+    message: string,
+    action: string = 'Close',
+    config?: MatSnackBarConfig
+  ): void {
+    const defaultConfig: MatSnackBarConfig = {
+      duration: 3000,
+      verticalPosition: 'top',
+      horizontalPosition: 'center',
+    };
+
+    this.snackBar.open(message, action, defaultConfig);
+  }
+
+  showWithAction(
+    message: string,
+    action: string,
+    onAction: () => void,
+    config?: MatSnackBarConfig
+  ): void {
+    const defaultConfig: MatSnackBarConfig = {
+      duration: 8000,
+      verticalPosition: 'top',
+      horizontalPosition: 'center',
+    };
+    const snackBarRef = this.snackBar.open(message, action, defaultConfig);
+
+    snackBarRef.onAction().subscribe(() => {
+      onAction();
+    });
+  }
+}
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+@import 'leaflet/dist/leaflet.css';
+
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.mat-mdc-raised-button {
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.mat-mdc-card {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 8px;
+}
+
+.hover-effect {
+  transition: transform 0.3s ease;
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
