@@ -4,8 +4,8 @@
   <mat-card>
     <mat-card-header>
       <mat-card-title>{{
-        existingProfile ? "Edit Your Profile" : "Create Your Profile"
-      }}</mat-card-title>
+          existingProfile ? "Edit Your Profile" : "Create Your Profile"
+        }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
@@ -91,9 +91,9 @@
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>City</mat-label>
           <input matInput formControlName="city" required />
-          <mat-icon matSuffix *ngIf="isCityValid" color="primary"
-            >check_circle</mat-icon
-          >
+          <mat-icon matSuffix *ngIf="isCityValid" color="primary">
+            check_circle
+          </mat-icon>
           <mat-error *ngIf="profileForm.get('city')?.hasError('required')">
             City is required
           </mat-error>
@@ -111,22 +111,41 @@
             multiple
             accept="image/*"
           />
-          <div class="photo-preview">
-            <div class="photo-item" *ngFor="let photo of photos">
-              <img [src]="photo.url" [alt]="user?.username || 'User Photo'" />
-              <button type="button"
-                mat-icon-button color="warn" (click)="deletePhoto($event,
-                photo)" >
-                <mat-icon>delete</mat-icon>
-              </button>
-              <button type="button"
-                mat-icon-button color="primary" (click)="setAsMainPhoto($event,
-                photo)" *ngIf="user?.main_photo_id !== photo.photo_id" >
-                <mat-icon>star</mat-icon>
-              </button>
-              <span *ngIf="user?.main_photo_id === photo.photo_id"
-                >Main Photo</span
-              >
+
+          <!-- Utiliser *ngIf avec 'as' pour garantir que user est non-null -->
+          <div *ngIf="user as currentUser">
+            <div class="photo-preview" *ngIf="currentUser.photos && currentUser.photos.length > 0">
+              <div class="photo-item" *ngFor="let photo of currentUser.photos">
+                <img
+                  [ngSrc]="photo.url"
+                  [alt]="currentUser.username || 'User Photo'"
+                  (error)="onImageError($event)"
+                  class="uploaded-photo"
+                  fill
+                  />
+                <!-- Afficher l'URL pour le débogage -->
+                <div>photo url = {{ photo.url }}</div>
+                <button
+                  type="button"
+                  mat-icon-button
+                  color="warn"
+                  (click)="deletePhoto(photo)"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+                <button
+                  type="button"
+                  mat-icon-button
+                  color="primary"
+                  (click)="setAsMainPhoto(photo)"
+                  *ngIf="currentUser.main_photo_id !== photo.photo_id"
+                >
+                  <mat-icon>star</mat-icon>
+                </button>
+                <span *ngIf="currentUser.main_photo_id === photo.photo_id">
+                  Main Photo
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -146,10 +165,13 @@
             color="accent"
           ></mat-progress-spinner>
           <span *ngIf="!isLoading">{{
-            existingProfile ? "Update Profile" : "Create Profile"
-          }}</span>
+              existingProfile ? "Update Profile" : "Create Profile"
+            }}</span>
         </button>
       </form>
     </mat-card-content>
   </mat-card>
 </div>
+
+<!-- Éléments de Débogage : Affiche les données de l'utilisateur -->
+<!--<pre>{{ user | json }}</pre>-->

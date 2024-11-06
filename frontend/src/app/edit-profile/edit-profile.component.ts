@@ -1,3 +1,4 @@
+// src/app/components/edit-profile/edit-profile.component.ts
 import { Component, OnInit } from '@angular/core';
 import {
   FormBuilder,
@@ -13,7 +14,7 @@ import { Tag } from '../../models/Tags';
 import { UserResponseDto } from '../../DTOs/users/UserResponseDto';
 import { Photo } from '../../models/Photo';
 
-import { CommonModule } from '@angular/common';
+import {CommonModule, NgOptimizedImage} from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -24,7 +25,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { ProfileUpdateDto } from '../../DTOs/profiles/ProfileUpdateDto';
 import { ProfileCreateDto } from '../../DTOs/profiles/ProfileCreateDto';
 import { HttpClient } from '@angular/common/http';
-import { debounce, debounceTime } from 'rxjs';
+import { debounceTime } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-edit-profile',
@@ -43,6 +45,7 @@ import { debounce, debounceTime } from 'rxjs';
     MatButtonModule,
     MatProgressSpinnerModule,
     MatIconModule,
+    NgOptimizedImage,
   ],
 })
 export class EditProfileComponent implements OnInit {
@@ -51,7 +54,6 @@ export class EditProfileComponent implements OnInit {
   genders: Gender[] = [];
   tags: Tag[] = [];
   existingProfile: boolean = false;
-  photos: Photo[] = [];
   user: UserResponseDto | null = null;
   isCityValid: boolean = false;
 
@@ -63,6 +65,13 @@ export class EditProfileComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.initializeForm();
+    this.subscribeToFormChanges();
+    this.loadInitialData();
+    this.subscribeToUser();
+  }
+
+  private initializeForm() {
     this.profileForm = this.fb.group({
       biography: ['', [Validators.required, Validators.maxLength(1024)]],
       gender: [null, [Validators.required]],
@@ -78,86 +87,62 @@ export class EditProfileComponent implements OnInit {
         longitude: [null],
       }),
     });
+  }
 
+  private subscribeToFormChanges() {
     this.profileForm
       .get('city')
       ?.valueChanges.pipe(debounceTime(500))
       .subscribe((cityName) => {
         this.searchCityCoordinates(cityName);
       });
+  }
 
+  private loadInitialData() {
     this.loadGenders();
     this.loadTags();
+    this.profileService.getMyProfile().subscribe(); // Initial fetch
+  }
 
-    this.profileService.getMyProfile().subscribe({
-      next: (user) => {
-        this.user = user;
-        if (user.profile_id) {
-          this.existingProfile = true;
-          this.populateForm(user);
-          if (user.photos) {
-            this.photos = user.photos;
+  private subscribeToUser() {
+    this.profileService.user$.subscribe({
+      next: (userResponse) => {
+        if (userResponse) {
+          this.user = userResponse;
+          console.log('DBG updated user:', this.user);
+          if (this.user.profile_id) {
+            this.existingProfile = true;
+            this.populateForm(this.user);
           }
         }
       },
       error: (error) => {
-        console.error('Error fetching profile:', error);
+        console.error('Error in user subscription:', error);
       },
     });
   }
 
-  loadGenders() {
+  private loadGenders() {
     this.profileService.getGenders().subscribe({
-      next: (genders) => (this.genders = genders),
+      next: (genders) => {
+        this.genders = genders;
+        console.log('DBG loaded genders:', genders);
+      },
       error: (err) => console.error('Error loading genders', err),
     });
   }
 
-  searchCityCoordinates(cityName: string) {
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`;
-    const headers = {
-      'Accept-Language': 'fr',
-      'User-Agent': 'matcha - matcha@example.com',
-    };
-  
-    this.http.get<any[]>(url, { headers }).subscribe({
-      next: (results) => {
-        if (results && results.length > 0) {
-          const latitude = parseFloat(results[0].lat);
-          const longitude = parseFloat(results[0].lon);
-          this.profileForm.patchValue({
-            location: {
-              latitude: latitude,
-              longitude: longitude,
-            },
-          });
-          this.isCityValid = true;
-        } else {
-          console.warn('Aucune ville trouvée pour :', cityName);
-          this.profileForm.patchValue({
-            location: {
-              latitude: null,
-              longitude: null,
-            },
-          });
-          this.isCityValid = false;
-        }
-      },
-      error: (error) => {
-        console.error('Erreur lors de la récupération des coordonnées :', error);
-        this.isCityValid = false;
-      },
-    });
-  }
-
-  loadTags() {
+  private loadTags() {
     this.profileService.getTags().subscribe({
-      next: (tags) => (this.tags = tags),
+      next: (tags) => {
+        this.tags = tags;
+        console.log('DBG loaded tags:', tags);
+      },
       error: (err) => console.error('Error loading tags', err),
     });
   }
 
-  populateForm(user: UserResponseDto) {
+  private populateForm(user: UserResponseDto) {
     this.profileForm.patchValue({
       biography: user.biography || '',
       gender: user.gender || null,
@@ -166,6 +151,7 @@ export class EditProfileComponent implements OnInit {
       tags: user.tags?.map((t) => t.tag_id) || [],
       city: user.location?.city_name || '',
     });
+    console.log('DBG populated form with user data');
   }
 
   onSubmit(): void {
@@ -181,7 +167,7 @@ export class EditProfileComponent implements OnInit {
         tags: formValues.tags,
         location: {
           latitude: formValues.location.latitude,
-          longitude: formValues.location.longitude
+          longitude: formValues.location.longitude,
         },
       };
 
@@ -213,59 +199,37 @@ export class EditProfileComponent implements OnInit {
     }
   }
 
-  async onPhotoSelected(event: any) {
+  onPhotoSelected(event: any) {
     const files: FileList = event.target.files;
     if (files.length > 0) {
-      const uploadPromises = Array.from(files).map(file => this.uploadPhoto(file));
-      
-      try {
-        // Wait for all uploads to complete
-        const newPhotos = await Promise.all(uploadPromises);
-        // Update the photos array with the new photos
-        this.photos = [...this.photos, ...newPhotos];
-      } catch (error) {
-        console.error('Error uploading photos:', error);
-      }
+      this.isLoading = true;
+      const uploadPromises = Array.from(files).map((file) =>
+        this.profileService.uploadPhoto(file).toPromise()
+      );
+
+      Promise.all(uploadPromises)
+        .then((newPhotos) => {
+          console.log('DBG newPhotos after upload:', newPhotos);
+          // Les données utilisateur sont déjà rechargées via le service
+          this.isLoading = false;
+        })
+        .catch((error) => {
+          console.error('Error uploading photos:', error);
+          this.isLoading = false;
+        });
     }
   }
 
-  uploadPhoto(file: File): Promise<Photo> {
-    return new Promise((resolve, reject) => {
-      this.profileService.uploadPhoto(file).subscribe({
-        next: (photo) => resolve(photo),
-        error: (error) => reject(error)
-      });
-    });
-  }
-
-  setAsMainPhoto(event: Event, photo: Photo) {
-    event.preventDefault(); // Prevent form submission
-    event.stopPropagation(); // Stop event bubbling
-    
-    // Check if photo exists and has a valid ID
+  setAsMainPhoto(photo: Photo) {
     if (!photo || !photo.photo_id) {
       console.error('Invalid photo or photo ID');
       return;
     }
 
-    // Check if the photo is actually in our photos array
-    const photoExists = this.photos.some(p => p.photo_id === photo.photo_id);
-    if (!photoExists) {
-      console.error('Photo does not exist in the current photos array');
-      return;
-    }
-
     this.profileService.setMainPhoto(photo.photo_id).subscribe({
       next: () => {
-        if (this.user) {
-          this.user.main_photo_url = photo.url;
-          this.user.main_photo_id = photo.photo_id;
-        }
-        // Update the UI to reflect the change
-        this.photos = this.photos.map(p => ({
-          ...p,
-          is_main: p.photo_id === photo.photo_id
-        }));
+        console.log('DBG main photo set successfully');
+        // Les données utilisateur sont déjà rechargées via le service
       },
       error: (error) => {
         console.error('Error setting main photo:', error);
@@ -273,11 +237,7 @@ export class EditProfileComponent implements OnInit {
     });
   }
 
-  deletePhoto(event: Event, photo: Photo) {
-    event.preventDefault(); // Prevent form submission
-    event.stopPropagation(); // Stop event bubbling
-    
-    // Check if photo exists and has a valid ID
+  deletePhoto(photo: Photo) {
     if (!photo || !photo.photo_id) {
       console.error('Invalid photo or photo ID');
       return;
@@ -286,17 +246,59 @@ export class EditProfileComponent implements OnInit {
     if (confirm('Are you sure you want to delete this photo?')) {
       this.profileService.deletePhoto(photo.photo_id).subscribe({
         next: () => {
-          this.photos = this.photos.filter(p => p.photo_id !== photo.photo_id);
-          // If we deleted the main photo, clear the main photo reference
-          if (this.user && this.user.main_photo_id === photo.photo_id) {
-            this.user.main_photo_url = '';
-            this.user.main_photo_id = 0;
-          }
+          console.log('DBG photo deleted successfully');
+          // Les données utilisateur sont déjà rechargées via le service
         },
         error: (error) => {
           console.error('Error deleting photo:', error);
         },
       });
     }
+  }
+
+  onImageError(event: Event) {
+    const imgElement = event.target as HTMLImageElement;
+    console.error('Image failed to load:', imgElement.src);
+    // imgElement.src = 'assets/default-image.png'; // Optionnel : définir une image par défaut TODO TODO
+  }
+
+  private searchCityCoordinates(cityName: string) {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+      cityName
+    )}&format=json&limit=1`;
+    const headers = {
+      'Accept-Language': 'fr',
+      'User-Agent': 'matcha - matcha@example.com',
+    };
+
+    this.http.get<any[]>(url, { headers }).subscribe({
+      next: (results) => {
+        console.log('DBG searchCityCoordinates results:', results);
+        if (results && results.length > 0) {
+          const latitude = parseFloat(results[0].lat);
+          const longitude = parseFloat(results[0].lon);
+          this.profileForm.patchValue({
+            location: {
+              latitude: latitude,
+              longitude: longitude,
+            },
+          });
+          this.isCityValid = true;
+        } else {
+          console.warn('Aucune ville trouvée pour :', cityName);
+          this.profileForm.patchValue({
+            location: {
+              latitude: null,
+              longitude: null,
+            },
+          });
+          this.isCityValid = false;
+        }
+      },
+      error: (error) => {
+        console.error('Erreur lors de la récupération des coordonnées :', error);
+        this.isCityValid = false;
+      },
+    });
   }
 }
