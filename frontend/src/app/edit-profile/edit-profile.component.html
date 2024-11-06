@@ -3,18 +3,27 @@
 <div class="edit-profile-container">
   <mat-card>
     <mat-card-header>
-      <mat-card-title>{{ existingProfile ? 'Edit Your Profile' : 'Create Your Profile' }}</mat-card-title>
+      <mat-card-title>{{
+        existingProfile ? "Edit Your Profile" : "Create Your Profile"
+      }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
         <!-- Biography -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Biography</mat-label>
-          <textarea matInput formControlName="biography" rows="4" required></textarea>
+          <textarea
+            matInput
+            formControlName="biography"
+            rows="4"
+            required
+          ></textarea>
           <mat-error *ngIf="profileForm.get('biography')?.hasError('required')">
             Biography is required
           </mat-error>
-          <mat-error *ngIf="profileForm.get('biography')?.hasError('maxlength')">
+          <mat-error
+            *ngIf="profileForm.get('biography')?.hasError('maxlength')"
+          >
             Biography cannot exceed 1024 characters
           </mat-error>
         </mat-form-field>
@@ -23,7 +32,10 @@
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Gender</mat-label>
           <mat-select formControlName="gender" required>
-            <mat-option *ngFor="let gender of genders" [value]="gender.gender_id">
+            <mat-option
+              *ngFor="let gender of genders"
+              [value]="gender.gender_id"
+            >
               {{ gender.name }}
             </mat-option>
           </mat-select>
@@ -36,11 +48,16 @@
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Sexual Preferences</mat-label>
           <mat-select formControlName="sexualPreferences" multiple required>
-            <mat-option *ngFor="let preference of genders" [value]="preference.gender_id">
+            <mat-option
+              *ngFor="let preference of genders"
+              [value]="preference.gender_id"
+            >
               {{ preference.name }}
             </mat-option>
           </mat-select>
-          <mat-error *ngIf="profileForm.get('sexualPreferences')?.hasError('required')">
+          <mat-error
+            *ngIf="profileForm.get('sexualPreferences')?.hasError('required')"
+          >
             Sexual preferences are required
           </mat-error>
         </mat-form-field>
@@ -48,7 +65,7 @@
         <!-- Age -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Age</mat-label>
-          <input matInput type="number" formControlName="age" required>
+          <input matInput type="number" formControlName="age" required />
           <mat-error *ngIf="profileForm.get('age')?.hasError('required')">
             Age is required
           </mat-error>
@@ -73,7 +90,7 @@
         <!-- City -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>City</mat-label>
-          <input matInput formControlName="city" required>
+          <input matInput formControlName="city" required />
           <mat-icon matSuffix *ngIf="isCityValid" color="primary"
             >check_circle</mat-icon
           >
@@ -88,17 +105,28 @@
         <!-- Photo Upload Section -->
         <div class="photo-upload-section">
           <h3>Upload Photos</h3>
-          <input type="file" (change)="onPhotoSelected($event)" multiple accept="image/*" />
+          <input
+            type="file"
+            (change)="onPhotoSelected($event)"
+            multiple
+            accept="image/*"
+          />
           <div class="photo-preview">
             <div class="photo-item" *ngFor="let photo of photos">
               <img [src]="photo.url" [alt]="user?.username || 'User Photo'" />
-              <button mat-icon-button color="warn" (click)="deletePhoto(photo)">
+              <button type="button"
+                mat-icon-button color="warn" (click)="deletePhoto($event,
+                photo)" >
                 <mat-icon>delete</mat-icon>
               </button>
-              <button mat-icon-button color="primary" (click)="setAsMainPhoto(photo)" *ngIf="user?.main_photo_id !== photo.photo_id">
+              <button type="button"
+                mat-icon-button color="primary" (click)="setAsMainPhoto($event,
+                photo)" *ngIf="user?.main_photo_id !== photo.photo_id" >
                 <mat-icon>star</mat-icon>
               </button>
-              <span *ngIf="user?.main_photo_id === photo.photo_id">Main Photo</span>
+              <span *ngIf="user?.main_photo_id === photo.photo_id"
+                >Main Photo</span
+              >
             </div>
           </div>
         </div>
@@ -117,7 +145,9 @@
             mode="indeterminate"
             color="accent"
           ></mat-progress-spinner>
-          <span *ngIf="!isLoading">{{ existingProfile ? 'Update Profile' : 'Create Profile' }}</span>
+          <span *ngIf="!isLoading">{{
+            existingProfile ? "Update Profile" : "Create Profile"
+          }}</span>
         </button>
       </form>
     </mat-card-content>

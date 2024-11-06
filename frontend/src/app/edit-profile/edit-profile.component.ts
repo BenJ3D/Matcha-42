@@ -213,33 +213,59 @@ export class EditProfileComponent implements OnInit {
     }
   }
 
-  onPhotoSelected(event: any) {
+  async onPhotoSelected(event: any) {
     const files: FileList = event.target.files;
     if (files.length > 0) {
-      for (let i = 0; i < files.length; i++) {
-        this.uploadPhoto(files[i]);
+      const uploadPromises = Array.from(files).map(file => this.uploadPhoto(file));
+      
+      try {
+        // Wait for all uploads to complete
+        const newPhotos = await Promise.all(uploadPromises);
+        // Update the photos array with the new photos
+        this.photos = [...this.photos, ...newPhotos];
+      } catch (error) {
+        console.error('Error uploading photos:', error);
       }
     }
   }
 
-  uploadPhoto(file: File) {
-    this.profileService.uploadPhoto(file).subscribe({
-      next: (photo) => {
-        this.photos.push(photo);
-      },
-      error: (error) => {
-        console.error('Error uploading photo:', error);
-      },
+  uploadPhoto(file: File): Promise<Photo> {
+    return new Promise((resolve, reject) => {
+      this.profileService.uploadPhoto(file).subscribe({
+        next: (photo) => resolve(photo),
+        error: (error) => reject(error)
+      });
     });
   }
 
-  setAsMainPhoto(photo: Photo) {
+  setAsMainPhoto(event: Event, photo: Photo) {
+    event.preventDefault(); // Prevent form submission
+    event.stopPropagation(); // Stop event bubbling
+    
+    // Check if photo exists and has a valid ID
+    if (!photo || !photo.photo_id) {
+      console.error('Invalid photo or photo ID');
+      return;
+    }
+
+    // Check if the photo is actually in our photos array
+    const photoExists = this.photos.some(p => p.photo_id === photo.photo_id);
+    if (!photoExists) {
+      console.error('Photo does not exist in the current photos array');
+      return;
+    }
+
     this.profileService.setMainPhoto(photo.photo_id).subscribe({
       next: () => {
-        console.log('Main photo set successfully');
         if (this.user) {
           this.user.main_photo_url = photo.url;
+          this.user.main_photo_id = photo.photo_id;
         }
+        // Update the UI to reflect the change
+        this.photos = this.photos.map(p => ({
+          ...p,
+          is_main: p.photo_id === photo.photo_id
+        }));
       },
       error: (error) => {
         console.error('Error setting main photo:', error);
@@ -247,14 +273,25 @@ export class EditProfileComponent implements OnInit {
     });
   }
 
-  deletePhoto(photo: Photo) {
+  deletePhoto(event: Event, photo: Photo) {
+    event.preventDefault(); // Prevent form submission
+    event.stopPropagation(); // Stop event bubbling
+    
+    // Check if photo exists and has a valid ID
+    if (!photo || !photo.photo_id) {
+      console.error('Invalid photo or photo ID');
+      return;
+    }
+
     if (confirm('Are you sure you want to delete this photo?')) {
       this.profileService.deletePhoto(photo.photo_id).subscribe({
         next: () => {
-          this.photos = this.photos.filter(
-            (p) => p.photo_id !== photo.photo_id
-          );
-          console.log('Photo deleted successfully');
+          this.photos = this.photos.filter(p => p.photo_id !== photo.photo_id);
+          // If we deleted the main photo, clear the main photo reference
+          if (this.user && this.user.main_photo_id === photo.photo_id) {
+            this.user.main_photo_url = '';
+            this.user.main_photo_id = 0;
+          }
         },
         error: (error) => {
           console.error('Error deleting photo:', error);
