@@ -1,16 +1,16 @@
 // src/app/services/profile.service.ts
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {map, tap} from 'rxjs/operators';
 
-import { ProfileCreateDto } from '../DTOs/profiles/ProfileCreateDto';
-import { ProfileUpdateDto } from '../DTOs/profiles/ProfileUpdateDto';
-import { UserResponseDto } from '../DTOs/users/UserResponseDto';
-import { Gender } from '../models/Genders';
-import { Tag } from '../models/Tags';
-import { Photo } from '../models/Photo';
-import { UploadPhotoResponse } from '../DTOs/upload-photo-response';
+import {ProfileCreateDto} from '../DTOs/profiles/ProfileCreateDto';
+import {ProfileUpdateDto} from '../DTOs/profiles/ProfileUpdateDto';
+import {UserResponseDto} from '../DTOs/users/UserResponseDto';
+import {Gender} from '../models/Genders';
+import {Tag} from '../models/Tags';
+import {Photo} from '../models/Photo';
+import {UploadPhotoResponse} from '../DTOs/upload-photo-response';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +21,8 @@ export class ProfileService {
   private userSubject = new BehaviorSubject<UserResponseDto | null>(null);
   public user$ = this.userSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+  }
 
   // Méthode pour récupérer les données de l'utilisateur
   getMyProfile(): Observable<UserResponseDto> {

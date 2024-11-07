@@ -4,15 +4,15 @@
       <mat-card-title>{{ existingProfile ? "Edit Your Profile" : "Create Your Profile" }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+      <form (ngSubmit)="onSubmit()" [formGroup]="profileForm">
         <!-- Biography -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Biography</mat-label>
           <textarea
-            matInput
             formControlName="biography"
-            rows="4"
+            matInput
             required
+            rows="4"
           ></textarea>
           <mat-error *ngIf="profileForm.get('biography')?.hasError('required')">
             Biography is required
@@ -51,7 +51,7 @@
         <!-- Age -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Age</mat-label>
-          <input matInput type="number" formControlName="age" required />
+          <input formControlName="age" matInput required type="number"/>
           <mat-error *ngIf="profileForm.get('age')?.hasError('required')">
             Age is required
           </mat-error>
@@ -76,13 +76,13 @@
         <!-- City with Autocomplete -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>City</mat-label>
-          <input type="text" matInput formControlName="city" [matAutocomplete]="auto" />
+          <input [matAutocomplete]="auto" formControlName="city" matInput type="text"/>
           <mat-autocomplete #auto="matAutocomplete">
             <mat-option *ngFor="let city of cityOptions | async" [value]="city">
               {{ city }}
             </mat-option>
           </mat-autocomplete>
-          <mat-icon matSuffix *ngIf="isCityValid" color="primary">check_circle</mat-icon>
+          <mat-icon *ngIf="isCityValid" color="primary" matSuffix>check_circle</mat-icon>
           <mat-error *ngIf="profileForm.get('city')?.hasError('required')">
             City is required
           </mat-error>
@@ -92,36 +92,36 @@
         <div class="photo-upload-section">
           <h3>Upload Photos</h3>
           <input
-            type="file"
             (change)="onPhotoSelected($event)"
-            multiple
             accept="image/*"
+            multiple
+            type="file"
           />
           <div *ngIf="user as currentUser">
-            <div class="photo-preview" *ngIf="currentUser.photos && currentUser.photos.length > 0">
-              <div class="photo-item" *ngFor="let photo of currentUser.photos">
+            <div *ngIf="currentUser.photos && currentUser.photos.length > 0" class="photo-preview">
+              <div *ngFor="let photo of currentUser.photos" class="photo-item">
                 <img
-                  [ngSrc]="photo.url"
-                  [alt]="currentUser.username || 'User Photo'"
                   (error)="onImageError($event)"
+                  [alt]="currentUser.username || 'User Photo'"
+                  [ngSrc]="photo.url"
                   class="uploaded-photo"
                   fill
                 />
                 <div>photo url = {{ photo.url }}</div>
                 <button
-                  type="button"
-                  mat-icon-button
-                  color="warn"
                   (click)="deletePhoto(photo)"
+                  color="warn"
+                  mat-icon-button
+                  type="button"
                 >
                   <mat-icon>delete</mat-icon>
                 </button>
                 <button
-                  type="button"
-                  mat-icon-button
-                  color="primary"
                   (click)="setAsMainPhoto(photo)"
                   *ngIf="currentUser.main_photo_id !== photo.photo_id"
+                  color="primary"
+                  mat-icon-button
+                  type="button"
                 >
                   <mat-icon>star</mat-icon>
                 </button>
@@ -135,17 +135,17 @@
 
         <!-- Submit Button -->
         <button
-          mat-raised-button
-          color="primary"
-          type="submit"
           [disabled]="profileForm.invalid || isLoading"
           class="full-width"
+          color="primary"
+          mat-raised-button
+          type="submit"
         >
           <mat-progress-spinner
             *ngIf="isLoading"
+            color="accent"
             diameter="20"
             mode="indeterminate"
-            color="accent"
           ></mat-progress-spinner>
           <span *ngIf="!isLoading">{{
               existingProfile ? "Update Profile" : "Create Profile"
