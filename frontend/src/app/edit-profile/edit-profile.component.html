@@ -1,11 +1,7 @@
-<!-- src/app/components/edit-profile/edit-profile.component.html -->
-
 <div class="edit-profile-container">
   <mat-card>
     <mat-card-header>
-      <mat-card-title>{{
-          existingProfile ? "Edit Your Profile" : "Create Your Profile"
-        }}</mat-card-title>
+      <mat-card-title>{{ existingProfile ? "Edit Your Profile" : "Create Your Profile" }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
@@ -21,9 +17,7 @@
           <mat-error *ngIf="profileForm.get('biography')?.hasError('required')">
             Biography is required
           </mat-error>
-          <mat-error
-            *ngIf="profileForm.get('biography')?.hasError('maxlength')"
-          >
+          <mat-error *ngIf="profileForm.get('biography')?.hasError('maxlength')">
             Biography cannot exceed 1024 characters
           </mat-error>
         </mat-form-field>
@@ -32,10 +26,7 @@
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Gender</mat-label>
           <mat-select formControlName="gender" required>
-            <mat-option
-              *ngFor="let gender of genders"
-              [value]="gender.gender_id"
-            >
+            <mat-option *ngFor="let gender of genders" [value]="gender.gender_id">
               {{ gender.name }}
             </mat-option>
           </mat-select>
@@ -48,16 +39,11 @@
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Sexual Preferences</mat-label>
           <mat-select formControlName="sexualPreferences" multiple required>
-            <mat-option
-              *ngFor="let preference of genders"
-              [value]="preference.gender_id"
-            >
+            <mat-option *ngFor="let preference of genders" [value]="preference.gender_id">
               {{ preference.name }}
             </mat-option>
           </mat-select>
-          <mat-error
-            *ngIf="profileForm.get('sexualPreferences')?.hasError('required')"
-          >
+          <mat-error *ngIf="profileForm.get('sexualPreferences')?.hasError('required')">
             Sexual preferences are required
           </mat-error>
         </mat-form-field>
@@ -87,18 +73,18 @@
           </mat-select>
         </mat-form-field>
 
-        <!-- City -->
+        <!-- City with Autocomplete -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>City</mat-label>
-          <input matInput formControlName="city" required />
-          <mat-icon matSuffix *ngIf="isCityValid" color="primary">
-            check_circle
-          </mat-icon>
+          <input type="text" matInput formControlName="city" [matAutocomplete]="auto" />
+          <mat-autocomplete #auto="matAutocomplete">
+            <mat-option *ngFor="let city of cityOptions | async" [value]="city">
+              {{ city }}
+            </mat-option>
+          </mat-autocomplete>
+          <mat-icon matSuffix *ngIf="isCityValid" color="primary">check_circle</mat-icon>
           <mat-error *ngIf="profileForm.get('city')?.hasError('required')">
             City is required
-          </mat-error>
-          <mat-error *ngIf="profileForm.get('city')?.hasError('invalidCity')">
-            City is invalid
           </mat-error>
         </mat-form-field>
 
@@ -111,8 +97,6 @@
             multiple
             accept="image/*"
           />
-
-          <!-- Utiliser *ngIf avec 'as' pour garantir que user est non-null -->
           <div *ngIf="user as currentUser">
             <div class="photo-preview" *ngIf="currentUser.photos && currentUser.photos.length > 0">
               <div class="photo-item" *ngFor="let photo of currentUser.photos">
@@ -122,8 +106,7 @@
                   (error)="onImageError($event)"
                   class="uploaded-photo"
                   fill
-                  />
-                <!-- Afficher l'URL pour le débogage -->
+                />
                 <div>photo url = {{ photo.url }}</div>
                 <button
                   type="button"
@@ -172,6 +155,3 @@
     </mat-card-content>
   </mat-card>
 </div>
-
-<!-- Éléments de Débogage : Affiche les données de l'utilisateur -->
-<!--<pre>{{ user | json }}</pre>-->

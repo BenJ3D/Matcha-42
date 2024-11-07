@@ -1,52 +1,58 @@
-// src/app/components/edit-profile/edit-profile.component.ts
 import { Component, OnInit } from '@angular/core';
 import {
   FormBuilder,
-  FormGroup,
+  FormGroup, ReactiveFormsModule,
   Validators,
-  ReactiveFormsModule,
-  FormsModule,
 } from '@angular/forms';
 import { ProfileService } from '../../services/profile.service';
-import { Router, RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
 import { Gender } from '../../models/Genders';
 import { Tag } from '../../models/Tags';
 import { UserResponseDto } from '../../DTOs/users/UserResponseDto';
 import { Photo } from '../../models/Photo';
-
-import {CommonModule, NgOptimizedImage} from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatIconModule } from '@angular/material/icon';
+import {AsyncPipe, CommonModule, NgForOf, NgIf, NgOptimizedImage} from '@angular/common';
+import {MatCard, MatCardContent, MatCardHeader, MatCardModule} from '@angular/material/card';
+import {MatFormField, MatFormFieldModule} from '@angular/material/form-field';
+import {MatOption, MatSelect, MatSelectModule} from '@angular/material/select';
+import {MatInput, MatInputModule} from '@angular/material/input';
+import {MatProgressSpinner, MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatIcon, MatIconModule} from '@angular/material/icon';
 import { ProfileUpdateDto } from '../../DTOs/profiles/ProfileUpdateDto';
 import { ProfileCreateDto } from '../../DTOs/profiles/ProfileCreateDto';
+
 import { HttpClient } from '@angular/common/http';
-import { debounceTime } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { debounceTime, switchMap, map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import {MatAutocomplete, MatAutocompleteTrigger} from "@angular/material/autocomplete";
+import {MatButton, MatIconButton} from "@angular/material/button";
 
 @Component({
   selector: 'app-edit-profile',
   templateUrl: './edit-profile.component.html',
   styleUrls: ['./edit-profile.component.scss'],
-  standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    RouterModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatSelectModule,
     MatInputModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatIconModule,
+    MatCardContent,
+    MatCard,
+    MatCardHeader,
+    ReactiveFormsModule,
+    MatFormField,
+    MatSelect,
+    MatOption,
+    MatAutocomplete,
+    MatAutocompleteTrigger,
+    AsyncPipe,
+    MatIcon,
     NgOptimizedImage,
+    MatProgressSpinner,
+    NgIf,
+    NgForOf,
+    MatInput,
+    MatIconButton,
+    MatButton,
+    MatCardModule
   ],
+  standalone: true
 })
 export class EditProfileComponent implements OnInit {
   profileForm!: FormGroup;
@@ -56,6 +62,7 @@ export class EditProfileComponent implements OnInit {
   existingProfile: boolean = false;
   user: UserResponseDto | null = null;
   isCityValid: boolean = false;
+  cityOptions!: Observable<string[]>;
 
   constructor(
     private fb: FormBuilder,
@@ -69,6 +76,7 @@ export class EditProfileComponent implements OnInit {
     this.subscribeToFormChanges();
     this.loadInitialData();
     this.subscribeToUser();
+    this.setupCityAutocomplete();
   }
 
   private initializeForm() {
@@ -122,6 +130,13 @@ export class EditProfileComponent implements OnInit {
     });
   }
 
+  private setupCityAutocomplete() {
+    this.cityOptions = this.profileForm.get('city')!.valueChanges.pipe(
+      debounceTime(300),
+      switchMap(value => this.searchCities(value))
+    );
+  }
+
   private loadGenders() {
     this.profileService.getGenders().subscribe({
       next: (genders) => {
@@ -159,7 +174,7 @@ export class EditProfileComponent implements OnInit {
       this.isLoading = true;
       const formValues = this.profileForm.value;
 
-      const profileData: ProfileCreateDto | ProfileUpdateDto = {
+      const profileData = {
         biography: formValues.biography,
         gender: formValues.gender,
         sexualPreferences: formValues.sexualPreferences,
@@ -199,6 +214,14 @@ export class EditProfileComponent implements OnInit {
     }
   }
 
+  private searchCities(cityName: string): Observable<string[]> {
+    if (!cityName) return of([]);
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=5`;
+    return this.http.get<any[]>(url).pipe(
+      map(results => results.map(result => result.display_name))
+    );
+  }
+
   onPhotoSelected(event: any) {
     const files: FileList = event.target.files;
     if (files.length > 0) {
@@ -210,7 +233,6 @@ export class EditProfileComponent implements OnInit {
       Promise.all(uploadPromises)
         .then((newPhotos) => {
           console.log('DBG newPhotos after upload:', newPhotos);
-          // Les données utilisateur sont déjà rechargées via le service
           this.isLoading = false;
         })
         .catch((error) => {
@@ -229,7 +251,6 @@ export class EditProfileComponent implements OnInit {
     this.profileService.setMainPhoto(photo.photo_id).subscribe({
       next: () => {
         console.log('DBG main photo set successfully');
-        // Les données utilisateur sont déjà rechargées via le service
       },
       error: (error) => {
         console.error('Error setting main photo:', error);
@@ -247,7 +268,6 @@ export class EditProfileComponent implements OnInit {
       this.profileService.deletePhoto(photo.photo_id).subscribe({
         next: () => {
           console.log('DBG photo deleted successfully');
-          // Les données utilisateur sont déjà rechargées via le service
         },
         error: (error) => {
           console.error('Error deleting photo:', error);
@@ -259,7 +279,6 @@ export class EditProfileComponent implements OnInit {
   onImageError(event: Event) {
     const imgElement = event.target as HTMLImageElement;
     console.error('Image failed to load:', imgElement.src);
-    // imgElement.src = 'assets/default-image.png'; // Optionnel : définir une image par défaut TODO TODO
   }
 
   private searchCityCoordinates(cityName: string) {
