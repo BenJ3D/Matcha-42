@@ -6,6 +6,7 @@ import {Message} from '../models/Message';
 import {Socket} from 'socket.io';
 import NotificationsService from "./NotificationsService";
 import {NotificationType} from "../models/Notifications";
+import UnreadUserMessageService from "./UnreadUserMessageService";
 
 class MessageService {
     async createMessage(ownerUserId: number, createMessageDto: CreateMessageDto): Promise<Message> {
@@ -26,6 +27,13 @@ class MessageService {
 
         // Créer le message dans la base de données
         const message = await MessageDAL.createMessage(messageData);
+
+        // Ajouter un message non lu pour le destinataire
+        await UnreadUserMessageService.addUnreadMessage(ownerUserId, target_user);
+
+        // Supprimer le message non lu pour l'envoyeur (s'il existe)
+        await UnreadUserMessageService.removeUnreadMessage(target_user, ownerUserId);
+
 
         // Émettre le message à l'utilisateur cible s'il est en ligne
         const targetUserSockets = onlineUsers.get(target_user);

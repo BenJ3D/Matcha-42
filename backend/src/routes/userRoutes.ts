@@ -1,6 +1,7 @@
 import {Router} from 'express';
 import UserController from "../controllers/userController";
 import {validateIdMiddleware} from "../middlewares/validateIdMiddleware";
+import unreadUserMessageRoutes from "./unreadUserMessageRoutes";
 
 const router = Router();
 
@@ -247,5 +248,8 @@ router.patch('/', UserController.patchUserEmail);
  *         description: Utilisateur non trouvé.
  */
 router.delete('/', UserController.deleteUser);
+
+
+router.use('/unread-messages', unreadUserMessageRoutes);
 
 export default router;
