@@ -1,145 +1,186 @@
-<div class="edit-profile-container">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>{{ existingProfile ? "Edit Your Profile" : "Create Your Profile" }}</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <form (ngSubmit)="onSubmit()" [formGroup]="profileForm">
-        <!-- Biography -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Biography</mat-label>
-          <textarea
-            formControlName="biography"
-            matInput
-            required
-            rows="4"
-          ></textarea>
-          <mat-error *ngIf="profileForm.get('biography')?.hasError('required')">
-            Biography is required
-          </mat-error>
-          <mat-error *ngIf="profileForm.get('biography')?.hasError('maxlength')">
-            Biography cannot exceed 1024 characters
-          </mat-error>
-        </mat-form-field>
+<mat-horizontal-stepper [linear]="isLinear" #stepper>
+  <!-- Step 1: Profile Information -->
+  <mat-step [stepControl]="profileInfoForm" [completed]="profileInfoForm.valid">
+    <form [formGroup]="profileInfoForm">
+      <ng-template matStepLabel>Profile Information</ng-template>
 
-        <!-- Gender -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Gender</mat-label>
-          <mat-select formControlName="gender" required>
-            <mat-option *ngFor="let gender of genders" [value]="gender.gender_id">
-              {{ gender.name }}
-            </mat-option>
-          </mat-select>
-          <mat-error *ngIf="profileForm.get('gender')?.hasError('required')">
-            Gender is required
-          </mat-error>
-        </mat-form-field>
+      <!-- Biography -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Biography</mat-label>
+        <textarea
+          formControlName="biography"
+          matInput
+          required
+          rows="4"
+        ></textarea>
+        <mat-error *ngIf="profileInfoForm.get('biography')?.hasError('required')">
+          Biography is required
+        </mat-error>
+        <mat-error *ngIf="profileInfoForm.get('biography')?.hasError('maxlength')">
+          Biography cannot exceed 1024 characters
+        </mat-error>
+      </mat-form-field>
 
-        <!-- Sexual Preferences -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Sexual Preferences</mat-label>
-          <mat-select formControlName="sexualPreferences" multiple required>
-            <mat-option *ngFor="let preference of genders" [value]="preference.gender_id">
-              {{ preference.name }}
-            </mat-option>
-          </mat-select>
-          <mat-error *ngIf="profileForm.get('sexualPreferences')?.hasError('required')">
-            Sexual preferences are required
-          </mat-error>
-        </mat-form-field>
+      <!-- Gender -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Gender</mat-label>
+        <mat-select formControlName="gender" required>
+          <mat-option *ngFor="let gender of genders" [value]="gender.gender_id">
+            {{ gender.name }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="profileInfoForm.get('gender')?.hasError('required')">
+          Gender is required
+        </mat-error>
+      </mat-form-field>
 
-        <!-- Age -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Age</mat-label>
-          <input formControlName="age" matInput required type="number"/>
-          <mat-error *ngIf="profileForm.get('age')?.hasError('required')">
-            Age is required
-          </mat-error>
-          <mat-error *ngIf="profileForm.get('age')?.hasError('min')">
-            Minimum age is 18
-          </mat-error>
-          <mat-error *ngIf="profileForm.get('age')?.hasError('max')">
-            Maximum age is 120
-          </mat-error>
-        </mat-form-field>
+      <!-- Sexual Preferences -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Sexual Preferences</mat-label>
+        <mat-select formControlName="sexualPreferences" multiple required>
+          <mat-option *ngFor="let preference of genders" [value]="preference.gender_id">
+            {{ preference.name }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="profileInfoForm.get('sexualPreferences')?.hasError('required')">
+          Sexual preferences are required
+        </mat-error>
+      </mat-form-field>
 
-        <!-- Tags (Interests) -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Tags (Interests)</mat-label>
-          <mat-select formControlName="tags" multiple>
-            <mat-option *ngFor="let tag of tags" [value]="tag.tag_id">
-              {{ tag.tag_name }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+      <!-- Age -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Age</mat-label>
+        <input formControlName="age" matInput required type="number" />
+        <mat-error *ngIf="profileInfoForm.get('age')?.hasError('required')">
+          Age is required
+        </mat-error>
+        <mat-error *ngIf="profileInfoForm.get('age')?.hasError('min')">
+          Minimum age is 18
+        </mat-error>
+        <mat-error *ngIf="profileInfoForm.get('age')?.hasError('max')">
+          Maximum age is 120
+        </mat-error>
+      </mat-form-field>
 
-        <!-- City with Autocomplete -->
+      <!-- Tags (Interests) -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Tags (Interests)</mat-label>
+        <mat-select formControlName="tags" multiple>
+          <mat-option *ngFor="let tag of tags" [value]="tag.tag_id">
+            {{ tag.tag_name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div>
+        <button mat-button matStepperNext [disabled]="!profileInfoForm.valid">
+          Next
+        </button>
+      </div>
+    </form>
+  </mat-step>
+
+  <!-- Step 2: Location Settings -->
+  <mat-step [stepControl]="locationForm" [completed]="locationForm.valid">
+    <form [formGroup]="locationForm">
+      <ng-template matStepLabel>Location Settings</ng-template>
+
+      <!-- Enable Geolocation -->
+      <mat-checkbox formControlName="enableGeolocation" (change)="onGeolocationToggle($event.checked)">
+        Enable Geolocation
+      </mat-checkbox>
+
+      <!-- City with Autocomplete -->
+      <div *ngIf="!locationForm.get('enableGeolocation')?.value">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>City</mat-label>
-          <input [matAutocomplete]="auto" formControlName="city" matInput type="text"/>
+          <input
+            [matAutocomplete]="auto"
+            formControlName="city"
+            matInput
+            type="text"
+          />
           <mat-autocomplete #auto="matAutocomplete">
             <mat-option *ngFor="let city of cityOptions | async" [value]="city">
               {{ city }}
             </mat-option>
           </mat-autocomplete>
           <mat-icon *ngIf="isCityValid" color="primary" matSuffix>check_circle</mat-icon>
-          <mat-error *ngIf="profileForm.get('city')?.hasError('required')">
+          <mat-error *ngIf="locationForm.get('city')?.hasError('required')">
             City is required
           </mat-error>
         </mat-form-field>
 
-        <!-- Photo Upload Section -->
-        <div class="photo-upload-section">
-          <h3>Upload Photos</h3>
-          <input
-            (change)="onPhotoSelected($event)"
-            accept="image/*"
-            multiple
-            type="file"
-          />
-          <div *ngIf="user as currentUser">
-            <div *ngIf="currentUser.photos && currentUser.photos.length > 0" class="photo-preview">
-              <div *ngFor="let photo of currentUser.photos" class="photo-item">
-                <img
-                  (error)="onImageError($event)"
-                  [alt]="currentUser.username || 'User Photo'"
-                  [ngSrc]="photo.url"
-                  class="uploaded-photo"
-                  fill
-                />
-                <div>photo url = {{ photo.url }}</div>
-                <button
-                  (click)="deletePhoto(photo)"
-                  color="warn"
-                  mat-icon-button
-                  type="button"
-                >
-                  <mat-icon>delete</mat-icon>
-                </button>
-                <button
-                  (click)="setAsMainPhoto(photo)"
-                  *ngIf="currentUser.main_photo_id !== photo.photo_id"
-                  color="primary"
-                  mat-icon-button
-                  type="button"
-                >
-                  <mat-icon>star</mat-icon>
-                </button>
-                <span *ngIf="currentUser.main_photo_id === photo.photo_id">
-                  Main Photo
-                </span>
-              </div>
-            </div>
+        <!-- Use IP-based Location -->
+        <mat-checkbox formControlName="useIpLocation" (change)="onIpLocationToggle($event.checked)">
+          Use IP-based Location
+        </mat-checkbox>
+      </div>
+
+      <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-button matStepperNext [disabled]="!locationForm.valid">
+          Next
+        </button>
+      </div>
+    </form>
+  </mat-step>
+
+  <!-- Step 3: Photo Upload -->
+  <mat-step [stepControl]="photoForm">
+    <form [formGroup]="photoForm">
+      <ng-template matStepLabel>Upload Photos</ng-template>
+
+      <!-- Photo Upload Section -->
+      <div class="photo-upload-section">
+        <h3>Upload Photos</h3>
+        <input
+          (change)="onPhotoSelected($event)"
+          accept="image/*"
+          multiple
+          type="file"
+        />
+        <div *ngIf="user && user.photos && user.photos.length > 0" class="photo-preview">
+          <div *ngFor="let photo of user.photos" class="photo-item">
+            <img
+              (error)="onImageError($event)"
+              [alt]="user.username || 'User Photo'"
+              [src]="photo.url"
+              class="uploaded-photo"
+            />
+            <div>Photo URL: {{ photo.url }}</div>
+            <button
+              (click)="setAsMainPhoto(photo)"
+              *ngIf="user.main_photo_id !== photo.photo_id"
+              color="primary"
+              mat-button
+              type="button"
+            >
+              Set as Profile Picture
+            </button>
+            <span *ngIf="user.main_photo_id === photo.photo_id">
+              Main Photo
+            </span>
+            <button
+              (click)="deletePhoto(photo)"
+              color="warn"
+              mat-icon-button
+              type="button"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
           </div>
         </div>
+      </div>
 
-        <!-- Submit Button -->
+      <div>
+        <button mat-button matStepperPrevious>Back</button>
         <button
-          [disabled]="profileForm.invalid || isLoading"
-          class="full-width"
+          mat-button
+          [disabled]="isLoading"
           color="primary"
-          mat-raised-button
           type="submit"
+          (click)="onSubmit()"
         >
           <mat-progress-spinner
             *ngIf="isLoading"
@@ -147,11 +188,11 @@
             diameter="20"
             mode="indeterminate"
           ></mat-progress-spinner>
-          <span *ngIf="!isLoading">{{
-              existingProfile ? "Update Profile" : "Create Profile"
-            }}</span>
+          <span *ngIf="!isLoading">
+            {{ existingProfile ? "Update Profile" : "Create Profile" }}
+          </span>
         </button>
-      </form>
-    </mat-card-content>
-  </mat-card>
-</div>
+      </div>
+    </form>
+  </mat-step>
+</mat-horizontal-stepper>

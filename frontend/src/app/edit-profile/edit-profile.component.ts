@@ -1,30 +1,36 @@
-import {Component, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators,} from '@angular/forms';
-import {ProfileService} from '../../services/profile.service';
-import {Router} from '@angular/router';
-import {Gender} from '../../models/Genders';
-import {Tag} from '../../models/Tags';
-import {UserResponseDto} from '../../DTOs/users/UserResponseDto';
-import {Photo} from '../../models/Photo';
-import {AsyncPipe, NgForOf, NgIf, NgOptimizedImage} from '@angular/common';
-import {MatCardModule} from '@angular/material/card';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatSelectModule} from '@angular/material/select';
-import {MatInputModule} from '@angular/material/input';
-import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import {MatIconModule} from '@angular/material/icon';
-
-import {HttpClient} from '@angular/common/http';
-import {debounceTime, map, switchMap} from 'rxjs/operators';
-import {Observable, of} from 'rxjs';
-import {MatAutocompleteModule} from "@angular/material/autocomplete";
-import {MatButtonModule} from "@angular/material/button";
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ProfileService } from '../../services/profile.service';
+import { Router } from '@angular/router';
+import { Gender } from '../../models/Genders';
+import { Tag } from '../../models/Tags';
+import { UserResponseDto } from '../../DTOs/users/UserResponseDto';
+import { Photo } from '../../models/Photo';
+import { HttpClient } from '@angular/common/http';
+import { debounceTime, map, switchMap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatButtonModule } from '@angular/material/button';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
+import { NgIf, NgForOf, AsyncPipe, NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'app-edit-profile',
   templateUrl: './edit-profile.component.html',
   styleUrls: ['./edit-profile.component.scss'],
   imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
     MatCardModule,
     MatFormFieldModule,
     MatSelectModule,
@@ -33,55 +39,202 @@ import {MatButtonModule} from "@angular/material/button";
     MatIconModule,
     MatAutocompleteModule,
     MatButtonModule,
-    ReactiveFormsModule,
+    MatStepperModule,
+    MatCheckboxModule,
     NgIf,
     NgForOf,
     AsyncPipe,
     NgOptimizedImage,
   ],
-  standalone: true
+  standalone: true,
 })
 export class EditProfileComponent implements OnInit {
-  profileForm!: FormGroup;
-  isLoading = false;
+  isLinear = true;
+  profileInfoForm!: FormGroup;
+  locationForm!: FormGroup;
+  photoForm!: FormGroup;
   genders: Gender[] = [];
   tags: Tag[] = [];
   existingProfile: boolean = false;
   user: UserResponseDto | null = null;
   isCityValid: boolean = false;
   cityOptions!: Observable<string[]>;
+  isLoading = false;
 
   constructor(
     private fb: FormBuilder,
     private profileService: ProfileService,
     private router: Router,
     private http: HttpClient
-  ) {
-  }
+  ) {}
 
   ngOnInit(): void {
-    this.initializeForm();
+    this.initializeForms();
     this.subscribeToFormChanges();
     this.loadInitialData();
     this.subscribeToUser();
     this.setupCityAutocomplete();
   }
 
-  onSubmit(): void {
-    if (this.profileForm.valid) {
-      this.isLoading = true;
-      const formValues = this.profileForm.value;
+  initializeForms() {
+    this.profileInfoForm = this.fb.group({
+      biography: ['', [Validators.required, Validators.maxLength(1024)]],
+      gender: [null, [Validators.required]],
+      sexualPreferences: [[], [Validators.required]],
+      age: [null, [Validators.required, Validators.min(18), Validators.max(120)]],
+      tags: [[]],
+    });
 
-      const profileData = {
-        biography: formValues.biography,
-        gender: formValues.gender,
-        sexualPreferences: formValues.sexualPreferences,
-        age: formValues.age,
-        tags: formValues.tags,
-        location: {
-          latitude: formValues.location.latitude,
-          longitude: formValues.location.longitude,
+    this.locationForm = this.fb.group({
+      enableGeolocation: [false],
+      city: ['', Validators.required],
+      useIpLocation: [false],
+      location: this.fb.group({
+        latitude: [null],
+        longitude: [null],
+      }),
+    });
+
+    this.photoForm = this.fb.group({
+      // Add form controls if needed
+    });
+  }
+
+  subscribeToFormChanges() {
+    this.locationForm.get('enableGeolocation')?.valueChanges.subscribe((enabled) => {
+      this.onGeolocationToggle(enabled);
+    });
+
+    this.locationForm.get('useIpLocation')?.valueChanges.subscribe((enabled) => {
+      this.onIpLocationToggle(enabled);
+    });
+
+    this.locationForm.get('city')?.valueChanges.pipe(debounceTime(500)).subscribe((cityName) => {
+      this.searchCityCoordinates(cityName);
+    });
+  }
+
+  loadInitialData() {
+    this.loadGenders();
+    this.loadTags();
+    this.profileService.getMyProfile().subscribe(); // Initial fetch
+  }
+
+  subscribeToUser() {
+    this.profileService.user$.subscribe({
+      next: (userResponse) => {
+        if (userResponse) {
+          this.user = userResponse;
+          if (this.user.profile_id) {
+            this.existingProfile = true;
+            this.populateForms(this.user);
+          }
+        }
+      },
+      error: (error) => {
+        console.error('Error in user subscription:', error);
+      },
+    });
+  }
+
+  setupCityAutocomplete() {
+    this.cityOptions = this.locationForm.get('city')!.valueChanges.pipe(
+      debounceTime(300),
+      switchMap((value) => this.searchCities(value))
+    );
+  }
+
+  loadGenders() {
+    this.profileService.getGenders().subscribe({
+      next: (genders) => {
+        this.genders = genders;
+      },
+      error: (err) => console.error('Error loading genders', err),
+    });
+  }
+
+  loadTags() {
+    this.profileService.getTags().subscribe({
+      next: (tags) => {
+        this.tags = tags;
+      },
+      error: (err) => console.error('Error loading tags', err),
+    });
+  }
+
+  populateForms(user: UserResponseDto) {
+    this.profileInfoForm.patchValue({
+      biography: user.biography || '',
+      gender: user.gender || null,
+      sexualPreferences: user.sexualPreferences?.map((g) => g.gender_id) || [],
+      age: user.age || null,
+      tags: user.tags?.map((t) => t.tag_id) || [],
+    });
+
+    this.locationForm.patchValue({
+      city: user.location?.city_name || '',
+      location: {
+        latitude: user.location?.latitude || null,
+        longitude: user.location?.longitude || null,
+      },
+    });
+  }
+
+  onGeolocationToggle(enabled: boolean) {
+    if (enabled) {
+      this.getCurrentLocation();
+      this.locationForm.get('city')?.disable();
+      this.locationForm.get('useIpLocation')?.disable();
+    } else {
+      this.locationForm.get('city')?.enable();
+      this.locationForm.get('useIpLocation')?.enable();
+    }
+  }
+
+  onIpLocationToggle(enabled: boolean) {
+    if (enabled) {
+      this.getLocationFromIP();
+      this.locationForm.get('city')?.disable();
+    } else {
+      this.locationForm.get('city')?.enable();
+    }
+  }
+
+  getCurrentLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          this.locationForm.patchValue({
+            location: {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+            },
+          });
         },
+        (error) => {
+          console.error('Geolocation error:', error);
+        }
+      );
+    }
+  }
+
+  getLocationFromIP() {
+    this.http.get<any>('https://ipapi.co/json/').subscribe((data) => {
+      this.locationForm.patchValue({
+        location: {
+          latitude: data.latitude,
+          longitude: data.longitude,
+        },
+      });
+    });
+  }
+
+  onSubmit() {
+    if (this.profileInfoForm.valid && this.locationForm.valid) {
+      this.isLoading = true;
+      const profileData = {
+        ...this.profileInfoForm.value,
+        location: this.locationForm.value.location,
       };
 
       if (this.existingProfile) {
@@ -122,8 +275,11 @@ export class EditProfileComponent implements OnInit {
 
       Promise.all(uploadPromises)
         .then((newPhotos) => {
-          console.log('DBG newPhotos after upload:', newPhotos);
           this.isLoading = false;
+          // Update user photos
+          if (this.user && newPhotos) {
+            this.user.photos = [...(this.user.photos || []), ...newPhotos.filter((photo): photo is Photo => photo !== undefined)];
+          }
         })
         .catch((error) => {
           console.error('Error uploading photos:', error);
@@ -140,7 +296,10 @@ export class EditProfileComponent implements OnInit {
 
     this.profileService.setMainPhoto(photo.photo_id).subscribe({
       next: () => {
-        console.log('DBG main photo set successfully');
+        if (this.user) {
+          this.user.main_photo_id = photo.photo_id;
+        }
+        console.log('Main photo set successfully');
       },
       error: (error) => {
         console.error('Error setting main photo:', error);
@@ -157,7 +316,12 @@ export class EditProfileComponent implements OnInit {
     if (confirm('Are you sure you want to delete this photo?')) {
       this.profileService.deletePhoto(photo.photo_id).subscribe({
         next: () => {
-          console.log('DBG photo deleted successfully');
+          if (this.user && this.user.photos) {
+            this.user.photos = this.user.photos.filter(
+              (p) => p.photo_id !== photo.photo_id
+            );
+          }
+          console.log('Photo deleted successfully');
         },
         error: (error) => {
           console.error('Error deleting photo:', error);
@@ -171,105 +335,18 @@ export class EditProfileComponent implements OnInit {
     console.error('Image failed to load:', imgElement.src);
   }
 
-  private initializeForm() {
-    this.profileForm = this.fb.group({
-      biography: ['', [Validators.required, Validators.maxLength(1024)]],
-      gender: [null, [Validators.required]],
-      sexualPreferences: [[], [Validators.required]],
-      age: [
-        null,
-        [Validators.required, Validators.min(18), Validators.max(120)],
-      ],
-      tags: [[]],
-      city: ['', Validators.required],
-      location: this.fb.group({
-        latitude: [null],
-        longitude: [null],
-      }),
-    });
-  }
-
-  private subscribeToFormChanges() {
-    this.profileForm
-      .get('city')
-      ?.valueChanges.pipe(debounceTime(500))
-      .subscribe((cityName) => {
-        this.searchCityCoordinates(cityName);
-      });
-  }
-
-  private loadInitialData() {
-    this.loadGenders();
-    this.loadTags();
-    this.profileService.getMyProfile().subscribe(); // Initial fetch
-  }
-
-  private subscribeToUser() {
-    this.profileService.user$.subscribe({
-      next: (userResponse) => {
-        if (userResponse) {
-          this.user = userResponse;
-          console.log('DBG updated user:', this.user);
-          if (this.user.profile_id) {
-            this.existingProfile = true;
-            this.populateForm(this.user);
-          }
-        }
-      },
-      error: (error) => {
-        console.error('Error in user subscription:', error);
-      },
-    });
-  }
-
-  private setupCityAutocomplete() {
-    this.cityOptions = this.profileForm.get('city')!.valueChanges.pipe(
-      debounceTime(300),
-      switchMap(value => this.searchCities(value))
-    );
-  }
-
-  private loadGenders() {
-    this.profileService.getGenders().subscribe({
-      next: (genders) => {
-        this.genders = genders;
-        console.log('DBG loaded genders:', genders);
-      },
-      error: (err) => console.error('Error loading genders', err),
-    });
-  }
-
-  private loadTags() {
-    this.profileService.getTags().subscribe({
-      next: (tags) => {
-        this.tags = tags;
-        console.log('DBG loaded tags:', tags);
-      },
-      error: (err) => console.error('Error loading tags', err),
-    });
-  }
-
-  private populateForm(user: UserResponseDto) {
-    this.profileForm.patchValue({
-      biography: user.biography || '',
-      gender: user.gender || null,
-      sexualPreferences: user.sexualPreferences?.map((g) => g.gender_id) || [],
-      age: user.age || null,
-      tags: user.tags?.map((t) => t.tag_id) || [],
-      city: user.location?.city_name || '',
-    });
-    console.log('DBG populated form with user data');
-  }
-
   private searchCities(cityName: string): Observable<string[]> {
     if (!cityName) return of([]);
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=5`;
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+      cityName
+    )}&format=json&limit=5`;
     return this.http.get<any[]>(url).pipe(
-      map(results => results.map(result => result.display_name))
+      map((results) => results.map((result) => result.display_name))
     );
   }
 
   private searchCityCoordinates(cityName: string) {
+    if (!cityName) return;
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
       cityName
     )}&format=json&limit=1`;
@@ -278,13 +355,12 @@ export class EditProfileComponent implements OnInit {
       'User-Agent': 'matcha - matcha@example.com',
     };
 
-    this.http.get<any[]>(url, {headers}).subscribe({
+    this.http.get<any[]>(url, { headers }).subscribe({
       next: (results) => {
-        console.log('DBG searchCityCoordinates results:', results);
         if (results && results.length > 0) {
           const latitude = parseFloat(results[0].lat);
           const longitude = parseFloat(results[0].lon);
-          this.profileForm.patchValue({
+          this.locationForm.patchValue({
             location: {
               latitude: latitude,
               longitude: longitude,
@@ -292,8 +368,8 @@ export class EditProfileComponent implements OnInit {
           });
           this.isCityValid = true;
         } else {
-          console.warn('Aucune ville trouvée pour :', cityName);
-          this.profileForm.patchValue({
+          console.warn('No city found for:', cityName);
+          this.locationForm.patchValue({
             location: {
               latitude: null,
               longitude: null,
@@ -303,7 +379,7 @@ export class EditProfileComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Erreur lors de la récupération des coordonnées :', error);
+        console.error('Error fetching city coordinates:', error);
         this.isCityValid = false;
       },
     });
