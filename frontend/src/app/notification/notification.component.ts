@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy, ChangeDetectorRef} from '@angular/core';
+import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {Subscription} from 'rxjs';
 import {SocketService} from '../../services/socket.service';
 import {CommonModule} from "@angular/common";
@@ -6,11 +6,9 @@ import {MatListModule} from "@angular/material/list";
 import {MatIconModule} from "@angular/material/icon";
 import {Router} from "@angular/router";
 import {NotificationsReceiveDto} from "../../DTOs/notifications/NotificationsReceiveDto";
-import {UserLightResponseDto} from "../../DTOs/users/UserLightResponseDto";
-import {HttpClient} from "@angular/common/http";
 import {NotificationType} from "../../models/Notifications";
 import {MatTooltip} from "@angular/material/tooltip";
-import {MatCardHeader, MatCardModule, MatCardTitle} from "@angular/material/card";
+import {MatCardModule} from "@angular/material/card";
 import {ApiService} from "../../services/api.service";
 
 @Component({
@@ -60,6 +58,9 @@ export class NotificationComponent implements OnInit, OnDestroy {
   readNotification(notification: NotificationsReceiveDto): void {
     if (!notification.has_read) {
       this.socketService.emit('notification_read', {data: [notification.notification_id]});
+    }
+    if (notification.type == NotificationType.NEW_MESSAGE) {
+      this.socketService.emit('conversation_read', {data: notification.source_user});
       // Mettre à jour l'état local
       notification.has_read = true;
       this.cdr.detectChanges();

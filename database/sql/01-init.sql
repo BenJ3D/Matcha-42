@@ -150,6 +150,24 @@ TRUNCATE "messages";
 
 SELECT setval('messages_message_id_seq', (SELECT MAX(message_id) FROM messages));
 
+
+DROP TABLE IF EXISTS "unread_user_message";
+DROP SEQUENCE IF EXISTS messages_user_unread_id_seq;
+CREATE SEQUENCE messages_user_unread_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
+
+CREATE TABLE "public"."unread_user_message" (
+    "unread_user_message_id" integer DEFAULT nextval('messages_user_unread_id_seq') NOT NULL,
+    "owner_message_user" integer NOT NULL,
+    "target_message_user" integer NOT NULL,
+    CONSTRAINT "messages_user_unread_pk" PRIMARY KEY ("unread_user_message_id"),
+    CONSTRAINT "unique_owner_target" UNIQUE ("owner_message_user", "target_message_user")
+) WITH (oids = false);
+
+TRUNCATE "unread_user_message";
+
+SELECT setval('messages_user_unread_id_seq', (SELECT MAX(unread_user_message_id) FROM unread_user_message));
+
+
 DROP TABLE IF EXISTS "notifications";
 DROP SEQUENCE IF EXISTS notifications_notification_id_seq;
 CREATE SEQUENCE notifications_notification_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;

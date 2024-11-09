@@ -6,6 +6,7 @@ import userServices from "../services/UserServices";
 import {UserResponseDto} from "../DTOs/users/UserResponseDto";
 import UserServices from "../services/UserServices";
 import notificationEventHandler from "./events/notification";
+import chatSocketEventHandler from "./events/chatSocket";
 
 const initializeSockets = (io: Server) => {
     io.use(async (socket: Socket, next) => {
@@ -44,6 +45,7 @@ const initializeSockets = (io: Server) => {
         onlineUsers.get(userId)!.add(socket);
 
         notificationEventHandler(socket, io);
+        chatSocketEventHandler(socket, io);
 
         // Gérer la déconnexion
         socket.on("disconnect", () => {

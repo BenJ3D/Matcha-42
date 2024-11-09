@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy, HostListener, ChangeDetectorRef} from '@angular/core';
+import {ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {Subscription} from 'rxjs';
 import {SocketService} from '../../services/socket.service';
 import {AuthService} from '../../services/auth.service';
@@ -10,6 +10,7 @@ import {ConversationComponent} from "./conversation/conversation.component";
 import {CommonModule} from "@angular/common";
 import {ActivatedRoute} from "@angular/router";
 import {ApiService} from '../../services/api.service';
+import {DashboardComponent} from "../dashboard/dashboard.component";
 
 @Component({
   selector: 'app-chat',
@@ -29,6 +30,8 @@ export class ChatComponent implements OnInit, OnDestroy {
   chatUsers: UserLightResponseDto[] = [];
   selectedUser: UserLightResponseDto | null = null;
   newMessage: string = '';
+  unreadUserIds: number[] = [];
+
   public isMobile: boolean = false;
 
   private messageSubscription!: Subscription;
@@ -37,6 +40,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     private socketService: SocketService,
     private authService: AuthService,
     private apiService: ApiService,
+    private dashboard: DashboardComponent,
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute
   ) {
@@ -50,6 +54,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     });
     // Récupérer la liste des matches via l'API
     this.fetchMatches();
+
 
     this.route.queryParams.subscribe(params => {
       const userId = +params['id']; // Convertir en nombre
@@ -68,13 +73,22 @@ export class ChatComponent implements OnInit, OnDestroy {
         const messageExists = this.messages.some(m => m.message_id === msg.message_id);
         if (!messageExists) {
           this.messages = [...this.messages, msg].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-          // Vous pouvez retirer `this.cdr.detectChanges();` ici car le changement de référence devrait suffire
         }
       }
-
-      // Mettre à jour les indicateurs de messages non lus
-      this.updateUnreadCounts(msg);
+      if (msg.owner_user == this.selectedUser?.id) {
+        this.socketService.emit('conversation_read', {data: msg.owner_user});
+      }
     });
+
+    this.dashboard.unreadChatIdsMarker$.subscribe(userIds => {
+      this.unreadUserIds = userIds;
+    })
+
+  }
+
+  checkIfUnreadChat(userId: number) {
+    // console.warn(this.unreadUserIds.includes(userId));
+    return this.unreadUserIds.includes(userId);
   }
 
   /**
@@ -141,9 +155,13 @@ export class ChatComponent implements OnInit, OnDestroy {
   selectConversation(user: UserLightResponseDto): void {
     this.selectedUser = user;
     this.fetchMessages(user.id);
+    if (this.unreadUserIds.includes(user.id)) {
+      this.socketService.emit('conversation_read', {data: user.id});
+      this.unreadUserIds = this.unreadUserIds.filter(elem => elem !== user.id);
+    }
     // Réinitialiser le compteur de non lus pour cet utilisateur
     if (this.isMobile) {
-      // Sur mobile, cacher la liste des utilisateurs
+      // Sur mobile, cacher la liste des utilisateurs ??
       // La classe 'hidden' est gérée via [class.hidden] dans le template
     }
   }
@@ -164,20 +182,6 @@ export class ChatComponent implements OnInit, OnDestroy {
         console.error('Erreur lors de la récupération des messages:', error);
       },
     });
-  }
-
-  /**
-   * Met à jour le compteur de messages non lus pour les utilisateurs.
-   * @param msg Le message reçu.
-   */
-  private updateUnreadCounts(msg: MessageDto): void {
-    const otherUserId =
-      msg.owner_user === this.getCurrentUserId() ? msg.target_user : msg.owner_user;
-    const chatUser = this.chatUsers.find((user) => user.id === otherUserId);
-
-    // if (chatUser && otherUserId !== this.selectedUser?.id) {
-    //   chatUser.unread = (chatUser.unread || 0) + 1;
-    // }
   }
 
   /**
@@ -202,5 +206,6 @@ export class ChatComponent implements OnInit, OnDestroy {
   getCurrentUserId(): number {
     return this.authService.getCurrentUserId();
   }
+
 
 }

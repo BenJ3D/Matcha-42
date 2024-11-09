@@ -1,15 +1,13 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, NgZone, OnDestroy, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {NavigationEnd, Router, RouterModule, RouterOutlet} from '@angular/router';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatIconModule} from '@angular/material/icon';
 import {MatBadgeModule} from '@angular/material/badge'; // Import MatBadgeModule
 import {SocketService} from "../../services/socket.service";
-import {filter, Subscription, timeout} from 'rxjs';
+import {async, BehaviorSubject, filter, Subscription} from 'rxjs';
 import {NotificationsReceiveDto} from "../../DTOs/notifications/NotificationsReceiveDto";
-import {BehaviorSubject} from 'rxjs';
 import {ApiService} from "../../services/api.service";
-import {NotificationType} from "../../models/Notifications";
 
 @Component({
   selector: 'app-dashboard',
@@ -26,19 +24,6 @@ import {NotificationType} from "../../models/Notifications";
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  private intervalId: NodeJS.Timeout;
-
-  constructor(
-    private socketService: SocketService,
-    private apiService: ApiService,
-    private router: Router
-  ) {
-    this.intervalId = setInterval(() => {
-      this.fetchNotification();
-    }, 1500);
-
-  }
-
   tabs = [
     {path: 'home', icon: 'home', label: 'Home'},
     {path: 'nearby', icon: 'near_me', label: 'Nearby'},
@@ -46,6 +31,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     {path: 'notification', icon: 'notifications', label: 'Notifications'},
     {path: 'profile', icon: 'person', label: 'Profile'}
   ];
+  protected readonly async = async;
+  private intervalId!: NodeJS.Timeout;
 
   // Utilisation de BehaviorSubject pour gérer l'état réactif
   private _countNotificationMarker$ = new BehaviorSubject<number>(0);
@@ -54,18 +41,36 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private _notificationMarker$ = new BehaviorSubject<boolean>(false);
   notificationMarker$ = this._notificationMarker$.asObservable();
 
-  private _messageMarker$ = new BehaviorSubject<boolean>(false);
-  messageMarker$ = this._messageMarker$.asObservable();
+  private _countChatUnreadMarker$ = new BehaviorSubject<number>(0);
+  countChatUnreadMarker$ = this._countChatUnreadMarker$.asObservable();
+
+  private _unreadChatMarker$ = new BehaviorSubject<boolean>(false);
+  unreadChatMarker$ = this._unreadChatMarker$.asObservable();
+
+  private _unreadChatIdsMarker$ = new BehaviorSubject<number[]>([]);
+  unreadChatIdsMarker$ = this._unreadChatIdsMarker$.asObservable();
 
   private subscriptions: Subscription = new Subscription();
+
+  constructor(
+    private socketService: SocketService,
+    private apiService: ApiService,
+    private router: Router,
+    private ngZone: NgZone,
+  ) {
+
+    this.ngZone.runOutsideAngular(() => {
+      this.intervalId = setInterval(() => {
+        this.fetchNotification();
+        this.fetchChatUnread();
+      }, 3500);
+    })
+
+  }
 
   ngOnInit(): void {
     // Abonnement aux notifications en temps réel
     const notificationSub = this.socketService.on<NotificationsReceiveDto>('notification').subscribe(notification => {
-      if (notification.type === NotificationType.NEW_MESSAGE) {
-        console.log('MESSAGE ICIIII')
-        this._messageMarker$.next(true);
-      }
       this.fetchNotification();
     });
     this.subscriptions.add(notificationSub);
@@ -78,12 +83,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // Abonnement pour les nouveaux messages
     const fetchMessagesSub = this.socketService.on('fetch_messages').subscribe(() => {
-      this._messageMarker$.next(true);
+      this._unreadChatMarker$.next(true);
     });
     this.subscriptions.add(fetchMessagesSub);
 
     // Récupérer les notifications initiales
     this.fetchNotification();
+    // Pareil pour les chats unread
+    this.fetchChatUnread();
 
     // Réinitialiser les marqueurs lors de la navigation
     const routerSub = this.router.events.pipe(
@@ -92,7 +99,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.fetchNotification();
       const currentPath = event.urlAfterRedirects.split('/')[1];
       if (currentPath === 'chat') {
-        this._messageMarker$.next(false);
       }
     });
     this.subscriptions.add(routerSub);
@@ -116,8 +122,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Récupère la liste des notifications non lues
+   */
+  fetchChatUnread(): void {
+    this.apiService.get<{ unreadMessages: number[] }>('unread-messages').subscribe({
+      next: (userIds: { unreadMessages: number[] }) => {
+        const count = userIds.unreadMessages.length;
+        this._countChatUnreadMarker$.next(count);
+        this._unreadChatMarker$.next(count > 0);
+        this._unreadChatIdsMarker$.next(userIds.unreadMessages);
+      },
+      error: (error: any) => {
+        console.error('Erreur lors de la récupération des notifications :', error);
+      },
+    });
+  }
+
   ngOnDestroy(): void {
     // Désabonner tous les abonnements pour éviter les fuites de mémoire
     this.subscriptions.unsubscribe();
+    clearInterval(this.intervalId);
   }
 }
