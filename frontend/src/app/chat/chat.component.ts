@@ -73,12 +73,11 @@ export class ChatComponent implements OnInit, OnDestroy {
         const messageExists = this.messages.some(m => m.message_id === msg.message_id);
         if (!messageExists) {
           this.messages = [...this.messages, msg].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-          // Vous pouvez retirer `this.cdr.detectChanges();` ici car le changement de référence devrait suffire
         }
       }
-
-      // Mettre à jour les indicateurs de messages non lus
-      this.updateUnreadCounts(msg);
+      if (msg.owner_user == this.selectedUser?.id) {
+        this.socketService.emit('conversation_read', {data: msg.owner_user});
+      }
     });
 
     this.dashboard.unreadChatIdsMarker$.subscribe(userIds => {
@@ -208,18 +207,5 @@ export class ChatComponent implements OnInit, OnDestroy {
     return this.authService.getCurrentUserId();
   }
 
-  /**
-   * Met à jour le compteur de messages non lus pour les utilisateurs.
-   * @param msg Le message reçu.
-   */
-  private updateUnreadCounts(msg: MessageDto): void {
-    const otherUserId =
-      msg.owner_user === this.getCurrentUserId() ? msg.target_user : msg.owner_user;
-    const chatUser = this.chatUsers.find((user) => user.id === otherUserId);
-
-    // if (chatUser && otherUserId !== this.selectedUser?.id) {
-    //   chatUser.unread = (chatUser.unread || 0) + 1;
-    // }
-  }
 
 }

@@ -15,11 +15,11 @@
         <mat-list-item
           (click)="selectConversation(user)"
           *ngFor="let user of chatUsers"
-          [class.selected]="user === selectedUser"
+          [class.selected]="user.id == selectedUser?.id"
         >
           <div
-            [class.text-selected]="user === selectedUser"
-            [class.unread-chat]="checkIfUnreadChat(user.id)"
+            [class.text-selected]="user.id == selectedUser?.id"
+            [class.unread-chat]="checkIfUnreadChat(user.id) && user.id != selectedUser?.id"
 
             class="text-2xl">{{ user.username }}
           </div>
