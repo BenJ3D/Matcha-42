@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy, HostListener, ChangeDetectorRef} from '@angular/core';
+import {ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {Subscription} from 'rxjs';
 import {SocketService} from '../../services/socket.service';
 import {AuthService} from '../../services/auth.service';
@@ -141,9 +141,10 @@ export class ChatComponent implements OnInit, OnDestroy {
   selectConversation(user: UserLightResponseDto): void {
     this.selectedUser = user;
     this.fetchMessages(user.id);
+    this.socketService.emit('conversation_read', {data: user.id});
     // Réinitialiser le compteur de non lus pour cet utilisateur
     if (this.isMobile) {
-      // Sur mobile, cacher la liste des utilisateurs
+      // Sur mobile, cacher la liste des utilisateurs ??
       // La classe 'hidden' est gérée via [class.hidden] dans le template
     }
   }
@@ -167,20 +168,6 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Met à jour le compteur de messages non lus pour les utilisateurs.
-   * @param msg Le message reçu.
-   */
-  private updateUnreadCounts(msg: MessageDto): void {
-    const otherUserId =
-      msg.owner_user === this.getCurrentUserId() ? msg.target_user : msg.owner_user;
-    const chatUser = this.chatUsers.find((user) => user.id === otherUserId);
-
-    // if (chatUser && otherUserId !== this.selectedUser?.id) {
-    //   chatUser.unread = (chatUser.unread || 0) + 1;
-    // }
-  }
-
-  /**
    * Ferme la conversation actuelle.
    */
   closeConversation(): void {
@@ -201,6 +188,20 @@ export class ChatComponent implements OnInit, OnDestroy {
    */
   getCurrentUserId(): number {
     return this.authService.getCurrentUserId();
+  }
+
+  /**
+   * Met à jour le compteur de messages non lus pour les utilisateurs.
+   * @param msg Le message reçu.
+   */
+  private updateUnreadCounts(msg: MessageDto): void {
+    const otherUserId =
+      msg.owner_user === this.getCurrentUserId() ? msg.target_user : msg.owner_user;
+    const chatUser = this.chatUsers.find((user) => user.id === otherUserId);
+
+    // if (chatUser && otherUserId !== this.selectedUser?.id) {
+    //   chatUser.unread = (chatUser.unread || 0) + 1;
+    // }
   }
 
 }

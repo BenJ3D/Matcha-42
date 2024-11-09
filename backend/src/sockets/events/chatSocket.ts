@@ -12,7 +12,6 @@ const chatSocketEventHandler = (socket: Socket, io: Server) => {
             UnreadUserMessageService.removeUnreadChat(payload.data, socket.data.userId)
             socket.emit('fetch_notifications');
         } catch (error: any) {
-            console.error('COUCOU' + error.message)
         }
     });
 };

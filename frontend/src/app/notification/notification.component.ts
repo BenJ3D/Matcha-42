@@ -58,7 +58,6 @@ export class NotificationComponent implements OnInit, OnDestroy {
   readNotification(notification: NotificationsReceiveDto): void {
     if (!notification.has_read) {
       this.socketService.emit('notification_read', {data: [notification.notification_id]});
-
     }
     if (notification.type == NotificationType.NEW_MESSAGE) {
       this.socketService.emit('conversation_read', {data: notification.source_user});
