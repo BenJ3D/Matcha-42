@@ -156,7 +156,10 @@ export class ChatComponent implements OnInit, OnDestroy {
   selectConversation(user: UserLightResponseDto): void {
     this.selectedUser = user;
     this.fetchMessages(user.id);
-    this.socketService.emit('conversation_read', {data: user.id});
+    if (this.unreadUserIds.includes(user.id)) {
+      this.socketService.emit('conversation_read', {data: user.id});
+      this.unreadUserIds = this.unreadUserIds.filter(elem => elem !== user.id);
+    }
     // Réinitialiser le compteur de non lus pour cet utilisateur
     if (this.isMobile) {
       // Sur mobile, cacher la liste des utilisateurs ??

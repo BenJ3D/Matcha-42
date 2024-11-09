@@ -85,6 +85,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // Récupérer les notifications initiales
     this.fetchNotification();
+    // Pareil pour les chats unread
+    this.fetchChatUnread();
 
     // Réinitialiser les marqueurs lors de la navigation
     const routerSub = this.router.events.pipe(

@@ -38,24 +38,31 @@
 
 
 .selected {
-  @apply bg-amber-700;
+  @apply bg-gray-700 ;
+}
+
+.text-selected {
+  @apply text-white;
 }
 
 .unread-chat {
-  @apply font-bold ;
+  @apply text-orange-700 ;
+  font-weight: 500;
 }
 
 /* Styles pour les petits écrans */
 @media (max-width: 600px) {
   .chat-container {
     flex-direction: column;
+    height: calc(100vh - 56px);
   }
 
   .chat-users-card {
+    //@apply absolute w-full h-full;
     width: 100%;
     max-width: none;
     border-right: none;
-    border-bottom: 1px solid #ccc;
+    //border-bottom: 1px solid #ccc;
     /* Lorsque caché, déplacez hors de l'écran */
     &.hidden {
       display: none;
