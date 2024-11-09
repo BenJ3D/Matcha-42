@@ -136,5 +136,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     // Désabonner tous les abonnements pour éviter les fuites de mémoire
     this.subscriptions.unsubscribe();
+    clearInterval(this.intervalId);
   }
 }

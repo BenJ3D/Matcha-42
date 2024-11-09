@@ -36,6 +36,15 @@
   margin-left: auto;
 }
 
+
+.selected {
+  @apply bg-amber-700;
+}
+
+.unread-chat {
+  @apply font-bold ;
+}
+
 /* Styles pour les petits écrans */
 @media (max-width: 600px) {
   .chat-container {
@@ -56,4 +65,5 @@
   .chat-conversation-card {
     width: 100%;
   }
+
 }

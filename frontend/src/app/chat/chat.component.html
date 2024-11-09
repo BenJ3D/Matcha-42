@@ -1,7 +1,7 @@
 <div class="chat-container">
   <mat-card
-    class="chat-users-card"
     [class.hidden]="isMobile && selectedUser"
+    class="chat-users-card"
   >
     <mat-card-header>
       <mat-card-title>Chats</mat-card-title>
@@ -9,21 +9,25 @@
     <mat-card-content>
       <mat-list>
         <mat-list-item
-          *ngFor="let user of chatUsers"
           (click)="selectConversation(user)"
+          *ngFor="let user of chatUsers"
           [class.selected]="user === selectedUser"
         >
-          <div class="text-2xl">{{user.username}}</div>
+          <div
+            [class.unread-chat]="checkIfUnreadChat(user.id)"
+
+            class="text-2xl">{{ user.username }}
+          </div>
         </mat-list-item>
       </mat-list>
     </mat-card-content>
   </mat-card>
 
-  <mat-card class="chat-conversation-card" *ngIf="selectedUser">
+  <mat-card *ngIf="selectedUser" class="chat-conversation-card">
     <app-conversation
-      [user]="selectedUser"
+      (close)="closeConversation()"
       [messages]="messages"
-      (close)="closeConversation()">
+      [user]="selectedUser">
     </app-conversation>
   </mat-card>
 </div>

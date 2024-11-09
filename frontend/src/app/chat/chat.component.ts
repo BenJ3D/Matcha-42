@@ -10,6 +10,7 @@ import {ConversationComponent} from "./conversation/conversation.component";
 import {CommonModule} from "@angular/common";
 import {ActivatedRoute} from "@angular/router";
 import {ApiService} from '../../services/api.service';
+import {DashboardComponent} from "../dashboard/dashboard.component";
 
 @Component({
   selector: 'app-chat',
@@ -29,6 +30,8 @@ export class ChatComponent implements OnInit, OnDestroy {
   chatUsers: UserLightResponseDto[] = [];
   selectedUser: UserLightResponseDto | null = null;
   newMessage: string = '';
+  unreadUserIds: number[] = [];
+
   public isMobile: boolean = false;
 
   private messageSubscription!: Subscription;
@@ -37,6 +40,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     private socketService: SocketService,
     private authService: AuthService,
     private apiService: ApiService,
+    private dashboard: DashboardComponent,
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute
   ) {
@@ -50,6 +54,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     });
     // Récupérer la liste des matches via l'API
     this.fetchMatches();
+
 
     this.route.queryParams.subscribe(params => {
       const userId = +params['id']; // Convertir en nombre
@@ -75,6 +80,16 @@ export class ChatComponent implements OnInit, OnDestroy {
       // Mettre à jour les indicateurs de messages non lus
       this.updateUnreadCounts(msg);
     });
+
+    this.dashboard.unreadChatIdsMarker$.subscribe(userIds => {
+      this.unreadUserIds = userIds;
+    })
+
+  }
+
+  checkIfUnreadChat(userId: number) {
+    // console.warn(this.unreadUserIds.includes(userId));
+    return this.unreadUserIds.includes(userId);
   }
 
   /**
