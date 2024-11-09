@@ -43,7 +43,7 @@ class PhotoService {
         fs.renameSync(processedFilePath, finalFilePath);
 
         // Générer l'URL de la photo
-        const photoUrl = `${process.env.BACK_URL}/uploads/${finalFileName}`;
+        const photoUrl = `${process.env.BACK_URL}uploads/${finalFileName}`;
 
         // Enregistrer la photo dans la base de données
         const photo = await PhotoDAL.insertPhoto(userId, photoUrl, description);

@@ -63,7 +63,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.intervalId = setInterval(() => {
         this.fetchNotification();
         this.fetchChatUnread();
-      }, 3500);
+      }, 5000); //TODO: TODO: TODO: TODO: TODO: Passer valeur basse pour la correction, genre 500ms
     })
 
   }
