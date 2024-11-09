@@ -1,9 +1,9 @@
-// src/DataAccessLayer/UnreadUserMessageDAL.ts
+// src/DataAccessLayer/UnreadUserChatDAL.ts
 import db from '../config/knexConfig';
 import {UnreadUserMessage} from '../models/UnreadUserMessage';
 
-class UnreadUserMessageDAL {
-    async addUnreadMessage(ownerMessageUser: number, targetMessageUser: number): Promise<void> {
+class UnreadUserChatDAL {
+    async addUnreadChat(ownerMessageUser: number, targetMessageUser: number): Promise<void> {
         try {
             await db('unread_user_message').insert({
                 owner_message_user: ownerMessageUser,
@@ -14,12 +14,12 @@ class UnreadUserMessageDAL {
                 // L'entrée existe déjà, on ne fait rien
                 return;
             } else {
-                throw {status: 500, message: 'Erreur lors de l\'ajout du message non lu'};
+                throw {status: 400, message: 'Erreur lors de l\'ajout du message non lu'};
             }
         }
     }
 
-    async removeUnreadMessage(ownerMessageUser: number, targetMessageUser: number): Promise<void> {
+    async removeUnreadChat(ownerMessageUser: number, targetMessageUser: number): Promise<void> {
         try {
             await db('unread_user_message')
                 .where({
@@ -28,11 +28,11 @@ class UnreadUserMessageDAL {
                 })
                 .del();
         } catch (error) {
-            throw {status: 500, message: 'Erreur lors de la suppression du message non lu'};
+            throw {status: 400, message: 'Erreur lors de la suppression du message non lu'};
         }
     }
 
-    async hasUnreadMessage(ownerMessageUser: number, targetMessageUser: number): Promise<boolean> {
+    async hasUnreadChat(ownerMessageUser: number, targetMessageUser: number): Promise<boolean> {
         try {
             const result = await db('unread_user_message')
                 .select('unread_user_message_id')
@@ -43,19 +43,19 @@ class UnreadUserMessageDAL {
                 .first();
             return !!result;
         } catch (error) {
-            throw {status: 500, message: 'Erreur lors de la vérification du message non lu'};
+            throw {status: 400, message: 'Erreur lors de la vérification du message non lu'};
         }
     }
 
-    async getUnreadMessagesForUser(userId: number): Promise<UnreadUserMessage[]> {
+    async getUnreadChatForUser(userId: number): Promise<UnreadUserMessage[]> {
         try {
             return await db('unread_user_message')
                 .select('*')
                 .where('target_message_user', userId);
         } catch (error) {
-            throw {status: 500, message: 'Erreur lors de la récupération des messages non lus'};
+            throw {status: 400, message: 'Erreur lors de la récupération des messages non lus'};
         }
     }
 }
 
-export default new UnreadUserMessageDAL();
+export default new UnreadUserChatDAL();

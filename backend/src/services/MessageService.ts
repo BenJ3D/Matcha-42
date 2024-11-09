@@ -29,10 +29,10 @@ class MessageService {
         const message = await MessageDAL.createMessage(messageData);
 
         // Ajouter un message non lu pour le destinataire
-        await UnreadUserMessageService.addUnreadMessage(ownerUserId, target_user);
+        await UnreadUserMessageService.addUnreadChat(ownerUserId, target_user);
 
         // Supprimer le message non lu pour l'envoyeur (s'il existe)
-        await UnreadUserMessageService.removeUnreadMessage(target_user, ownerUserId);
+        await UnreadUserMessageService.removeUnreadChat(target_user, ownerUserId);
 
 
         // Émettre le message à l'utilisateur cible s'il est en ligne
@@ -41,7 +41,7 @@ class MessageService {
             targetUserSockets.forEach((socket: Socket) => {
                 socket.emit('message', message);
             });
-            NotificationsService.createNotification(
+            await NotificationsService.createNotification(
                 target_user,
                 ownerUserId,
                 NotificationType.NEW_MESSAGE

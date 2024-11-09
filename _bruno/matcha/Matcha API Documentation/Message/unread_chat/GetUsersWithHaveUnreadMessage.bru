@@ -1,0 +1,11 @@
+meta {
+  name: GetUsersWithHaveUnreadMessage
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/unread-messages
+  body: none
+  auth: inherit
+}

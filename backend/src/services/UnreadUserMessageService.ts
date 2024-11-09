@@ -1,20 +1,20 @@
 import UnreadUserMessageDAL from "../DataAccessLayer/UnreadUserMessageDAL";
 
 class UnreadUserMessageService {
-    async addUnreadMessage(ownerUserId: number, targetUserId: number): Promise<void> {
-        await UnreadUserMessageDAL.addUnreadMessage(ownerUserId, targetUserId);
+    async addUnreadChat(ownerUserId: number, targetUserId: number): Promise<void> {
+        await UnreadUserMessageDAL.addUnreadChat(ownerUserId, targetUserId);
     }
 
-    async removeUnreadMessage(ownerUserId: number, targetUserId: number): Promise<void> {
-        await UnreadUserMessageDAL.removeUnreadMessage(ownerUserId, targetUserId);
+    async removeUnreadChat(ownerUserId: number, targetUserId: number): Promise<void> {
+        await UnreadUserMessageDAL.removeUnreadChat(ownerUserId, targetUserId);
     }
 
     async hasUnreadMessage(ownerUserId: number, targetUserId: number): Promise<boolean> {
-        return await UnreadUserMessageDAL.hasUnreadMessage(ownerUserId, targetUserId);
+        return await UnreadUserMessageDAL.hasUnreadChat(ownerUserId, targetUserId);
     }
 
-    async getUnreadMessagesForUser(userId: number): Promise<number[]> {
-        const unreadMessages = await UnreadUserMessageDAL.getUnreadMessagesForUser(userId);
+    async getUnreadChatForUser(userId: number): Promise<number[]> {
+        const unreadMessages = await UnreadUserMessageDAL.getUnreadChatForUser(userId);
         return unreadMessages.map(msg => msg.owner_message_user);
     }
 }

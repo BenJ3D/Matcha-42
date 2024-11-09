@@ -1,15 +1,18 @@
 import {Socket, Server} from "socket.io";
 import NotificationsService from "../../services/NotificationsService";
+import UnreadUserMessageService from "../../services/UnreadUserMessageService";
 
 const notificationEventHandler = (socket: Socket, io: Server) => {
 
     socket.on('notification_read', (payload: { data: number[] }) => {
-        NotificationsService.markNotificationsAsRead(socket.data.userId, payload.data)
+        NotificationsService.markNotificationsAsRead(socket.data.userId, payload.data).then(r => {
+        })
         socket.emit('fetch_notifications');
     });
 
     socket.on('notifications_delete', (payload: { data: number[] }) => {
-        NotificationsService.deleteNotifications(socket.data.userId, payload.data)
+        NotificationsService.deleteNotifications(socket.data.userId, payload.data).then(r => {
+        })
         socket.emit('fetch_notifications');
     });
 };
