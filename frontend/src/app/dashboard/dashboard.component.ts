@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, NgZone, OnDestroy, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {NavigationEnd, Router, RouterModule, RouterOutlet} from '@angular/router';
 import {MatTabsModule} from '@angular/material/tabs';
@@ -32,7 +32,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     {path: 'profile', icon: 'person', label: 'Profile'}
   ];
   protected readonly async = async;
-  private intervalId: NodeJS.Timeout;
+  private intervalId!: NodeJS.Timeout;
 
   // Utilisation de BehaviorSubject pour gérer l'état réactif
   private _countNotificationMarker$ = new BehaviorSubject<number>(0);
@@ -55,12 +55,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
   constructor(
     private socketService: SocketService,
     private apiService: ApiService,
-    private router: Router
+    private router: Router,
+    private ngZone: NgZone,
   ) {
-    this.intervalId = setInterval(() => {
-      this.fetchNotification();
-      this.fetchChatUnread();
-    }, 3000);
+
+    this.ngZone.runOutsideAngular(() => {
+      this.intervalId = setInterval(() => {
+        this.fetchNotification();
+        this.fetchChatUnread();
+      }, 3500);
+    })
 
   }
 
