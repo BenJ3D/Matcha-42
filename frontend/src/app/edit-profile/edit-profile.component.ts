@@ -22,6 +22,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { NgIf, NgForOf, AsyncPipe, NgOptimizedImage } from '@angular/common';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-edit-profile',
@@ -45,6 +46,7 @@ import { NgIf, NgForOf, AsyncPipe, NgOptimizedImage } from '@angular/common';
     NgForOf,
     AsyncPipe,
     NgOptimizedImage,
+    MatSlideToggleModule,
   ],
   standalone: true,
 })
@@ -81,37 +83,60 @@ export class EditProfileComponent implements OnInit {
       biography: ['', [Validators.required, Validators.maxLength(1024)]],
       gender: [null, [Validators.required]],
       sexualPreferences: [[], [Validators.required]],
-      age: [null, [Validators.required, Validators.min(18), Validators.max(120)]],
+      age: [
+        null,
+        [Validators.required, Validators.min(18), Validators.max(120)],
+      ],
       tags: [[]],
     });
 
     this.locationForm = this.fb.group({
-      enableGeolocation: [false],
-      city: ['', Validators.required],
-      useIpLocation: [false],
+      enableLocation: [false],
+      city: [''],
       location: this.fb.group({
         latitude: [null],
         longitude: [null],
       }),
     });
 
-    this.photoForm = this.fb.group({
-      // Add form controls if needed
-    });
+    this.photoForm = this.fb.group({});
+
+    // Update city validation based on location toggle
+    this.locationForm
+      .get('enableLocation')
+      ?.valueChanges.subscribe((enabled) => {
+        const cityControl = this.locationForm.get('city');
+        if (!enabled) {
+          cityControl?.setValidators([Validators.required]);
+          cityControl?.enable();
+        } else {
+          cityControl?.clearValidators();
+          cityControl?.disable();
+          this.getLocationFromIP();
+        }
+        cityControl?.updateValueAndValidity();
+      });
   }
 
   subscribeToFormChanges() {
-    this.locationForm.get('enableGeolocation')?.valueChanges.subscribe((enabled) => {
-      this.onGeolocationToggle(enabled);
-    });
+    this.locationForm
+      .get('enableGeolocation')
+      ?.valueChanges.subscribe((enabled) => {
+        this.onGeolocationToggle(enabled);
+      });
 
-    this.locationForm.get('useIpLocation')?.valueChanges.subscribe((enabled) => {
-      this.onIpLocationToggle(enabled);
-    });
+    this.locationForm
+      .get('useIpLocation')
+      ?.valueChanges.subscribe((enabled) => {
+        this.onIpLocationToggle(enabled);
+      });
 
-    this.locationForm.get('city')?.valueChanges.pipe(debounceTime(500)).subscribe((cityName) => {
-      this.searchCityCoordinates(cityName);
-    });
+    this.locationForm
+      .get('city')
+      ?.valueChanges.pipe(debounceTime(500))
+      .subscribe((cityName) => {
+        this.searchCityCoordinates(cityName);
+      });
   }
 
   loadInitialData() {
@@ -278,7 +303,12 @@ export class EditProfileComponent implements OnInit {
           this.isLoading = false;
           // Update user photos
           if (this.user && newPhotos) {
-            this.user.photos = [...(this.user.photos || []), ...newPhotos.filter((photo): photo is Photo => photo !== undefined)];
+            this.user.photos = [
+              ...(this.user.photos || []),
+              ...newPhotos.filter(
+                (photo): photo is Photo => photo !== undefined
+              ),
+            ];
           }
         })
         .catch((error) => {
@@ -340,9 +370,9 @@ export class EditProfileComponent implements OnInit {
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
       cityName
     )}&format=json&limit=5`;
-    return this.http.get<any[]>(url).pipe(
-      map((results) => results.map((result) => result.display_name))
-    );
+    return this.http
+      .get<any[]>(url)
+      .pipe(map((results) => results.map((result) => result.display_name)));
   }
 
   private searchCityCoordinates(cityName: string) {

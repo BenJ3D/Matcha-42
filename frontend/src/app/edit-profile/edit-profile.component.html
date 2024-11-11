@@ -1,12 +1,14 @@
 <div class="edit-profile-container">
   <mat-horizontal-stepper [linear]="isLinear" #stepper>
-    <!-- Step 1: Profile Information -->
+    <!-- Step 1: Profile -->
     <mat-step
       [stepControl]="profileInfoForm"
       [completed]="profileInfoForm.valid"
     >
+      <ng-template matStepLabel>
+        <mat-icon>person</mat-icon>
+      </ng-template>
       <form [formGroup]="profileInfoForm">
-        <ng-template matStepLabel>Profile Information</ng-template>
         <div class="mat-step-content">
           <!-- Biography -->
           <mat-form-field appearance="outline" class="full-width">
@@ -70,21 +72,28 @@
           <!-- Age -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Age</mat-label>
-            <input formControlName="age" matInput required type="number" />
+            <input
+              matInput
+              type="number"
+              formControlName="age"
+              required
+              min="18"
+              max="120"
+            />
             <mat-error *ngIf="profileInfoForm.get('age')?.hasError('required')">
               Age is required
             </mat-error>
             <mat-error *ngIf="profileInfoForm.get('age')?.hasError('min')">
-              Minimum age is 18
+              Must be at least 18 years old
             </mat-error>
             <mat-error *ngIf="profileInfoForm.get('age')?.hasError('max')">
-              Maximum age is 120
+              Must be under 120 years old
             </mat-error>
           </mat-form-field>
 
-          <!-- Tags (Interests) -->
+          <!-- Tags -->
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Tags (Interests)</mat-label>
+            <mat-label>Tags</mat-label>
             <mat-select formControlName="tags" multiple>
               <mat-option *ngFor="let tag of tags" [value]="tag.tag_id">
                 {{ tag.tag_name }}
@@ -107,57 +116,36 @@
 
     <!-- Step 2: Location -->
     <mat-step [stepControl]="locationForm" [completed]="locationForm.valid">
+      <ng-template matStepLabel>
+        <mat-icon>place</mat-icon>
+      </ng-template>
       <form [formGroup]="locationForm">
-        <ng-template matStepLabel>Location</ng-template>
         <div class="mat-step-content">
-          <!-- Enable Geolocation -->
-          <mat-checkbox
-            formControlName="enableGeolocation"
-            (change)="onGeolocationToggle($event.checked)"
-          >
-            Enable Geolocation
-          </mat-checkbox>
+          <mat-slide-toggle formControlName="enableLocation">
+            Enable Location
+          </mat-slide-toggle>
 
-          <!-- City with Autocomplete -->
-          <div *ngIf="!locationForm.get('enableGeolocation')?.value">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>City</mat-label>
-              <input
-                [matAutocomplete]="auto"
-                formControlName="city"
-                matInput
-                type="text"
-              />
-              <mat-autocomplete #auto="matAutocomplete">
-                <mat-option
-                  *ngFor="let city of cityOptions | async"
-                  [value]="city"
-                >
-                  {{ city }}
-                </mat-option>
-              </mat-autocomplete>
-              <mat-icon *ngIf="isCityValid" color="primary" matSuffix
-                >check_circle</mat-icon
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>City</mat-label>
+            <input
+              matInput
+              formControlName="city"
+              [matAutocomplete]="auto"
+              [disabled]="locationForm.get('enableLocation')?.value"
+            />
+            <mat-autocomplete #auto="matAutocomplete">
+              <mat-option
+                *ngFor="let city of cityOptions | async"
+                [value]="city"
               >
-              <mat-error *ngIf="locationForm.get('city')?.hasError('required')">
-                City is required
-              </mat-error>
-            </mat-form-field>
-
-            <!-- Use IP-based Location -->
-            <mat-checkbox
-              formControlName="useIpLocation"
-              (change)="onIpLocationToggle($event.checked)"
-            >
-              Use IP-based Location
-            </mat-checkbox>
-          </div>
+                {{ city }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
 
           <div class="button-container">
             <button mat-button matStepperPrevious>Back</button>
-            <button mat-button matStepperNext [disabled]="!locationForm.valid">
-              Next
-            </button>
+            <button mat-button matStepperNext>Next</button>
           </div>
         </div>
       </form>
@@ -165,50 +153,59 @@
 
     <!-- Step 3: Photos -->
     <mat-step [stepControl]="photoForm">
+      <ng-template matStepLabel>
+        <mat-icon>photo_camera</mat-icon>
+      </ng-template>
       <form [formGroup]="photoForm">
-        <ng-template matStepLabel>Photos</ng-template>
         <div class="mat-step-content">
-          <!-- Photo Upload Section -->
           <div class="photo-upload-section">
-            <h3>Upload Photos</h3>
             <input
+              type="file"
               (change)="onPhotoSelected($event)"
               accept="image/*"
               multiple
-              type="file"
+              #fileInput
+              style="display: none"
             />
-            <div
-              *ngIf="user && user.photos && user.photos.length > 0"
-              class="photo-preview"
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="fileInput.click()"
             >
-              <div *ngFor="let photo of user.photos" class="photo-item">
+              <mat-icon>add_photo_alternate</mat-icon>
+              Add Photos
+            </button>
+
+            <div class="photo-preview" *ngIf="user?.photos?.length">
+              <div class="photo-item" *ngFor="let photo of user?.photos">
                 <img
-                  (error)="onImageError($event)"
-                  [alt]="user.username || 'User Photo'"
                   [src]="photo.url"
-                  class="uploaded-photo"
+                  [alt]="user?.username"
+                  (error)="onImageError($event)"
                 />
-                <div>Photo URL: {{ photo.url }}</div>
-                <button
-                  (click)="setAsMainPhoto(photo)"
-                  *ngIf="user.main_photo_id !== photo.photo_id"
-                  color="primary"
-                  mat-button
-                  type="button"
-                >
-                  Set as Profile Picture
-                </button>
-                <span *ngIf="user.main_photo_id === photo.photo_id">
-                  Main Photo
-                </span>
-                <button
-                  (click)="deletePhoto(photo)"
-                  color="warn"
-                  mat-icon-button
-                  type="button"
-                >
-                  <mat-icon>delete</mat-icon>
-                </button>
+                <div class="photo-actions">
+                  <button
+                    mat-icon-button
+                    color="warn"
+                    (click)="deletePhoto(photo)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    color="primary"
+                    *ngIf="user?.main_photo_id !== photo.photo_id"
+                    (click)="setAsMainPhoto(photo)"
+                  >
+                    <mat-icon>star</mat-icon>
+                  </button>
+                  <mat-icon
+                    *ngIf="user?.main_photo_id === photo.photo_id"
+                    color="primary"
+                  >
+                    check_circle
+                  </mat-icon>
+                </div>
               </div>
             </div>
           </div>
@@ -218,18 +215,17 @@
             <button
               mat-raised-button
               color="primary"
-              [disabled]="isLoading"
               (click)="onSubmit()"
+              [disabled]="isLoading"
             >
               <mat-progress-spinner
                 *ngIf="isLoading"
                 diameter="20"
                 mode="indeterminate"
-                color="accent"
               >
               </mat-progress-spinner>
               <span *ngIf="!isLoading">
-                {{ existingProfile ? "Update Profile" : "Create Profile" }}
+                {{ existingProfile ? "Update" : "Create" }} Profile
               </span>
             </button>
           </div>
