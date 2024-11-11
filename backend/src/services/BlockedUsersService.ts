@@ -23,8 +23,8 @@ class BlockedUsersService {
         if (alreadyBlocked) {
             throw {status: 409, message: 'Utilisateur déjà bloqué'};
         }
-
-        await LikesService.removeLike(blockedId, blockedId);
+``
+        await LikesService.removeLike(blockerId, blockedId);
         await BlockedUsersDAL.blockUser(blockerId, blockedId);
     }
 
