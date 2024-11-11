@@ -9,7 +9,7 @@ class LikesDAL {
             return likes;
         } catch (error) {
             console.error(`Erreur lors de la récupération des likes pour l'utilisateur ${userId}:`, error);
-            throw {status: 500, message: 'Impossible de récupérer les likes pour cet utilisateur'};
+            throw {status: 400, message: 'Impossible de récupérer les likes pour cet utilisateur'};
         }
     }
 
@@ -19,7 +19,7 @@ class LikesDAL {
             return likes;
         } catch (error) {
             console.error(`Erreur lors de la récupération des likes reçus pour l'utilisateur ${userId}:`, error);
-            throw {status: 500, message: 'Impossible de récupérer les likes reçus pour cet utilisateur'};
+            throw {status: 400, message: 'Impossible de récupérer les likes reçus pour cet utilisateur'};
         }
     }
 
@@ -34,7 +34,7 @@ class LikesDAL {
             } else if (error.code === '23503') { // Foreign key violation
                 throw {status: 404, message: 'Utilisateur cible non trouvé'};
             }
-            throw {status: 500, message: 'Impossible d\'ajouter le like'};
+            throw {status: 400, message: 'Impossible d\'ajouter le like'};
         }
     }
 
@@ -56,7 +56,7 @@ class LikesDAL {
             return likes.map(like => like.user_liked);
         } catch (error) {
             console.error(`Erreur lors de la récupération des IDs des likes pour l'utilisateur ${userId}:`, error);
-            throw {status: 500, message: 'Impossible de récupérer les IDs des likes'};
+            throw {status: 400, message: 'Impossible de récupérer les IDs des likes'};
         }
     }
 

@@ -39,7 +39,7 @@ class VisitedProfilesDAL {
             return visits;
         } catch (error: any) {
             console.error(`Erreur lors de la récupération des visites effectuées par l'utilisateur ${userId}:`, error);
-            throw {status: 500, message: 'Impossible de récupérer l\'historique des visites effectuées'};
+            throw {status: 400, message: 'Impossible de récupérer l\'historique des visites effectuées'};
         }
     }
 

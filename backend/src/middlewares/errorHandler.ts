@@ -31,7 +31,7 @@ const errorHandler = (err: any, req: Request, res: Response, next: NextFunction)
     // Gérer d'autres erreurs génériques
     if (err) {
         console.error('Erreur inconnue:', err);
-        return res.status(500).json({error: 'Erreur interne du serveur.'});
+        return res.status(500).json({error: 'Erreur'});
     }
 
     // Passer à la middleware suivante si aucune erreur détectée

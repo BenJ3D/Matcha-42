@@ -169,7 +169,7 @@ const userController = {
             await userServices.deleteUser(userId);
             return res.status(200).json({message: "Utilisateur supprimé avec succès."});
         } catch (e: any) {
-            res.status(e.status || 500).json({error: e.message || "Erreur interne du serveur."});
+            res.status(e.status || 500).json({error: e.message || "Erreur"});
         }
     },
 

@@ -62,7 +62,6 @@ class LikesService {
                 NotificationType.LIKE
             );
 
-            // TODO: Implémenter un message websocket pour notifier un nouveau match
         }
 
 
@@ -72,8 +71,11 @@ class LikesService {
         await LikesDAL.removeLike(userId, targetUserId);
         await UserServices.updateFameRating(targetUserId, fameRatingConfig.dislike);
 
-        //Supprimer un match s'il existe
-        await MatchesService.deleteMatch(userId, targetUserId);
+        if (await MatchesService.isMatched(userId, targetUserId)) {
+
+            //Supprimer un match s'il existe
+            await MatchesService.deleteMatch(userId, targetUserId);
+        }
     }
 
     async getLikedUserIds(userId: number): Promise<number[]> {

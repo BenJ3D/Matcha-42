@@ -4,6 +4,7 @@ import BlockedUsersDAL from '../DataAccessLayer/BlockedUsersDAL';
 import userDAL from '../DataAccessLayer/UserDAL';
 import {BlockedUserResponseDto} from '../DTOs/users/BlockedUserResponseDto';
 import {UserBlockedResponseDto} from "../DTOs/blocked/UserBlockedResponseDto";
+import LikesService from "./LikesService";
 
 class BlockedUsersService {
     async blockUser(blockerId: number, blockedId: number): Promise<void> {
@@ -23,6 +24,7 @@ class BlockedUsersService {
             throw {status: 409, message: 'Utilisateur déjà bloqué'};
         }
 
+        await LikesService.removeLike(blockedId, blockedId);
         await BlockedUsersDAL.blockUser(blockerId, blockedId);
     }
 

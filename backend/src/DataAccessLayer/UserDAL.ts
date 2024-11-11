@@ -91,7 +91,7 @@ class UserDAL {
                 throw {status: 409, message: "L'email existe déjà."};
             } else {
                 console.error("Erreur lors de l'insertion de l'utilisateur:", e);
-                throw {status: 500, message: "Erreur interne du serveur."};
+                throw {status: 400, message: "Erreur."};
             }
         }
     }
@@ -109,7 +109,7 @@ class UserDAL {
             console.log(`Utilisateur avec id ${userId} supprimé.`);
         } catch (e: any) {
             console.error(`Erreur lors de la suppression de l'utilisateur avec id ${userId}:`, e);
-            throw {status: e.status || 500, message: e.message || "Erreur interne du serveur."};
+            throw {status: e.status || 500, message: e.message || "Erreur."};
         }
     }
 

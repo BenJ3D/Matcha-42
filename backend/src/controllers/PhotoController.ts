@@ -43,7 +43,7 @@ class PhotoController {
             res.status(201).json({message: 'Photo uploadée avec succès.', photo});
         } catch (error: any) {
             console.error('Erreur lors de l\'upload de la photo:', error);
-            res.status(error.status || 500).json({error: error.message || 'Erreur interne du serveur'});
+            res.status(error.status || 500).json({error: error.message || 'Erreur'});
         }
     }
 

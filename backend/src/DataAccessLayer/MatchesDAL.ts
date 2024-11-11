@@ -11,7 +11,7 @@ class MatchesDAL {
             return matches;
         } catch (error) {
             console.error(`Erreur lors de la récupération des matches pour l'utilisateur ${userId}:`, error);
-            throw {status: 500, message: 'Impossible de récupérer les matches pour cet utilisateur'};
+            throw {status: 400, message: 'Impossible de récupérer les matches pour cet utilisateur'};
         }
     }
 
@@ -33,7 +33,7 @@ class MatchesDAL {
             await db('matches').insert({user_1: user1, user_2: user2});
         } catch (error) {
             console.error(`Erreur lors de l'ajout du match entre ${userId1} et ${userId2}:`, error);
-            throw {status: 500, message: 'Impossible d\'ajouter le match'};
+            throw {status: 400, message: 'Impossible d\'ajouter le match'};
         }
     }
 
@@ -43,7 +43,7 @@ class MatchesDAL {
             await db('matches').where({user_1: user1, user_2: user2}).del();
         } catch (error) {
             console.error(`Erreur lors de la suppression du match entre ${userId1} et ${userId2}:`, error);
-            throw {status: 500, message: 'Impossible de supprimer le match'};
+            throw {status: 400, message: 'Impossible de supprimer le match'};
         }
     }
 
@@ -60,7 +60,7 @@ class MatchesDAL {
             return !!match;
         } catch (error) {
             console.error(`Erreur lors de la vérification du match entre ${userId1} et ${userId2}:`, error);
-            throw {status: 500, message: 'Erreur interne du serveur lors de la vérification du match'};
+            throw {status: 400, message: 'Erreur'};
         }
     }
 

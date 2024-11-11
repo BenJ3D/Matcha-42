@@ -13,7 +13,7 @@ class VisitedProfilesController {
             res.json({visitsMade, visitsReceived});
         } catch (error: any) {
             console.error('Erreur lors de la récupération de l\'historique des visites:', error);
-            res.status(error.status || 400).json({error: error.message || 'Erreur interne du serveur'});
+            res.status(error.status || 400).json({error: error.message || 'Erreur'});
         }
     }
 

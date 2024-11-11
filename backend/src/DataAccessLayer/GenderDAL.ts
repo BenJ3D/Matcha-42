@@ -8,7 +8,7 @@ class GenderDAL {
             return genders;
         } catch (error) {
             console.error('Erreur lors de la récupération des genres:', error);
-            throw {status: 500, message: 'Impossible de récupérer les genres'};
+            throw {status: 400, message: 'Impossible de récupérer les genres'};
         }
     }
 }
