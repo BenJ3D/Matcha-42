@@ -68,7 +68,7 @@ export class EditProfileComponent implements OnInit {
     private fb: FormBuilder,
     private profileService: ProfileService,
     private router: Router,
-    private http: HttpClient,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -92,7 +92,6 @@ export class EditProfileComponent implements OnInit {
     });
 
     this.locationForm = this.fb.group({
-      enableLocation: [false],
       city: [''],
       location: this.fb.group({
         latitude: [null],
@@ -101,42 +100,16 @@ export class EditProfileComponent implements OnInit {
     });
 
     this.photoForm = this.fb.group({});
-
-    // Update city validation based on location toggle
-    this.locationForm
-      .get('enableLocation')
-      ?.valueChanges.subscribe((enabled) => {
-        const cityControl = this.locationForm.get('city');
-        if (!enabled) {
-          cityControl?.setValidators([Validators.required]);
-          cityControl?.enable();
-        } else {
-          cityControl?.clearValidators();
-          cityControl?.disable();
-          this.getLocationFromIP();
-        }
-        cityControl?.updateValueAndValidity();
-      });
   }
 
   subscribeToFormChanges() {
     this.locationForm
-      .get('enableGeolocation')
-      ?.valueChanges.subscribe((enabled) => {
-        this.onGeolocationToggle(enabled);
-      });
-
-    this.locationForm
-      .get('useIpLocation')
-      ?.valueChanges.subscribe((enabled) => {
-        this.onIpLocationToggle(enabled);
-      });
-
-    this.locationForm
       .get('city')
       ?.valueChanges.pipe(debounceTime(500))
       .subscribe((cityName) => {
-        this.searchCityCoordinates(cityName);
+        if (cityName) {
+          this.searchCityCoordinates(cityName);
+        }
       });
   }
 
@@ -245,27 +218,41 @@ export class EditProfileComponent implements OnInit {
   }
 
   getLocationFromIP() {
-    this.http.get<any>('https://ipapi.co/json/').subscribe((data) => {
-      this.locationForm.patchValue({
-        location: {
-          latitude: data.latitude,
-          longitude: data.longitude,
-        },
-      });
+    this.http.get<any>('https://ipapi.co/json/').subscribe({
+      next: (data) => {
+        if (data.city && data.latitude && data.longitude) {
+          this.locationForm.patchValue({
+            city: data.city,
+            location: {
+              latitude: data.latitude,
+              longitude: data.longitude,
+            },
+          });
+          this.isCityValid = true;
+        }
+      },
+      error: (error) => {
+        console.error('Error getting IP location:', error);
+        this.isCityValid = false;
+      },
     });
   }
 
   // Add partial submit method
   onPartialSubmit() {
-    if (this.profileInfoForm.valid && !this.existingProfile && !this.isInitialProfileCreated) {
+    if (
+      this.profileInfoForm.valid &&
+      !this.existingProfile &&
+      !this.isInitialProfileCreated
+    ) {
       this.isLoading = true;
       // Create minimal profile data
       const partialProfileData = {
         ...this.profileInfoForm.value,
         location: {
           latitude: 0,
-          longitude: 0
-        }
+          longitude: 0,
+        },
       };
 
       this.profileService.createProfile(partialProfileData).subscribe({
@@ -273,7 +260,7 @@ export class EditProfileComponent implements OnInit {
           this.isInitialProfileCreated = true;
           this.existingProfile = true;
           // Update user data if needed
-          this.profileService.getMyProfile().subscribe(user => {
+          this.profileService.getMyProfile().subscribe((user) => {
             if (user) {
               this.user = user;
             }
@@ -283,7 +270,7 @@ export class EditProfileComponent implements OnInit {
         error: (error) => {
           console.error('Error creating initial profile:', error);
           this.isLoading = false;
-        }
+        },
       });
     }
   }
@@ -296,7 +283,7 @@ export class EditProfileComponent implements OnInit {
         ...this.profileInfoForm.value,
         location: this.locationForm.value.location,
       };
-      
+
       // Always use update since we already created the profile
       this.profileService.updateProfile(profileData).subscribe({
         next: () => {
@@ -312,7 +299,7 @@ export class EditProfileComponent implements OnInit {
       console.warn('Form is invalid');
     }
   }
-  
+
   onPhotoSelected(event: any) {
     const files: FileList = event.target.files;
     if (files.length > 0) {
@@ -383,6 +370,17 @@ export class EditProfileComponent implements OnInit {
     }
   }
 
+  onCityBlur() {
+    const cityControl = this.locationForm.get('city');
+    if (cityControl && !cityControl.value) {
+      // If city field is empty, get location from IP
+      this.getLocationFromIP();
+    } else if (cityControl && cityControl.value) {
+      // If city field has value, validate coordinates
+      this.searchCityCoordinates(cityControl.value);
+    }
+  }
+
   onImageError(event: Event) {
     const imgElement = event.target as HTMLImageElement;
     console.error('Image failed to load:', imgElement.src);
@@ -399,7 +397,17 @@ export class EditProfileComponent implements OnInit {
   }
 
   private searchCityCoordinates(cityName: string) {
-    if (!cityName) return;
+    if (!cityName) {
+      this.isCityValid = true; // Allow empty city
+      this.locationForm.patchValue({
+        location: {
+          latitude: null,
+          longitude: null,
+        },
+      });
+      return;
+    }
+
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
       cityName
     )}&format=json&limit=1`;
@@ -421,7 +429,6 @@ export class EditProfileComponent implements OnInit {
           });
           this.isCityValid = true;
         } else {
-          console.warn('No city found for:', cityName);
           this.locationForm.patchValue({
             location: {
               latitude: null,

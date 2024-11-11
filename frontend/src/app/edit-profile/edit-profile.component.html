@@ -115,24 +115,20 @@
       </form>
     </mat-step>
 
-    <!-- Step 2: Location -->
-    <mat-step [stepControl]="locationForm" [completed]="locationForm.valid">
+    <!-- Update location step in edit-profile.component.html -->
+    <mat-step [stepControl]="locationForm">
       <ng-template matStepLabel>
         <mat-icon>place</mat-icon>
       </ng-template>
       <form [formGroup]="locationForm">
         <div class="mat-step-content">
-          <mat-slide-toggle formControlName="enableLocation">
-            Enable Location
-          </mat-slide-toggle>
-
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>City</mat-label>
             <input
               matInput
               formControlName="city"
               [matAutocomplete]="auto"
-              [disabled]="locationForm.get('enableLocation')?.value"
+              (blur)="onCityBlur()"
             />
             <mat-autocomplete #auto="matAutocomplete">
               <mat-option
