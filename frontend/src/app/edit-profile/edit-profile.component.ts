@@ -62,12 +62,13 @@ export class EditProfileComponent implements OnInit {
   isCityValid: boolean = false;
   cityOptions!: Observable<string[]>;
   isLoading = false;
+  private isInitialProfileCreated = false;
 
   constructor(
     private fb: FormBuilder,
     private profileService: ProfileService,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
   ) {}
 
   ngOnInit(): void {
@@ -254,6 +255,40 @@ export class EditProfileComponent implements OnInit {
     });
   }
 
+  // Add partial submit method
+  onPartialSubmit() {
+    if (this.profileInfoForm.valid && !this.existingProfile && !this.isInitialProfileCreated) {
+      this.isLoading = true;
+      // Create minimal profile data
+      const partialProfileData = {
+        ...this.profileInfoForm.value,
+        location: {
+          latitude: 0,
+          longitude: 0
+        }
+      };
+
+      this.profileService.createProfile(partialProfileData).subscribe({
+        next: (response) => {
+          this.isInitialProfileCreated = true;
+          this.existingProfile = true;
+          // Update user data if needed
+          this.profileService.getMyProfile().subscribe(user => {
+            if (user) {
+              this.user = user;
+            }
+          });
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error creating initial profile:', error);
+          this.isLoading = false;
+        }
+      });
+    }
+  }
+
+  // Modify existing onSubmit to handle final submission
   onSubmit() {
     if (this.profileInfoForm.valid && this.locationForm.valid) {
       this.isLoading = true;
@@ -261,35 +296,23 @@ export class EditProfileComponent implements OnInit {
         ...this.profileInfoForm.value,
         location: this.locationForm.value.location,
       };
-
-      if (this.existingProfile) {
-        this.profileService.updateProfile(profileData).subscribe({
-          next: () => {
-            this.isLoading = false;
-            this.router.navigate(['/profile']);
-          },
-          error: (error) => {
-            this.isLoading = false;
-            console.error('Error updating profile:', error);
-          },
-        });
-      } else {
-        this.profileService.createProfile(profileData).subscribe({
-          next: () => {
-            this.isLoading = false;
-            this.router.navigate(['/profile']);
-          },
-          error: (error) => {
-            this.isLoading = false;
-            console.error('Error creating profile:', error);
-          },
-        });
-      }
+      
+      // Always use update since we already created the profile
+      this.profileService.updateProfile(profileData).subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.router.navigate(['/profile']);
+        },
+        error: (error) => {
+          this.isLoading = false;
+          console.error('Error updating profile:', error);
+        },
+      });
     } else {
       console.warn('Form is invalid');
     }
   }
-
+  
   onPhotoSelected(event: any) {
     const files: FileList = event.target.files;
     if (files.length > 0) {
