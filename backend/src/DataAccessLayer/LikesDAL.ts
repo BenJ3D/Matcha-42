@@ -12,7 +12,7 @@ class LikesDAL {
             throw {status: 500, message: 'Impossible de récupérer les likes pour cet utilisateur'};
         }
     }
-    
+
     async getLikesReceivedByUserId(userId: number): Promise<Like[]> {
         try {
             const likes = await db('likes').select('*').where('user_liked', userId);
@@ -60,15 +60,6 @@ class LikesDAL {
         }
     }
 
-    async userExists(userId: number): Promise<boolean> {
-        try {
-            const user: User | undefined = await db('users').select('id').where('id', userId).first();
-            return !!user;
-        } catch (error) {
-            console.error(`Erreur lors de la vérification de l'existence de l'utilisateur ${userId}:`, error);
-            throw {status: 500, message: 'Impossible de vérifier l\'existence de l\'utilisateur'};
-        }
-    }
 }
 
 export default new LikesDAL();

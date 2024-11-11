@@ -14,6 +14,7 @@ import emailVerificationRoutes from "./emailVerificationRoutes";
 import photoRoutes from "./photoRoutes";
 import verifyTokenRoutes from "./verifyTokenRoutes";
 import unreadUserMessageRoutes from "./unreadUserMessageRoutes";
+import blockedUsersRoutes from "./blockedUsersRoutes";
 
 const router = Router();
 
@@ -29,6 +30,7 @@ router.use('/messages', messageRoutes);
 router.use('/profiles', profileRoutes);
 router.use("/verify-token", verifyTokenRoutes);
 router.use('/notifications', notificationsRoute);
+router.use('/blocked-users', blockedUsersRoutes);
 router.use('/verify-email', emailVerificationRoutes)
 router.use('/visited-profiles', visitedProfilesRoutes)
 router.use('/unread-messages', unreadUserMessageRoutes)

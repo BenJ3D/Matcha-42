@@ -1,18 +1,17 @@
 import LikesDAL from '../DataAccessLayer/LikesDAL';
 import MatchesService from './MatchesService';
-import {UserLightResponseDto} from '../DTOs/users/UserLightResponseDto';
 import userDAL from '../DataAccessLayer/UserDAL';
 import UnlikesService from "./UnlikesService";
 import NotificationsService from "./NotificationsService";
 import {NotificationType} from "../models/Notifications";
 import UserServices from "./UserServices";
 import fameRatingConfig from "../config/fameRating.config";
+import UserDAL from "../DataAccessLayer/UserDAL";
+import {UserLikesResponseDto} from "../DTOs/likes/UserLikesReponseDto";
 
 class LikesService {
-    async getUserLikes(userId: number): Promise<{
-        likesGiven: UserLightResponseDto[],
-        likesReceived: UserLightResponseDto[]
-    }> {
+
+    async getUserLikes(userId: number): Promise<UserLikesResponseDto> {
         // Likes donnés
         const likesGiven = await LikesDAL.getLikesByUserId(userId);
         const likesGivenUserIds = likesGiven.map(like => like.user_liked);
@@ -23,10 +22,8 @@ class LikesService {
         const likesReceivedUserIds = likesReceived.map(like => like.user);
         const likesReceivedUsers = likesReceivedUserIds.length > 0 ? await userDAL.getUsersByIds(likesReceivedUserIds) : [];
 
-        return {
-            likesGiven: likesGivenUsers,
-            likesReceived: likesReceivedUsers
-        };
+        const likeResp = {likesGiven: likesGivenUsers, likesReceived: likesReceivedUsers};
+        return likeResp;
     }
 
     async addLike(userId: number, targetUserId: number): Promise<void> {
@@ -35,7 +32,7 @@ class LikesService {
         }
 
         // Vérifier si l'utilisateur cible existe
-        const targetExists = await LikesDAL.userExists(targetUserId);
+        const targetExists = await UserDAL.userExists(targetUserId);
         if (!targetExists) {
             throw {status: 404, message: 'Utilisateur cible non trouvé'};
         }

@@ -8,6 +8,7 @@ import {UserLoginPasswordCheckDto} from "../DTOs/users/UserLoginPasswordCheckDto
 import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
 import {Gender} from "../models/Genders";
 import {UserEmailPatchDto} from "../DTOs/users/UserEmailPatchDto";
+import {User} from "../models/User";
 
 class UserDAL {
 
@@ -541,6 +542,16 @@ class UserDAL {
         }
     }
 
+    async userExists(userId: number): Promise<boolean> {
+        try {
+            const user: User | undefined = await db('users').select('id').where('id', userId).first();
+            return !!user;
+        } catch (error) {
+            console.error(`Erreur lors de la vérification de l'existence de l'utilisateur ${userId}:`, error);
+            throw {status: 400, message: 'Impossible de vérifier l\'existence de l\'utilisateur'};
+        }
+    }
+
     private getUserLightResponseList = async (userRows: { id: number }[]): Promise<UserLightResponseDto[]> => {
         if (userRows.length === 0) {
             return [];
@@ -601,5 +612,6 @@ class UserDAL {
     }
 
 }
+
 
 export default new UserDAL();
