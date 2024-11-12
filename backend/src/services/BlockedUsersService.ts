@@ -5,6 +5,8 @@ import userDAL from '../DataAccessLayer/UserDAL';
 import {BlockedUserResponseDto} from '../DTOs/users/BlockedUserResponseDto';
 import {UserBlockedResponseDto} from "../DTOs/blocked/UserBlockedResponseDto";
 import LikesService from "./LikesService";
+import UserServices from './UserServices';
+import fameRatingConfig from '../config/fameRating.config';
 
 class BlockedUsersService {
     async blockUser(blockerId: number, blockedId: number): Promise<void> {
@@ -23,13 +25,26 @@ class BlockedUsersService {
         if (alreadyBlocked) {
             throw {status: 409, message: 'Utilisateur déjà bloqué'};
         }
-``
-        await LikesService.removeLike(blockerId, blockedId);
-        await BlockedUsersDAL.blockUser(blockerId, blockedId);
-    }
 
+        // Tenter de supprimer le like, ignorer si non trouvé
+        try {
+            await LikesService.removeLike(blockerId, blockedId);
+        } catch (error: any) {
+            if (error.status !== 404) {
+                throw error;
+            }
+            // Ignorer l'erreur si le like n'existe pas
+        }
+
+        // Bloquer l'utilisateur
+        await BlockedUsersDAL.blockUser(blockerId, blockedId);
+
+        await UserServices.updateFameRating(blockedId, fameRatingConfig.blocked);
+    }
+    
     async unblockUser(blockerId: number, blockedId: number): Promise<void> {
         await BlockedUsersDAL.unblockUser(blockerId, blockedId);
+        await UserServices.updateFameRating(blockedId, fameRatingConfig.unblocked);
     }
 
     async getUserBlockedData(userId: number): Promise<UserBlockedResponseDto> {
