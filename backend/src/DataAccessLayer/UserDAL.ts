@@ -8,6 +8,7 @@ import {UserLoginPasswordCheckDto} from "../DTOs/users/UserLoginPasswordCheckDto
 import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
 import {Gender} from "../models/Genders";
 import {UserEmailPatchDto} from "../DTOs/users/UserEmailPatchDto";
+import {User} from "../models/User";
 
 class UserDAL {
 
@@ -90,7 +91,7 @@ class UserDAL {
                 throw {status: 409, message: "L'email existe déjà."};
             } else {
                 console.error("Erreur lors de l'insertion de l'utilisateur:", e);
-                throw {status: 500, message: "Erreur interne du serveur."};
+                throw {status: 400, message: "Erreur."};
             }
         }
     }
@@ -108,7 +109,7 @@ class UserDAL {
             console.log(`Utilisateur avec id ${userId} supprimé.`);
         } catch (e: any) {
             console.error(`Erreur lors de la suppression de l'utilisateur avec id ${userId}:`, e);
-            throw {status: e.status || 500, message: e.message || "Erreur interne du serveur."};
+            throw {status: e.status || 500, message: e.message || "Erreur."};
         }
     }
 
@@ -541,6 +542,16 @@ class UserDAL {
         }
     }
 
+    async userExists(userId: number): Promise<boolean> {
+        try {
+            const user: User | undefined = await db('users').select('id').where('id', userId).first();
+            return !!user;
+        } catch (error) {
+            console.error(`Erreur lors de la vérification de l'existence de l'utilisateur ${userId}:`, error);
+            throw {status: 400, message: 'Impossible de vérifier l\'existence de l\'utilisateur'};
+        }
+    }
+
     private getUserLightResponseList = async (userRows: { id: number }[]): Promise<UserLightResponseDto[]> => {
         if (userRows.length === 0) {
             return [];
@@ -601,5 +612,6 @@ class UserDAL {
     }
 
 }
+
 
 export default new UserDAL();

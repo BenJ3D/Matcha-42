@@ -10,7 +10,7 @@ class MatchesController {
             res.json(matches);
         } catch (error: any) {
             console.error('Erreur lors de la récupération des matches:', error);
-            res.status(error.status || 500).json({error: error.message || 'Erreur interne du serveur'});
+            res.status(error.status || 500).json({error: error.message || 'Erreur'});
         }
     }
 }

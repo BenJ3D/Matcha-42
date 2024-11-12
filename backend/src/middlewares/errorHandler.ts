@@ -21,6 +21,11 @@ const errorHandler = (err: any, req: Request, res: Response, next: NextFunction)
         return res.status(400).json({error: message});
     }
 
+    // Gérer les erreurs de parsing JSON
+    if (err instanceof SyntaxError && 'body' in err) {
+        return res.status(400).json({ error: 'JSON malformé dans le corps de la requête.' });
+    }
+
     // Gérer l'erreur "Unexpected end of form"
     if (err.message === 'Unexpected end of form') {
         return res.status(400).json({
@@ -31,7 +36,7 @@ const errorHandler = (err: any, req: Request, res: Response, next: NextFunction)
     // Gérer d'autres erreurs génériques
     if (err) {
         console.error('Erreur inconnue:', err);
-        return res.status(500).json({error: 'Erreur interne du serveur.'});
+        return res.status(400).json({error: 'Erreur.'});
     }
 
     // Passer à la middleware suivante si aucune erreur détectée

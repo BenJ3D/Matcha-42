@@ -28,7 +28,7 @@ class TagsController {
             );
             res
                 .status(error.status || 500)
-                .json({error: error.message || 'Erreur interne du serveur'});
+                .json({error: error.message || 'Erreur'});
         }
     }
 }

@@ -1,0 +1,15 @@
+meta {
+  name: block a user
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/blocked-users/:userId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  userId: 1450
+}

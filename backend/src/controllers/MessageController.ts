@@ -21,7 +21,7 @@ class MessageController {
             res.status(201).json({message});
         } catch (error: any) {
             console.error('Erreur lors de l\'envoi du message:', error);
-            res.status(error.status || 500).json({error: error.message || 'Erreur interne du serveur'});
+            res.status(error.status || 500).json({error: error.message || 'Erreur'});
         }
     }
 
@@ -39,7 +39,7 @@ class MessageController {
             res.status(200).json({messages});
         } catch (error: any) {
             console.error('Erreur lors de la récupération de la conversation:', error);
-            res.status(500).json({error: error.message || 'Erreur interne du serveur'});
+            res.status(500).json({error: error.message || 'Erreur'});
         }
     }
 }

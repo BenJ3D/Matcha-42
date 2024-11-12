@@ -1,0 +1,11 @@
+meta {
+  name: get all the users I blocked and user blocked me
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/blocked-users
+  body: none
+  auth: inherit
+}

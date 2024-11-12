@@ -15,7 +15,7 @@ class ProfileDAL {
             return profile;
         } catch (error) {
             console.error(`Erreur lors de la récupération du profil avec l'ID ${profileId}:`, error);
-            throw {status: 500, message: "Erreur interne du serveur."};
+            throw {status: 400, message: "Erreur."};
         }
     }
 
@@ -31,7 +31,7 @@ class ProfileDAL {
             return profile;
         } catch (error: any) {
             console.error(`Erreur lors de la récupération du profil pour l'utilisateur ID ${userId}:`, error);
-            throw {status: error.status || 500, message: error.message || "Erreur interne du serveur."};
+            throw {status: error.status || 500, message: error.message || "Erreur."};
         }
     }
 
@@ -80,7 +80,7 @@ class ProfileDAL {
             } else if (error.code === '23503') {
                 throw {status: 400, message: error.detail || "Un ou plusieurs identifiants fournis sont invalides."};
             } else {
-                throw {status: 500, message: "Erreur interne du serveur."};
+                throw {status: 400, message: "Erreur."};
             }
         }
     }
@@ -137,7 +137,7 @@ class ProfileDAL {
                 // Gérer les violations de contraintes de clé étrangère
                 throw {status: 400, message: error.detail || "Un ou plusieurs identifiants fournis sont invalides."};
             } else {
-                throw {status: 500, message: "Erreur interne du serveur."};
+                throw {status: 400, message: "Erreur."};
             }
         }
     }
@@ -163,7 +163,7 @@ class ProfileDAL {
             } else if (error.code === '23503') {
                 throw {status: 400, message: "Erreur : Contrainte de clé étrangère."};
             } else {
-                throw {status: 500, message: "Erreur interne du serveur."};
+                throw {status: 400, message: "Erreur."};
             }
         }
     }
@@ -178,7 +178,7 @@ class ProfileDAL {
             return preferences;
         } catch (error) {
             console.error(`Erreur lors de la récupération des préférences sexuelles pour le profil ID ${profileId}:`, error);
-            throw {status: 500, message: "Erreur interne du serveur."};
+            throw {status: 400, message: "Erreur."};
         }
     }
 

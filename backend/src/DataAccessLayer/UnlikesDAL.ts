@@ -9,7 +9,7 @@ class UnlikesDAL {
             return unlikes;
         } catch (error) {
             console.error(`Erreur lors de la récupération des unlikes pour l'utilisateur ${userId}:`, error);
-            throw {status: 500, message: 'Impossible de récupérer les unlikes pour cet utilisateur'};
+            throw {status: 400, message: 'Impossible de récupérer les unlikes pour cet utilisateur'};
         }
     }
 
@@ -19,7 +19,7 @@ class UnlikesDAL {
             return unlikes;
         } catch (error) {
             console.error(`Erreur lors de la récupération des unlikes reçus pour l'utilisateur ${userId}:`, error);
-            throw {status: 500, message: 'Impossible de récupérer les unlikes reçus pour cet utilisateur'};
+            throw {status: 400, message: 'Impossible de récupérer les unlikes reçus pour cet utilisateur'};
         }
     }
 
@@ -34,7 +34,7 @@ class UnlikesDAL {
             } else if (error.code === '23503') { // Foreign key violation
                 throw {status: 404, message: 'Utilisateur cible non trouvé'};
             }
-            throw {status: 500, message: 'Impossible d\'ajouter le unlike'};
+            throw {status: 400, message: 'Impossible d\'ajouter le unlike'};
         }
     }
 
@@ -56,7 +56,7 @@ class UnlikesDAL {
             return unlikes.map(unlike => unlike.user_unliked);
         } catch (error) {
             console.error(`Erreur lors de la récupération des IDs des unlikes pour l'utilisateur ${userId}:`, error);
-            throw {status: 500, message: 'Impossible de récupérer les IDs des unlikes'};
+            throw {status: 400, message: 'Impossible de récupérer les IDs des unlikes'};
         }
     }
 
@@ -66,7 +66,7 @@ class UnlikesDAL {
             return !!user;
         } catch (error) {
             console.error(`Erreur lors de la vérification de l'existence de l'utilisateur ${userId}:`, error);
-            throw {status: 500, message: 'Impossible de vérifier l\'existence de l\'utilisateur'};
+            throw {status: 400, message: 'Impossible de vérifier l\'existence de l\'utilisateur'};
         }
     }
 }

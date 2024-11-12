@@ -12,5 +12,6 @@ export interface UserLightResponseDto {
     };
     gender: number;
     is_online: boolean;
+    is_verified: boolean;
     last_activity: Date;
 }
