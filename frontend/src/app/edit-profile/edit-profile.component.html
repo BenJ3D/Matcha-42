@@ -1,5 +1,5 @@
 <div class="edit-profile-container">
-  <mat-horizontal-stepper [linear]="isLinear" #stepper>
+  <mat-stepper #stepper [linear]="isLinear" (selectionChange)="onStepChange($event)">
     <!-- Step 1: Profile -->
     <mat-step
       [stepControl]="profileInfoForm"
@@ -229,5 +229,5 @@
         </div>
       </form>
     </mat-step>
-  </mat-horizontal-stepper>
+  </mat-stepper>
 </div>

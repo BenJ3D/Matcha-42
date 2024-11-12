@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProfileService } from '../../services/profile.service';
 import { Router } from '@angular/router';
@@ -23,6 +23,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { NgIf, NgForOf, AsyncPipe, NgOptimizedImage } from '@angular/common';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatStepper } from '@angular/material/stepper';
 
 @Component({
   selector: 'app-edit-profile',
@@ -51,6 +52,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
   standalone: true,
 })
 export class EditProfileComponent implements OnInit {
+  @ViewChild('stepper') stepper!: MatStepper;
   isLinear = true;
   profileInfoForm!: FormGroup;
   locationForm!: FormGroup;
@@ -126,7 +128,18 @@ export class EditProfileComponent implements OnInit {
           this.user = userResponse;
           if (this.user.profile_id) {
             this.existingProfile = true;
-            this.populateForms(this.user);
+            
+            // Check if location is null, undefined, or has invalid coordinates
+            if (!this.user.location || 
+                this.user.location.latitude === null || 
+                this.user.location.longitude === null ||
+                this.user.location.city_name === 'Unknown') {
+              // Skip location population but populate other fields
+              this.populateFormsWithoutLocation(this.user);
+            } else {
+              // Populate all fields including location
+              this.populateForms(this.user);
+            }
           }
         }
       },
@@ -134,6 +147,48 @@ export class EditProfileComponent implements OnInit {
         console.error('Error in user subscription:', error);
       },
     });
+  }
+
+  onStepChange(event: any): void {
+    // Check if we're entering step 2 (location step, index 1)
+    if (event.selectedIndex === 2) {
+      const locationValue = this.locationForm.get('location')?.value;
+      
+      // Check if location is empty or has null coordinates
+      if (!locationValue || 
+          locationValue.latitude === null || 
+          locationValue.longitude === null) {
+        this.isLoading = true;
+        // Force IP location fetch
+        this.getLocationFromIP().then(() => {
+          this.isLoading = false;
+        });
+      }
+    }
+  }
+
+
+  // New method to populate forms without location
+  private populateFormsWithoutLocation(user: UserResponseDto) {
+    this.profileInfoForm.patchValue({
+      biography: user.biography || '',
+      gender: user.gender || null,
+      sexualPreferences: user.sexualPreferences?.map((g) => g.gender_id) || [],
+      age: user.age || null,
+      tags: user.tags?.map((t) => t.tag_id) || [],
+    });
+
+    // Reset location form without triggering geocoding
+    this.locationForm.patchValue(
+      {
+        city: '',
+        location: {
+          latitude: null,
+          longitude: null,
+        },
+      },
+      { emitEvent: false }
+    ); // Prevent value change events
   }
 
   setupCityAutocomplete() {
@@ -179,26 +234,6 @@ export class EditProfileComponent implements OnInit {
     });
   }
 
-  onGeolocationToggle(enabled: boolean) {
-    if (enabled) {
-      this.getCurrentLocation();
-      this.locationForm.get('city')?.disable();
-      this.locationForm.get('useIpLocation')?.disable();
-    } else {
-      this.locationForm.get('city')?.enable();
-      this.locationForm.get('useIpLocation')?.enable();
-    }
-  }
-
-  onIpLocationToggle(enabled: boolean) {
-    if (enabled) {
-      this.getLocationFromIP();
-      this.locationForm.get('city')?.disable();
-    } else {
-      this.locationForm.get('city')?.enable();
-    }
-  }
-
   getCurrentLocation() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -217,24 +252,28 @@ export class EditProfileComponent implements OnInit {
     }
   }
 
-  getLocationFromIP() {
-    this.http.get<any>('https://ipapi.co/json/').subscribe({
-      next: (data) => {
-        if (data.city && data.latitude && data.longitude) {
-          this.locationForm.patchValue({
-            city: data.city,
-            location: {
-              latitude: data.latitude,
-              longitude: data.longitude,
-            },
-          });
-          this.isCityValid = true;
-        }
-      },
-      error: (error) => {
-        console.error('Error getting IP location:', error);
-        this.isCityValid = false;
-      },
+  getLocationFromIP(): Promise<void> {
+    return new Promise((resolve) => {
+      this.http.get<any>('https://ipapi.co/json/').subscribe({
+        next: (data) => {
+          if (data.city && data.latitude && data.longitude) {
+            this.locationForm.patchValue({
+              city: data.city,
+              location: {
+                latitude: data.latitude,
+                longitude: data.longitude,
+              },
+            });
+            this.isCityValid = true;
+          }
+          resolve();
+        },
+        error: (error) => {
+          console.error('Error getting IP location:', error);
+          this.isCityValid = false;
+          resolve();
+        },
+      });
     });
   }
 
