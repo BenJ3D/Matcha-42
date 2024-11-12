@@ -59,20 +59,40 @@ app.use('/api', routes);
 // Utiliser la middleware de gestion des erreurs après les routes
 app.use(errorHandler);
 
-// Test de connexion à la base de données
-query('SELECT NOW()')
-    .then((result: QueryResult) => {
-        console.log('Connexion à la base de données réussie:', result.rows[0]);
-    })
-    .catch((error: Error) => {
-        console.error('Erreur de connexion à la base de données:', error);
-    });
+// Fonction de connexion avec retry infini
+const connectWithRetry = async (delay: number = 5000) => {
+  while (true) {
+    try {
+      await query('SELECT NOW()');
+      console.log('Connexion à la base de données réussie.');
+      break;
+    } catch (error) {
+      console.error('Erreur de connexion à la base de données:', error);
+      console.log(`Nouvelle tentative dans ${delay / 1000} secondes...`);
+      await new Promise(res => setTimeout(res, delay));
+    }
+  }
+};
+
+const httpServer = createServer(app);
+
+// Appel de la fonction de connexion
+(async () => {
+  await connectWithRetry();
+
+  // Start the server after the database is connected
+  httpServer.listen(PORT, () => {
+    console.log(`Serveur en cours d'exécution sur le PORT: ${PORT}`);
+    console.log(`Connecté à la base de données: ${config.databaseName}`);
+  }).on('error', (error: Error) => {
+    throw new Error(error.message);
+  });
+})();
 
 app.get('/', (req: express.Request, res: express.Response) => {
     res.send('Hello, world!');
 });
 
-const httpServer = createServer(app);
 // const io = new Server(httpServer, {});
 
 // Configurer CORS pour SocketIO
@@ -85,10 +105,3 @@ const io = new Server(httpServer, {
 
 //Init logique sockets
 initializeSockets(io);
-
-httpServer.listen(PORT, () => {
-    console.log(`Serveur en cours d'exécution sur le PORT: ${PORT}`);
-    console.log(`Connecté à la base de données: ${config.databaseName}`);
-}).on('error', (error: Error) => {
-    throw new Error(error.message);
-});
