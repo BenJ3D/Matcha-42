@@ -1,0 +1,15 @@
+meta {
+  name: delete a block user
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{baseUrl}}/blocked-users/:userId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  userId: 1450
+}

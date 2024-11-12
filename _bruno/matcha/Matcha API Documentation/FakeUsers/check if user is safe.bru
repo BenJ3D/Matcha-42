@@ -1,0 +1,15 @@
+meta {
+  name: check if user is safe
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/fake-users/:userId/check
+  body: none
+  auth: inherit
+}
+
+params:path {
+  userId: 
+}

@@ -1,0 +1,15 @@
+meta {
+  name: report a fake user
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/fake-users/:userId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  userId: 4
+}
