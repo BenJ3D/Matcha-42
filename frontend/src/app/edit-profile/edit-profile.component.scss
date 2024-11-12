@@ -1,48 +1,91 @@
-/* edit-profile.component.scss */
-
 .edit-profile-container {
   display: flex;
+  align-items: flex-start; // Change from center to allow scrolling
   justify-content: center;
-  padding: 20px;
-
-  mat-card {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 10px;
+  overflow-x: hidden; // Prevent horizontal scrolling
+  
+  ::ng-deep .mat-horizontal-stepper-wrapper {
     width: 100%;
-    max-width: 600px;
-    padding: 20px;
+    min-width: 320px; // Minimum width for mobile
+    max-width: 600px; // Maximum width for larger screens
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    margin: 10px;
+
+    // Make stepper responsive
+    @media (max-width: 600px) {
+      .mat-horizontal-stepper-header-container {
+        padding: 0 8px;
+        
+        .mat-step-icon {
+          margin: 0;
+          width: 24px;
+          height: 24px;
+          line-height: 24px;
+        }
+      }
+
+      .mat-horizontal-stepper-header {
+        padding: 0 8px;
+        height: 48px;
+      }
+    }
   }
 
-  .full-width {
+  .mat-step-content {
+    padding: 15px 8px;
     width: 100%;
-  }
+    box-sizing: border-box;
 
-  .photo-upload-section {
-    margin-top: 20px;
-
-    h3 {
-      margin-bottom: 10px;
+    mat-form-field {
+      width: 100%;
+      margin-bottom: 16px;
     }
 
-    input[type='file'] {
-      margin-bottom: 10px;
+    mat-slide-toggle {
+      margin-bottom: 16px;
+      display: block;
+    }
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 8px;
+
+    button {
+      flex: 1;
+      min-width: auto; // Allow buttons to shrink
+    }
+  }
+
+  // Photo section improvements
+  .photo-upload-section {
+    width: 100%;
+    margin: 16px 0;
+
+    button {
+      width: 100%;
+      margin-bottom: 16px;
     }
 
     .photo-preview {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      padding-bottom: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 8px;
+      width: 100%;
 
       .photo-item {
         position: relative;
-        width: 150px;
-        height: 150px;
-        border: 1px solid #ccc;
+        aspect-ratio: 1;
         border-radius: 4px;
         overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
 
         img {
           width: 100%;
@@ -50,28 +93,50 @@
           object-fit: cover;
         }
 
-        button {
-          margin-top: 8px;
-        }
-
-        span {
+        .photo-actions {
           position: absolute;
-          bottom: 5px;
-          left: 5px;
-          background-color: rgba(0, 0, 0, 0.5);
-          color: #fff;
-          padding: 2px 4px;
-          border-radius: 3px;
-          font-size: 12px;
-        }
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background: rgba(0, 0, 0, 0.6);
+          padding: 4px;
+          display: flex;
+          justify-content: space-around;
+          align-items: center;
 
-        button[color='primary'] {
-          top: auto;
-          bottom: 5px;
-          right: auto;
-          left: 5px;
+          button {
+            width: auto;
+            margin: 0;
+            padding: 0;
+            min-width: 32px;
+          }
         }
       }
+    }
+  }
+
+  // Add media queries for different screen sizes
+  @media (max-width: 375px) {
+    padding: 5px;
+    
+    ::ng-deep .mat-horizontal-stepper-wrapper {
+      padding: 10px;
+    }
+
+    .mat-step-content {
+      padding: 10px 5px;
+    }
+
+    .photo-preview {
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) !important;
+    }
+  }
+
+  @media (min-width: 376px) and (max-width: 600px) {
+    padding: 8px;
+    
+    ::ng-deep .mat-horizontal-stepper-wrapper {
+      padding: 12px;
     }
   }
 }

@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-profile',
@@ -22,6 +23,7 @@ import { MatIconModule } from '@angular/material/icon';
     MatCardModule,
     MatButtonModule,
     MatIconModule,
+    MatProgressSpinnerModule,
   ],
 })
 export class ProfileComponent implements OnInit {
@@ -29,10 +31,7 @@ export class ProfileComponent implements OnInit {
   genders: Gender[] = [];
   tags: Tag[] = [];
 
-  constructor(
-    private router: Router,
-    private profileService: ProfileService
-  ) {}
+  constructor(private router: Router, private profileService: ProfileService) {}
 
   ngOnInit() {
     this.loadUserProfile();
@@ -83,7 +82,9 @@ export class ProfileComponent implements OnInit {
       this.profileService.deletePhoto(photo.photo_id).subscribe({
         next: () => {
           if (this.user) {
-            this.user.photos = this.user.photos.filter((p) => p.photo_id !== photo.photo_id);
+            this.user.photos = this.user.photos.filter(
+              (p) => p.photo_id !== photo.photo_id
+            );
           }
           console.log('Photo deleted successfully');
         },
@@ -95,7 +96,11 @@ export class ProfileComponent implements OnInit {
   }
 
   onDeleteProfile() {
-    if (confirm('Are you sure you want to delete your profile? This action cannot be undone.')) {
+    if (
+      confirm(
+        'Are you sure you want to delete your profile? This action cannot be undone.'
+      )
+    ) {
       this.profileService.deleteProfile().subscribe({
         next: () => {
           console.log('Profile deleted successfully');
