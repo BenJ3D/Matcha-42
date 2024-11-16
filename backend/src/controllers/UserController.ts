@@ -10,6 +10,7 @@ import {SearchValidationSchema} from "../DTOs/users/SearchValidationSchemaDto";
 import {VALID_SORT_FIELDS, VALID_ORDER_VALUES, SortField, SortOrder} from '../config/sortConfig';
 import {UserEmailPatchDtoValidation} from "../DTOs/users/UserEmailPatchDtoValidation";
 import {validateIdNumber} from "../utils/validateIdNumber";
+import {UserOtherResponseDto} from "../DTOs/users/UserOtherResponseDto";
 
 const userController = {
     getAllUsers: async (req: Request, res: Response) => {
@@ -50,10 +51,14 @@ const userController = {
             }
             const currentUserId = req.userId;
             const userId = parseInt(req.params.id, 10);
+            if (currentUserId == userId) {
+                return res.status(204).json({message: 'Its yourself'});
+
+            }
             if (isNaN(userId)) {
                 return res.status(400).json({message: 'Invalid user ID'});
             }
-            const user: UserResponseDto | null = await UserServices.getUserOtherById(currentUserId, userId);
+            const user: UserOtherResponseDto | null = await UserServices.getUserOtherById(currentUserId, userId);
             if (!user) {
                 return res.status(404).json({message: 'User not found'});
             }
