@@ -21,7 +21,7 @@
 
 .profile-card {
   @extend .card-shared;
-  
+
   .profile-header {
     text-align: center;
     margin-bottom: 20px;
@@ -129,7 +129,7 @@
 
 @media (min-width: 376px) and (max-width: 600px) {
   .profile-container {
-    padding: 12px;
+    padding: 0px;
   }
 
   .card-shared {

@@ -1,16 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
-import { ProfileService } from '../../services/profile.service';
-import { UserResponseDto } from '../../DTOs/users/UserResponseDto';
-import { Gender } from '../../models/Genders';
-import { Tag } from '../../models/Tags';
-import { Photo } from '../../models/Photo';
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
+import {ProfileService} from '../../services/profile.service';
+import {UserResponseDto} from '../../DTOs/users/UserResponseDto';
+import {Gender} from '../../models/Genders';
+import {Tag} from '../../models/Tags';
+import {Photo} from '../../models/Photo';
 
-import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {CommonModule} from '@angular/common';
+import {MatCardModule} from '@angular/material/card';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-profile',
@@ -30,12 +30,32 @@ export class ProfileComponent implements OnInit {
   user: UserResponseDto | null = null;
   genders: Gender[] = [];
   tags: Tag[] = [];
+  profileId: number | null = null;
 
-  constructor(private router: Router, private profileService: ProfileService) {}
+  constructor(
+    private router: Router,
+    private profileService: ProfileService,
+    private route: ActivatedRoute
+  ) {
+  }
 
   ngOnInit() {
-    this.loadUserProfile();
+    // this.loadUserProfile();
     this.loadGenders();
+    this.subscribeToQueryParams();
+  }
+
+  subscribeToQueryParams() {
+    this.route.queryParams.subscribe(params => {
+      const id = params['id'];
+      this.profileId = id ? parseInt(id, 10) : null;
+      if (id == null) {
+        console.log('ID est null');
+        this.loadUserProfile();
+      } else {
+        this.loadUserProfileById();
+      }
+    });
   }
 
   loadUserProfile() {
@@ -50,6 +70,22 @@ export class ProfileComponent implements OnInit {
         }
       },
     });
+  }
+
+  loadUserProfileById() {
+    if (this.profileId) {
+      this.profileService.getUserById(this.profileId).subscribe({
+        next: (user) => {
+          this.user = user;
+        },
+        error: (error) => {
+          console.error('Error fetching user profile:', error);
+          if (error.status === 401) {
+            this.router.navigate(['/home']);
+          }
+        },
+      });
+    }
   }
 
   loadGenders() {

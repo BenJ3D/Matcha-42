@@ -88,4 +88,8 @@ export class ProfileService {
       })
     );
   }
+
+  getUserById(id: number): Observable<UserResponseDto> {
+    return this.http.get<UserResponseDto>(`${this.apiUrl}/users/${id}`);
+  }
 }

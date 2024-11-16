@@ -1,10 +1,9 @@
-<!-- src/app/components/profile/profile.component.html -->
-<div class="profile-container" *ngIf="user">
+<div *ngIf="user" class="profile-container">
   <mat-card class="profile-card">
     <div class="profile-header">
       <img
-        [src]="user.main_photo_url || 'assets/default-profile.png'"
         [alt]="user.username"
+        [src]="user.main_photo_url || 'assets/default-profile.png'"
         class="profile-picture"
       />
       <h2>{{ user.first_name }} {{ user.last_name }}</h2>
@@ -22,36 +21,41 @@
         <strong>Interests:</strong>
         <span *ngFor="let tag of user.tags">{{ tag.tag_name }} </span>
       </p>
-      <p><strong>Fame Rating:</strong> {{ user.fame_rating }}</p>
+      <p><strong>Fame Rating:</strong> {{ user.fame_rating | number: '1.2-2' }}</p>
     </mat-card-content>
-    <mat-card-actions>
-      <button mat-button color="primary" (click)="onEditProfile()">
-        <mat-icon>edit</mat-icon>
-        Edit Profile
-      </button>
-      <button mat-button color="warn" (click)="onDeleteProfile()">
-        <mat-icon>delete</mat-icon>
-        Delete Profile
-      </button>
-    </mat-card-actions>
+    @if (!profileId) {
+
+      <mat-card-actions>
+        <button (click)="onEditProfile()" color="primary" mat-button>
+          <mat-icon>edit</mat-icon>
+          Edit Profile
+        </button>
+        <button (click)="onDeleteProfile()" color="warn" mat-button>
+          <mat-icon>delete</mat-icon>
+          Delete Profile
+        </button>
+      </mat-card-actions>
+    }
   </mat-card>
 
-  <div class="profile-images" *ngIf="user.photos && user.photos.length">
+  <div *ngIf="user.photos && user.photos.length" class="profile-images">
     <h3>Photo Gallery</h3>
     <div class="images-grid">
-      <div class="photo-item" *ngFor="let photo of user.photos">
-        <img [src]="photo.url" [alt]="user.username" />
-        <div class="photo-actions">
-          <button mat-icon-button color="warn" (click)="deletePhoto(photo)">
-            <mat-icon>delete</mat-icon>
-          </button>
-          <mat-icon 
-            *ngIf="photo.url === user.main_photo_url"
-            class="main-photo-indicator" 
-            color="primary">
-            star
-          </mat-icon>
-        </div>
+      <div *ngFor="let photo of user.photos" class="photo-item">
+        <img [alt]="user.username" [src]="photo.url"/>
+        @if (!profileId) {
+          <div class="photo-actions">
+            <button (click)="deletePhoto(photo)" color="warn" mat-icon-button>
+              <mat-icon>delete</mat-icon>
+            </button>
+            <mat-icon
+              *ngIf="photo.url === user.main_photo_url"
+              class="main-photo-indicator"
+              color="primary">
+              star
+            </mat-icon>
+          </div>
+        }
       </div>
     </div>
   </div>

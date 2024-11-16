@@ -1,29 +1,26 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ProfileService } from '../../services/profile.service';
-import { Router } from '@angular/router';
-import { Gender } from '../../models/Genders';
-import { Tag } from '../../models/Tags';
-import { UserResponseDto } from '../../DTOs/users/UserResponseDto';
-import { Photo } from '../../models/Photo';
-import { HttpClient } from '@angular/common/http';
-import { debounceTime, map, switchMap } from 'rxjs/operators';
-import { Observable, of } from 'rxjs';
-import { CommonModule } from '@angular/common';
-import { MatStepperModule } from '@angular/material/stepper';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatButtonModule } from '@angular/material/button';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatIconModule } from '@angular/material/icon';
-import { NgIf, NgForOf, AsyncPipe, NgOptimizedImage } from '@angular/common';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatStepper } from '@angular/material/stepper';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import {ProfileService} from '../../services/profile.service';
+import {Router} from '@angular/router';
+import {Gender} from '../../models/Genders';
+import {Tag} from '../../models/Tags';
+import {UserResponseDto} from '../../DTOs/users/UserResponseDto';
+import {Photo} from '../../models/Photo';
+import {HttpClient} from '@angular/common/http';
+import {debounceTime, map, switchMap} from 'rxjs/operators';
+import {Observable, of} from 'rxjs';
+import {AsyncPipe, CommonModule, NgForOf, NgIf, NgOptimizedImage} from '@angular/common';
+import {MatStepper, MatStepperModule} from '@angular/material/stepper';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import {MatButtonModule} from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatSelectModule} from '@angular/material/select';
+import {MatInputModule} from '@angular/material/input';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatIconModule} from '@angular/material/icon';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-edit-profile',
@@ -71,7 +68,8 @@ export class EditProfileComponent implements OnInit {
     private profileService: ProfileService,
     private router: Router,
     private http: HttpClient
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.initializeForms();
@@ -80,6 +78,7 @@ export class EditProfileComponent implements OnInit {
     this.subscribeToUser();
     this.setupCityAutocomplete();
   }
+
 
   initializeForms() {
     this.profileInfoForm = this.fb.group({
@@ -128,12 +127,12 @@ export class EditProfileComponent implements OnInit {
           this.user = userResponse;
           if (this.user.profile_id) {
             this.existingProfile = true;
-            
+
             // Check if location is null, undefined, or has invalid coordinates
-            if (!this.user.location || 
-                this.user.location.latitude === null || 
-                this.user.location.longitude === null ||
-                this.user.location.city_name === 'Unknown') {
+            if (!this.user.location ||
+              this.user.location.latitude === null ||
+              this.user.location.longitude === null ||
+              this.user.location.city_name === 'Unknown') {
               // Skip location population but populate other fields
               this.populateFormsWithoutLocation(this.user);
             } else {
@@ -153,11 +152,11 @@ export class EditProfileComponent implements OnInit {
     // Check if we're entering step 2 (location step, index 1)
     if (event.selectedIndex === 2) {
       const locationValue = this.locationForm.get('location')?.value;
-      
+
       // Check if location is empty or has null coordinates
-      if (!locationValue || 
-          locationValue.latitude === null || 
-          locationValue.longitude === null) {
+      if (!locationValue ||
+        locationValue.latitude === null ||
+        locationValue.longitude === null) {
         this.isLoading = true;
         // Force IP location fetch
         this.getLocationFromIP().then(() => {
@@ -165,30 +164,6 @@ export class EditProfileComponent implements OnInit {
         });
       }
     }
-  }
-
-
-  // New method to populate forms without location
-  private populateFormsWithoutLocation(user: UserResponseDto) {
-    this.profileInfoForm.patchValue({
-      biography: user.biography || '',
-      gender: user.gender || null,
-      sexualPreferences: user.sexualPreferences?.map((g) => g.gender_id) || [],
-      age: user.age || null,
-      tags: user.tags?.map((t) => t.tag_id) || [],
-    });
-
-    // Reset location form without triggering geocoding
-    this.locationForm.patchValue(
-      {
-        city: '',
-        location: {
-          latitude: null,
-          longitude: null,
-        },
-      },
-      { emitEvent: false }
-    ); // Prevent value change events
   }
 
   setupCityAutocomplete() {
@@ -425,6 +400,29 @@ export class EditProfileComponent implements OnInit {
     console.error('Image failed to load:', imgElement.src);
   }
 
+  // New method to populate forms without location
+  private populateFormsWithoutLocation(user: UserResponseDto) {
+    this.profileInfoForm.patchValue({
+      biography: user.biography || '',
+      gender: user.gender || null,
+      sexualPreferences: user.sexualPreferences?.map((g) => g.gender_id) || [],
+      age: user.age || null,
+      tags: user.tags?.map((t) => t.tag_id) || [],
+    });
+
+    // Reset location form without triggering geocoding
+    this.locationForm.patchValue(
+      {
+        city: '',
+        location: {
+          latitude: null,
+          longitude: null,
+        },
+      },
+      {emitEvent: false}
+    ); // Prevent value change events
+  }
+
   private searchCities(cityName: string): Observable<string[]> {
     if (!cityName) return of([]);
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
@@ -455,7 +453,7 @@ export class EditProfileComponent implements OnInit {
       'User-Agent': 'matcha - matcha@example.com',
     };
 
-    this.http.get<any[]>(url, { headers }).subscribe({
+    this.http.get<any[]>(url, {headers}).subscribe({
       next: (results) => {
         if (results && results.length > 0) {
           const latitude = parseFloat(results[0].lat);
