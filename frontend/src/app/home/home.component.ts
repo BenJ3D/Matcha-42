@@ -10,6 +10,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSliderModule } from '@angular/material/slider'
 
 interface UserProfile {
   id: number;
@@ -40,10 +41,17 @@ interface UserProfile {
     MatInputModule,
     MatSelectModule,
     MatSidenavModule,
+    MatSliderModule,
   ],
 })
 export class HomeComponent implements OnInit {
   @ViewChild('sidenav') sidenav!: MatSidenav;
+
+  readonly minAge = 18;
+  readonly maxAge = 120;
+  readonly minFame = 0;
+  readonly maxFame = 100;
+
 
   currentProfileIndex: number = 0;
   animateRight: boolean = false;
@@ -73,10 +81,14 @@ export class HomeComponent implements OnInit {
 
   initializeSearchForm() {
     this.searchForm = this.fb.group({
-      ageMin: [''],
-      ageMax: [''],
-      fameMin: [''],
-      fameMax: [''],
+      ageRange: this.fb.group({
+        min: [this.minAge],
+        max: [this.maxAge]
+      }),
+      fameRange: this.fb.group({
+        min: [this.minFame],
+        max: [this.maxFame]
+      }),
       location: [''],
       tags: [[]],
       preferredGenders: [[]],

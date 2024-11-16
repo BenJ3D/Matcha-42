@@ -2,28 +2,24 @@
   <mat-sidenav #sidenav mode="over" position="end">
     <form [formGroup]="searchForm" class="search-form" (ngSubmit)="onSearchSubmit()">
       <h2>Advanced Search</h2>
-
+    
       <!-- Age Range -->
-      <mat-form-field appearance="outline">
-        <mat-label>Age Minimum</mat-label>
-        <input matInput type="number" formControlName="ageMin" min="18" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Age Maximum</mat-label>
-        <input matInput type="number" formControlName="ageMax" max="120" />
-      </mat-form-field>
-
+      <div formGroupName="ageRange" class="slider-container">
+        <h3>Age Range: {{searchForm.get('ageRange.min')?.value}} - {{searchForm.get('ageRange.max')?.value}}</h3>
+        <mat-slider class="range-slider" [min]="minAge" [max]="maxAge" [step]="1">
+          <input matSliderStartThumb formControlName="min">
+          <input matSliderEndThumb formControlName="max">
+        </mat-slider>
+      </div>
+    
       <!-- Fame Rating Range -->
-      <mat-form-field appearance="outline">
-        <mat-label>Fame Rating Minimum</mat-label>
-        <input matInput type="number" formControlName="fameMin" min="0" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Fame Rating Maximum</mat-label>
-        <input matInput type="number" formControlName="fameMax" min="0" />
-      </mat-form-field>
+      <div formGroupName="fameRange" class="slider-container">
+        <h3>Fame Rating: {{searchForm.get('fameRange.min')?.value}} - {{searchForm.get('fameRange.max')?.value}}</h3>
+        <mat-slider class="range-slider" [min]="minFame" [max]="maxFame" [step]="1">
+          <input matSliderStartThumb formControlName="min">
+          <input matSliderEndThumb formControlName="max">
+        </mat-slider>
+      </div>
 
       <!-- Location -->
       <mat-form-field appearance="outline">
