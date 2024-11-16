@@ -9,6 +9,7 @@ import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
 import {Gender} from "../models/Genders";
 import {UserEmailPatchDto} from "../DTOs/users/UserEmailPatchDto";
 import {User} from "../models/User";
+import { UserOtherResponseDto } from "../DTOs/users/UserOtherResponseDto";
 
 class UserDAL {
 
@@ -611,7 +612,105 @@ class UserDAL {
         return photo ? photo.url : null;
     }
 
-}
+    /**
+     * Récupère les détails d'un utilisateur avec les statuts de relation par rapport à l'utilisateur actuel.
+     * @param currentUserId ID de l'utilisateur authentifié.
+     * @param userId ID de l'utilisateur ciblé.
+     * @returns UserOtherResponseDto ou null si l'utilisateur n'est pas trouvé.
+     */
+    async getUserOtherById(currentUserId: number, userId: number): Promise<UserOtherResponseDto | null> {
+        try {
+            // Récupérer les données de l'utilisateur ciblé
+            const user = await db('users')
+                .select(
+                    'users.id',
+                    'users.username',
+                    'users.email',
+                    'users.created_at',
+                    'users.profile_id',
+                    'profiles.biography',
+                    'profiles.gender',
+                    'profiles.fame_rating',
+                    'profiles.age',
+                    'users.is_online',
+                    'users.is_verified',
+                    'users.last_activity'
+                )
+                .leftJoin('profiles', 'users.profile_id', 'profiles.profile_id')
+                .where('users.id', userId)
+                .first();
 
+            if (!user) return null;
+
+            // Récupérer les photos de l'utilisateur
+            const photos = await db('photos')
+                .select('photo_id', 'url', 'description', 'owner_user_id')
+                .where('owner_user_id', userId);
+
+            // Récupérer les préférences sexuelles
+            const sexualPreferencesRows = await db('profile_sexual_preferences')
+                .select('gender_id')
+                .where('profile_id', user.profile_id);
+
+            const sexualPreferences = sexualPreferencesRows.map(row => row.gender_id);
+
+            // Récupérer les tags
+            const tagsRows = await db('profile_tag')
+                .select('profile_tag')
+                .where('profile_id', user.profile_id);
+
+            const tags = tagsRows.map(row => row.profile_tag);
+
+            // Récupérer les statuts de relation
+            const [
+                isLikedRow,
+                isUnlikedRow,
+                isMatchedRow,
+                isBlockedRow,
+                isFakeReportedRow
+            ] = await Promise.all([
+                db('likes').where({ user: currentUserId, user_liked: userId }).first(),
+                db('unlikes').where({ user: currentUserId, user_unliked: userId }).first(),
+                db('matches').where(function() {
+                    this.where({ user_1: currentUserId, user_2: userId })
+                        .orWhere({ user_1: userId, user_2: currentUserId });
+                }).first(),
+                db('blocked_users').where({ blocker_id: currentUserId, blocked_id: userId }).first(),
+                db('fake_user_reporting').where({ user_who_reported: currentUserId, reported_user: userId }).first(),
+            ]);
+
+            const [
+                likedMeRow,
+                unlikedMeRow,
+                blockedMeRow,
+                fakeReportedMeRow
+            ] = await Promise.all([
+                db('likes').where({ user: userId, user_liked: currentUserId }).first(),
+                db('unlikes').where({ user: userId, user_unliked: currentUserId }).first(),
+                db('blocked_users').where({ blocker_id: userId, blocked_id: currentUserId }).first(),
+                db('fake_user_reporting').where({ user_who_reported: userId, reported_user: currentUserId }).first(),
+            ]);
+
+            return {
+                ...user,
+                photos,
+                sexualPreferences,
+                tags,
+                isLiked: !!isLikedRow,
+                isUnliked: !!isUnlikedRow,
+                isMatched: !!isMatchedRow,
+                isBlocked: !!isBlockedRow,
+                isFakeReported: !!isFakeReportedRow,
+                LikedMe: !!likedMeRow,
+                UnlikedMe: !!unlikedMeRow,
+                BlockedMe: !!blockedMeRow,
+                FakeReportedMe: !!fakeReportedMeRow,
+            };
+        } catch (error) {
+            console.error("Error fetching user:", error);
+            throw new Error(`Could not fetch user id ${userId}`);
+        }
+    }
+}
 
 export default new UserDAL();

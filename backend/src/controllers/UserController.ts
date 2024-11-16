@@ -43,13 +43,17 @@ const userController = {
         }
     },
 
-    getUserById: async (req: Request, res: Response) => {
+    getUserById: async (req: AuthenticatedRequest, res: Response) => {
         try {
+            if (!req.userId) {
+                return res.status(401).json({error: "Non Authenticated"});
+            }
+            const currentUserId = req.userId;
             const userId = parseInt(req.params.id, 10);
             if (isNaN(userId)) {
                 return res.status(400).json({message: 'Invalid user ID'});
             }
-            const user: UserResponseDto | null = await UserServices.getUserById(userId);
+            const user: UserResponseDto | null = await UserServices.getUserOtherById(currentUserId, userId);
             if (!user) {
                 return res.status(404).json({message: 'User not found'});
             }

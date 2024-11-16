@@ -35,54 +35,77 @@ class ProfileDAL {
         }
     }
 
+    /**
+     * Crée un profil et met à jour la colonne profile_id de l'utilisateur.
+     * @param userId ID de l'utilisateur propriétaire du profil.
+     * @param profileData Données du profil.
+     * @returns ID du nouveau profil.
+     */
     async create(userId: number, profileData: any): Promise<number> {
-        try {
-            const {biography, gender, age, main_photo_id, location} = profileData;
+        // Démarrer une transaction
+        return await db.transaction(async (trx) => {
+            try {
+                const { biography, gender, age, main_photo_id, location } = profileData;
 
-            const profileFields: any = {
-                owner_user_id: userId,
-                biography,
-                gender,
-                age,
-                main_photo_id,
-                location,
-            };
+                const profileFields: any = {
+                    owner_user_id: userId,
+                    biography,
+                    gender,
+                    age,
+                    main_photo_id,
+                    location,
+                };
 
-            const [{profile_id: profileId}] = await db('profiles')
-                .insert(profileFields)
-                .returning('profile_id');
+                // Insertion dans la table 'profiles'
+                const [{ profile_id: profileId }] = await trx('profiles')
+                    .insert(profileFields)
+                    .returning('profile_id');
 
-            const {tags, sexualPreferences} = profileData;
+                const { tags, sexualPreferences } = profileData;
 
-            if (tags && tags.length > 0) {
-                await db('profile_tag').insert(
-                    tags.map((tagId: number) => ({
-                        profile_id: profileId,
-                        profile_tag: tagId,
-                    }))
-                );
+                // Insertion dans la table 'profile_tag' si des tags sont fournis
+                if (tags && tags.length > 0) {
+                    await trx('profile_tag').insert(
+                        tags.map((tagId: number) => ({
+                            profile_id: profileId,
+                            profile_tag: tagId,
+                        }))
+                    );
+                }
+
+                // Insertion dans la table 'profile_sexual_preferences' si des préférences sont fournies
+                if (sexualPreferences && sexualPreferences.length > 0) {
+                    await trx('profile_sexual_preferences').insert(
+                        sexualPreferences.map((genderId: number) => ({
+                            profile_id: profileId,
+                            gender_id: genderId,
+                        }))
+                    );
+                }
+
+                // Mise à jour de la colonne 'profile_id' dans la table 'users'
+                await trx('users')
+                    .where({ id: userId })
+                    .update({ profile_id: profileId });
+
+                // Valider la transaction
+                await trx.commit();
+
+                return profileId;
+            } catch (error: any) {
+                console.error("Erreur lors de la création du profil:", error);
+                // Annuler la transaction en cas d'erreur
+                await trx.rollback();
+
+                if (error.code === '23505') {
+                    throw { status: 409, message: "Conflit : Le profil existe déjà." };
+                } else if (error.code === '23503') {
+                    throw { status: 400, message: error.detail || "Un ou plusieurs identifiants fournis sont invalides." };
+                } else {
+                    throw { status: 400, message: "Erreur lors de la création du profil." };
+                }
             }
-
-            if (sexualPreferences && sexualPreferences.length > 0) {
-                await db('profile_sexual_preferences').insert(
-                    sexualPreferences.map((genderId: number) => ({
-                        profile_id: profileId,
-                        gender_id: genderId,
-                    }))
-                );
-            }
-
-            return profileId;
-        } catch (error: any) {
-            console.error("Erreur lors de la création du profil:", error);
-            if (error.code === '23505') {
-                throw {status: 409, message: "Conflit : Le profil existe déjà."};
-            } else if (error.code === '23503') {
-                throw {status: 400, message: error.detail || "Un ou plusieurs identifiants fournis sont invalides."};
-            } else {
-                throw {status: 400, message: "Erreur."};
-            }
-        }
+        });
     }
 
     async update(profileId: number, profileData: any): Promise<void> {

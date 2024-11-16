@@ -1,26 +1,27 @@
 import zxcvbn from 'zxcvbn';
-import userDAL from "../DataAccessLayer/UserDAL";
-import {UserLightResponseDto} from "../DTOs/users/UserLightResponseDto";
-import {UserResponseDto} from "../DTOs/users/UserResponseDto";
-import {UserCreateDto} from "../DTOs/users/UserCreateDto";
-import {PasswordService} from "./PasswordService";
-import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
-import profileDAL from "../DataAccessLayer/ProfileDAL";
 import config from "../config/config";
-import transporter from "../config/mailer";
-import jwt from "jsonwebtoken";
+import UserDAL from "../DataAccessLayer/UserDAL";
+import {PasswordService} from "./PasswordService";
+import profileDAL from "../DataAccessLayer/ProfileDAL";
+import {UserCreateDto} from "../DTOs/users/UserCreateDto";
+import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
+import {UserResponseDto} from "../DTOs/users/UserResponseDto";
 import EmailVerificationService from "./EmailVerificationService";
 import {UserEmailPatchDto} from "../DTOs/users/UserEmailPatchDto";
-import {User} from "../models/User";
-import UserDAL from "../DataAccessLayer/UserDAL";
+import {UserLightResponseDto} from "../DTOs/users/UserLightResponseDto";
+import { UserOtherResponseDto } from '../DTOs/users/UserOtherResponseDto';
 
 class UserServices {
     async getAllUsers(): Promise<UserLightResponseDto[]> {
-        return await userDAL.findAll();
+        return await UserDAL.findAll();
     }
 
     async getUserById(id: number): Promise<UserResponseDto | null> {
-        return await userDAL.findOne(id);
+        return await UserDAL.findOne(id);
+    }
+
+    async getUserOtherById(currentUserId: number, targetId: number): Promise<UserOtherResponseDto | null> {
+        return await UserDAL.getUserOtherById(currentUserId, targetId);
     }
 
     async createUser(newUser: UserCreateDto): Promise<number> {
@@ -36,14 +37,14 @@ class UserServices {
 
         newUser.email = newUser.email.toLowerCase();
         newUser.password = await PasswordService.hashPassword(newUser.password);
-        const userId = await userDAL.save(newUser);
+        const userId = await UserDAL.save(newUser);
         console.log(`DBG userID = ${JSON.stringify(userId)}`);
         EmailVerificationService.sendVerificationEmail(userId, newUser.email, newUser.first_name);
         return userId;
     }
 
     async updateUser(userId: number, userUpdate: UserUpdateDto): Promise<void> {
-        return await userDAL.update(userId, userUpdate);
+        return await UserDAL.update(userId, userUpdate);
     }
 
     async patchEmailUser(existingUser: UserResponseDto, userEmailPatchDto: UserEmailPatchDto): Promise<void> {
@@ -52,8 +53,8 @@ class UserServices {
         if (existingUser.email == userEmailPatchDto.email) {
             throw {status: 409, message: 'Email identique à l\'actuel'};
         }
-        await userDAL.emailUpdate(userId, userEmailPatchDto);
-        await userDAL.resetIsVerified(userId);
+        await UserDAL.emailUpdate(userId, userEmailPatchDto);
+        await UserDAL.resetIsVerified(userId);
         await EmailVerificationService.sendVerificationEmail(userId, userEmailPatchDto.email, username);
     }
 
@@ -68,15 +69,15 @@ class UserServices {
     }
 
     async deleteUser(userId: number): Promise<void> {
-        return await userDAL.delete(userId);
+        return await UserDAL.delete(userId);
     }
 
     async setOnlineUser(userId: number): Promise<void> {
-        return await userDAL.updateOnlineStatus(userId, true);
+        return await UserDAL.updateOnlineStatus(userId, true);
     }
 
     async setOfflineUser(userId: number): Promise<void> {
-        return await userDAL.updateOnlineStatus(userId, false);
+        return await UserDAL.updateOnlineStatus(userId, false);
     }
 
     async advancedSearch(
@@ -113,7 +114,7 @@ class UserServices {
             sortBy,
             order,
         };
-        return await userDAL.advancedSearch(filters, userId, userGender);
+        return await UserDAL.advancedSearch(filters, userId, userGender);
     }
 
     async updateFameRating(userId: number, addNote: number): Promise<void> {
