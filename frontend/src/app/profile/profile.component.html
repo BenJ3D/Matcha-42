@@ -24,7 +24,6 @@
       <p><strong>Fame Rating:</strong> {{ user.fame_rating | number: '1.2-2' }}</p>
     </mat-card-content>
     @if (!profileId) {
-
       <mat-card-actions>
         <button (click)="onEditProfile()" color="primary" mat-button>
           <mat-icon>edit</mat-icon>
@@ -35,6 +34,28 @@
           Delete Profile
         </button>
       </mat-card-actions>
+    } @else {
+      <div class="grid grid-cols-2 gap-1 pt-6">
+        <button color="accent" mat-raised-button>
+          <mat-icon>favorite</mat-icon>
+          Like
+        </button>
+        <button color="primary" mat-raised-button>
+          <mat-icon>thumb_down</mat-icon>
+          Unlike
+        </button>
+        <button color="warn" mat-raised-button>
+          <mat-icon>block</mat-icon>
+          Block
+        </button>
+
+        <button color="warn" mat-raised-button>
+          <mat-icon>error</mat-icon>
+          Fake report
+        </button>
+      </div>
+
+
     }
   </mat-card>
 
