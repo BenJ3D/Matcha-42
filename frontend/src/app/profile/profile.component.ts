@@ -76,6 +76,10 @@ export class ProfileComponent implements OnInit {
     if (this.profileId) {
       this.profileService.getUserById(this.profileId).subscribe({
         next: (user) => {
+          if (!user) {
+            // this.loadUserProfile();
+            this.router.navigate(['/profile']);
+          }
           this.user = user;
         },
         error: (error) => {
