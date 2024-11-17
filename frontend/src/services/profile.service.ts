@@ -1,7 +1,7 @@
 // src/app/services/profile.service.ts
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {BehaviorSubject, Observable, catchError, throwError} from 'rxjs';
 import {map, tap} from 'rxjs/operators';
 
 import {ProfileCreateDto} from '../DTOs/profiles/ProfileCreateDto';
@@ -11,13 +11,13 @@ import {Gender} from '../models/Genders';
 import {Tag} from '../models/Tags';
 import {Photo} from '../models/Photo';
 import {UploadPhotoResponse} from '../DTOs/upload-photo-response';
+import { UserProfile, SearchFilters } from '../models/Profiles';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProfileService {
-  private apiUrl = 'http://localhost:8000/api'; // Remplacez par l'URL de votre API
-
+  private apiUrl = 'http://localhost:8000/api';
   private userSubject = new BehaviorSubject<UserResponseDto | null>(null);
   public user$ = this.userSubject.asObservable();
 
@@ -91,5 +91,40 @@ export class ProfileService {
 
   getUserById(id: number): Observable<UserResponseDto> {
     return this.http.get<UserResponseDto>(`${this.apiUrl}/users/${id}`);
+  }
+  
+  getCompatibleProfiles(): Observable<UserProfile[]> {
+    return this.http.get<UserProfile[]>(`${this.apiUrl}/users/search`).pipe(
+      map(this.mapProfilesResponse),
+      catchError(this.handleError)
+    );
+  }
+
+  searchProfiles(searchParams: HttpParams): Observable<UserProfile[]> {
+    return this.http.get<UserProfile[]>(`${this.apiUrl}/users/search`, { params: searchParams }).pipe(
+      map(this.mapProfilesResponse),
+      catchError(this.handleError)
+    );
+  }
+
+  private mapProfilesResponse(profiles: any[]): UserProfile[] {
+    return profiles.map(profile => ({
+      id: profile.id,
+      username: profile.username || 'Anonymous',
+      first_name: profile.first_name,
+      last_name: profile.last_name,
+      age: profile.age || 'Unknown',
+      main_photo_url: profile.main_photo_url || 'assets/default-profile.png',
+      gender: profile.gender,
+      location: profile.location || { city_name: 'Unknown City', latitude: 0, longitude: 0 },
+      is_online: profile.is_online,
+      is_verified: profile.is_verified,
+      last_activity: profile.last_activity
+    }));
+  }
+
+  private handleError(error: any): Observable<never> {
+    console.error('API Error:', error);
+    return throwError(() => new Error(error.message || 'Server error'));
   }
 }
