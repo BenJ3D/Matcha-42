@@ -1,6 +1,10 @@
--- Étape 1 : Créer le type énuméré pour les notifications
-CREATE TYPE enum_notif_type AS ENUM ('LIKE', 'UNLIKE', 'MATCH', 'NEW_MESSAGE', 'NEW_VISIT');
--- Adminer 4.8.1 PostgreSQL 16.4 (Debian 16.4-1.pgdg120+1) dump
+-- Étape 1 : Créer le type énuméré pour les notifications s'il n'existe pas déjà
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'enum_notif_type') THEN
+        CREATE TYPE enum_notif_type AS ENUM ('LIKE', 'UNLIKE', 'MATCH', 'NEW_MESSAGE', 'NEW_VISIT');
+    END IF;
+END$$;
 
 DROP TABLE IF EXISTS "blocked_users";
 DROP SEQUENCE IF EXISTS blocked_users_id_seq;
@@ -38,7 +42,7 @@ TRUNCATE "fake_user_reporting";
 SELECT setval('fake_user_reporting_id_seq', (SELECT MAX(id) FROM fake_user_reporting));
 
 
-DROP TABLE IF EXISTS "genders";
+DROP TABLE IF EXISTS "genders" CASCADE;
 DROP SEQUENCE IF EXISTS gender_gender_id_seq;
 CREATE SEQUENCE gender_gender_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
@@ -54,14 +58,15 @@ TRUNCATE "genders";
 INSERT INTO "genders" ("gender_id", "name", "description") VALUES
 (5,	'Male',	'Identifies as male'),
 (6,	'Female',	'Identifies as female'),
-(7,	'Non-binary',	'Does not fit exclusively as male or female'),
-(8,	'Gender fluid',	'A gender identity that changes over time'),
-(9,	'Agender',	'No gender identity or genderless'),
-(10,	'Genderqueer',	'Non-binary gender identity, challenges traditional gender norms'),
-(11,	'Gender non-conforming',	'Does not conform to societal gender expectations'),
-(12,	'Transgender (MTF)',	'Assigned male at birth, identifies as female'),
-(13,	'Transgender (FTM)',	'Assigned female at birth, identifies as male'),
-(14,	'Questioning',	'Exploring or questioning their gender identity');
+(7,	'Transgender (MTF)',	'Assigned male at birth, identifies as female'),
+(8,	'Transgender (FTM)',	'Assigned female at birth, identifies as male');
+
+-- INSERT INTO "genders" ("gender_id", "name", "description") VALUES
+-- (5,	'Male',	'Identifies as male'),
+-- (6,	'Female',	'Identifies as female'),
+-- (7,	'Transgender (MTF)',	'Assigned male at birth, identifies as female'),
+-- (8,	'Transgender (FTM)',	'Assigned female at birth, identifies as male'),
+
 
 SELECT setval('gender_gender_id_seq', (SELECT MAX(gender_id) FROM genders));
 
