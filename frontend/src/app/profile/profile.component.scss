@@ -4,12 +4,13 @@
 
 /* profile.component.scss */
 .profile-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 16px;
-  background-color: #f5f5f5;
-  min-height: 100vh;
+  //display: flex;
+  //flex-direction: column;
+  //align-items: center;
+  //padding: 16px;
+  //background-color: #f5f5f5;
+  //min-height: 100vh;
+  @apply flex flex-col items-center p-4 bg-gray-100 h-full;
 }
 
 // Shared card styles
@@ -27,8 +28,7 @@
   @extend .card-shared;
 
   .profile-header {
-    text-align: center;
-    margin-bottom: 20px;
+    @apply flex flex-col items-center mb-5;
   }
 
   .profile-picture {

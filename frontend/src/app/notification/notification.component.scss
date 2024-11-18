@@ -5,8 +5,9 @@
 .notification-container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 56px);
+  //height: calc(100vh - 56px);
   padding: 16px;
+  @apply h-full;
 }
 
 h1 {
