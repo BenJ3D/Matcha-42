@@ -28,11 +28,11 @@
       </mat-form-field>
 
       <!-- Tags -->
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="outline" class="full-width">
         <mat-label>Tags</mat-label>
         <mat-select formControlName="tags" multiple>
-          <mat-option *ngFor="let tag of tags" [value]="tag.id">
-            {{ tag.name }}
+          <mat-option *ngFor="let tag of tags" [value]="tag.tag_id">
+            {{ tag.tag_name }}
           </mat-option>
         </mat-select>
       </mat-form-field>
@@ -40,8 +40,11 @@
       <!-- Interested In -->
       <mat-form-field appearance="outline">
         <mat-label>Interested In</mat-label>
-        <mat-select formControlName="preferredGenders" multiple>
-          <mat-option *ngFor="let gender of genders" [value]="gender.id">
+        <mat-select formControlName="preferredGenders" required>
+          <mat-option
+            *ngFor="let gender of genders"
+            [value]="gender.gender_id"
+          >
             {{ gender.name }}
           </mat-option>
         </mat-select>

@@ -1,30 +1,20 @@
-import { Component, OnInit, ViewChild, Inject, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatSidenavModule, MatSidenav } from '@angular/material/sidenav';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { HttpClient, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSliderModule } from '@angular/material/slider'
-
-interface UserProfile {
-  id: number;
-  username: string;
-  main_photo_url: string | null;
-  age: number | null;
-  gender: number | null;
-  location?: {
-    latitude: number;
-    longitude: number;
-    city_name: string;
-  };
-  fame_rating: number | null;
-}
+import { MatSliderModule } from '@angular/material/slider';
+import { ProfileService } from '../../services/profile.service';
+import { Gender } from '../../models/Genders';
+import { Tag } from '../../models/Tags';
+import { UserProfile } from '../../models/Profiles';
+import { HttpParams } from '@angular/common/http';
 
 @Component({
   selector: 'app-home',
@@ -52,20 +42,19 @@ export class HomeComponent implements OnInit {
   readonly minFame = 0;
   readonly maxFame = 100;
 
-
   currentProfileIndex: number = 0;
   animateRight: boolean = false;
   animateLeft: boolean = false;
   profiles: UserProfile[] = [];
   searchForm!: FormGroup;
-  genders: any[] = [];
-  tags: any[] = [];
+  genders: Gender[] = [];
+  tags: Tag[] = [];
+  isLoading: boolean = false;
 
   constructor(
-    @Inject(PLATFORM_ID) private platformId: Object,
-    private http: HttpClient,
     private router: Router,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private profileService: ProfileService,
   ) {}
 
   get currentProfile(): UserProfile | undefined {
@@ -83,11 +72,11 @@ export class HomeComponent implements OnInit {
     this.searchForm = this.fb.group({
       ageRange: this.fb.group({
         min: [this.minAge],
-        max: [this.maxAge]
+        max: [this.maxAge],
       }),
       fameRange: this.fb.group({
         min: [this.minFame],
-        max: [this.maxFame]
+        max: [this.maxFame],
       }),
       location: [''],
       tags: [[]],
@@ -98,14 +87,20 @@ export class HomeComponent implements OnInit {
   }
 
   loadGenders() {
-    this.http.get<any[]>('http://localhost:8000/api/genders/').subscribe((data) => {
-      this.genders = data;
+    this.profileService.getGenders().subscribe({
+      next: (genders) => {
+        this.genders = genders;
+      },
+      error: (err) => console.error('Error loading genders', err),
     });
   }
 
   loadTags() {
-    this.http.get<any[]>('http://localhost:8000/api/tags').subscribe((data) => {
-      this.tags = data;
+    this.profileService.getTags().subscribe({
+      next: (tags) => {
+        this.tags = tags;
+      },
+      error: (err) => console.error('Error loading tags', err),
     });
   }
 
@@ -123,20 +118,21 @@ export class HomeComponent implements OnInit {
   }
 
   fetchProfiles() {
+    this.isLoading = true;
     let params = new HttpParams();
-    const formValue = this.searchForm.value;
+    const formValue = this.searchForm.getRawValue();
 
-    if (formValue.ageMin) {
-      params = params.set('ageMin', formValue.ageMin);
+    if (formValue.ageRange.min != null) {
+      params = params.set('ageMin', formValue.ageRange.min.toString());
     }
-    if (formValue.ageMax) {
-      params = params.set('ageMax', formValue.ageMax);
+    if (formValue.ageRange.max != null) {
+      params = params.set('ageMax', formValue.ageRange.max.toString());
     }
-    if (formValue.fameMin) {
-      params = params.set('fameMin', formValue.fameMin);
+    if (formValue.fameRange.min != null) {
+      params = params.set('fameMin', formValue.fameRange.min.toString());
     }
-    if (formValue.fameMax) {
-      params = params.set('fameMax', formValue.fameMax);
+    if (formValue.fameRange.max != null) {
+      params = params.set('fameMax', formValue.fameRange.max.toString());
     }
     if (formValue.location) {
       params = params.set('location', formValue.location);
@@ -154,30 +150,35 @@ export class HomeComponent implements OnInit {
       params = params.set('order', formValue.order);
     }
 
-    this.http
-      .get<UserProfile[]>('http://localhost:8000/api/users/search', { params })
-      .subscribe({
-        next: (profiles) => {
-          if (profiles.length === 0) {
-            this.profiles = [];
-          } else {
-            this.profiles = profiles;
-            this.currentProfileIndex = 0;
-          }
-        },
-        error: (error) => {
-          console.error('Error fetching profiles:', error);
-        },
-      });
+    this.profileService.searchProfiles(params).subscribe({
+      next: (profiles) => {
+        this.isLoading = false;
+        if (profiles.length === 0) {
+          this.profiles = [];
+        } else {
+          this.profiles = profiles;
+          this.currentProfileIndex = 0;
+        }
+      },
+      error: (error) => {
+        this.isLoading = false;
+        console.error('Error fetching profiles:', error);
+      },
+    });
   }
 
   onSwipe(liked: boolean) {
+    const currentProfileId = this.currentProfile?.id;
+    if (!currentProfileId) return;
+
     if (liked) {
       console.log('Liked profile:', this.currentProfile?.username);
       this.animateRight = true;
+      // Optional: Call a service method to handle the like action
     } else {
       console.log('Passed profile:', this.currentProfile?.username);
       this.animateLeft = true;
+      // Optional: Call a service method to handle the pass action
     }
 
     setTimeout(() => {
