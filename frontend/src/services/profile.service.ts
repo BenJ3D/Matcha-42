@@ -111,13 +111,38 @@ export class ProfileService {
       username: profile.username || 'Anonymous',
       first_name: profile.first_name,
       last_name: profile.last_name,
+      email: profile.email,
       age: profile.age || 'Unknown',
+      created_at: profile.created_at,
+      profile_id: profile.profile_id,
+      biography: profile.biography || '',
       main_photo_url: profile.main_photo_url || 'assets/default-profile.png',
       gender: profile.gender,
-      location: profile.location || { city_name: 'Unknown City', latitude: 0, longitude: 0 },
+      location: profile.location || undefined,
       is_online: profile.is_online,
       is_verified: profile.is_verified,
-      last_activity: profile.last_activity
+      last_activity: profile.last_activity,
+      photos: profile.photos || [],
+      tags: profile.tags || [],
+      sexualPreferences: profile.sexualPreferences || [],
+      fame_rating: profile.fame_rating || 0,
+      blocked: profile.blocked || [],
+      likers: profile.likers || [],
+      matchers: profile.matchers || [],
+      visitors: profile.visitors || [],
+      
+      // Adding missing required boolean properties
+      isLiked: profile.isLiked || false,
+      isUnliked: profile.isUnliked || false,
+      isMatched: profile.isMatched || false,
+      isBlocked: profile.isBlocked || false,
+      isFakeReported: profile.isFakeReported || false,
+      
+      // Adding Me-suffixed properties
+      LikedMe: profile.LikedMe || false,
+      UnlikedMe: profile.UnlikedMe || false,
+      BlockedMe: profile.BlockedMe || false,
+      FakeReportedMe: profile.FakeReportedMe || false
     }));
   }
 

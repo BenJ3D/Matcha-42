@@ -19,8 +19,6 @@ import { HttpClient } from '@angular/common/http';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { UserResponseDto } from '../../DTOs/users/UserResponseDto';
 
-
-
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -56,15 +54,14 @@ export class HomeComponent implements OnInit {
   tags: Tag[] = [];
   isLoading: boolean = false;
   cityOptions!: Observable<string[]>;
-  userLocation!: { latitude: number; longitude: number; };
+  userLocation!: { latitude: number; longitude: number };
 
   constructor(
     private router: Router,
     private fb: FormBuilder,
     private profileService: ProfileService,
-    private http: HttpClient,
-  ) {
-  }
+    private http: HttpClient
+  ) {}
 
   get currentProfile(): UserResponseDto | undefined {
     return this.profiles[this.currentProfileIndex];
@@ -78,24 +75,27 @@ export class HomeComponent implements OnInit {
     this.fetchProfiles();
   }
 
-fetchUserLocation() {
-  this.profileService.getMyProfile().subscribe({
-    next: (data) => {
-      if (data.location && data.location.latitude !== null && data.location.longitude !== null) {
-        this.userLocation = {
-          latitude: data.location.latitude,
-          longitude: data.location.longitude,
-        };
-      } else {
-        console.error('Location data is missing from the user profile.');
-      }
-    },
-    error: (error) => {
-      console.error('Error fetching user location:', error);
-    },
-  });
-}
-
+  fetchUserLocation() {
+    this.profileService.getMyProfile().subscribe({
+      next: (data) => {
+        if (
+          data.location &&
+          data.location.latitude !== null &&
+          data.location.longitude !== null
+        ) {
+          this.userLocation = {
+            latitude: data.location.latitude,
+            longitude: data.location.longitude,
+          };
+        } else {
+          console.error('Location data is missing from the user profile.');
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching user location:', error);
+      },
+    });
+  }
 
   initializeSearchForm() {
     this.searchForm = this.fb.group({
@@ -172,7 +172,11 @@ fetchUserLocation() {
         if (profiles.length === 0) {
           this.profiles = [];
         } else {
-          this.profiles = this.sortProfiles(profiles, formValue.sortBy, formValue.order);
+          this.profiles = this.sortProfiles(
+            profiles,
+            formValue.sortBy,
+            formValue.order
+          );
           this.currentProfileIndex = 0;
         }
       },
@@ -183,7 +187,11 @@ fetchUserLocation() {
     });
   }
 
-  private sortProfiles(profiles: UserResponseDto[], sortBy: string, order: string): UserResponseDto[] {
+  private sortProfiles(
+    profiles: UserResponseDto[],
+    sortBy: string,
+    order: string
+  ): UserResponseDto[] {
     return profiles.sort((a, b) => {
       let aValue: any;
       let bValue: any;
@@ -209,35 +217,40 @@ fetchUserLocation() {
         return order === 'asc' ? -1 : 1;
       } else if (aValue > bValue) {
         return order === 'asc' ? 1 : -1;
-      } else {
-        return 0;
       }
+      return 0;
     });
   }
 
-  private calculateDistance(location: { latitude: number; longitude: number; city_name?: string }): number {
-    if (!this.userLocation) {
-      return Number.MAX_SAFE_INTEGER; // Fallback for missing user location
+  private calculateDistance(location?: {
+    latitude: number;
+    longitude: number;
+    city_name?: string;
+  }): number {
+    if (!location || !this.userLocation) {
+      return Number.MAX_SAFE_INTEGER; // Return maximum value for undefined locations
     }
-  
+
     const userLatitude = this.userLocation.latitude;
     const userLongitude = this.userLocation.longitude;
     const profileLatitude = location.latitude;
     const profileLongitude = location.longitude;
-  
-    // Haversine formula
+
     const toRadians = (degrees: number) => degrees * (Math.PI / 180);
     const R = 6371; // Earth's radius in kilometers
     const dLat = toRadians(profileLatitude - userLatitude);
     const dLon = toRadians(profileLongitude - userLongitude);
+
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRadians(userLatitude)) * Math.cos(toRadians(profileLatitude)) *
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      Math.cos(toRadians(userLatitude)) *
+        Math.cos(toRadians(profileLatitude)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c;
-    return distance;
-  }  
+    return R * c;
+  }
 
   onSwipe(liked: boolean) {
     const currentProfileId = this.currentProfile?.id;
@@ -284,7 +297,6 @@ fetchUserLocation() {
     this.router.navigate(['/profile'], { queryParams: { id: userId } });
   }
 
-
   setupCityAutocomplete() {
     this.cityOptions = this.searchForm.get('location')!.valueChanges.pipe(
       debounceTime(300),
@@ -295,7 +307,9 @@ fetchUserLocation() {
   private searchCities(cityName: string): Observable<string[]> {
     if (!cityName) return of([]);
 
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=5&class=place&type=city`;
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+      cityName
+    )}&format=json&limit=5&class=place&type=city`;
 
     return this.http.get<any[]>(url).pipe(
       map((results) =>
