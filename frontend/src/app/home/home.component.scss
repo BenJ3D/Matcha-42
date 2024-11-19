@@ -67,16 +67,14 @@
   }
 }
 
-/* Styles pour le home-container, profile-card, etc. */
 .home-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: calc(100vh - 112px);
-  padding: 20px;
-  overflow-y: auto;
-  overflow-x: hidden;
+  height: 75vh;
+  // padding: 20px;
+  overflow: hidden;
 }
 
 .profile-card {

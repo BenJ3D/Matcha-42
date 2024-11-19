@@ -39,7 +39,7 @@ export class HomeComponent implements OnInit {
   readonly minAge = 18;
   readonly maxAge = 120;
   readonly minFame = 0;
-  readonly maxFame = 100;
+  readonly maxFame = 10;
 
   currentProfileIndex: number = 0;
   animateRight: boolean = false;
