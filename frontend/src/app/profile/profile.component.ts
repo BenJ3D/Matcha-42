@@ -86,6 +86,9 @@ export class ProfileComponent implements OnInit {
           console.error('Error fetching user profile:', error);
           if (error.status === 401) {
             this.router.navigate(['/home']);
+          } else {
+            this.router.navigate(['/profile']);
+
           }
         },
       });
