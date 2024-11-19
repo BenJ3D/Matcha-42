@@ -425,13 +425,20 @@ export class EditProfileComponent implements OnInit {
 
   private searchCities(cityName: string): Observable<string[]> {
     if (!cityName) return of([]);
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-      cityName
-    )}&format=json&limit=5`;
-    return this.http
-      .get<any[]>(url)
-      .pipe(map((results) => results.map((result) => result.display_name)));
+  
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=5&class=place&type=city`;
+  
+    return this.http.get<any[]>(url).pipe(
+      map((results) =>
+        results.map((result) => {
+          const cityName = result.display_name.split(',')[0].trim();
+          return cityName;
+        })
+      ),
+      map((cityNames) => Array.from(new Set(cityNames)))
+    );
   }
+  
 
   private searchCityCoordinates(cityName: string) {
     if (!cityName) {
@@ -447,7 +454,7 @@ export class EditProfileComponent implements OnInit {
 
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
       cityName
-    )}&format=json&limit=1`;
+    )}&format=json&limit=5`;
     const headers = {
       'Accept-Language': 'fr',
       'User-Agent': 'matcha - matcha@example.com',

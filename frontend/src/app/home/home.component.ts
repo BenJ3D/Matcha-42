@@ -1,108 +1,168 @@
-import {
-  Component,
-  ViewChild,
-  ElementRef,
-  AfterViewInit,
-  PLATFORM_ID,
-  Inject, OnInit,
-} from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatSidenavModule, MatSidenav } from '@angular/material/sidenav';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-
-interface UserProfile {
-  id: number;
-  username: string;
-  main_photo_url: string | null;
-  age: number | null;
-  gender: number | null;
-  location?: {
-    latitude: number;
-    longitude: number;
-    city_name: string;
-  };
-}
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSliderModule } from '@angular/material/slider';
+import { ProfileService } from '../../services/profile.service';
+import { Tag } from '../../models/Tags';
+import { UserProfile } from '../../models/Profiles';
+import { HttpParams } from '@angular/common/http';
 
 @Component({
   selector: 'app-home',
-  standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatSidenavModule,
+    MatSliderModule,
+  ],
 })
-export class HomeComponent implements AfterViewInit, OnInit {
-  @ViewChild('swipeCard') swipeCard!: ElementRef;
+export class HomeComponent implements OnInit {
+  @ViewChild('sidenav') sidenav!: MatSidenav;
+
+  readonly minAge = 18;
+  readonly maxAge = 120;
+  readonly minFame = 0;
+  readonly maxFame = 100;
 
   currentProfileIndex: number = 0;
-  animateRight: Boolean = false;
-  animateLeft: Boolean = false;
+  animateRight: boolean = false;
+  animateLeft: boolean = false;
   profiles: UserProfile[] = [];
+  searchForm!: FormGroup;
+  tags: Tag[] = [];
+  isLoading: boolean = false;
 
   constructor(
-    @Inject(PLATFORM_ID) private platformId: Object,
-    private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private fb: FormBuilder,
+    private profileService: ProfileService,
   ) {}
 
-  get currentProfile(): UserProfile {
+  get currentProfile(): UserProfile | undefined {
     return this.profiles[this.currentProfileIndex];
   }
 
   ngOnInit() {
+    this.initializeSearchForm();
+    this.loadTags();
     this.fetchProfiles();
   }
 
-  ngAfterViewInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      this.initSwipeGesture();
-    }
-  }
-
-  fetchProfiles() {
-    this.http.get<UserProfile[]>('http://localhost:8000/api/users/search').subscribe({
-      next: (profiles) => {
-        console.log('Profils reçus de l\'API :', profiles);
-        this.profiles = profiles.map((profile: any) => ({
-          id: profile.id,
-          username: profile.username || 'Anonymous',
-          main_photo_url: profile.main_photo_url || 'https://example.com/default-photo.jpg',
-          location: profile.location || {city_name: 'Unknown City', latitude: 0, longitude: 0},
-          age: profile.age || 'Unknown',
-          gender: profile.gender || 'Unknown'
-        }));
-        console.log('Profils après mapping:', this.profiles);
-      },
-      error: (error) => {
-        // if (error.error?.error == 'Profil non trouvé') {
-        //   this.router.navigate(['/profile'])
-        // }
-        console.error('Erreur lors de la récupération des profils:', error);
-      }
+  initializeSearchForm() {
+    this.searchForm = this.fb.group({
+      ageRange: this.fb.group({
+        min: [this.minAge],
+        max: [this.maxAge],
+      }),
+      fameRange: this.fb.group({
+        min: [this.minFame],
+        max: [this.maxFame],
+      }),
+      location: [''],
+      tags: [[]],
+      sortBy: [''],
+      order: [''],
     });
   }
 
-  async initSwipeGesture() {
-    if (isPlatformBrowser(this.platformId) && this.swipeCard?.nativeElement) {
-      const Hammer = (await import('hammerjs')).default;
-      const hammer = new Hammer(this.swipeCard.nativeElement);
-      hammer.on('swipeleft swiperight', (event: any) => {
-        this.onSwipe(event.type === 'swiperight');
-      });
-    } else {
-      console.warn('Swipe card element is not available.');
+  loadTags() {
+    this.profileService.getTags().subscribe({
+      next: (tags) => {
+        this.tags = tags;
+      },
+      error: (err) => console.error('Error loading tags', err),
+    });
+  }
+
+  openSearchPanel() {
+    this.sidenav.open();
+  }
+
+  closeSearchPanel() {
+    this.sidenav.close();
+  }
+
+  onSearchSubmit() {
+    this.closeSearchPanel();
+    this.fetchProfiles();
+  }
+
+  fetchProfiles() {
+    this.isLoading = true;
+    let params = new HttpParams();
+    const formValue = this.searchForm.getRawValue();
+
+    if (formValue.ageRange.min != null) {
+      params = params.set('ageMin', formValue.ageRange.min.toString());
     }
+    if (formValue.ageRange.max != null) {
+      params = params.set('ageMax', formValue.ageRange.max.toString());
+    }
+    if (formValue.fameRange.min != null) {
+      params = params.set('fameMin', formValue.fameRange.min.toString());
+    }
+    if (formValue.fameRange.max != null) {
+      params = params.set('fameMax', formValue.fameRange.max.toString());
+    }
+    if (formValue.location) {
+      params = params.set('location', formValue.location);
+    }
+    if (formValue.tags && formValue.tags.length > 0) {
+      params = params.set('tags', formValue.tags.join(','));
+    }
+    if (formValue.sortBy) {
+      params = params.set('sortBy', formValue.sortBy);
+    }
+    if (formValue.order) {
+      params = params.set('order', formValue.order);
+    }
+
+    this.profileService.searchProfiles(params).subscribe({
+      next: (profiles) => {
+        this.isLoading = false;
+        if (profiles.length === 0) {
+          this.profiles = [];
+        } else {
+          this.profiles = profiles;
+          this.currentProfileIndex = 0;
+        }
+      },
+      error: (error) => {
+        this.isLoading = false;
+        console.error('Error fetching profiles:', error);
+      },
+    });
   }
 
   onSwipe(liked: boolean) {
+    const currentProfileId = this.currentProfile?.id;
+    if (!currentProfileId) return;
+
     if (liked) {
-      console.log('Liked profile:', this.currentProfile.username);
+      console.log('Liked profile:', this.currentProfile?.username);
       this.animateRight = true;
+      // Optional: Call a service method to handle the like action
     } else {
-      console.log('Passed profile:', this.currentProfile.username);
+      console.log('Passed profile:', this.currentProfile?.username);
       this.animateLeft = true;
+      // Optional: Call a service method to handle the pass action
     }
 
     setTimeout(() => {
@@ -112,8 +172,11 @@ export class HomeComponent implements AfterViewInit, OnInit {
   }
 
   nextProfile() {
-    this.currentProfileIndex =
-      (this.currentProfileIndex + 1) % this.profiles.length;
+    if (this.currentProfileIndex < this.profiles.length - 1) {
+      this.currentProfileIndex++;
+    } else {
+      this.profiles = []; // No more profiles
+    }
   }
 
   resetAnimations() {
