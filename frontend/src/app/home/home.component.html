@@ -2,19 +2,20 @@
   <mat-sidenav #sidenav mode="over" position="end">
     <form [formGroup]="searchForm" class="search-form" (ngSubmit)="onSearchSubmit()">
       <h2>Advanced Search</h2>
-    
+
       <!-- Age Range -->
       <div formGroupName="ageRange" class="slider-container">
-        <h3>Age Range: {{searchForm.get('ageRange.min')?.value}} - {{searchForm.get('ageRange.max')?.value}}</h3>
+        <h3>Age Range: {{ searchForm.get('ageRange.min')?.value }} - {{ searchForm.get('ageRange.max')?.value }}</h3>
         <mat-slider class="range-slider" [min]="minAge" [max]="maxAge" [step]="1">
           <input matSliderStartThumb formControlName="min">
           <input matSliderEndThumb formControlName="max">
         </mat-slider>
       </div>
-    
+
       <!-- Fame Rating Range -->
       <div formGroupName="fameRange" class="slider-container">
-        <h3>Fame Rating: {{searchForm.get('fameRange.min')?.value}} - {{searchForm.get('fameRange.max')?.value}}</h3>
+        <h3>Fame Rating: {{ searchForm.get('fameRange.min')?.value }}
+          - {{ searchForm.get('fameRange.max')?.value }}</h3>
         <mat-slider class="range-slider" [min]="minFame" [max]="maxFame" [step]="1">
           <input matSliderStartThumb formControlName="min">
           <input matSliderEndThumb formControlName="max">
@@ -24,7 +25,7 @@
       <!-- Location -->
       <mat-form-field appearance="outline">
         <mat-label>Location</mat-label>
-        <input matInput formControlName="location" />
+        <input matInput formControlName="location"/>
       </mat-form-field>
 
       <!-- Tags -->
@@ -80,8 +81,9 @@
             mat-card-image
             [src]="currentProfile.main_photo_url"
             [alt]="currentProfile.username"
+
           />
-          <mat-card-content>
+          <mat-card-content (click)="goToProfile(currentProfile.id)">
             <h2>{{ currentProfile.username }}, {{ currentProfile.age }}</h2>
             <p>{{ currentProfile.location?.city_name }}</p>
           </mat-card-content>
