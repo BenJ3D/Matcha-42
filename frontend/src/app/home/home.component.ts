@@ -11,7 +11,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { ProfileService } from '../../services/profile.service';
-import { Gender } from '../../models/Genders';
 import { Tag } from '../../models/Tags';
 import { UserProfile } from '../../models/Profiles';
 import { HttpParams } from '@angular/common/http';
@@ -47,7 +46,6 @@ export class HomeComponent implements OnInit {
   animateLeft: boolean = false;
   profiles: UserProfile[] = [];
   searchForm!: FormGroup;
-  genders: Gender[] = [];
   tags: Tag[] = [];
   isLoading: boolean = false;
 
@@ -63,7 +61,6 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
     this.initializeSearchForm();
-    this.loadGenders();
     this.loadTags();
     this.fetchProfiles();
   }
@@ -80,18 +77,8 @@ export class HomeComponent implements OnInit {
       }),
       location: [''],
       tags: [[]],
-      preferredGenders: [[]],
       sortBy: [''],
       order: [''],
-    });
-  }
-
-  loadGenders() {
-    this.profileService.getGenders().subscribe({
-      next: (genders) => {
-        this.genders = genders;
-      },
-      error: (err) => console.error('Error loading genders', err),
     });
   }
 
@@ -139,9 +126,6 @@ export class HomeComponent implements OnInit {
     }
     if (formValue.tags && formValue.tags.length > 0) {
       params = params.set('tags', formValue.tags.join(','));
-    }
-    if (formValue.preferredGenders && formValue.preferredGenders.length > 0) {
-      params = params.set('preferredGenders', formValue.preferredGenders.join(','));
     }
     if (formValue.sortBy) {
       params = params.set('sortBy', formValue.sortBy);

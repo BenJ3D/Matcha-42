@@ -37,19 +37,6 @@
         </mat-select>
       </mat-form-field>
 
-      <!-- Interested In -->
-      <mat-form-field appearance="outline">
-        <mat-label>Interested In</mat-label>
-        <mat-select formControlName="preferredGenders" required>
-          <mat-option
-            *ngFor="let gender of genders"
-            [value]="gender.gender_id"
-          >
-            {{ gender.name }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-
       <!-- Sort By -->
       <mat-form-field appearance="outline">
         <mat-label>Sort By</mat-label>
