@@ -82,6 +82,10 @@ export class ProfileComponent implements OnInit {
           }
           this.user = user;
         },
+        complete: () => {
+          if (this.user)
+            this.profileService.visitedProfile(this.user?.id).subscribe();
+        },
         error: (error) => {
           console.error('Error fetching user profile:', error);
           if (error.status === 401) {

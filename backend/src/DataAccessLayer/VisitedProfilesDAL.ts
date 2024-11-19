@@ -11,7 +11,7 @@ class VisitedProfilesDAL {
             });
         } catch (error: any) {
             if (error.code == 23505) {
-                throw {status: 409, message: 'Visite déjà enregistrée'};
+                throw {status: 201, message: 'Visite déjà enregistrée'};
             }
             throw {status: 400, message: 'Impossible d\'ajouter l\'enregistrement de la visite BLABLABLA'};
         }

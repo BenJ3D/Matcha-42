@@ -29,7 +29,10 @@ class VisitedProfilesController {
 
             res.status(201).json({message: 'Visite enregistrée avec succès'});
         } catch (error: any) {
-            res.status(error.status || 400).json({error: error.message || 'Erreur'});
+            if (error.status == 201)
+                res.status(error.status).json({message: error.message || 'Erreur'});
+            else
+                res.status(error.status || 400).json({error: error.message || 'Erreur'});
         }
     }
 }

@@ -11,7 +11,7 @@ import {Gender} from '../models/Genders';
 import {Tag} from '../models/Tags';
 import {Photo} from '../models/Photo';
 import {UploadPhotoResponse} from '../DTOs/upload-photo-response';
-import { UserProfile, SearchFilters } from '../models/Profiles';
+import {UserProfile, SearchFilters} from '../models/Profiles';
 
 @Injectable({
   providedIn: 'root',
@@ -92,7 +92,7 @@ export class ProfileService {
   getUserById(id: number): Observable<UserResponseDto> {
     return this.http.get<UserResponseDto>(`${this.apiUrl}/users/${id}`);
   }
-  
+
   getCompatibleProfiles(): Observable<UserProfile[]> {
     return this.http.get<UserProfile[]>(`${this.apiUrl}/users/search`).pipe(
       map(this.mapProfilesResponse),
@@ -101,7 +101,7 @@ export class ProfileService {
   }
 
   searchProfiles(searchParams: HttpParams): Observable<UserProfile[]> {
-    return this.http.get<UserProfile[]>(`${this.apiUrl}/users/search`, { params: searchParams }).pipe(
+    return this.http.get<UserProfile[]>(`${this.apiUrl}/users/search`, {params: searchParams}).pipe(
       map(this.mapProfilesResponse),
       catchError(this.handleError)
     );
@@ -116,7 +116,7 @@ export class ProfileService {
       age: profile.age || 'Unknown',
       main_photo_url: profile.main_photo_url || 'assets/default-profile.png',
       gender: profile.gender,
-      location: profile.location || { city_name: 'Unknown City', latitude: 0, longitude: 0 },
+      location: profile.location || {city_name: 'Unknown City', latitude: 0, longitude: 0},
       is_online: profile.is_online,
       is_verified: profile.is_verified,
       last_activity: profile.last_activity
@@ -131,6 +131,7 @@ export class ProfileService {
   addLikeUser(id: number): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.apiUrl}/likes/${id}`, {});
   }
+
   removeLikeUser(id: number): Observable<string> {
     return this.http.delete<string>(`${this.apiUrl}/likes/${id}`);
   }
@@ -138,6 +139,7 @@ export class ProfileService {
   addUnlikeUser(id: number): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.apiUrl}/unlikes/${id}`, {});
   }
+
   removeUnlikeUser(id: number): Observable<string> {
     return this.http.delete<string>(`${this.apiUrl}/unlikes/${id}`);
   }
@@ -145,6 +147,7 @@ export class ProfileService {
   blockUser(id: number): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.apiUrl}/blocked-users/${id}`, {});
   }
+
   unblockUser(id: number): Observable<string> {
     return this.http.delete<string>(`${this.apiUrl}/blocked-users/${id}`);
   }
@@ -152,8 +155,13 @@ export class ProfileService {
   reportUser(id: number): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.apiUrl}/fake-users/${id}`, {});
   }
+
   unreportUser(id: number): Observable<string> {
     return this.http.delete<string>(`${this.apiUrl}/fake-users/${id}`);
+  }
+
+  visitedProfile(id: number): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/visited-profiles/${id}`, {});
   }
 
 }
