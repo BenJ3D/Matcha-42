@@ -159,11 +159,11 @@ export class HomeComponent implements OnInit {
     if (liked) {
       console.log('Liked profile:', this.currentProfile?.username);
       this.animateRight = true;
-      // Optional: Call a service method to handle the like action
+      this.profileService.addLikeUser(currentProfileId);
     } else {
       console.log('Passed profile:', this.currentProfile?.username);
       this.animateLeft = true;
-      // Optional: Call a service method to handle the pass action
+      this.profileService.addUnlikeUser(currentProfileId);
     }
 
     setTimeout(() => {
