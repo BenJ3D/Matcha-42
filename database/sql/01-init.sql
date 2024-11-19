@@ -5,13 +5,12 @@ BEGIN
         CREATE TYPE enum_notif_type AS ENUM ('LIKE', 'UNLIKE', 'MATCH', 'NEW_MESSAGE', 'NEW_VISIT');
     END IF;
 END$$;
--- Adminer 4.8.1 PostgreSQL 16.4 (Debian 16.4-1.pgdg120+1) dump
 
 DROP TABLE IF EXISTS "blocked_users";
 DROP SEQUENCE IF EXISTS blocked_users_id_seq;
 CREATE SEQUENCE blocked_users_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
-CREATE TABLE IF NOT EXISTS "public"."blocked_users" (
+CREATE TABLE "public"."blocked_users" (
     "id" integer DEFAULT nextval('blocked_users_id_seq') NOT NULL,
     "blocker_id" integer NOT NULL,
     "blocked_id" integer NOT NULL,
@@ -29,7 +28,7 @@ DROP TABLE IF EXISTS "fake_user_reporting";
 DROP SEQUENCE IF EXISTS fake_user_reporting_id_seq;
 CREATE SEQUENCE fake_user_reporting_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
-CREATE TABLE IF NOT EXISTS "public"."fake_user_reporting" (
+CREATE TABLE "public"."fake_user_reporting" (
     "id" integer DEFAULT nextval('fake_user_reporting_id_seq') NOT NULL,
     "user_who_reported" integer NOT NULL,
     "reported_user" integer NOT NULL,
@@ -47,7 +46,7 @@ DROP TABLE IF EXISTS "genders" CASCADE;
 DROP SEQUENCE IF EXISTS gender_gender_id_seq;
 CREATE SEQUENCE gender_gender_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
-CREATE TABLE IF NOT EXISTS "public"."genders" (
+CREATE TABLE "public"."genders" (
     "gender_id" integer DEFAULT nextval('gender_gender_id_seq') NOT NULL,
     "name" character varying(32) NOT NULL,
     "description" character varying,
@@ -59,14 +58,15 @@ TRUNCATE "genders";
 INSERT INTO "genders" ("gender_id", "name", "description") VALUES
 (5,	'Male',	'Identifies as male'),
 (6,	'Female',	'Identifies as female'),
-(7,	'Non-binary',	'Does not fit exclusively as male or female'),
-(8,	'Gender fluid',	'A gender identity that changes over time'),
-(9,	'Agender',	'No gender identity or genderless'),
-(10,	'Genderqueer',	'Non-binary gender identity, challenges traditional gender norms'),
-(11,	'Gender non-conforming',	'Does not conform to societal gender expectations'),
-(12,	'Transgender (MTF)',	'Assigned male at birth, identifies as female'),
-(13,	'Transgender (FTM)',	'Assigned female at birth, identifies as male'),
-(14,	'Questioning',	'Exploring or questioning their gender identity');
+(7,	'Transgender (MTF)',	'Assigned male at birth, identifies as female'),
+(8,	'Transgender (FTM)',	'Assigned female at birth, identifies as male');
+
+-- INSERT INTO "genders" ("gender_id", "name", "description") VALUES
+-- (5,	'Male',	'Identifies as male'),
+-- (6,	'Female',	'Identifies as female'),
+-- (7,	'Transgender (MTF)',	'Assigned male at birth, identifies as female'),
+-- (8,	'Transgender (FTM)',	'Assigned female at birth, identifies as male'),
+
 
 SELECT setval('gender_gender_id_seq', (SELECT MAX(gender_id) FROM genders));
 
@@ -75,7 +75,7 @@ DROP TABLE IF EXISTS "likes";
 DROP SEQUENCE IF EXISTS likes_like_id_seq;
 CREATE SEQUENCE likes_like_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
-CREATE TABLE IF NOT EXISTS "public"."likes" (
+CREATE TABLE "public"."likes" (
     "like_id" integer DEFAULT nextval('likes_like_id_seq') NOT NULL,
     "user" integer NOT NULL,
     "user_liked" integer NOT NULL,
@@ -91,7 +91,7 @@ DROP TABLE IF EXISTS "unlikes";
 DROP SEQUENCE IF EXISTS unlikes_unlike_id_seq;
 CREATE SEQUENCE unlikes_unlike_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
-CREATE TABLE IF NOT EXISTS "public"."unlikes" (
+CREATE TABLE "public"."unlikes" (
     "unlike_id" integer DEFAULT nextval('unlikes_unlike_id_seq') NOT NULL,
     "user" integer NOT NULL,
     "user_unliked" integer NOT NULL,
@@ -107,7 +107,7 @@ DROP TABLE IF EXISTS "locations";
 DROP SEQUENCE IF EXISTS locations_location_id_seq;
 CREATE SEQUENCE locations_location_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
-CREATE TABLE IF NOT EXISTS "public"."locations" (
+CREATE TABLE "public"."locations" (
     "location_id" integer DEFAULT nextval('locations_location_id_seq') NOT NULL,
     "latitude" numeric NOT NULL,
     "longitude" numeric NOT NULL,
@@ -125,7 +125,7 @@ DROP TABLE IF EXISTS "matches";
 DROP SEQUENCE IF EXISTS matches_match_id_seq;
 CREATE SEQUENCE matches_match_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
-CREATE TABLE IF NOT EXISTS "public"."matches" (
+CREATE TABLE "public"."matches" (
     "match_id" integer DEFAULT nextval('matches_match_id_seq') NOT NULL,
     "user_1" integer NOT NULL,
     "user_2" integer NOT NULL,
@@ -142,7 +142,7 @@ DROP TABLE IF EXISTS "messages";
 DROP SEQUENCE IF EXISTS messages_message_id_seq;
 CREATE SEQUENCE messages_message_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
-CREATE TABLE IF NOT EXISTS "public"."messages" (
+CREATE TABLE "public"."messages" (
     "message_id" integer DEFAULT nextval('messages_message_id_seq') NOT NULL,
     "content" character varying(50) NOT NULL,
     "created_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -160,7 +160,7 @@ DROP TABLE IF EXISTS "unread_user_message";
 DROP SEQUENCE IF EXISTS messages_user_unread_id_seq;
 CREATE SEQUENCE messages_user_unread_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
-CREATE TABLE IF NOT EXISTS "public"."unread_user_message" (
+CREATE TABLE "public"."unread_user_message" (
     "unread_user_message_id" integer DEFAULT nextval('messages_user_unread_id_seq') NOT NULL,
     "owner_message_user" integer NOT NULL,
     "target_message_user" integer NOT NULL,
@@ -177,7 +177,7 @@ DROP TABLE IF EXISTS "notifications";
 DROP SEQUENCE IF EXISTS notifications_notification_id_seq;
 CREATE SEQUENCE notifications_notification_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
-CREATE TABLE IF NOT EXISTS "public"."notifications" (
+CREATE TABLE "public"."notifications" (
     "notification_id" integer DEFAULT nextval('notifications_notification_id_seq') NOT NULL,
     "target_user" integer NOT NULL,
     "has_read" boolean DEFAULT false NOT NULL,
@@ -201,7 +201,7 @@ DROP TABLE IF EXISTS "photos";
 DROP SEQUENCE IF EXISTS picture_picture_id_seq;
 CREATE SEQUENCE picture_picture_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
-CREATE TABLE IF NOT EXISTS "public"."photos" (
+CREATE TABLE "public"."photos" (
     "photo_id" integer DEFAULT nextval('picture_picture_id_seq') NOT NULL,
     "url" character varying(255) NOT NULL,
     "description" character varying(255),
@@ -216,7 +216,7 @@ DROP TABLE IF EXISTS "profile_sexual_preferences";
 DROP SEQUENCE IF EXISTS profile_sexual_preferences_id_seq;
 CREATE SEQUENCE profile_sexual_preferences_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
-CREATE TABLE IF NOT EXISTS "public"."profile_sexual_preferences" (
+CREATE TABLE "public"."profile_sexual_preferences" (
     "id" integer DEFAULT nextval('profile_sexual_preferences_id_seq') NOT NULL,
     "profile_id" integer NOT NULL,
     "gender_id" integer NOT NULL,
@@ -231,7 +231,7 @@ DROP TABLE IF EXISTS "profile_tag";
 DROP SEQUENCE IF EXISTS profile_tag_id_seq;
 CREATE SEQUENCE profile_tag_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
-CREATE TABLE IF NOT EXISTS "public"."profile_tag" (
+CREATE TABLE "public"."profile_tag" (
     "id" integer DEFAULT nextval('profile_tag_id_seq') NOT NULL,
     "profile_id" bigint NOT NULL,
     "profile_tag" bigint NOT NULL,
@@ -247,7 +247,7 @@ DROP TABLE IF EXISTS "profiles";
 DROP SEQUENCE IF EXISTS profile_profile_id_seq;
 CREATE SEQUENCE profile_profile_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
-CREATE TABLE IF NOT EXISTS "public"."profiles" (
+CREATE TABLE "public"."profiles" (
     "profile_id" integer DEFAULT nextval('profile_profile_id_seq') NOT NULL,
     "owner_user_id" bigint NOT NULL,
     "biography" character varying(1024) NOT NULL,
@@ -270,7 +270,7 @@ DROP TABLE IF EXISTS "sso_type";
 DROP SEQUENCE IF EXISTS sso_type_sso_id_seq;
 CREATE SEQUENCE sso_type_sso_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
-CREATE TABLE IF NOT EXISTS "public"."sso_type" (
+CREATE TABLE "public"."sso_type" (
     "sso_id" integer DEFAULT nextval('sso_type_sso_id_seq') NOT NULL,
     "name" character varying(50) NOT NULL,
     CONSTRAINT "sso_type_pk" PRIMARY KEY ("sso_id"),
@@ -288,7 +288,7 @@ DROP TABLE IF EXISTS "tags";
 DROP SEQUENCE IF EXISTS tag_tag_id_seq;
 CREATE SEQUENCE tag_tag_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
-CREATE TABLE IF NOT EXISTS "public"."tags" (
+CREATE TABLE "public"."tags" (
     "tag_id" integer DEFAULT nextval('tag_tag_id_seq') NOT NULL,
     "tag_name" character varying(50) NOT NULL,
     CONSTRAINT "tag_pkey" PRIMARY KEY ("tag_id")
@@ -481,7 +481,7 @@ DROP TABLE IF EXISTS "users";
 DROP SEQUENCE IF EXISTS users_id_seq;
 CREATE SEQUENCE users_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
-CREATE TABLE IF NOT EXISTS "public"."users" (
+CREATE TABLE "public"."users" (
     "id" integer DEFAULT nextval('users_id_seq') NOT NULL,
     "username" character varying(50) NOT NULL,
     "last_name" character varying(255) NOT NULL,
@@ -509,7 +509,7 @@ DROP TABLE IF EXISTS "visited_profile_history";
 DROP SEQUENCE IF EXISTS visited_profile_history_id_seq;
 CREATE SEQUENCE visited_profile_history_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
 
-CREATE TABLE IF NOT EXISTS "public"."visited_profile_history" (
+CREATE TABLE "public"."visited_profile_history" (
     "id" integer DEFAULT nextval('visited_profile_history_id_seq') NOT NULL,
     "visiter_id" integer NOT NULL,
     "visited_id" integer NOT NULL,
