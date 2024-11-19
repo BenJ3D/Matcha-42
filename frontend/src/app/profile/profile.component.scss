@@ -2,6 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
+
+.button-base {
+  @apply bg-gray-500 text-white;
+
+  &:hover {
+    @apply bg-violet-700; // Hover commun par défaut
+  }
+
+  // Variantes avec des styles de base différents
+  &.like {
+    @apply bg-rose-700;
+  }
+
+  &.unlike {
+    @apply bg-violet-700;
+  }
+
+  &.blocked {
+    @apply bg-red-600;
+  }
+
+  &.reported {
+    @apply bg-red-700;
+  }
+
+  // Hover commun à toutes les variantes
+  &.like:hover,
+  &.unlike:hover,
+  &.blocked:hover,
+  &.reported:hover {
+    @apply bg-red-800;
+  }
+}
+
+
+
 /* profile.component.scss */
 .profile-container {
   //display: flex;
