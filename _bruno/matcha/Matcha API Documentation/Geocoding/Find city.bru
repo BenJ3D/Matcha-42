@@ -1,0 +1,15 @@
+meta {
+  name: Find city
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/geocoding?address=charbonnieres les
+  body: none
+  auth: inherit
+}
+
+params:query {
+  address: charbonnieres les
+}

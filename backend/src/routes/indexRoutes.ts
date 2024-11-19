@@ -16,6 +16,7 @@ import blockedUsersRoutes from "./blockedUsersRoutes";
 import visitedProfilesRoutes from "./visitedProfilesRoutes";
 import emailVerificationRoutes from "./emailVerificationRoutes";
 import unreadUserMessageRoutes from "./unreadUserMessageRoutes";
+import geocodingRoutes from './geocodingRoutes';
 
 const router = Router();
 
@@ -31,6 +32,7 @@ router.use('/messages', messageRoutes);
 router.use('/profiles', profileRoutes);
 router.use('/fake-users', fakeUserRoutes);
 router.use("/verify-token", verifyTokenRoutes);
+router.use('/geocoding', geocodingRoutes);
 router.use('/notifications', notificationsRoute);
 router.use('/blocked-users', blockedUsersRoutes);
 router.use('/verify-email', emailVerificationRoutes)
