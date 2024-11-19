@@ -31,4 +31,15 @@ export interface UserResponseDto extends UserLightResponseDto {
     visitors?: UserLightResponseDto[];
     matchers?: UserLightResponseDto[];
     blocked?: BlockedUserResponseDto[];
+
+  isLiked: boolean;
+  isUnliked: boolean;
+  isMatched: boolean;
+  isBlocked: boolean;
+  isFakeReported: boolean;
+
+  LikedMe: boolean;
+  UnlikedMe: boolean;
+  BlockedMe: boolean;
+  FakeReportedMe: boolean;
 }

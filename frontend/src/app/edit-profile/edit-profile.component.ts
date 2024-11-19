@@ -1,27 +1,26 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ProfileService } from '../../services/profile.service';
-import { Router } from '@angular/router';
-import { Gender } from '../../models/Genders';
-import { Tag } from '../../models/Tags';
-import { UserResponseDto } from '../../DTOs/users/UserResponseDto';
-import { Photo } from '../../models/Photo';
-import { HttpClient } from '@angular/common/http';
-import { debounceTime, map, switchMap } from 'rxjs/operators';
-import { Observable, of } from 'rxjs';
-import { CommonModule } from '@angular/common';
-import { MatStepperModule } from '@angular/material/stepper';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatButtonModule } from '@angular/material/button';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatIconModule } from '@angular/material/icon';
-import { NgIf, NgForOf, AsyncPipe, NgOptimizedImage } from '@angular/common';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import {ProfileService} from '../../services/profile.service';
+import {Router} from '@angular/router';
+import {Gender} from '../../models/Genders';
+import {Tag} from '../../models/Tags';
+import {UserResponseDto} from '../../DTOs/users/UserResponseDto';
+import {Photo} from '../../models/Photo';
+import {HttpClient} from '@angular/common/http';
+import {debounceTime, map, switchMap} from 'rxjs/operators';
+import {Observable, of} from 'rxjs';
+import {AsyncPipe, CommonModule, NgForOf, NgIf, NgOptimizedImage} from '@angular/common';
+import {MatStepper, MatStepperModule} from '@angular/material/stepper';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import {MatButtonModule} from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatSelectModule} from '@angular/material/select';
+import {MatInputModule} from '@angular/material/input';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatIconModule} from '@angular/material/icon';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-edit-profile',
@@ -45,10 +44,12 @@ import { NgIf, NgForOf, AsyncPipe, NgOptimizedImage } from '@angular/common';
     NgForOf,
     AsyncPipe,
     NgOptimizedImage,
+    MatSlideToggleModule,
   ],
   standalone: true,
 })
 export class EditProfileComponent implements OnInit {
+  @ViewChild('stepper') stepper!: MatStepper;
   isLinear = true;
   profileInfoForm!: FormGroup;
   locationForm!: FormGroup;
@@ -60,13 +61,15 @@ export class EditProfileComponent implements OnInit {
   isCityValid: boolean = false;
   cityOptions!: Observable<string[]>;
   isLoading = false;
+  private isInitialProfileCreated = false;
 
   constructor(
     private fb: FormBuilder,
     private profileService: ProfileService,
     private router: Router,
     private http: HttpClient
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.initializeForms();
@@ -76,42 +79,39 @@ export class EditProfileComponent implements OnInit {
     this.setupCityAutocomplete();
   }
 
+
   initializeForms() {
     this.profileInfoForm = this.fb.group({
       biography: ['', [Validators.required, Validators.maxLength(1024)]],
       gender: [null, [Validators.required]],
       sexualPreferences: [[], [Validators.required]],
-      age: [null, [Validators.required, Validators.min(18), Validators.max(120)]],
+      age: [
+        null,
+        [Validators.required, Validators.min(18), Validators.max(120)],
+      ],
       tags: [[]],
     });
 
     this.locationForm = this.fb.group({
-      enableGeolocation: [false],
-      city: ['', Validators.required],
-      useIpLocation: [false],
+      city: [''],
       location: this.fb.group({
         latitude: [null],
         longitude: [null],
       }),
     });
 
-    this.photoForm = this.fb.group({
-      // Add form controls if needed
-    });
+    this.photoForm = this.fb.group({});
   }
 
   subscribeToFormChanges() {
-    this.locationForm.get('enableGeolocation')?.valueChanges.subscribe((enabled) => {
-      this.onGeolocationToggle(enabled);
-    });
-
-    this.locationForm.get('useIpLocation')?.valueChanges.subscribe((enabled) => {
-      this.onIpLocationToggle(enabled);
-    });
-
-    this.locationForm.get('city')?.valueChanges.pipe(debounceTime(500)).subscribe((cityName) => {
-      this.searchCityCoordinates(cityName);
-    });
+    this.locationForm
+      .get('city')
+      ?.valueChanges.pipe(debounceTime(500))
+      .subscribe((cityName) => {
+        if (cityName) {
+          this.searchCityCoordinates(cityName);
+        }
+      });
   }
 
   loadInitialData() {
@@ -127,7 +127,18 @@ export class EditProfileComponent implements OnInit {
           this.user = userResponse;
           if (this.user.profile_id) {
             this.existingProfile = true;
-            this.populateForms(this.user);
+
+            // Check if location is null, undefined, or has invalid coordinates
+            if (!this.user.location ||
+              this.user.location.latitude === null ||
+              this.user.location.longitude === null ||
+              this.user.location.city_name === 'Unknown') {
+              // Skip location population but populate other fields
+              this.populateFormsWithoutLocation(this.user);
+            } else {
+              // Populate all fields including location
+              this.populateForms(this.user);
+            }
           }
         }
       },
@@ -135,6 +146,24 @@ export class EditProfileComponent implements OnInit {
         console.error('Error in user subscription:', error);
       },
     });
+  }
+
+  onStepChange(event: any): void {
+    // Check if we're entering step 2 (location step, index 1)
+    if (event.selectedIndex === 2) {
+      const locationValue = this.locationForm.get('location')?.value;
+
+      // Check if location is empty or has null coordinates
+      if (!locationValue ||
+        locationValue.latitude === null ||
+        locationValue.longitude === null) {
+        this.isLoading = true;
+        // Force IP location fetch
+        this.getLocationFromIP().then(() => {
+          this.isLoading = false;
+        });
+      }
+    }
   }
 
   setupCityAutocomplete() {
@@ -180,26 +209,6 @@ export class EditProfileComponent implements OnInit {
     });
   }
 
-  onGeolocationToggle(enabled: boolean) {
-    if (enabled) {
-      this.getCurrentLocation();
-      this.locationForm.get('city')?.disable();
-      this.locationForm.get('useIpLocation')?.disable();
-    } else {
-      this.locationForm.get('city')?.enable();
-      this.locationForm.get('useIpLocation')?.enable();
-    }
-  }
-
-  onIpLocationToggle(enabled: boolean) {
-    if (enabled) {
-      this.getLocationFromIP();
-      this.locationForm.get('city')?.disable();
-    } else {
-      this.locationForm.get('city')?.enable();
-    }
-  }
-
   getCurrentLocation() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -218,17 +227,69 @@ export class EditProfileComponent implements OnInit {
     }
   }
 
-  getLocationFromIP() {
-    this.http.get<any>('https://ipapi.co/json/').subscribe((data) => {
-      this.locationForm.patchValue({
-        location: {
-          latitude: data.latitude,
-          longitude: data.longitude,
+  getLocationFromIP(): Promise<void> {
+    return new Promise((resolve) => {
+      this.http.get<any>('https://ipapi.co/json/').subscribe({
+        next: (data) => {
+          if (data.city && data.latitude && data.longitude) {
+            this.locationForm.patchValue({
+              city: data.city,
+              location: {
+                latitude: data.latitude,
+                longitude: data.longitude,
+              },
+            });
+            this.isCityValid = true;
+          }
+          resolve();
+        },
+        error: (error) => {
+          console.error('Error getting IP location:', error);
+          this.isCityValid = false;
+          resolve();
         },
       });
     });
   }
 
+  // Add partial submit method
+  onPartialSubmit() {
+    if (
+      this.profileInfoForm.valid &&
+      !this.existingProfile &&
+      !this.isInitialProfileCreated
+    ) {
+      this.isLoading = true;
+      // Create minimal profile data
+      const partialProfileData = {
+        ...this.profileInfoForm.value,
+        location: {
+          latitude: 0,
+          longitude: 0,
+        },
+      };
+
+      this.profileService.createProfile(partialProfileData).subscribe({
+        next: (response) => {
+          this.isInitialProfileCreated = true;
+          this.existingProfile = true;
+          // Update user data if needed
+          this.profileService.getMyProfile().subscribe((user) => {
+            if (user) {
+              this.user = user;
+            }
+          });
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error creating initial profile:', error);
+          this.isLoading = false;
+        },
+      });
+    }
+  }
+
+  // Modify existing onSubmit to handle final submission
   onSubmit() {
     if (this.profileInfoForm.valid && this.locationForm.valid) {
       this.isLoading = true;
@@ -237,29 +298,17 @@ export class EditProfileComponent implements OnInit {
         location: this.locationForm.value.location,
       };
 
-      if (this.existingProfile) {
-        this.profileService.updateProfile(profileData).subscribe({
-          next: () => {
-            this.isLoading = false;
-            this.router.navigate(['/profile']);
-          },
-          error: (error) => {
-            this.isLoading = false;
-            console.error('Error updating profile:', error);
-          },
-        });
-      } else {
-        this.profileService.createProfile(profileData).subscribe({
-          next: () => {
-            this.isLoading = false;
-            this.router.navigate(['/profile']);
-          },
-          error: (error) => {
-            this.isLoading = false;
-            console.error('Error creating profile:', error);
-          },
-        });
-      }
+      // Always use update since we already created the profile
+      this.profileService.updateProfile(profileData).subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.router.navigate(['/profile']);
+        },
+        error: (error) => {
+          this.isLoading = false;
+          console.error('Error updating profile:', error);
+        },
+      });
     } else {
       console.warn('Form is invalid');
     }
@@ -278,7 +327,12 @@ export class EditProfileComponent implements OnInit {
           this.isLoading = false;
           // Update user photos
           if (this.user && newPhotos) {
-            this.user.photos = [...(this.user.photos || []), ...newPhotos.filter((photo): photo is Photo => photo !== undefined)];
+            this.user.photos = [
+              ...(this.user.photos || []),
+              ...newPhotos.filter(
+                (photo): photo is Photo => photo !== undefined
+              ),
+            ];
           }
         })
         .catch((error) => {
@@ -330,32 +384,83 @@ export class EditProfileComponent implements OnInit {
     }
   }
 
+  onCityBlur() {
+    const cityControl = this.locationForm.get('city');
+    if (cityControl && !cityControl.value) {
+      // If city field is empty, get location from IP
+      this.getLocationFromIP();
+    } else if (cityControl && cityControl.value) {
+      // If city field has value, validate coordinates
+      this.searchCityCoordinates(cityControl.value);
+    }
+  }
+
   onImageError(event: Event) {
     const imgElement = event.target as HTMLImageElement;
     console.error('Image failed to load:', imgElement.src);
   }
 
+  // New method to populate forms without location
+  private populateFormsWithoutLocation(user: UserResponseDto) {
+    this.profileInfoForm.patchValue({
+      biography: user.biography || '',
+      gender: user.gender || null,
+      sexualPreferences: user.sexualPreferences?.map((g) => g.gender_id) || [],
+      age: user.age || null,
+      tags: user.tags?.map((t) => t.tag_id) || [],
+    });
+
+    // Reset location form without triggering geocoding
+    this.locationForm.patchValue(
+      {
+        city: '',
+        location: {
+          latitude: null,
+          longitude: null,
+        },
+      },
+      {emitEvent: false}
+    ); // Prevent value change events
+  }
+
   private searchCities(cityName: string): Observable<string[]> {
     if (!cityName) return of([]);
+  
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=5&class=place&type=city`;
+  
+    return this.http.get<any[]>(url).pipe(
+      map((results) =>
+        results.map((result) => {
+          const cityName = result.display_name.split(',')[0].trim();
+          return cityName;
+        })
+      ),
+      map((cityNames) => Array.from(new Set(cityNames)))
+    );
+  }
+  
+
+  private searchCityCoordinates(cityName: string) {
+    if (!cityName) {
+      this.isCityValid = true; // Allow empty city
+      this.locationForm.patchValue({
+        location: {
+          latitude: null,
+          longitude: null,
+        },
+      });
+      return;
+    }
+
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
       cityName
     )}&format=json&limit=5`;
-    return this.http.get<any[]>(url).pipe(
-      map((results) => results.map((result) => result.display_name))
-    );
-  }
-
-  private searchCityCoordinates(cityName: string) {
-    if (!cityName) return;
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-      cityName
-    )}&format=json&limit=1`;
     const headers = {
       'Accept-Language': 'fr',
       'User-Agent': 'matcha - matcha@example.com',
     };
 
-    this.http.get<any[]>(url, { headers }).subscribe({
+    this.http.get<any[]>(url, {headers}).subscribe({
       next: (results) => {
         if (results && results.length > 0) {
           const latitude = parseFloat(results[0].lat);
@@ -368,7 +473,6 @@ export class EditProfileComponent implements OnInit {
           });
           this.isCityValid = true;
         } else {
-          console.warn('No city found for:', cityName);
           this.locationForm.patchValue({
             location: {
               latitude: null,

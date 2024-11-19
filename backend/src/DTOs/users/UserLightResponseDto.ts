@@ -4,7 +4,7 @@ export interface UserLightResponseDto {
     first_name: string;
     last_name: string;
     age: number;
-    main_photo_url: string;
+    main_photo_url?: string;
     location?: {
         latitude: number;
         longitude: number;

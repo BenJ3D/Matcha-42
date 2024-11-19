@@ -1,6 +1,6 @@
 import {Router} from 'express';
 import EmailVerificationController from '../controllers/EmailVerificationController';
-import UserController from "../controllers/userController";
+import UserController from "../controllers/UserController";
 
 const router = Router();
 

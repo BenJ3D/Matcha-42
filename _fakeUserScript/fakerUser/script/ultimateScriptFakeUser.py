@@ -13,7 +13,8 @@ fake.unique.clear()
 output_file = "../resultSQL/fake_user_ultimate.sql"
 
 # OpenCageData API key
-opencage_api_key = os.getenv('KEY_OPENCAGE1')  # Assurez-vous que votre clé API est définie dans la variable d'environnement
+# opencage_api_key = os.getenv('OPENCAGE_API')  # Assurez-vous que votre clé API est définie dans la variable d'environnement
+opencage_api_key = "e397c7937da741e8b03eb2cc6b33edb1"  # Assurez-vous que votre clé API est définie dans la variable d'environnement
 
 # Initialize IDs starting from 100 to avoid conflicts
 start_user_id = 100
@@ -23,9 +24,9 @@ start_location_id = 100
 
 # Define base locations with their coordinates, radius, and number of users
 base_locations = [
-    {'city_name': 'Lyon', 'lat': 45.7640, 'lon': 4.8357, 'radius_km': 20, 'num_users': 500},
-    {'city_name': 'Clermont-Ferrand', 'lat': 45.7935, 'lon': 3.0795, 'radius_km': 350, 'num_users': 1000},
-    {'city_name': 'Paris', 'lat': 48.8566, 'lon': 2.3522, 'radius_km': 100, 'num_users': 500},
+    {'city_name': 'Lyon', 'lat': 45.7640, 'lon': 4.8357, 'radius_km': 35, 'num_users': 1400},
+    {'city_name': 'Clermont-Ferrand', 'lat': 45.7935, 'lon': 3.0795, 'radius_km': 350, 'num_users': 400},
+    {'city_name': 'Paris', 'lat': 48.8566, 'lon': 2.3522, 'radius_km': 100, 'num_users': 200},
     # Ajoutez d'autres villes avec leurs paramètres spécifiques
 ]
 
@@ -39,14 +40,8 @@ numberUserGenerated = sum(location['num_users'] for location in base_locations)
 genders = [
     {'id': 5, 'name': 'Male', 'photo_gender': 'men'},
     {'id': 6, 'name': 'Female', 'photo_gender': 'women'},
-    {'id': 7, 'name': 'Non-binary', 'photo_gender': 'men'},  # Alternatif
-    {'id': 8, 'name': 'Gender fluid', 'photo_gender': 'women'},  # Alternatif
-    {'id': 9, 'name': 'Agender', 'photo_gender': 'men'},  # Alternatif
-    {'id': 10, 'name': 'Genderqueer', 'photo_gender': 'women'},  # Alternatif
-    {'id': 11, 'name': 'Gender non-conforming', 'photo_gender': 'men'},  # Alternatif
-    {'id': 12, 'name': 'Transgender (MTF)', 'photo_gender': 'women'},
-    {'id': 13, 'name': 'Transgender (FTM)', 'photo_gender': 'men'},
-    {'id': 14, 'name': 'Questioning', 'photo_gender': 'women'}  # Alternatif
+    {'id': 7, 'name': 'Transgender (MTF)', 'photo_gender': 'women'},
+    {'id': 8, 'name': 'Transgender (FTM)', 'photo_gender': 'men'},
 ]
 
 # Limit the age range to reasonable values
@@ -123,7 +118,7 @@ def generate_photo_url(photo_gender, index):
 def generate_sexual_preferences(profile_id, total_genders=2):
     preferences = []
     num_preferences = random.randint(1, total_genders)  # 1 or 2 preferences
-    selected_genders = random.sample(range(5, 15), num_preferences)
+    selected_genders = random.sample(range(5, 8), num_preferences)
     for gender_id in selected_genders:
         preferences.append(f"({profile_id}, {gender_id})")
     return preferences
@@ -207,13 +202,13 @@ for base_location in base_locations:
     city_base_name = base_location['city_name']
 
     for i in range(num_users):
-        time.sleep(sleeptime)
+        # time.sleep(sleeptime) //Decommenter pour ajouter une pause (api en gratuit demande normalement 1 req/s)
         # Generate basic information for the user
         first_name = escape_single_quotes(fake.first_name())
         last_name = escape_single_quotes(fake.last_name())
         email = escape_single_quotes(fake.unique.email())
         username = escape_single_quotes(fake.unique.user_name())
-        password = '$2a$10$XbbecVun2kCcfnq3ScC/keXUWH5HXDrMI.9Xhwov0vRDsOmi4QE12'  # Hash bcrypt of password '1234'
+        password = '$2a$10$ZFINaQdBlXvAgiou1ixkPe3uLnDb6qT8Z6svI2pQk4tlqs3dhZ8GG'  # Hash bcrypt of password '12345'
         created_at = fake.date_between(start_date='-1y', end_date='today')
 
         # Set is_verified to true
