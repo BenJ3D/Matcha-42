@@ -1,19 +1,19 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatSidenavModule, MatSidenav } from '@angular/material/sidenav';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSliderModule } from '@angular/material/slider';
-import { ProfileService } from '../../services/profile.service';
-import { Tag } from '../../models/Tags';
-import { UserProfile } from '../../models/Profiles';
-import { HttpParams } from '@angular/common/http';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {MatSidenavModule, MatSidenav} from '@angular/material/sidenav';
+import {MatCardModule} from '@angular/material/card';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {Router} from '@angular/router';
+import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatSliderModule} from '@angular/material/slider';
+import {ProfileService} from '../../services/profile.service';
+import {Tag} from '../../models/Tags';
+import {UserProfile} from '../../models/Profiles';
+import {HttpParams} from '@angular/common/http';
 
 @Component({
   selector: 'app-home',
@@ -53,7 +53,8 @@ export class HomeComponent implements OnInit {
     private router: Router,
     private fb: FormBuilder,
     private profileService: ProfileService,
-  ) {}
+  ) {
+  }
 
   get currentProfile(): UserProfile | undefined {
     return this.profiles[this.currentProfileIndex];
@@ -190,5 +191,9 @@ export class HomeComponent implements OnInit {
 
   onPassClick() {
     this.onSwipe(false);
+  }
+
+  goToProfile(userId: number) {
+    this.router.navigate(['/profile'], {queryParams: {id: userId}});
   }
 }
