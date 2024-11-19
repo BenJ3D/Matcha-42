@@ -25,8 +25,14 @@
       <!-- Location -->
       <mat-form-field appearance="outline">
         <mat-label>Location</mat-label>
-        <input matInput formControlName="location"/>
+        <input matInput formControlName="location" [matAutocomplete]="auto" />
+        <mat-autocomplete #auto="matAutocomplete">
+          <mat-option *ngFor="let city of cityOptions | async" [value]="city">
+            {{ city }}
+          </mat-option>
+        </mat-autocomplete>
       </mat-form-field>
+      
 
       <!-- Tags -->
       <mat-form-field appearance="outline" class="full-width">
@@ -71,19 +77,10 @@
 
     <div class="home-container">
       <ng-container *ngIf="currentProfile; else noProfiles">
-        <mat-card
-          #swipeCard
-          class="profile-card"
-          [class.animate-right]="animateRight"
-          [class.animate-left]="animateLeft"
-        >
-          <img
-            mat-card-image
-            [src]="currentProfile.main_photo_url"
-            [alt]="currentProfile.username"
-
-          />
-          <mat-card-content (click)="goToProfile(currentProfile.id)">
+        <mat-card (click)="goToProfile(currentProfile.id)" #swipeCard class="profile-card"
+          [class.animate-right]="animateRight" [class.animate-left]="animateLeft">
+          <img mat-card-image [src]="currentProfile.main_photo_url" [alt]="currentProfile.username" />
+          <mat-card-content>
             <h2>{{ currentProfile.username }}, {{ currentProfile.age }}</h2>
             <p>{{ currentProfile.location?.city_name }}</p>
           </mat-card-content>

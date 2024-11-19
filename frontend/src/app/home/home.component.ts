@@ -14,6 +14,12 @@ import {ProfileService} from '../../services/profile.service';
 import {Tag} from '../../models/Tags';
 import {UserProfile} from '../../models/Profiles';
 import {HttpParams} from '@angular/common/http';
+import { debounceTime, map, switchMap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+
+
 
 @Component({
   selector: 'app-home',
@@ -31,6 +37,7 @@ import {HttpParams} from '@angular/common/http';
     MatSelectModule,
     MatSidenavModule,
     MatSliderModule,
+    MatAutocompleteModule,
   ],
 })
 export class HomeComponent implements OnInit {
@@ -48,11 +55,13 @@ export class HomeComponent implements OnInit {
   searchForm!: FormGroup;
   tags: Tag[] = [];
   isLoading: boolean = false;
+  cityOptions!: Observable<string[]>;
 
   constructor(
     private router: Router,
     private fb: FormBuilder,
     private profileService: ProfileService,
+    private http: HttpClient,
   ) {
   }
 
@@ -64,6 +73,7 @@ export class HomeComponent implements OnInit {
     this.initializeSearchForm();
     this.loadTags();
     this.fetchProfiles();
+    this.setupCityAutocomplete();
   }
 
   initializeSearchForm() {
@@ -195,5 +205,29 @@ export class HomeComponent implements OnInit {
 
   goToProfile(userId: number) {
     this.router.navigate(['/profile'], {queryParams: {id: userId}});
+  }
+  
+
+  setupCityAutocomplete() {
+    this.cityOptions = this.searchForm.get('location')!.valueChanges.pipe(
+      debounceTime(300),
+      switchMap((value) => this.searchCities(value))
+    );
+  }
+
+  private searchCities(cityName: string): Observable<string[]> {
+    if (!cityName) return of([]);
+  
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=5&class=place&type=city`;
+  
+    return this.http.get<any[]>(url).pipe(
+      map((results) =>
+        results.map((result) => {
+          const cityName = result.display_name.split(',')[0].trim();
+          return cityName;
+        })
+      ),
+      map((cityNames) => Array.from(new Set(cityNames)))
+    );
   }
 }
