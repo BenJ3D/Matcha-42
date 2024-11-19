@@ -7,7 +7,8 @@
   @apply bg-gray-500 text-white;
 
   &:hover {
-    @apply bg-violet-700; // Hover commun par défaut
+    @apply bg-violet-700;
+    // Hover commun par défaut
   }
 
   // Variantes avec des styles de base différents
@@ -32,10 +33,9 @@
   &.unlike:hover,
   &.blocked:hover,
   &.reported:hover {
-    @apply bg-red-800;
+    @apply bg-red-800 text-white ;
   }
 }
-
 
 
 /* profile.component.scss */

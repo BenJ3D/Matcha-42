@@ -83,6 +83,7 @@ export class ProfileComponent implements OnInit {
           this.user = user;
         },
         complete: () => {
+          this.loadGenders();
           if (this.user)
             this.profileService.visitedProfile(this.user?.id).subscribe();
         },

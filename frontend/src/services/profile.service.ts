@@ -12,6 +12,7 @@ import {Tag} from '../models/Tags';
 import {Photo} from '../models/Photo';
 import {UploadPhotoResponse} from '../DTOs/upload-photo-response';
 import {UserProfile, SearchFilters} from '../models/Profiles';
+import {Router} from "@angular/router";
 
 @Injectable({
   providedIn: 'root',
@@ -162,6 +163,10 @@ export class ProfileService {
 
   visitedProfile(id: number): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.apiUrl}/visited-profiles/${id}`, {});
+  }
+
+  goToProfile(userId: number, router: Router) {
+    router.navigate(['/profile'], {queryParams: {id: userId}});
   }
 
 }
