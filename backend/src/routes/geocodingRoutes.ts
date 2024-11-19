@@ -58,7 +58,12 @@ interface CityInfo {
  *               type: array
  *               items:
  *                 type: object
- *                 properties:
+ *                 properties:name: components._normalized_city || components.city || components.town || components.village || 'Unknown',
+ latitude: result.geometry.lat,
+ longitude: result.geometry.lng,
+ postalCode: components.postcode,
+ country: components.country,
+ region: components.region
  *                   name:
  *                     type: string
  *                   latitude:
