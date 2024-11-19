@@ -1,17 +1,15 @@
-// src/app/services/profile.service.ts
-import {Injectable} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
-import {BehaviorSubject, Observable, catchError, throwError} from 'rxjs';
-import {map, tap} from 'rxjs/operators';
-
-import {ProfileCreateDto} from '../DTOs/profiles/ProfileCreateDto';
-import {ProfileUpdateDto} from '../DTOs/profiles/ProfileUpdateDto';
-import {UserResponseDto} from '../DTOs/users/UserResponseDto';
-import {Gender} from '../models/Genders';
-import {Tag} from '../models/Tags';
-import {Photo} from '../models/Photo';
-import {UploadPhotoResponse} from '../DTOs/upload-photo-response';
-import { UserProfile, SearchFilters } from '../models/Profiles';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { BehaviorSubject, Observable, catchError, throwError } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
+import { ProfileCreateDto } from '../DTOs/profiles/ProfileCreateDto';
+import { ProfileUpdateDto } from '../DTOs/profiles/ProfileUpdateDto';
+import { UserResponseDto } from '../DTOs/users/UserResponseDto';
+import { Gender } from '../models/Genders';
+import { Tag } from '../models/Tags';
+import { Photo } from '../models/Photo';
+import { UploadPhotoResponse } from '../DTOs/upload-photo-response';
+import { UserProfile } from '../models/Profiles';
 
 @Injectable({
   providedIn: 'root',
@@ -92,7 +90,7 @@ export class ProfileService {
   getUserById(id: number): Observable<UserResponseDto> {
     return this.http.get<UserResponseDto>(`${this.apiUrl}/users/${id}`);
   }
-  
+
   getCompatibleProfiles(): Observable<UserProfile[]> {
     return this.http.get<UserProfile[]>(`${this.apiUrl}/users/search`).pipe(
       map(this.mapProfilesResponse),
@@ -100,14 +98,14 @@ export class ProfileService {
     );
   }
 
-  searchProfiles(searchParams: HttpParams): Observable<UserProfile[]> {
+  searchProfiles(searchParams: HttpParams): Observable<UserResponseDto[]> {
     return this.http.get<UserProfile[]>(`${this.apiUrl}/users/search`, { params: searchParams }).pipe(
       map(this.mapProfilesResponse),
       catchError(this.handleError)
     );
   }
 
-  private mapProfilesResponse(profiles: any[]): UserProfile[] {
+  private mapProfilesResponse(profiles: any[]): UserResponseDto[] {
     return profiles.map(profile => ({
       id: profile.id,
       username: profile.username || 'Anonymous',

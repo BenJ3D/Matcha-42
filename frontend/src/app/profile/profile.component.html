@@ -21,7 +21,7 @@
         <strong>Interests:</strong>
         <span *ngFor="let tag of user.tags">{{ tag.tag_name }} </span>
       </p>
-      <p><strong>Fame Rating:</strong> {{ user.fame_rating | number: '1.2-2' }}</p>
+      <p><strong>Fame Rating:</strong> {{ user.fame_rating }}</p>
     </mat-card-content>
     @if (!profileId) {
       <mat-card-actions>
