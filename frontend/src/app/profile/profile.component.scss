@@ -2,14 +2,51 @@
 @tailwind components;
 @tailwind utilities;
 
+
+.button-base {
+  @apply bg-gray-500 text-white;
+
+  &:hover {
+    @apply bg-violet-700; // Hover commun par défaut
+  }
+
+  // Variantes avec des styles de base différents
+  &.like {
+    @apply bg-rose-700;
+  }
+
+  &.unlike {
+    @apply bg-violet-700;
+  }
+
+  &.blocked {
+    @apply bg-red-600;
+  }
+
+  &.reported {
+    @apply bg-red-700;
+  }
+
+  // Hover commun à toutes les variantes
+  &.like:hover,
+  &.unlike:hover,
+  &.blocked:hover,
+  &.reported:hover {
+    @apply bg-red-800;
+  }
+}
+
+
+
 /* profile.component.scss */
 .profile-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 16px;
-  background-color: #f5f5f5;
-  min-height: 100vh;
+  //display: flex;
+  //flex-direction: column;
+  //align-items: center;
+  //padding: 16px;
+  //background-color: #f5f5f5;
+  //min-height: 100vh;
+  @apply flex flex-col items-center p-4 bg-gray-100 h-full;
 }
 
 // Shared card styles
@@ -27,8 +64,7 @@
   @extend .card-shared;
 
   .profile-header {
-    text-align: center;
-    margin-bottom: 20px;
+    @apply flex flex-col items-center mb-5;
   }
 
   .profile-picture {

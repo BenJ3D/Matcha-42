@@ -1,16 +1,16 @@
 services:
-  # adminer:
-  #   image: adminer
-  #   restart: always
-  #   environment:
-  #     - ADMINER_DESIGN=pappu687	
-  #     - ADMINER_DEFAULT_SERVER=postgres
-  #   depends_on:
-  #     - postgres
-  #   ports:
-  #     - 8080:8080
-  #   networks:
-  #     - db
+  adminer:
+    image: adminer
+    restart: always
+    environment:
+      - ADMINER_DESIGN=pappu687	
+      - ADMINER_DEFAULT_SERVER=postgres
+    depends_on:
+      - postgres
+    ports:
+      - 8080:8080
+    networks:
+      - db
 
   postgres:
     image: postgis/postgis:16-master

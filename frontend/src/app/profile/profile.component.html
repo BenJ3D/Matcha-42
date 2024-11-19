@@ -36,20 +36,20 @@
       </mat-card-actions>
     } @else {
       <div class="grid grid-cols-2 gap-1 pt-6">
-        <button color="accent" mat-raised-button>
+        <button [ngClass]="{'like': user.isLiked}" class="button-base" (click)="toggleLike()" mat-raised-button>
           <mat-icon>favorite</mat-icon>
           Like
         </button>
-        <button color="primary" mat-raised-button>
+        <button [ngClass]="{'unlike': user.isUnliked}" class="button-base" (click)="toggleUnlike()" mat-raised-button>
           <mat-icon>thumb_down</mat-icon>
           Unlike
         </button>
-        <button color="warn" mat-raised-button>
+        <button [ngClass]="{'blocked': user.isBlocked}" class="button-base" (click)="toggleBlock()" mat-raised-button>
           <mat-icon>block</mat-icon>
           Block
         </button>
 
-        <button color="warn" mat-raised-button>
+        <button [ngClass]="{'reported': user.isFakeReported}" class="button-base" (click)="toggleReportFake()" mat-raised-button>
           <mat-icon>error</mat-icon>
           Fake report
         </button>

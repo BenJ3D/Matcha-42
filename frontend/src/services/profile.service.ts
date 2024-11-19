@@ -127,4 +127,33 @@ export class ProfileService {
     console.error('API Error:', error);
     return throwError(() => new Error(error.message || 'Server error'));
   }
+
+  addLikeUser(id: number): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/likes/${id}`, {});
+  }
+  removeLikeUser(id: number): Observable<string> {
+    return this.http.delete<string>(`${this.apiUrl}/likes/${id}`);
+  }
+
+  addUnlikeUser(id: number): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/unlikes/${id}`, {});
+  }
+  removeUnlikeUser(id: number): Observable<string> {
+    return this.http.delete<string>(`${this.apiUrl}/unlikes/${id}`);
+  }
+
+  blockUser(id: number): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/blocked-users/${id}`, {});
+  }
+  unblockUser(id: number): Observable<string> {
+    return this.http.delete<string>(`${this.apiUrl}/blocked-users/${id}`);
+  }
+
+  reportUser(id: number): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/fake-users/${id}`, {});
+  }
+  unreportUser(id: number): Observable<string> {
+    return this.http.delete<string>(`${this.apiUrl}/fake-users/${id}`);
+  }
+
 }

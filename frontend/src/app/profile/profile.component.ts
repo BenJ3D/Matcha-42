@@ -11,6 +11,7 @@ import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {finalize} from "rxjs";
 
 @Component({
   selector: 'app-profile',
@@ -77,7 +78,6 @@ export class ProfileComponent implements OnInit {
       this.profileService.getUserById(this.profileId).subscribe({
         next: (user) => {
           if (!user) {
-            // this.loadUserProfile();
             this.router.navigate(['/profile']);
           }
           this.user = user;
@@ -150,6 +150,81 @@ export class ProfileComponent implements OnInit {
           console.error('Error deleting profile:', error);
         },
       });
+    }
+  }
+
+  toggleLike() {
+    if (this.user?.isLiked) {
+      this.profileService.removeLikeUser(this.user.id).subscribe({
+        next: () => {
+          this.loadUserProfileById();
+        }
+      });
+    } else if (this.user?.isLiked === false) {
+      this.profileService.addLikeUser(this.user.id).subscribe({
+        next: () => {
+          if (this.user?.isBlocked) {
+            this.profileService.unblockUser(this.user.id)
+              .pipe(
+                finalize(() => {
+                  this.loadUserProfileById();
+                })
+              )
+              .subscribe({});
+          } else {
+            this.loadUserProfileById();
+          }
+        }
+      });
+    }
+  }
+
+
+  toggleUnlike() {
+    if (this.user?.isUnliked) {
+      this.profileService.removeUnlikeUser(this.user.id).subscribe({
+        next: () => {
+          this.loadUserProfileById();
+        }
+      })
+    } else if (this.user?.isUnliked == false) {
+      this.profileService.addUnlikeUser(this.user.id).subscribe({
+        next: () => {
+          this.loadUserProfileById();
+        }
+      })
+    }
+  }
+
+  toggleBlock() {
+    if (this.user?.isBlocked) {
+      this.profileService.unblockUser(this.user.id).subscribe({
+        next: () => {
+          this.loadUserProfileById();
+        }
+      })
+    } else if (this.user?.isBlocked == false) {
+      this.profileService.blockUser(this.user.id).subscribe({
+        next: () => {
+          this.loadUserProfileById();
+        }
+      })
+    }
+  }
+
+  toggleReportFake() {
+    if (this.user?.isFakeReported) {
+      this.profileService.unreportUser(this.user.id).subscribe({
+        next: () => {
+          this.loadUserProfileById();
+        }
+      })
+    } else if (this.user?.isFakeReported == false) {
+      this.profileService.reportUser(this.user.id).subscribe({
+        next: () => {
+          this.loadUserProfileById();
+        }
+      })
     }
   }
 }
