@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import {ProfileService} from '../../services/profile.service';
 import {UserResponseDto} from '../../DTOs/users/UserResponseDto';
@@ -12,6 +12,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {finalize} from "rxjs";
+import {AuthService} from "../../services/auth.service";
 
 @Component({
   selector: 'app-profile',
@@ -37,7 +38,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private profileService: ProfileService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authService: AuthService
   ) {
   }
 
@@ -107,20 +109,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
-  private setProfileInterval() {
-    this.clearProfileInterval();
-    this.profileInterval = setInterval(() => {
-      this.loadUserProfileById();
-    }, 5000);
-  }
-
-  private clearProfileInterval() {
-    if (this.profileInterval) {
-      clearInterval(this.profileInterval);
-      this.profileInterval = null;
-    }
-  }
-
   loadGenders() {
     this.profileService.getGenders().subscribe({
       next: (genders) => {
@@ -164,23 +152,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
-  // onDeleteProfile() {
-  //   if (
-  //     confirm(
-  //       'Are you sure you want to delete your profile? This action cannot be undone.'
-  //     )
-  //   ) {
-  //     this.profileService.deleteProfile().subscribe({
-  //       next: () => {
-  //         console.log('Profile deleted successfully');
-  //         this.router.navigate(['/edit-profile']);
-  //       },
-  //       error: (error) => {
-  //         console.error('Error deleting profile:', error);
-  //       },
-  //     });
-  //   }
-  // }
+  loggout() {
+    this.authService.logout();
+  }
 
   toggleLike() {
     if (this.user?.isLiked) {
@@ -208,7 +182,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
-
   toggleUnlike() {
     if (this.user?.isUnliked) {
       this.profileService.removeUnlikeUser(this.user.id).subscribe({
@@ -224,6 +197,24 @@ export class ProfileComponent implements OnInit, OnDestroy {
       })
     }
   }
+
+  // onDeleteProfile() {
+  //   if (
+  //     confirm(
+  //       'Are you sure you want to delete your profile? This action cannot be undone.'
+  //     )
+  //   ) {
+  //     this.profileService.deleteProfile().subscribe({
+  //       next: () => {
+  //         console.log('Profile deleted successfully');
+  //         this.router.navigate(['/edit-profile']);
+  //       },
+  //       error: (error) => {
+  //         console.error('Error deleting profile:', error);
+  //       },
+  //     });
+  //   }
+  // }
 
   toggleBlock() {
     if (this.user?.isBlocked) {
@@ -254,6 +245,20 @@ export class ProfileComponent implements OnInit, OnDestroy {
           this.loadUserProfileById();
         }
       })
+    }
+  }
+
+  private setProfileInterval() {
+    this.clearProfileInterval();
+    this.profileInterval = setInterval(() => {
+      this.loadUserProfileById();
+    }, 5000);
+  }
+
+  private clearProfileInterval() {
+    if (this.profileInterval) {
+      clearInterval(this.profileInterval);
+      this.profileInterval = null;
     }
   }
 }
