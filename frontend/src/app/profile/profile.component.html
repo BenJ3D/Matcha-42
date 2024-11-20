@@ -41,6 +41,7 @@
     <mat-card-content>
       <p><strong>Email:</strong> {{ user.email }}</p>
       <p><strong>Gender:</strong> {{ getGenderName(user.gender) }}</p>
+      <p><strong>Location:</strong> {{ user.location?.city_name }}</p>
       <p>
         <strong>Interested In:</strong>
         {{ getSexualPreferencesNames(user.sexualPreferences) }}
