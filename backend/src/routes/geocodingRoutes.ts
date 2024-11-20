@@ -58,22 +58,25 @@ interface CityInfo {
  *               type: array
  *               items:
  *                 type: object
- *                 properties:name: components._normalized_city || components.city || components.town || components.village || 'Unknown',
- latitude: result.geometry.lat,
- longitude: result.geometry.lng,
- postalCode: components.postcode,
- country: components.country,
- region: components.region
+ *                 properties:
  *                   name:
  *                     type: string
+ *                     description: Nom de la ville.
  *                   latitude:
  *                     type: number
+ *                     description: Latitude de la ville.
  *                   longitude:
  *                     type: number
+ *                     description: Longitude de la ville.
  *                   postalCode:
  *                     type: string
+ *                     description: Code postal de la ville.
  *                   country:
  *                     type: string
+ *                     description: Pays de la ville.
+ *                   region:
+ *                     type: string
+ *                     description: Région de la ville.
  *       400:
  *         description: Paramètre de requête manquant ou invalide.
  *       500:

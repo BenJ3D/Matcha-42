@@ -82,10 +82,18 @@ export class ProfileComponent implements OnInit {
           }
           this.user = user;
         },
+        complete: () => {
+          this.loadGenders();
+          if (this.user)
+            this.profileService.visitedProfile(this.user?.id).subscribe();
+        },
         error: (error) => {
           console.error('Error fetching user profile:', error);
           if (error.status === 401) {
             this.router.navigate(['/home']);
+          } else {
+            this.router.navigate(['/profile']);
+
           }
         },
       });

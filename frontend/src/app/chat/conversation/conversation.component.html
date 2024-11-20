@@ -1,9 +1,18 @@
 <div class="conversation-container">
   <div class="conversation-header">
-    <button mat-icon-button (click)="closeConversation()">
+    <button mat-icon-button (click)="closeConversation()"
+            matTooltip="{{'Close conversation'}}"
+    >
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <h2>{{ user?.username }}</h2>
+    <div class="text-2xl font-semibold hover:text-orange-600 flex justify-center  space-x-2 space-y-2"
+         matTooltip="{{ user ? 'View the profile of ' + user.username : 'Undefined user' }}"
+         (click)="user ? profileService.goToProfile(user.id, router): null">
+      <div>
+        {{ user?.username }}
+      </div>
+      <mat-icon>visibility</mat-icon>
+    </div>
   </div>
   <div class="message-list" #messageList>
     <div

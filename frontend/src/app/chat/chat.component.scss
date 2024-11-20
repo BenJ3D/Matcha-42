@@ -54,7 +54,7 @@
 @media (max-width: 600px) {
   .chat-container {
     flex-direction: column;
-    height: calc(100vh - 56px);
+    height: 100%;
   }
 
   .chat-users-card {
@@ -69,6 +69,7 @@
   }
 
   .chat-conversation-card {
+    height: 100%;
     width: 100%;
   }
 

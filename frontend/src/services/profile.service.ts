@@ -11,6 +11,16 @@ import { Photo } from '../models/Photo';
 import { UploadPhotoResponse } from '../DTOs/upload-photo-response';
 import { UserProfile } from '../models/Profiles';
 
+import {ProfileCreateDto} from '../DTOs/profiles/ProfileCreateDto';
+import {ProfileUpdateDto} from '../DTOs/profiles/ProfileUpdateDto';
+import {UserResponseDto} from '../DTOs/users/UserResponseDto';
+import {Gender} from '../models/Genders';
+import {Tag} from '../models/Tags';
+import {Photo} from '../models/Photo';
+import {UploadPhotoResponse} from '../DTOs/upload-photo-response';
+import {UserProfile, SearchFilters} from '../models/Profiles';
+import {Router} from "@angular/router";
+
 @Injectable({
   providedIn: 'root',
 })
@@ -154,6 +164,7 @@ export class ProfileService {
   addLikeUser(id: number): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.apiUrl}/likes/${id}`, {});
   }
+
   removeLikeUser(id: number): Observable<string> {
     return this.http.delete<string>(`${this.apiUrl}/likes/${id}`);
   }
@@ -161,6 +172,7 @@ export class ProfileService {
   addUnlikeUser(id: number): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.apiUrl}/unlikes/${id}`, {});
   }
+
   removeUnlikeUser(id: number): Observable<string> {
     return this.http.delete<string>(`${this.apiUrl}/unlikes/${id}`);
   }
@@ -168,6 +180,7 @@ export class ProfileService {
   blockUser(id: number): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.apiUrl}/blocked-users/${id}`, {});
   }
+
   unblockUser(id: number): Observable<string> {
     return this.http.delete<string>(`${this.apiUrl}/blocked-users/${id}`);
   }
@@ -175,8 +188,17 @@ export class ProfileService {
   reportUser(id: number): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.apiUrl}/fake-users/${id}`, {});
   }
+
   unreportUser(id: number): Observable<string> {
     return this.http.delete<string>(`${this.apiUrl}/fake-users/${id}`);
+  }
+
+  visitedProfile(id: number): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/visited-profiles/${id}`, {});
+  }
+
+  goToProfile(userId: number, router: Router) {
+    router.navigate(['/profile'], {queryParams: {id: userId}});
   }
 
 }

@@ -592,19 +592,15 @@ class UserDAL {
                 .select('photo_id', 'url', 'description', 'owner_user_id')
                 .where('owner_user_id', userId);
 
-            // Récupérer les préférences sexuelles
-            const sexualPreferencesRows = await db('profile_sexual_preferences')
-                .select('gender_id')
-                .where('profile_id', user.profile_id);
+            const tags: Tag[] = await db('tags')
+                .select('tags.tag_id', 'tags.tag_name')
+                .join('profile_tag', 'tags.tag_id', 'profile_tag.profile_tag')
+                .where('profile_tag.profile_id', user.profile_id);
 
-            const sexualPreferences = sexualPreferencesRows.map(row => row.gender_id);
-
-            // Récupérer les tags
-            const tagsRows = await db('profile_tag')
-                .select('profile_tag')
-                .where('profile_id', user.profile_id);
-
-            const tags = tagsRows.map(row => row.profile_tag);
+            const sexualPreferences: Gender[] = await db('genders')
+                .select('genders.gender_id', 'genders.name', 'genders.description')
+                .join('profile_sexual_preferences', 'genders.gender_id', 'profile_sexual_preferences.gender_id')
+                .where('profile_sexual_preferences.profile_id', user.profile_id);
 
             // Récupérer les statuts de relation
             const [
@@ -655,6 +651,25 @@ class UserDAL {
         } catch (error) {
             console.error("Error fetching user:", error);
             throw new Error(`Could not fetch user id ${userId}`);
+        }
+    }
+
+    public updateLastActivity = async (userId: number): Promise<void> => {
+        try {
+            const result = await db('users')
+                .where('id', userId)
+                .update({
+                    last_activity: db.fn.now()
+                });
+
+            if (result) {
+                return;
+            } else {
+                throw {status: 400, message: 'Impossible de vérifier l\'existence de l\'utilisateur'};
+            }
+        } catch (error) {
+            console.error('Erreur lors de la mise à jour :', error);
+            throw {status: 400, message: 'Erreur'};
         }
     }
 

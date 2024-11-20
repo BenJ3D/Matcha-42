@@ -24,6 +24,9 @@ import {FormsModule} from "@angular/forms";
 import {MatButtonModule} from "@angular/material/button";
 import {MatInputModule} from "@angular/material/input";
 import {ApiService} from "../../../services/api.service";
+import {ProfileService} from "../../../services/profile.service";
+import {Router} from "@angular/router";
+import {MatTooltip} from "@angular/material/tooltip";
 
 @Component({
   selector: 'app-conversation',
@@ -37,6 +40,7 @@ import {ApiService} from "../../../services/api.service";
     MatButtonModule,
     MatInputModule,
     MatFormFieldModule,
+    MatTooltip,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -54,6 +58,8 @@ export class ConversationComponent implements OnInit, OnDestroy {
     private socketService: SocketService,
     private apiService: ApiService,
     private authService: AuthService,
+    protected profileService: ProfileService,
+    protected router: Router,
     private cdr: ChangeDetectorRef
   ) {
   }
@@ -124,4 +130,5 @@ export class ConversationComponent implements OnInit, OnDestroy {
   getCurrentUserId(): number {
     return this.authService.getCurrentUserId();
   }
+
 }
