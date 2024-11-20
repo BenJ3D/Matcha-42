@@ -70,14 +70,17 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
     this.initializeSearchForm();
     this.loadTags();
-    this.fetchProfiles();
     this.setupCityAutocomplete();
-    this.fetchProfiles();
+    this.fetchUserLocation().subscribe({
+      next: () => {
+        this.fetchProfiles();
+      }
+    });
   }
 
-  fetchUserLocation() {
-    this.profileService.getMyProfile().subscribe({
-      next: (data) => {
+  fetchUserLocation(): Observable<void> {
+    return this.profileService.getMyProfile().pipe(
+      map((data) => {
         if (
           data.location &&
           data.location.latitude !== null &&
@@ -90,11 +93,8 @@ export class HomeComponent implements OnInit {
         } else {
           console.error('Location data is missing from the user profile.');
         }
-      },
-      error: (error) => {
-        console.error('Error fetching user location:', error);
-      },
-    });
+      })
+    );
   }
 
   initializeSearchForm() {
@@ -172,6 +172,9 @@ export class HomeComponent implements OnInit {
         if (profiles.length === 0) {
           this.profiles = [];
         } else {
+          profiles.forEach(profile => {
+            profile.distance = this.calculateDistance(profile.location);
+          });
           this.profiles = this.sortProfiles(
             profiles,
             formValue.sortBy,

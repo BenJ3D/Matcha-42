@@ -90,6 +90,8 @@
         <mat-card-content>
           <h2>{{ currentProfile.username }}, {{ currentProfile.age }}</h2>
           <p>{{ currentProfile.location?.city_name }}</p>
+          <p><strong>Fame Rating:</strong> {{ currentProfile.fame_rating }}</p>
+          <p><strong>Distance:</strong> {{ currentProfile.distance | number:'1.0-2' }} km</p>
         </mat-card-content>
       </mat-card>      
       
