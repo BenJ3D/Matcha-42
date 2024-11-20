@@ -15,6 +15,7 @@
         <mat-list-item
           (click)="selectConversation(user)"
           *ngFor="let user of chatUsers"
+          class="hover:bg-slate-300"
           [class.selected]="user.id == selectedUser?.id"
         >
           <div
