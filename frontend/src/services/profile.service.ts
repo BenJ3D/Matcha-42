@@ -1,16 +1,7 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError, throwError } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
-import { ProfileCreateDto } from '../DTOs/profiles/ProfileCreateDto';
-import { ProfileUpdateDto } from '../DTOs/profiles/ProfileUpdateDto';
-import { UserResponseDto } from '../DTOs/users/UserResponseDto';
-import { Gender } from '../models/Genders';
-import { Tag } from '../models/Tags';
-import { Photo } from '../models/Photo';
-import { UploadPhotoResponse } from '../DTOs/upload-photo-response';
-import { UserProfile } from '../models/Profiles';
-
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {BehaviorSubject, Observable, catchError, throwError} from 'rxjs';
+import {map, tap} from 'rxjs/operators';
 import {ProfileCreateDto} from '../DTOs/profiles/ProfileCreateDto';
 import {ProfileUpdateDto} from '../DTOs/profiles/ProfileUpdateDto';
 import {UserResponseDto} from '../DTOs/users/UserResponseDto';
@@ -18,7 +9,7 @@ import {Gender} from '../models/Genders';
 import {Tag} from '../models/Tags';
 import {Photo} from '../models/Photo';
 import {UploadPhotoResponse} from '../DTOs/upload-photo-response';
-import {UserProfile, SearchFilters} from '../models/Profiles';
+import {UserProfile} from '../models/Profiles';
 import {Router} from "@angular/router";
 
 @Injectable({
@@ -109,7 +100,7 @@ export class ProfileService {
   }
 
   searchProfiles(searchParams: HttpParams): Observable<UserResponseDto[]> {
-    return this.http.get<UserProfile[]>(`${this.apiUrl}/users/search`, { params: searchParams }).pipe(
+    return this.http.get<UserProfile[]>(`${this.apiUrl}/users/search`, {params: searchParams}).pipe(
       map(this.mapProfilesResponse),
       catchError(this.handleError)
     );
@@ -140,14 +131,14 @@ export class ProfileService {
       likers: profile.likers || [],
       matchers: profile.matchers || [],
       visitors: profile.visitors || [],
-      
+
       // Adding missing required boolean properties
       isLiked: profile.isLiked || false,
       isUnliked: profile.isUnliked || false,
       isMatched: profile.isMatched || false,
       isBlocked: profile.isBlocked || false,
       isFakeReported: profile.isFakeReported || false,
-      
+
       // Adding Me-suffixed properties
       LikedMe: profile.LikedMe || false,
       UnlikedMe: profile.UnlikedMe || false,
