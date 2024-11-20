@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import {ProfileService} from '../../services/profile.service';
 import {UserResponseDto} from '../../DTOs/users/UserResponseDto';
@@ -27,11 +27,12 @@ import {finalize} from "rxjs";
     MatProgressSpinnerModule,
   ],
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, OnDestroy {
   user: UserResponseDto | null = null;
   genders: Gender[] = [];
   tags: Tag[] = [];
   profileId: number | null = null;
+  private profileInterval: any;
 
   constructor(
     private router: Router,
@@ -44,6 +45,10 @@ export class ProfileComponent implements OnInit {
     // this.loadUserProfile();
     this.loadGenders();
     this.subscribeToQueryParams();
+  }
+
+  ngOnDestroy() {
+    this.clearProfileInterval();
   }
 
   subscribeToQueryParams() {
@@ -60,6 +65,7 @@ export class ProfileComponent implements OnInit {
   }
 
   loadUserProfile() {
+    this.clearProfileInterval();
     this.profileService.getMyProfile().subscribe({
       next: (user) => {
         this.user = user;
@@ -74,6 +80,7 @@ export class ProfileComponent implements OnInit {
   }
 
   loadUserProfileById() {
+    this.setProfileInterval();
     if (this.profileId) {
       this.profileService.getUserById(this.profileId).subscribe({
         next: (user) => {
@@ -97,6 +104,20 @@ export class ProfileComponent implements OnInit {
           }
         },
       });
+    }
+  }
+
+  private setProfileInterval() {
+    this.clearProfileInterval();
+    this.profileInterval = setInterval(() => {
+      this.loadUserProfileById();
+    }, 5000);
+  }
+
+  private clearProfileInterval() {
+    if (this.profileInterval) {
+      clearInterval(this.profileInterval);
+      this.profileInterval = null;
     }
   }
 

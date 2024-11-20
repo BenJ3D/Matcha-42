@@ -14,19 +14,22 @@
         <p class="username">{{ '@' + user.username }}</p>
       </div>
       <div class="pb-4">
-        @if (user.is_online) {
+        @if (user.is_online && profileId) {
 
           <div class="flex flex-row space-x-2 justify-center">
             <mat-icon class="text-green-500">check_circle</mat-icon>
             <div class="">is online</div>
           </div>
-        } @else {
-          <div class="flex flex-row space-x-2 justify-center">
-            <mat-icon class="text-gray-500">cancel</mat-icon>
+        } @else if (profileId) {
+          <div class="flex flex-row justify-center items-center">
+            <div>
+              <mat-icon class="text-gray-500 text-lg">cancel</mat-icon>
+
+            </div>
             <div class="">is offline</div>
           </div>
           <div class="flex space-x-2 justify-center text-gray-600">
-            <div>Last_activity :</div>
+            <div class="font-medium">Last activity :</div>
             <div class="flex flex-row space-x-2">
               <div> {{ user.last_activity | date: 'medium' }}</div>
             </div>
