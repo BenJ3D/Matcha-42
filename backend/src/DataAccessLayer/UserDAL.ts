@@ -10,6 +10,7 @@ import {Gender} from "../models/Genders";
 import {UserEmailPatchDto} from "../DTOs/users/UserEmailPatchDto";
 import {User} from "../models/User";
 import {UserOtherResponseDto} from "../DTOs/users/UserOtherResponseDto";
+import { TagInCommonDto } from "../DTOs/users/TagInCommonDto";
 
 class UserDAL {
 
@@ -562,7 +563,7 @@ class UserDAL {
      */
     async getUserOtherById(currentUserId: number, userId: number): Promise<UserOtherResponseDto | null> {
         try {
-            // Récupérer les données de l'utilisateur ciblé
+            // Fetch the target user's data
             const user = await db('users')
                 .select(
                     'users.id',
@@ -587,22 +588,44 @@ class UserDAL {
 
             if (!user) return null;
 
-            // Récupérer les photos de l'utilisateur
-            const photos = await db('photos')
-                .select('photo_id', 'url', 'description', 'owner_user_id')
-                .where('owner_user_id', userId);
-
-            const tags: Tag[] = await db('tags')
+            // Fetch the target user's tags
+            const targetUserTags: Tag[] = await db('tags')
                 .select('tags.tag_id', 'tags.tag_name')
                 .join('profile_tag', 'tags.tag_id', 'profile_tag.profile_tag')
                 .where('profile_tag.profile_id', user.profile_id);
+
+            // Fetch the current user's profile ID
+            const currentUser = await db('users')
+                .select('profile_id')
+                .where('id', currentUserId)
+                .first();
+
+            let currentUserTags: Tag[] = [];
+            if (currentUser) {
+                // Fetch the current user's tags
+                currentUserTags = await db('tags')
+                    .select('tags.tag_id', 'tags.tag_name')
+                    .join('profile_tag', 'tags.tag_id', 'profile_tag.profile_tag')
+                    .where('profile_tag.profile_id', currentUser.profile_id);
+            }
+
+            // Map target user's tags to include inCommon flag
+            const tags: TagInCommonDto[] = targetUserTags.map(tag => ({
+                ...tag,
+                inCommon: currentUserTags.some(currentTag => currentTag.tag_id === tag.tag_id)
+            }));
+
+            // Fetch other necessary data (photos, sexualPreferences, etc.)
+            const photos = await db('photos')
+                .select('photo_id', 'url', 'description', 'owner_user_id')
+                .where('owner_user_id', userId);
 
             const sexualPreferences: Gender[] = await db('genders')
                 .select('genders.gender_id', 'genders.name', 'genders.description')
                 .join('profile_sexual_preferences', 'genders.gender_id', 'profile_sexual_preferences.gender_id')
                 .where('profile_sexual_preferences.profile_id', user.profile_id);
 
-            // Récupérer les statuts de relation
+            // Fetch relationship statuses
             const [
                 isLikedRow,
                 isUnlikedRow,

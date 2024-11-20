@@ -1,3 +1,4 @@
+import { TagInCommonDto } from './../DTOs/users/TagInCommonDto';
 import TagDAL from '../DataAccessLayer/TagDAL';
 import {Tag} from '../models/Tags';
 

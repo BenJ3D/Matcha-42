@@ -44,11 +44,13 @@
       <p><strong>Bio:</strong> {{ user.biography }}</p>
       <p><strong>Fame Rating:</strong> {{ user.fame_rating | number: '1.2-2' }}</p>
       <strong>Tags interests:</strong>
+      <strong class="text-gray-500 italic text-xs"> (Tags you have in common are clear)</strong>
       <div
         class="grid grid-cols-7 xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 grid-flow-row gap-1">
         <div *ngFor="let tag of user.tags">
           <div
-            class="flex justify-start lg:justify-center items-center text-center h-full w-full rounded-xl p-2 bg-sky-700 font-semibold text-white hover:bg-sky-500 select-none text-clip"
+            [ngClass]="{'bg-cyan-600': tag.inCommon}"
+            class="flex justify-start lg:justify-center items-center text-center h-full w-full rounded-xl p-2 bg-sky-700  font-semibold text-white  select-none text-clip"
             title="{{ tag.tag_name }}">
             {{ tag.tag_name }}
           </div>

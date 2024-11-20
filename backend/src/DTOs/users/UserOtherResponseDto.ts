@@ -2,6 +2,7 @@ import {UserLightResponseDto} from "./UserLightResponseDto";
 import {Photo} from "../../models/Photo";
 import {Tag} from "../../models/Tags";
 import {Gender} from "../../models/Genders"
+import {TagInCommonDto} from "./TagInCommonDto";
 
 //Fourni un user complet pour les get ciblés byId avec toutes les infos profile / listes de like/match etc
 export interface UserOtherResponseDto extends UserLightResponseDto {
@@ -12,7 +13,7 @@ export interface UserOtherResponseDto extends UserLightResponseDto {
     gender: number;
     photos: Photo[];
     sexualPreferences?: Gender[];
-    tags?: Tag[];
+    tags?: TagInCommonDto[];
     fame_rating: number;
 
     isLiked: boolean;
