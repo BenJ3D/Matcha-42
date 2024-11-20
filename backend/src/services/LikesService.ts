@@ -8,6 +8,7 @@ import UserServices from "./UserServices";
 import fameRatingConfig from "../config/fameRating.config";
 import UserDAL from "../DataAccessLayer/UserDAL";
 import {UserLikesResponseDto} from "../DTOs/likes/UserLikesReponseDto";
+import BlockedUsersService from "./BlockedUsersService";
 
 class LikesService {
 
@@ -36,6 +37,8 @@ class LikesService {
         if (!targetExists) {
             throw {status: 404, message: 'Utilisateur cible non trouvé'};
         }
+        
+        await BlockedUsersService.checkIsUserBlocked(targetUserId, userId);
 
         await LikesDAL.addLike(userId, targetUserId);
         await UserServices.updateFameRating(targetUserId, fameRatingConfig.like);

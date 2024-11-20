@@ -7,6 +7,7 @@ import {UserLightResponseDto} from "../DTOs/users/UserLightResponseDto";
 import userDAL from "../DataAccessLayer/UserDAL";
 import UserServices from "./UserServices";
 import fameRatingConfig from "../config/fameRating.config";
+import BlockedUsersService from "./BlockedUsersService";
 
 class UnlikesService {
     async getUserUnlikes(userId: number): Promise<{
@@ -39,6 +40,9 @@ class UnlikesService {
         if (!targetExists) {
             throw {status: 404, message: 'Utilisateur cible non trouvé'};
         }
+
+        await BlockedUsersService.checkIsUserBlocked(targetUserId, userId);
+
         await UnlikesDAL.addUnlike(userId, targetUserId);
         await UserServices.updateFameRating(targetUserId, fameRatingConfig.unlike);
 

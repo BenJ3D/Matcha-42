@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import {ProfileService} from '../../services/profile.service';
 import {UserResponseDto} from '../../DTOs/users/UserResponseDto';
@@ -12,6 +12,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {finalize} from "rxjs";
+import {AuthService} from "../../services/auth.service";
 
 @Component({
   selector: 'app-profile',
@@ -27,16 +28,18 @@ import {finalize} from "rxjs";
     MatProgressSpinnerModule,
   ],
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, OnDestroy {
   user: UserResponseDto | null = null;
   genders: Gender[] = [];
   tags: Tag[] = [];
   profileId: number | null = null;
+  private profileInterval: any;
 
   constructor(
     private router: Router,
     private profileService: ProfileService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authService: AuthService
   ) {
   }
 
@@ -44,6 +47,10 @@ export class ProfileComponent implements OnInit {
     // this.loadUserProfile();
     this.loadGenders();
     this.subscribeToQueryParams();
+  }
+
+  ngOnDestroy() {
+    this.clearProfileInterval();
   }
 
   subscribeToQueryParams() {
@@ -60,6 +67,7 @@ export class ProfileComponent implements OnInit {
   }
 
   loadUserProfile() {
+    this.clearProfileInterval();
     this.profileService.getMyProfile().subscribe({
       next: (user) => {
         this.user = user;
@@ -74,6 +82,7 @@ export class ProfileComponent implements OnInit {
   }
 
   loadUserProfileById() {
+    this.setProfileInterval();
     if (this.profileId) {
       this.profileService.getUserById(this.profileId).subscribe({
         next: (user) => {
@@ -143,23 +152,9 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  // onDeleteProfile() {
-  //   if (
-  //     confirm(
-  //       'Are you sure you want to delete your profile? This action cannot be undone.'
-  //     )
-  //   ) {
-  //     this.profileService.deleteProfile().subscribe({
-  //       next: () => {
-  //         console.log('Profile deleted successfully');
-  //         this.router.navigate(['/edit-profile']);
-  //       },
-  //       error: (error) => {
-  //         console.error('Error deleting profile:', error);
-  //       },
-  //     });
-  //   }
-  // }
+  loggout() {
+    this.authService.logout();
+  }
 
   toggleLike() {
     if (this.user?.isLiked) {
@@ -187,7 +182,6 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-
   toggleUnlike() {
     if (this.user?.isUnliked) {
       this.profileService.removeUnlikeUser(this.user.id).subscribe({
@@ -203,6 +197,24 @@ export class ProfileComponent implements OnInit {
       })
     }
   }
+
+  // onDeleteProfile() {
+  //   if (
+  //     confirm(
+  //       'Are you sure you want to delete your profile? This action cannot be undone.'
+  //     )
+  //   ) {
+  //     this.profileService.deleteProfile().subscribe({
+  //       next: () => {
+  //         console.log('Profile deleted successfully');
+  //         this.router.navigate(['/edit-profile']);
+  //       },
+  //       error: (error) => {
+  //         console.error('Error deleting profile:', error);
+  //       },
+  //     });
+  //   }
+  // }
 
   toggleBlock() {
     if (this.user?.isBlocked) {
@@ -233,6 +245,20 @@ export class ProfileComponent implements OnInit {
           this.loadUserProfileById();
         }
       })
+    }
+  }
+
+  private setProfileInterval() {
+    this.clearProfileInterval();
+    this.profileInterval = setInterval(() => {
+      this.loadUserProfileById();
+    }, 5000);
+  }
+
+  private clearProfileInterval() {
+    if (this.profileInterval) {
+      clearInterval(this.profileInterval);
+      this.profileInterval = null;
     }
   }
 }

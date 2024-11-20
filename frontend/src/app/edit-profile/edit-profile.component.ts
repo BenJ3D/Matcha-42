@@ -9,7 +9,7 @@ import {Photo} from '../../models/Photo';
 import {HttpClient} from '@angular/common/http';
 import {debounceTime, map, switchMap} from 'rxjs/operators';
 import {Observable, of} from 'rxjs';
-import {AsyncPipe, CommonModule, NgForOf, NgIf, NgOptimizedImage} from '@angular/common';
+import {AsyncPipe, CommonModule, NgForOf, NgIf} from '@angular/common';
 import {MatStepper, MatStepperModule} from '@angular/material/stepper';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
@@ -43,7 +43,6 @@ import {MatSlideToggleModule} from '@angular/material/slide-toggle';
     NgIf,
     NgForOf,
     AsyncPipe,
-    NgOptimizedImage,
     MatSlideToggleModule,
   ],
   standalone: true,
@@ -185,7 +184,8 @@ export class EditProfileComponent implements OnInit {
   loadTags() {
     this.profileService.getTags().subscribe({
       next: (tags) => {
-        this.tags = tags;
+        this.tags = tags.sort((a, b) => a.tag_name.localeCompare(b.tag_name));
+
       },
       error: (err) => console.error('Error loading tags', err),
     });
@@ -425,9 +425,9 @@ export class EditProfileComponent implements OnInit {
 
   private searchCities(cityName: string): Observable<string[]> {
     if (!cityName) return of([]);
-  
+
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=5&class=place&type=city`;
-  
+
     return this.http.get<any[]>(url).pipe(
       map((results) =>
         results.map((result) => {
@@ -438,7 +438,7 @@ export class EditProfileComponent implements OnInit {
       map((cityNames) => Array.from(new Set(cityNames)))
     );
   }
-  
+
 
   private searchCityCoordinates(cityName: string) {
     if (!cityName) {
