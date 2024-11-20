@@ -24,7 +24,7 @@
 
       <!-- Location -->
       <mat-form-field appearance="outline">
-        <mat-label>Location</mat-label>
+        <mat-label>Distance</mat-label>
         <input matInput formControlName="location" [matAutocomplete]="auto" />
         <mat-autocomplete #auto="matAutocomplete">
           <mat-option *ngFor="let city of cityOptions | async" [value]="city">
@@ -50,7 +50,7 @@
         <mat-select formControlName="sortBy">
           <mat-option value="age">Age</mat-option>
           <mat-option value="fame_rating">Fame Rating</mat-option>
-          <mat-option value="location">Location</mat-option>
+          <mat-option value="location">Distance</mat-option>
         </mat-select>
       </mat-form-field>
 

@@ -159,7 +159,7 @@ export class HomeComponent implements OnInit {
     if (formValue.tags && formValue.tags.length > 0) {
       params = params.set('tags', formValue.tags.join(','));
     }
-    if (formValue.sortBy) {
+    if (formValue.sortBy && formValue.sortBy !== 'location') {
       params = params.set('sortBy', formValue.sortBy);
     }
     if (formValue.order) {
