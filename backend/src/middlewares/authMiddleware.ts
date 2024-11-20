@@ -2,6 +2,7 @@ import {Request, Response, NextFunction} from 'express';
 import JwtService from '../services/JwtService';
 import UserServices from "../services/UserServices";
 import {isValidId} from "../utils/isValidId";
+import UserDAL from "../DataAccessLayer/UserDAL";
 
 export interface AuthenticatedRequest extends Request {
     userId?: number;
@@ -72,7 +73,7 @@ const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: Ne
         return res.status(401).json({error: 'Non autorisé : email utilisateur non vérifié'});
     }
     req.userId = payload.id;
-
+    await UserDAL.updateLastActivity(req.userId);
     next();
 };
 

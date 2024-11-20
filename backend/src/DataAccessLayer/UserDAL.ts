@@ -653,6 +653,25 @@ class UserDAL {
         }
     }
 
+    public updateLastActivity = async (userId: number): Promise<void> => {
+        try {
+            const result = await db('users')
+                .where('id', userId)
+                .update({
+                    last_activity: db.fn.now()
+                });
+
+            if (result) {
+                return;
+            } else {
+                throw {status: 400, message: 'Impossible de vérifier l\'existence de l\'utilisateur'};
+            }
+        } catch (error) {
+            console.error('Erreur lors de la mise à jour :', error);
+            throw {status: 400, message: 'Erreur'};
+        }
+    }
+
     private getUserLightResponseList = async (userRows: { id: number }[]): Promise<UserLightResponseDto[]> => {
         if (userRows.length === 0) {
             return [];
