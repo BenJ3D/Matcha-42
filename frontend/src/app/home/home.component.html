@@ -24,9 +24,15 @@
 
       <!-- Location -->
       <mat-form-field appearance="outline">
-        <mat-label>Location</mat-label>
-        <input matInput formControlName="location"/>
+        <mat-label>Distance</mat-label>
+        <input matInput formControlName="location" [matAutocomplete]="auto" />
+        <mat-autocomplete #auto="matAutocomplete">
+          <mat-option *ngFor="let city of cityOptions | async" [value]="city">
+            {{ city }}
+          </mat-option>
+        </mat-autocomplete>
       </mat-form-field>
+
 
       <!-- Tags -->
       <mat-form-field appearance="outline" class="full-width">
@@ -44,7 +50,7 @@
         <mat-select formControlName="sortBy">
           <mat-option value="age">Age</mat-option>
           <mat-option value="fame_rating">Fame Rating</mat-option>
-          <mat-option value="location">Location</mat-option>
+          <mat-option value="location">Distance</mat-option>
         </mat-select>
       </mat-form-field>
 
@@ -71,24 +77,24 @@
 
     <div class="home-container">
       <ng-container *ngIf="currentProfile; else noProfiles">
-        <mat-card
-          #swipeCard
-          class="profile-card"
-          [class.animate-right]="animateRight"
-          [class.animate-left]="animateLeft"
-        >
-          <img
-            mat-card-image
-            [src]="currentProfile.main_photo_url"
-            [alt]="currentProfile.username"
-
-          />
-          <mat-card-content (click)="goToProfile(currentProfile.id)">
-            <h2>{{ currentProfile.username }}, {{ currentProfile.age }}</h2>
-            <p>{{ currentProfile.location?.city_name }}</p>
-          </mat-card-content>
-        </mat-card>
-
+        <mat-card (click)="goToProfile(currentProfile.id)" #swipeCard class="profile-card"
+        [class.animate-right]="animateRight" [class.animate-left]="animateLeft">
+        
+        <div class="image-container">
+          <img mat-card-image [src]="currentProfile.main_photo_url" [alt]="currentProfile.username" />
+          <button mat-icon-button class="view-icon" (click)="goToProfile(currentProfile.id); $event.stopPropagation();">
+            <mat-icon>visibility</mat-icon>
+          </button>
+        </div>
+        
+        <mat-card-content>
+          <h2>{{ currentProfile.username }}, {{ currentProfile.age }}</h2>
+          <p>{{ currentProfile.location?.city_name }}</p>
+          <p><strong>Fame Rating:</strong> {{ currentProfile.fame_rating }}</p>
+          <p><strong>Distance:</strong> {{ currentProfile.distance | number:'1.0-2' }} km</p>
+        </mat-card-content>
+      </mat-card>      
+      
         <div class="action-buttons">
           <button mat-fab color="warn" (click)="onPassClick()">
             <mat-icon>close</mat-icon>

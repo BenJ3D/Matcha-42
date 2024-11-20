@@ -252,7 +252,7 @@ CREATE TABLE "public"."profiles" (
     "owner_user_id" bigint NOT NULL,
     "biography" character varying(1024) NOT NULL,
     "gender" integer NOT NULL,
-    "age" integer,
+    "age" integer CHECK ("age" >= 18 AND "age" <= 120),
     "main_photo_id" integer,
     "location" integer,
     "last_connection" timestamp,

@@ -143,23 +143,23 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  onDeleteProfile() {
-    if (
-      confirm(
-        'Are you sure you want to delete your profile? This action cannot be undone.'
-      )
-    ) {
-      this.profileService.deleteProfile().subscribe({
-        next: () => {
-          console.log('Profile deleted successfully');
-          this.router.navigate(['/edit-profile']);
-        },
-        error: (error) => {
-          console.error('Error deleting profile:', error);
-        },
-      });
-    }
-  }
+  // onDeleteProfile() {
+  //   if (
+  //     confirm(
+  //       'Are you sure you want to delete your profile? This action cannot be undone.'
+  //     )
+  //   ) {
+  //     this.profileService.deleteProfile().subscribe({
+  //       next: () => {
+  //         console.log('Profile deleted successfully');
+  //         this.router.navigate(['/edit-profile']);
+  //       },
+  //       error: (error) => {
+  //         console.error('Error deleting profile:', error);
+  //       },
+  //     });
+  //   }
+  // }
 
   toggleLike() {
     if (this.user?.isLiked) {

@@ -397,6 +397,7 @@ class UserDAL {
                 longitude: user.longitude,
                 city_name: user.city_name
             } : undefined,
+            fame_rating: user.fame_rating,
             is_online: user.is_online,
             is_verified: user.is_verified,
             last_activity: user.last_activity
