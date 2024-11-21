@@ -123,7 +123,7 @@ export class AuthService {
       return of(null);
     }
 
-    return this.http.post<any>(`${this.apiUrl}/refresh-token`, {refreshToken}).pipe(
+    return this.http.post<any>(`${this.apiUrl}/login/refresh`, {"refreshToken": refreshToken}).pipe(
       tap((response) => {
         localStorage.setItem('accessToken', response.accessToken);
         localStorage.setItem('refreshToken', response.refreshToken);
