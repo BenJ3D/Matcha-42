@@ -13,7 +13,7 @@
             class="profile-picture border-8 "
           />
           <h2>{{ user.first_name }} {{ user.last_name }}</h2>
-          <p class="username">{{ '@' + user.username }}</p>
+          <p class="username">{{ '@' + user.username }} ({{ 'id ' + user.id }})</p>
         </div>
         <div class="pb-4">
           @if (user.is_online && profileId) {
