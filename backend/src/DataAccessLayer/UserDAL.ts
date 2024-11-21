@@ -565,26 +565,30 @@ class UserDAL {
         try {
             // Fetch the target user's data
             const user = await db('users')
-                .select(
-                    'users.id',
-                    'users.username',
-                    'users.email',
-                    'users.created_at',
-                    'users.profile_id',
-                    'profiles.biography',
-                    'profiles.gender',
-                    'profiles.fame_rating',
-                    'profiles.age',
-                    'profiles.main_photo_id',
-                    'photos.url as main_photo_url',
-                    'users.is_online',
-                    'users.is_verified',
-                    'users.last_activity'
-                )
-                .leftJoin('profiles', 'users.profile_id', 'profiles.profile_id')
-                .leftJoin('photos', 'profiles.main_photo_id', 'photos.photo_id')
-                .where('users.id', userId)
-                .first();
+            .select(
+                'users.id',
+                'users.username',
+                'users.email',
+                'users.created_at',
+                'users.profile_id',
+                'profiles.biography',
+                'profiles.gender',
+                'profiles.fame_rating',
+                'profiles.age',
+                'profiles.main_photo_id',
+                'photos.url as main_photo_url',
+                'users.is_online',
+                'users.is_verified',
+                'users.last_activity',
+                'locations.latitude',
+                'locations.longitude',
+                'locations.city_name'
+            )
+            .leftJoin('profiles', 'users.profile_id', 'profiles.profile_id')
+            .leftJoin('photos', 'profiles.main_photo_id', 'photos.photo_id')
+            .leftJoin('locations', 'profiles.location', 'locations.location_id') // Updated join
+            .where('users.id', userId)
+            .first();
 
             if (!user) return null;
 
@@ -661,14 +665,19 @@ class UserDAL {
                 sexualPreferences,
                 tags,
                 main_photo_url: user.main_photo_url || null,
+                location: user.latitude && user.longitude ? {
+                    latitude: user.latitude,
+                    longitude: user.longitude,
+                    city_name: user.city_name || undefined
+                } : undefined,
                 isLiked: !!isLikedRow,
-                isUnliked: !!isUnlikedRow,
+                isUnliked: !!isUnlikedRow, 
                 isMatched: !!isMatchedRow,
                 isBlocked: !!isBlockedRow,
                 isFakeReported: !!isFakeReportedRow,
                 LikedMe: !!likedMeRow,
                 UnlikedMe: !!unlikedMeRow,
-                BlockedMe: !!blockedMeRow,
+                BlockedMe: !!blockedMeRow, 
                 FakeReportedMe: !!fakeReportedMeRow,
             };
         } catch (error) {

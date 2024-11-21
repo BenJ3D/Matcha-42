@@ -1,4 +1,5 @@
-<div *ngIf="user" class="profile-container">
+<div class="bg-gray-100 absolute left-4 right-4 bottom-4 top-4 rounded z-0"></div>
+<div *ngIf="user" class="profile-container z-10">
   <mat-card class="profile-card">
 
     <div class="flex flex-1 flex-col justify-center">
@@ -54,7 +55,7 @@
         class="grid grid-cols-7 xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 grid-flow-row gap-1">
         <div *ngFor="let tag of user.tags">
           <div
-            [ngClass]="{'bg-cyan-600': tag.inCommon}"
+            [ngClass]="{'common-tags': tag.inCommon}"
             class="flex justify-start lg:justify-center items-center text-center h-full w-full rounded-xl p-2 bg-sky-700  font-semibold text-white  select-none text-clip"
             title="{{ tag.tag_name }}">
             {{ tag.tag_name }}
@@ -111,7 +112,7 @@
     }
   </mat-card>
 
-  <div *ngIf="user.photos && user.photos.length" class="profile-images">
+  <div *ngIf="user.photos && user.photos.length" class="profile-images z-20">
     <h3>Photo Gallery</h3>
     <div class="images-grid">
       <div *ngFor="let photo of user.photos" class="photo-item">
@@ -134,7 +135,7 @@
   </div>
 </div>
 
-<div *ngIf="!user" class="loading-state">
+<div *ngIf="!user" class="loading-state z-50">
   <mat-spinner diameter="40"></mat-spinner>
   <p>Loading profile...</p>
 </div>
