@@ -1,23 +1,23 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatSidenavModule, MatSidenav } from '@angular/material/sidenav';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSliderModule } from '@angular/material/slider';
-import { ProfileService } from '../../services/profile.service';
-import { Tag } from '../../models/Tags';
-import { HttpParams } from '@angular/common/http';
-import { debounceTime, map, switchMap } from 'rxjs/operators';
-import { Observable, of } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { UserResponseDto } from '../../DTOs/users/UserResponseDto';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {MatSidenavModule, MatSidenav} from '@angular/material/sidenav';
+import {MatCardModule} from '@angular/material/card';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {Router} from '@angular/router';
+import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatSliderModule} from '@angular/material/slider';
+import {ProfileService} from '../../services/profile.service';
+import {Tag} from '../../models/Tags';
+import {HttpParams} from '@angular/common/http';
+import {debounceTime, map, switchMap} from 'rxjs/operators';
+import {Observable, of} from 'rxjs';
+import {HttpClient} from '@angular/common/http';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import {UserResponseDto} from '../../DTOs/users/UserResponseDto';
 
 @Component({
   selector: 'app-home',
@@ -61,7 +61,8 @@ export class HomeComponent implements OnInit {
     private fb: FormBuilder,
     private profileService: ProfileService,
     private http: HttpClient
-  ) {}
+  ) {
+  }
 
   get currentProfile(): UserResponseDto | undefined {
     return this.profiles[this.currentProfileIndex];
@@ -172,6 +173,13 @@ export class HomeComponent implements OnInit {
         if (profiles.length === 0) {
           this.profiles = [];
         } else {
+          profiles = profiles.filter(profile =>
+            !profile.isLiked &&
+            !profile.isUnliked &&
+            !profile.isBlocked &&
+            !profile.BlockedMe
+          );
+
           profiles.forEach(profile => {
             profile.distance = this.calculateDistance(profile.location);
           });
@@ -247,9 +255,9 @@ export class HomeComponent implements OnInit {
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(toRadians(userLatitude)) *
-        Math.cos(toRadians(profileLatitude)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+      Math.cos(toRadians(profileLatitude)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
@@ -262,11 +270,11 @@ export class HomeComponent implements OnInit {
     if (liked) {
       console.log('Liked profile:', this.currentProfile?.username);
       this.animateRight = true;
-      this.profileService.addLikeUser(currentProfileId).subscribe({})  ;
+      this.profileService.addLikeUser(currentProfileId).subscribe({});
     } else {
       console.log('Passed profile:', this.currentProfile?.username);
       this.animateLeft = true;
-      this.profileService.addUnlikeUser(currentProfileId).subscribe({}) ;
+      this.profileService.addUnlikeUser(currentProfileId).subscribe({});
     }
 
     setTimeout(() => {
@@ -297,7 +305,7 @@ export class HomeComponent implements OnInit {
   }
 
   goToProfile(userId: number) {
-    this.router.navigate(['/profile'], { queryParams: { id: userId } });
+    this.router.navigate(['/profile'], {queryParams: {id: userId}});
   }
 
   setupCityAutocomplete() {
