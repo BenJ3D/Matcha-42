@@ -81,7 +81,7 @@
             <mat-icon>edit</mat-icon>
             Change Email
           </button>
-          <button (click)="onEditProfile()" color="primary" mat-button>
+          <button (click)="onChangeName()" color="primary" mat-button>
             <mat-icon>edit</mat-icon>
             Change last/first name
           </button>
@@ -170,6 +170,9 @@
 } @else if (editStep == EEditStep.email) {
   <app-change-email class=" z-10" [backToProfile]="resetStepToIdle.bind(this)"
                     [user]="user"></app-change-email>
+} @else if (editStep == EEditStep.name) {
+  <app-change-name class=" z-10" [backToProfile]="resetStepToIdle.bind(this)"
+                   [user]="user"></app-change-name>
 }
 <div class="bg-gray-100 absolute left-4 right-4 bottom-4 top-4 rounded -z-10"></div>
 

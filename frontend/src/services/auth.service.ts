@@ -95,10 +95,10 @@ export class AuthService {
   }
 
   logout(): void {
+    this.router.navigate(['/login']).then();
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     this.userSubject.next(null);
-    this.router.navigate(['/login']);
   }
 
   isTokenValid(): Observable<boolean> {

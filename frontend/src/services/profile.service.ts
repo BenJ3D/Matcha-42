@@ -11,6 +11,7 @@ import {Photo} from '../models/Photo';
 import {UploadPhotoResponse} from '../DTOs/upload-photo-response';
 import {UserProfile} from '../models/Profiles';
 import {Router} from "@angular/router";
+import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
 
 @Injectable({
   providedIn: 'root',
@@ -38,6 +39,10 @@ export class ProfileService {
 
   updateProfile(profileData: ProfileUpdateDto): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}/profiles`, profileData);
+  }
+
+  updateUser(userUpdateDto: UserUpdateDto): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/users`, userUpdateDto);
   }
 
   deleteProfile(): Observable<void> {

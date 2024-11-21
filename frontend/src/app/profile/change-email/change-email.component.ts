@@ -48,7 +48,7 @@ export class ChangeEmailComponent implements OnInit {
   initializeForm() {
     this.emailForm = this.fb.group({
       newEmail: [
-        '',
+        this.user?.email ?? '',
         [
           Validators.required,
           Validators.email,

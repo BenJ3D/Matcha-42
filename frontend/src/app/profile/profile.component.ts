@@ -15,6 +15,7 @@ import {finalize} from "rxjs";
 import {AuthService} from "../../services/auth.service";
 import {ChangeEmailComponent} from "./change-email/change-email.component";
 import {MatTooltip} from "@angular/material/tooltip";
+import {ChangeNameComponent} from "./change-name/change-name.component";
 
 export enum EEditStep {
   'idle',
@@ -36,6 +37,7 @@ export enum EEditStep {
     MatProgressSpinnerModule,
     ChangeEmailComponent,
     MatTooltip,
+    ChangeNameComponent,
   ],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
@@ -68,7 +70,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       const id = params['id'];
       this.profileId = id ? parseInt(id, 10) : null;
       if (id == null) {
-        console.log('ID est null');
         this.loadUserProfile();
       } else {
         this.loadUserProfileById();
@@ -83,7 +84,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.user = user;
       },
       error: (error) => {
-        console.error('Error fetching user profile:', error);
         if (error.status === 401) {
           this.router.navigate(['/login']);
         }
@@ -107,7 +107,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
             this.profileService.visitedProfile(this.user?.id).subscribe();
         },
         error: (error) => {
-          console.error('Error fetching user profile:', error);
           if (error.status === 401) {
             this.router.navigate(['/home']);
           } else {
@@ -125,7 +124,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.genders = genders;
       },
       error: (error) => {
-        console.error('Error fetching genders:', error);
       },
     });
   }
@@ -148,7 +146,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.editStep = EEditStep.email;
   }
 
+  onChangeName() {
+    this.editStep = EEditStep.name;
+  }
+
   resetStepToIdle() {
+    this.loadUserProfile();
     this.editStep = EEditStep.idle;
   }
 
@@ -161,10 +164,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
               (p) => p.photo_id !== photo.photo_id
             );
           }
-          console.log('Photo deleted successfully');
         },
         error: (error) => {
-          console.error('Error deleting photo:', error);
         },
       });
     }
