@@ -1,13 +1,13 @@
-import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
-import { Router } from '@angular/router';
-import { isPlatformBrowser } from '@angular/common';
-import { LoginResponseDTO } from "../DTOs/login/LoginResponseDTO";
-import { UserResponseDto } from "../DTOs/users/UserResponseDto";
-import { LoginDto } from "../DTOs/login/LoginDto";
-import { SignupResponseDto } from "../DTOs/signup/SignupResponseDto";
+import {Inject, Injectable, PLATFORM_ID} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {BehaviorSubject, Observable, of} from 'rxjs';
+import {catchError, map, tap} from 'rxjs/operators';
+import {Router} from '@angular/router';
+import {isPlatformBrowser} from '@angular/common';
+import {LoginResponseDTO} from "../DTOs/login/LoginResponseDTO";
+import {UserResponseDto} from "../DTOs/users/UserResponseDto";
+import {LoginDto} from "../DTOs/login/LoginDto";
+import {environment} from "../environment/environment";
 
 interface SignupResponse {
   userId: number;
@@ -17,7 +17,7 @@ interface SignupResponse {
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8000/api';
+  private apiUrl = environment.apiURL;
   private userSubject = new BehaviorSubject<UserResponseDto | null>(null);
   public user$ = this.userSubject.asObservable();
   private readonly isBrowser: boolean;
@@ -96,10 +96,10 @@ export class AuthService {
   }
 
   logout(): void {
+    this.router.navigate(['/login']).then();
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     this.userSubject.next(null);
-    this.router.navigate(['/login']);
   }
 
   isTokenValid(): Observable<boolean> {
@@ -123,7 +123,7 @@ export class AuthService {
       return of(null);
     }
 
-    return this.http.post<any>(`${this.apiUrl}/refresh-token`, { refreshToken }).pipe(
+    return this.http.post<any>(`${this.apiUrl}/refresh-token`, {refreshToken}).pipe(
       tap((response) => {
         localStorage.setItem('accessToken', response.accessToken);
         localStorage.setItem('refreshToken', response.refreshToken);
@@ -135,6 +135,23 @@ export class AuthService {
         return of(null);
       })
     );
+  }
+
+  getCurrentUser(): Observable<UserResponseDto | null> {
+    if (!this.isBrowser) {
+      return of(null as any);
+    }
+    return this.http.get<UserResponseDto>(`${this.apiUrl}/users/me`).pipe(
+      catchError((error) => {
+        console.error('Erreur lors de la récupération de l\'utilisateur:', error);
+        return of(null as any);
+      })
+    );
+  }
+
+  getCurrentUserId(): number {
+    const user = this.userSubject.value;
+    return user ? user.id : 0; // Ajustez selon votre structure UserResponseDto
   }
 
   private loadCurrentUser(): void {
@@ -154,22 +171,5 @@ export class AuthService {
         },
       });
     }
-  }
-
-  getCurrentUser(): Observable<UserResponseDto | null> {
-    if (!this.isBrowser) {
-      return of(null as any);
-    }
-    return this.http.get<UserResponseDto>(`${this.apiUrl}/users/me`).pipe(
-      catchError((error) => {
-        console.error('Erreur lors de la récupération de l\'utilisateur:', error);
-        return of(null as any);
-      })
-    );
-  }
-
-  getCurrentUserId(): number {
-    const user = this.userSubject.value;
-    return user ? user.id : 0; // Ajustez selon votre structure UserResponseDto
   }
 }

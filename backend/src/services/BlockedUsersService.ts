@@ -41,7 +41,7 @@ class BlockedUsersService {
 
         await UserServices.updateFameRating(blockedId, fameRatingConfig.blocked);
     }
-    
+
     async unblockUser(blockerId: number, blockedId: number): Promise<void> {
         await BlockedUsersDAL.unblockUser(blockerId, blockedId);
         await UserServices.updateFameRating(blockedId, fameRatingConfig.unblocked);
@@ -76,6 +76,20 @@ class BlockedUsersService {
             blockedUsers: blockedUsersResponse,
             blockedByUsers: blockedByUsersResponse,
         };
+    }
+
+    async isUserBlocked(blockerId: number, blockedId: number): Promise<boolean> {
+        return await BlockedUsersDAL.isUserBlocked(blockerId, blockedId);
+    }
+
+    async checkIsUserBlocked(blockerId: number, blockedId: number): Promise<void> {
+        const isBlocked = await BlockedUsersDAL.isUserBlocked(blockerId, blockedId);
+        if (isBlocked) {
+            throw {
+                status: 403,
+                message: 'Vous ne pouvez plus intéragir avec cet utilisateur (Il vous a bloqué... CHEHH ! BOUUUUUUUUHHHHH!!!)'
+            };
+        }
     }
 }
 

@@ -11,12 +11,14 @@ import {Photo} from '../models/Photo';
 import {UploadPhotoResponse} from '../DTOs/upload-photo-response';
 import {UserProfile} from '../models/Profiles';
 import {Router} from "@angular/router";
+import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
+import {environment} from "../environment/environment";
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProfileService {
-  private apiUrl = 'http://localhost:8000/api';
+  private apiUrl = environment.apiURL;
   private userSubject = new BehaviorSubject<UserResponseDto | null>(null);
   public user$ = this.userSubject.asObservable();
 
@@ -40,6 +42,10 @@ export class ProfileService {
     return this.http.put<void>(`${this.apiUrl}/profiles`, profileData);
   }
 
+  updateUser(userUpdateDto: UserUpdateDto): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/users`, userUpdateDto);
+  }
+
   deleteProfile(): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/profiles`);
   }
@@ -50,6 +56,10 @@ export class ProfileService {
 
   getTags(): Observable<Tag[]> {
     return this.http.get<Tag[]>(`${this.apiUrl}/tags`);
+  }
+
+  updateEmail(email: string): Observable<{ message: string }> {
+    return this.http.patch<{ message: string }>(`${this.apiUrl}/users/email`, {email});
   }
 
   uploadPhoto(photo: File, description?: string): Observable<Photo> {

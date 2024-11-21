@@ -4,6 +4,8 @@ import {onlineUsers} from '../sockets/events/onlineUsers';
 import {NotificationEmitDto} from "../DTOs/notification/NotificationEmitDto";
 import UserServices from "./UserServices";
 import UserDAL from "../DataAccessLayer/UserDAL";
+import BlockedUsersService from "./BlockedUsersService";
+import {UserBlockedResponseDto} from "../DTOs/blocked/UserBlockedResponseDto";
 
 class NotificationsService {
     async createNotification(
@@ -12,6 +14,7 @@ class NotificationsService {
         type: NotificationType
     ): Promise<Notification> {
         const source_username = await UserDAL.getUsernameByUserId(sourceUserId);
+        await BlockedUsersService.checkIsUserBlocked(targetUserId, sourceUserId);
         const notification = await NotificationsDAL.createNotification(
             targetUserId,
             sourceUserId,
@@ -51,5 +54,6 @@ class NotificationsService {
         await NotificationsDAL.deleteNotifications(notificationIds, userId);
     }
 }
+
 
 export default new NotificationsService();

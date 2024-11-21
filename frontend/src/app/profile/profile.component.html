@@ -1,119 +1,182 @@
-<div *ngIf="user" class="profile-container">
-  <mat-card class="profile-card">
-    <div class="flex flex-1 flex-col justify-center">
-      <div class="flex flex-col items-center ">
-        <img
-          [alt]="user.username"
-          [src]="user.main_photo_url || 'assets/default-profile.png'"
-          class="profile-picture border-8 "
-          [ngClass]="{
-          'border-green-500': user.is_online
-          }"
-        />
-        <h2>{{ user.first_name }} {{ user.last_name }}</h2>
-        <p class="username">{{ '@' + user.username }}</p>
-      </div>
-      <div class="pb-4">
-        @if (user.is_online) {
+@if (editStep == EEditStep.idle) {
+  <div *ngIf="user" class="profile-container z-10 select-none">
+    <mat-card class="profile-card">
 
-          <div class="flex flex-row space-x-2 justify-center">
-            <mat-icon class="text-green-500">check_circle</mat-icon>
-            <div class="">is online</div>
+      <div class="flex flex-1 flex-col justify-center">
+        <div class="flex flex-col items-center ">
+          <img
+            [alt]="user.username"
+            [ngClass]="{
+          'border-green-500': !user.BlockedMe && user.is_online
+          }"
+            [src]="user.BlockedMe ? 'assets/images/default-profile.webp' : user.main_photo_url || 'assets/images/default-profile.webp'"
+            class="profile-picture border-8 "
+          />
+          <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+          <p class="username">{{ '@' + user.username }} ({{ 'id ' + user.id }})</p>
+        </div>
+        @if (!user.BlockedMe) {
+          <div class="pb-4">
+            @if (user.is_online && profileId) {
+
+              <div class="flex flex-row space-x-2 justify-center">
+                <mat-icon class="text-green-500">check_circle</mat-icon>
+                <div class="">is online</div>
+              </div>
+            } @else if (profileId) {
+              <div class="flex flex-row justify-center items-center">
+                <div>
+                  <mat-icon class="text-gray-500 text-lg">cancel</mat-icon>
+
+                </div>
+                <div class="">is offline</div>
+              </div>
+              <div class="flex space-x-2 justify-center text-gray-600">
+                <div class="font-medium">Last activity :</div>
+                <div class="flex flex-row space-x-2">
+                  <div> {{ user.last_activity | date: 'medium' }}</div>
+                </div>
+              </div>
+            }
           </div>
         } @else {
-          <div class="flex flex-row space-x-2 justify-center">
-            <mat-icon class="text-gray-500">cancel</mat-icon>
-            <div class="">is offline</div>
-          </div>
-          <div class="flex space-x-2 justify-center text-gray-600">
-            <div>Last_activity :</div>
-            <div class="flex flex-row space-x-2">
-              <div> {{ user.last_activity | date: 'medium' }}</div>
+          <div matTooltip="CHEEEEHHH" class="flex flex-row justify-center items-center my-5">
+            <div>
+              <mat-icon class="text-red-500 text-xl">block</mat-icon>
             </div>
+            <div class="text-xl font-medium">Blocked</div>
           </div>
         }
       </div>
-    </div>
-    <mat-card-content>
-      <p><strong>Email:</strong> {{ user.email }}</p>
-      <p><strong>Gender:</strong> {{ getGenderName(user.gender) }}</p>
-      <p>
-        <strong>Interested In:</strong>
-        {{ getSexualPreferencesNames(user.sexualPreferences) }}
-      </p>
-      <p><strong>Bio:</strong> {{ user.biography }}</p>
-      <p><strong>Fame Rating:</strong> {{ user.fame_rating | number: '1.2-2' }}</p>
-      <strong>Tags interests:</strong>
-      <div class="grid grid-cols-7 xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 grid-flow-row gap-1">
-        <div *ngFor="let tag of user.tags">
+      @if (!user.BlockedMe) {
+
+        <mat-card-content>
+          <p class="select-text"><strong class="select-none">Email: </strong>{{ user.email }}</p>
+          <p><strong>Gender:</strong> {{ getGenderName(user.gender) }}</p>
+          <p><strong>Location:</strong> {{ user.location?.city_name }}</p>
+          <p>
+            <strong>Interested In:</strong>
+            {{ getSexualPreferencesNames(user.sexualPreferences) }}
+          </p>
+          <p><strong>Bio:</strong> {{ user.biography }}</p>
+          <p><strong>Fame Rating:</strong> {{ user.fame_rating | number: '1.2-2' }}</p>
+          <strong>Tags interests:</strong>
+          <strong class="text-gray-500 italic text-xs"> (Tags you have in common are clear)</strong>
           <div
-            class="flex justify-center items-center  text-center h-full rounded-xl p-2 bg-sky-700 font-semibold text-white hover:bg-sky-500 select-none">
-            {{ tag.tag_name }}
+            class="grid grid-cols-7 xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 grid-flow-row gap-1">
+            <div *ngFor="let tag of user.tags">
+              <div
+                [ngClass]="{'common-tags': tag.inCommon}"
+                class="flex justify-start lg:justify-center items-center text-center h-full w-full rounded-xl p-2 bg-sky-700  font-semibold text-white  select-none text-clip"
+                title="{{ tag.tag_name }}">
+                {{ tag.tag_name }}
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      }
+      @if (!profileId) {
+        <mat-card-actions>
+          <button (click)="onChangeEmail()" color="primary" mat-button>
+            <mat-icon>edit</mat-icon>
+            Change Email
+          </button>
+          <button (click)="onChangeName()" color="primary" mat-button>
+            <mat-icon>edit</mat-icon>
+            Change last/first name
+          </button>
+          <button (click)="onEditProfile()" color="primary" mat-button>
+            <mat-icon>edit</mat-icon>
+            Edit Profile
+          </button>
+          <!-- <button (click)="onDeleteProfile()" color="warn" mat-button>
+            <mat-icon>delete</mat-icon>
+            Delete Profile
+          </button> -->
+        </mat-card-actions>
+      } @else {
+        <div class="grid grid-cols-2 gap-1 pt-6">
+          @if (!user.BlockedMe) {
+
+            <button class="button-base" [ngClass]="{'like': user.isLiked}" (click)="toggleLike()"
+                    mat-raised-button>
+              <mat-icon>favorite</mat-icon>
+              Like
+            </button>
+            <button [ngClass]="{'unlike': user.isUnliked}" class="button-base" (click)="toggleUnlike()"
+                    mat-raised-button>
+              <mat-icon>thumb_down</mat-icon>
+              Unlike
+            </button>
+          }
+          <button [ngClass]="{'blocked': user.isBlocked}" class="button-base" (click)="toggleBlock()" mat-raised-button>
+            <mat-icon>block</mat-icon>
+            Block
+          </button>
+
+          <button [ngClass]="{'reported': user.isFakeReported}" class="button-base" (click)="toggleReportFake()"
+                  mat-raised-button>
+            <mat-icon>error</mat-icon>
+            Fake report
+          </button>
+        </div>
+
+      }
+      @if (!profileId) {
+        <div class="w-full md:absolute md:right-4 md:top-4 md:w-28 h-10 mb-4 md:mb-0">
+          <button
+            (click)="loggout()"
+            class="button-logout"
+          >
+            <span>Logout</span>
+            <mat-icon class="text-lg">exit_to_app</mat-icon>
+          </button>
+          <!--          <button-->
+          <!--            (click)="loggout()"-->
+          <!--            class="button-logout"-->
+          <!--            mat-raised-button-->
+          <!--          >-->
+          <!--            <span>Logout</span>-->
+          <!--            <mat-icon>exit_to_app</mat-icon>-->
+          <!--          </button>-->
+
+        </div>
+      }
+    </mat-card>
+    @if (!user.BlockedMe) {
+      <div *ngIf="user.photos && user.photos.length" class="profile-images z-20">
+        <h3>Photo Gallery</h3>
+        <div class="images-grid">
+          <div *ngFor="let photo of user.photos" class="photo-item">
+            <img [alt]="user.username" [src]="photo.url"/>
+            @if (!profileId) {
+              <div class="photo-actions">
+                <button (click)="deletePhoto(photo)" color="warn" mat-icon-button>
+                  <mat-icon>delete</mat-icon>
+                </button>
+                <mat-icon
+                  *ngIf="photo.url === user.main_photo_url"
+                  class="main-photo-indicator"
+                  color="primary">
+                  star
+                </mat-icon>
+              </div>
+            }
           </div>
         </div>
       </div>
-    </mat-card-content>
-    @if (!profileId) {
-      <mat-card-actions>
-        <button (click)="onEditProfile()" color="primary" mat-button>
-          <mat-icon>edit</mat-icon>
-          Edit Profile
-        </button>
-        <!-- <button (click)="onDeleteProfile()" color="warn" mat-button>
-          <mat-icon>delete</mat-icon>
-          Delete Profile
-        </button> -->
-      </mat-card-actions>
-    } @else {
-      <div class="grid grid-cols-2 gap-1 pt-6">
-        <button [ngClass]="{'like': user.isLiked}" class="button-base" (click)="toggleLike()" mat-raised-button>
-          <mat-icon>favorite</mat-icon>
-          Like
-        </button>
-        <button [ngClass]="{'unlike': user.isUnliked}" class="button-base" (click)="toggleUnlike()" mat-raised-button>
-          <mat-icon>thumb_down</mat-icon>
-          Unlike
-        </button>
-        <button [ngClass]="{'blocked': user.isBlocked}" class="button-base" (click)="toggleBlock()" mat-raised-button>
-          <mat-icon>block</mat-icon>
-          Block
-        </button>
-
-        <button [ngClass]="{'reported': user.isFakeReported}" class="button-base" (click)="toggleReportFake()"
-                mat-raised-button>
-          <mat-icon>error</mat-icon>
-          Fake report
-        </button>
-      </div>
-
-
     }
-  </mat-card>
-
-  <div *ngIf="user.photos && user.photos.length" class="profile-images">
-    <h3>Photo Gallery</h3>
-    <div class="images-grid">
-      <div *ngFor="let photo of user.photos" class="photo-item">
-        <img [alt]="user.username" [src]="photo.url"/>
-        @if (!profileId) {
-          <div class="photo-actions">
-            <button (click)="deletePhoto(photo)" color="warn" mat-icon-button>
-              <mat-icon>delete</mat-icon>
-            </button>
-            <mat-icon
-              *ngIf="photo.url === user.main_photo_url"
-              class="main-photo-indicator"
-              color="primary">
-              star
-            </mat-icon>
-          </div>
-        }
-      </div>
-    </div>
   </div>
-</div>
+} @else if (editStep == EEditStep.email) {
+  <app-change-email class=" z-10" [backToProfile]="resetStepToIdle.bind(this)"
+                    [user]="user"></app-change-email>
+} @else if (editStep == EEditStep.name) {
+  <app-change-name class=" z-10" [backToProfile]="resetStepToIdle.bind(this)"
+                   [user]="user"></app-change-name>
+}
+<div class="bg-gray-100 absolute left-4 right-4 bottom-4 top-4 rounded -z-10"></div>
 
-<div *ngIf="!user" class="loading-state">
+<div *ngIf="!user" class="loading-state z-50">
   <mat-spinner diameter="40"></mat-spinner>
   <p>Loading profile...</p>
 </div>

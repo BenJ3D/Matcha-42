@@ -231,7 +231,7 @@ router.put('/', UserController.updateUser);
  *       404:
  *         description: Utilisateur non trouvé.
  */
-router.patch('/', UserController.patchUserEmail);
+router.patch('/email', UserController.patchUserEmail);
 
 /**
  * @swagger

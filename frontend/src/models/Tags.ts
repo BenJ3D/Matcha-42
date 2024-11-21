@@ -1,4 +1,5 @@
 export interface Tag {
-    tag_id: number;
-    tag_name: string;
+  tag_id: number;
+  tag_name: string;
+  inCommon?: string;
 }
