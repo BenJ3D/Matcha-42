@@ -1,39 +1,44 @@
-<div class=" h-full w-full flex justify-center items-center">
-  <div class="flex flex-col justify-center items-center bg-white p-8 rounded-lg">
-
-    <mat-icon>warning</mat-icon>
-    <div class="text-ellipsis text-center">You will need to validate<br/>your email again<br/>before you can
+<div class=" h-full w-full flex justify-center items-center rounded-xl  border-orange-600 border-4">
+  <div
+    class="flex flex-col justify-center items-center bg-white pb-8 xs:p-1 rounded-lg h-1/2 w-2/3 xs:h-full xs:w-full">
+    <mat-icon class="pb-10 ">warning</mat-icon>
+    <div class="text-ellipsis text-center font-medium pb-10 text-xl">You will need to validate your email again<br/>before
+      you
+      can
       reconnect.
     </div>
-    <form [formGroup]="emailForm" class="w-full max-w-sm flex flex-col justify-center items-center">
-      <mat-form-field appearance="fill">
-        <mat-label>Nouvel Email</mat-label>
+    <form [formGroup]="emailForm" (ngSubmit)="onSubmit()"
+          class="w-full max-w-sm flex flex-col justify-center items-center">
+      <mat-form-field class="w-full pb-10" appearance="fill">
+        <mat-label>New Email</mat-label>
         <input
           matInput
           type="email"
           formControlName="newEmail"
         />
         <mat-error *ngIf="emailForm.get('newEmail')?.hasError('required')">
-          L'email est requis.
+          Email is required.
         </mat-error>
         <mat-error *ngIf="emailForm.get('newEmail')?.hasError('email')">
-          Entrez un email valide.
+          Enter a valid email address.
         </mat-error>
         <mat-error *ngIf="emailForm.get('newEmail')?.hasError('minlength')">
-          L'email doit contenir au moins 10 caractères.
+          The email must contain at least 10 characters.
         </mat-error>
         <mat-error *ngIf="emailForm.get('newEmail')?.hasError('maxlength')">
-          L'email ne doit pas dépasser 254 caractères. 
+          The email must not exceed 254 characters.
         </mat-error>
       </mat-form-field>
 
     </form>
-    <div class="flex flex-col w-full w-2/3  space-y-2">
-      <button class="!font-medium" mat-raised-button color="primary" (click)="onSubmit()"
+    <div class="flex flex-col w-full w-2/3  space-y-2 max-w-96 ">
+      <button class="!font-black" mat-raised-button color="primary" (click)="onSubmit()"
               [disabled]="emailForm.invalid">
-        Soumettre
+        Submit
       </button>
-      <button mat-raised-button color="warn" (click)="backToProfile()">cancel</button>
+      <button mat-raised-button class="font-black bg-red-800 hover:bg-red-700 text-white" (click)="backToProfile()">
+        cancel
+      </button>
     </div>
   </div>
 

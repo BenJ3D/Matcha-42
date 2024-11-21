@@ -52,6 +52,10 @@ export class ProfileService {
     return this.http.get<Tag[]>(`${this.apiUrl}/tags`);
   }
 
+  updateEmail(email: string): Observable<{ message: string }> {
+    return this.http.patch<{ message: string }>(`${this.apiUrl}/users/email`, {email});
+  }
+
   uploadPhoto(photo: File, description?: string): Observable<Photo> {
     const formData = new FormData();
     formData.append('photo', photo); // Le nom du champ doit correspondre

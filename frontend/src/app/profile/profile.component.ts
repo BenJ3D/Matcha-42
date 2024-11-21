@@ -55,7 +55,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // this.loadUserProfile();
     this.loadGenders();
     this.subscribeToQueryParams();
   }
