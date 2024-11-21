@@ -42,7 +42,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   tags: Tag[] = [];
   profileId: number | null = null;
   private profileInterval: any;
-  editStep: EEditStep = EEditStep.email;
+  editStep: EEditStep = EEditStep.idle;
 
   constructor(
     private router: Router,
