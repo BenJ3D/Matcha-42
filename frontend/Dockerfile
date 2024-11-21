@@ -10,4 +10,8 @@ COPY . .
 
 RUN npm install -g @angular/cli
 
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["ng", "serve", "--host", "0.0.0.0"]

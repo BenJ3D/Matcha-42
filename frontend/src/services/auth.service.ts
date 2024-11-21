@@ -7,6 +7,7 @@ import {isPlatformBrowser} from '@angular/common';
 import {LoginResponseDTO} from "../DTOs/login/LoginResponseDTO";
 import {UserResponseDto} from "../DTOs/users/UserResponseDto";
 import {LoginDto} from "../DTOs/login/LoginDto";
+import {environment} from "../environment/environment";
 
 interface SignupResponse {
   userId: number;
@@ -16,7 +17,7 @@ interface SignupResponse {
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8000/api';
+  private apiUrl = environment.apiURL;
   private userSubject = new BehaviorSubject<UserResponseDto | null>(null);
   public user$ = this.userSubject.asObservable();
   private readonly isBrowser: boolean;

@@ -5,6 +5,7 @@ import {AuthService} from './auth.service';
 import {UserResponseDto} from '../DTOs/users/UserResponseDto';
 import {Message} from "../models/Message";
 import {MessageDto} from "../DTOs/chat/MessageDto";
+import {environment} from "../environment/environment";
 
 @Injectable({
   providedIn: 'root',
@@ -33,7 +34,18 @@ export class SocketService implements OnDestroy {
       return;
     }
 
-    this.socket = io('ws://localhost:8000', {
+    const apiURL = environment.apiURL; // URL de base de l'API (par exemple, http://192.168.1.50:8000)
+    const parsedURL = new URL(apiURL);
+
+// Remplacer 'http' par 'ws' ou 'https' par 'wss'
+    parsedURL.protocol = parsedURL.protocol === 'https:' ? 'wss:' : 'ws:';
+    console.log(parsedURL.toString());
+
+    // Supprimer '/api' de la fin du chemin
+    parsedURL.pathname = parsedURL.pathname.replace(/\/api$/, '');
+    console.log(parsedURL.toString());
+
+    this.socket = io(parsedURL.toString(), {
       transports: ['websocket'],
       auth: {
         token: token,

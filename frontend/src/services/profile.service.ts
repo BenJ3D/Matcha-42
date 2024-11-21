@@ -12,12 +12,13 @@ import {UploadPhotoResponse} from '../DTOs/upload-photo-response';
 import {UserProfile} from '../models/Profiles';
 import {Router} from "@angular/router";
 import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
+import {environment} from "../environment/environment";
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProfileService {
-  private apiUrl = 'http://localhost:8000/api';
+  private apiUrl = environment.apiURL;
   private userSubject = new BehaviorSubject<UserResponseDto | null>(null);
   public user$ = this.userSubject.asObservable();
 

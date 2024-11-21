@@ -51,7 +51,7 @@
       @if (!user.BlockedMe) {
 
         <mat-card-content>
-          <p><strong>Email:</strong> {{ user.email }}</p>
+          <p class="select-text"><strong class="select-none">Email: </strong>{{ user.email }}</p>
           <p><strong>Gender:</strong> {{ getGenderName(user.gender) }}</p>
           <p><strong>Location:</strong> {{ user.location?.city_name }}</p>
           <p>

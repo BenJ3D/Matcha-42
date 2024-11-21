@@ -64,6 +64,10 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+      - ./env.js:/app/assets/env.js:ro
+    environment:
+      - FRONT_URL=${FRONT_URL}
+      - BACK_URL=${BACK_URL}
 
 networks:
   backend:
