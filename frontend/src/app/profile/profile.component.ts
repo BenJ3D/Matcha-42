@@ -13,6 +13,13 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {finalize} from "rxjs";
 import {AuthService} from "../../services/auth.service";
+import {ChangeEmailComponent} from "./change-email/change-email.component";
+
+export enum EEditStep {
+  'idle',
+  'email',
+  'name'
+}
 
 @Component({
   selector: 'app-profile',
@@ -26,6 +33,7 @@ import {AuthService} from "../../services/auth.service";
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    ChangeEmailComponent,
   ],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
@@ -34,6 +42,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   tags: Tag[] = [];
   profileId: number | null = null;
   private profileInterval: any;
+  editStep: EEditStep = EEditStep.email;
 
   constructor(
     private router: Router,
@@ -132,6 +141,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   onEditProfile() {
     this.router.navigate(['/edit-profile']);
+  }
+
+  onChangeEmail() {
+    this.editStep = EEditStep.email;
+  }
+
+  resetStepToIdle() {
+    this.editStep = EEditStep.idle;
   }
 
   deletePhoto(photo: Photo) {
@@ -261,4 +278,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.profileInterval = null;
     }
   }
+
+
+  protected readonly EEditStep = EEditStep;
 }

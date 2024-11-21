@@ -1,0 +1,40 @@
+<div class=" h-full w-full flex justify-center items-center">
+  <div class="flex flex-col justify-center items-center bg-white p-8 rounded-lg">
+
+    <mat-icon>warning</mat-icon>
+    <div class="text-ellipsis text-center">You will need to validate<br/>your email again<br/>before you can
+      reconnect.
+    </div>
+    <form [formGroup]="emailForm" class="w-full max-w-sm flex flex-col justify-center items-center">
+      <mat-form-field appearance="fill">
+        <mat-label>Nouvel Email</mat-label>
+        <input
+          matInput
+          type="email"
+          formControlName="newEmail"
+        />
+        <mat-error *ngIf="emailForm.get('newEmail')?.hasError('required')">
+          L'email est requis.
+        </mat-error>
+        <mat-error *ngIf="emailForm.get('newEmail')?.hasError('email')">
+          Entrez un email valide.
+        </mat-error>
+        <mat-error *ngIf="emailForm.get('newEmail')?.hasError('minlength')">
+          L'email doit contenir au moins 10 caractères.
+        </mat-error>
+        <mat-error *ngIf="emailForm.get('newEmail')?.hasError('maxlength')">
+          L'email ne doit pas dépasser 254 caractères. 
+        </mat-error>
+      </mat-form-field>
+
+    </form>
+    <div class="flex flex-col w-full w-2/3  space-y-2">
+      <button class="!font-medium" mat-raised-button color="primary" (click)="onSubmit()"
+              [disabled]="emailForm.invalid">
+        Soumettre
+      </button>
+      <button mat-raised-button color="warn" (click)="backToProfile()">cancel</button>
+    </div>
+  </div>
+
+</div>
