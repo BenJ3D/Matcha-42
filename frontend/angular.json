@@ -29,6 +29,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "*.webp",
+                "input": "src/assets/images/",
+                "output": "/assets/images/"
               }
             ],
             "styles": [

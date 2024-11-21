@@ -14,6 +14,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {finalize} from "rxjs";
 import {AuthService} from "../../services/auth.service";
 import {ChangeEmailComponent} from "./change-email/change-email.component";
+import {MatTooltip} from "@angular/material/tooltip";
 
 export enum EEditStep {
   'idle',
@@ -34,6 +35,7 @@ export enum EEditStep {
     MatIconModule,
     MatProgressSpinnerModule,
     ChangeEmailComponent,
+    MatTooltip,
   ],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
