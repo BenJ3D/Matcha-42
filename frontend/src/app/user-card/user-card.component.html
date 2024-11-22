@@ -1,0 +1,18 @@
+<div class="flex flex-col bg-rose-500 flex-1 w-full rounded-xl border-4 border-rose-500 h-45 p-0.5">
+  <div class="flex justify-center items-center relative group"
+       (click)="profileService.goToProfile(user.id, router); $event.stopPropagation();">
+    <img mat-card-image class="hover:blur group-hover:opacity-70 rounded" [src]="user.main_photo_url"
+         [alt]="user.username"/>
+    <div mat-icon-button
+         class="absolute opacity-0 group-hover:opacity-100 transition duration-300 text-white text-2xl">
+      <mat-icon>visibility</mat-icon>
+    </div>
+  </div>
+  <div class="text-xs font-medium text-white">
+    <div class="font-bold">{{ user.username | slice:0:7 }}{{ user.username.length > 7 ? '..' : '' }}
+      , {{ user.age }}
+    </div>
+    <div class="truncate">{{ user.location?.city_name }}</div>
+  </div>
+</div>
+
