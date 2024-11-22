@@ -159,11 +159,6 @@ export class ChatComponent implements OnInit, OnDestroy {
       this.socketService.emit('conversation_read', {data: user.id});
       this.unreadUserIds = this.unreadUserIds.filter(elem => elem !== user.id);
     }
-    // Réinitialiser le compteur de non lus pour cet utilisateur
-    if (this.isMobile) {
-      // Sur mobile, cacher la liste des utilisateurs ??
-      // La classe 'hidden' est gérée via [class.hidden] dans le template
-    }
   }
 
   /**
