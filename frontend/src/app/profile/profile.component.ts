@@ -20,6 +20,7 @@ import {UserCardComponent} from "../user-card/user-card.component";
 import {UserLightListComponent} from "../user-light-list/user-light-list.component";
 import {MatTabGroup, MatTabsModule} from "@angular/material/tabs";
 import {MatLabel} from "@angular/material/form-field";
+import {SocketService} from "../../services/socket.service";
 
 export enum EEditStep {
   'idle',
@@ -60,7 +61,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private router: Router,
     private profileService: ProfileService,
     private route: ActivatedRoute,
-    private authService: AuthService
+    private authService: AuthService,
+    private socketService: SocketService,
   ) {
   }
 
@@ -183,7 +185,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.authService.logout();
   }
 
+  readConversationIfMatched() {
+    if (this.user && this.user.isMatched) {
+      this.socketService.emit('conversation_read', {data: this.user.id});
+    }
+  }
+
   toggleLike() {
+    this.readConversationIfMatched();
     if (this.user?.isLiked) {
       this.profileService.removeLikeUser(this.user.id).subscribe({
         next: () => {
@@ -210,6 +219,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   toggleUnlike() {
+    this.readConversationIfMatched();
     if (this.user?.isUnliked) {
       this.profileService.removeUnlikeUser(this.user.id).subscribe({
         next: () => {
@@ -244,6 +254,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   // }
 
   toggleBlock() {
+    this.readConversationIfMatched();
     if (this.user?.isBlocked) {
       this.profileService.unblockUser(this.user.id).subscribe({
         next: () => {
