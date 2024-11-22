@@ -1,5 +1,5 @@
 @if (editStep == EEditStep.idle) {
-  <div *ngIf="user" class="profile-container z-10 select-none">
+  <div *ngIf="user" class="profile-container z-10 select-none mb-10">
     <mat-card class="profile-card">
 
       <div class="flex flex-1 flex-col justify-center">
@@ -37,6 +37,11 @@
                   <div> {{ user.last_activity | date: 'medium' }}</div>
                 </div>
               </div>
+
+              <div class="flex space-x-2 justify-center text-gray-600">
+                <div *ngIf="user.LikedMe && !user.isMatched" class="font-bold text-xl text-green-400">YOU LIKED</div>
+                <div *ngIf="user.isMatched" class="font-bold text-xl text-violet-700">IT'S A MATCH</div>
+              </div>
             }
           </div>
         } @else {
@@ -51,7 +56,9 @@
       @if (!user.BlockedMe) {
 
         <mat-card-content>
-          <p class="select-text"><strong class="select-none">Email: </strong>{{ user.email }}</p>
+          @if (!profileId) {
+            <p class="select-text"><strong class="select-none">Email: </strong>{{ user.email }}</p>
+          }
           <p><strong>Gender:</strong> {{ getGenderName(user.gender) }}</p>
           <p><strong>Location:</strong> {{ user.location?.city_name }}</p>
           <p>
@@ -166,6 +173,38 @@
         </div>
       </div>
     }
+    @if (!profileId) {
+
+      <mat-tab-group mat-stretch-tabs class="card-shared z-10 mt-5">
+        <mat-tab label="Your likes">
+          @if (user && user.likers) {
+            <div class="card-shared mt-5 shadow">
+              <app-user-light-list
+                [users]="user.likers"
+              ></app-user-light-list>
+            </div>
+          }
+        </mat-tab>
+        <mat-tab label="Your Visitors">
+          @if (user && user.visitors) {
+            <div class="card-shared mt-5 shadow">
+              <app-user-light-list
+                [users]="user.visitors"
+              ></app-user-light-list>
+            </div>
+          }
+        </mat-tab>
+        <mat-tab label="Your Matches">
+          @if (user && user.matchers) {
+            <div class="card-shared mt-5 shadow">
+              <app-user-light-list
+                [users]="user.matchers"
+              ></app-user-light-list>
+            </div>
+          }
+        </mat-tab>
+      </mat-tab-group>
+    }
   </div>
 } @else if (editStep == EEditStep.email) {
   <app-change-email class=" z-10" [backToProfile]="resetStepToIdle.bind(this)"
@@ -174,6 +213,9 @@
   <app-change-name class=" z-10" [backToProfile]="resetStepToIdle.bind(this)"
                    [user]="user"></app-change-name>
 }
+
+
+
 <div class="bg-gray-100 absolute left-4 right-4 bottom-4 top-4 rounded -z-10"></div>
 
 <div *ngIf="!user" class="loading-state z-50">

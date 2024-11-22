@@ -16,6 +16,10 @@ import {AuthService} from "../../services/auth.service";
 import {ChangeEmailComponent} from "./change-email/change-email.component";
 import {MatTooltip} from "@angular/material/tooltip";
 import {ChangeNameComponent} from "./change-name/change-name.component";
+import {UserCardComponent} from "../user-card/user-card.component";
+import {UserLightListComponent} from "../user-light-list/user-light-list.component";
+import {MatTabGroup, MatTabsModule} from "@angular/material/tabs";
+import {MatLabel} from "@angular/material/form-field";
 
 export enum EEditStep {
   'idle',
@@ -38,6 +42,10 @@ export enum EEditStep {
     ChangeEmailComponent,
     MatTooltip,
     ChangeNameComponent,
+    UserCardComponent,
+    UserLightListComponent,
+    MatLabel,
+    MatTabsModule
   ],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
