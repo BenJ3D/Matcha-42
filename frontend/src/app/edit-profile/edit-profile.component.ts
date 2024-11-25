@@ -21,6 +21,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {LocationDto} from "../../DTOs/profiles/ProfileCreateDto";
 
 @Component({
   selector: 'app-edit-profile',
@@ -61,6 +62,7 @@ export class EditProfileComponent implements OnInit {
   cityOptions!: Observable<string[]>;
   isLoading = false;
   private isInitialProfileCreated = false;
+  locationIp: LocationDto | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -76,6 +78,8 @@ export class EditProfileComponent implements OnInit {
     this.loadInitialData();
     this.subscribeToUser();
     this.setupCityAutocomplete();
+    this.getLocationFromIP2().then(r => {
+    });
   }
 
 
@@ -158,9 +162,9 @@ export class EditProfileComponent implements OnInit {
         locationValue.longitude === null) {
         this.isLoading = true;
         // Force IP location fetch
-        this.getLocationFromIP().then(() => {
-          this.isLoading = false;
-        });
+
+        this.forceLocationFromIP();
+        this.isLoading = false;
       }
     }
   }
@@ -252,6 +256,41 @@ export class EditProfileComponent implements OnInit {
     });
   }
 
+  forceLocationFromIP() {
+    if (this.locationIp) {
+      this.locationForm.patchValue({
+        location: {
+          latitude: this.locationIp.latitude,
+          longitude: this.locationIp.longitude,
+        },
+      });
+      this.isCityValid = true;
+    }
+  }
+
+  getLocationFromIP2(): Promise<void> {
+    return new Promise((resolve) => {
+      this.http.get<any>('https://ipapi.co/json/').subscribe({
+        next: (data) => {
+          if (data.city && data.latitude && data.longitude) {
+            this.locationIp = {
+              latitude: data.latitude,
+              longitude: data.longitude,
+            }
+            console.log('Location from IP:', data.city);
+
+          }
+          resolve();
+        },
+        error: (error) => {
+          console.error('Error getting IP location:', error);
+          this.isCityValid = false;
+          resolve();
+        },
+      });
+    });
+  }
+
   // Add partial submit method
   onPartialSubmit() {
     if (
@@ -263,10 +302,6 @@ export class EditProfileComponent implements OnInit {
       // Create minimal profile data
       const partialProfileData = {
         ...this.profileInfoForm.value,
-        location: {
-          latitude: 0,
-          longitude: 0,
-        },
       };
 
       this.profileService.createProfile(partialProfileData).subscribe({
@@ -291,11 +326,12 @@ export class EditProfileComponent implements OnInit {
 
   // Modify existing onSubmit to handle final submission
   onSubmit() {
+    console.log('Submitting form' + JSON.stringify(this.locationIp));
     if (this.profileInfoForm.valid && this.locationForm.valid) {
       this.isLoading = true;
       const profileData = {
         ...this.profileInfoForm.value,
-        location: this.locationForm.value.location,
+        location: this.locationForm.value.location ?? this.locationIp,
       };
 
       // Always use update since we already created the profile
@@ -386,10 +422,7 @@ export class EditProfileComponent implements OnInit {
 
   onCityBlur() {
     const cityControl = this.locationForm.get('city');
-    if (cityControl && !cityControl.value) {
-      // If city field is empty, get location from IP
-      this.getLocationFromIP();
-    } else if (cityControl && cityControl.value) {
+    if (cityControl && cityControl.value) {
       // If city field has value, validate coordinates
       this.searchCityCoordinates(cityControl.value);
     }
@@ -426,7 +459,7 @@ export class EditProfileComponent implements OnInit {
   private searchCities(cityName: string): Observable<string[]> {
     if (!cityName) return of([]);
 
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=5&class=place&type=city`;
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=10&class=place&type=city`;
 
     return this.http.get<any[]>(url).pipe(
       map((results) =>
