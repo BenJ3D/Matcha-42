@@ -96,7 +96,6 @@ class UserServices {
         if (!userProfile) {
             throw {status: 404, message: 'Profil non trouvé'};
         }
-
         // Récupérer les préférences sexuelles de l'utilisateur
         const sexualPreferences = await profileDAL.getSexualPreferences(userProfile.profile_id);
 
