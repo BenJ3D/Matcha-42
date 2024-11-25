@@ -361,13 +361,14 @@ class UserDAL {
             query.andWhere('profiles.age', '<=', filters.ageMax);
         }
         if (filters.fameMin !== undefined) {
+            console.log('fameMin:', filters.fameMin);
             query.andWhere('profiles.fame_rating', '>=', filters.fameMin);
         }
         if (filters.fameMax !== undefined) {
             query.andWhere('profiles.fame_rating', '<=', filters.fameMax);
         }
         if (filters.location) {
-            // Add location filtering logic here
+            query.where('locations.city_name', 'ILIKE', `%${filters.location}%`);
         }
         if (filters.tags && filters.tags.length > 0) {
             query.join('profile_tag', 'profiles.profile_id', 'profile_tag.profile_id')

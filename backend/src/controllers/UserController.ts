@@ -210,8 +210,8 @@ const userController = {
             // Convertir les critères en types corrects
             const ageMinInt = ageMin ? parseInt(ageMin as string, 10) : undefined;
             const ageMaxInt = ageMax ? parseInt(ageMax as string, 10) : undefined;
-            const fameMinInt = fameMin ? parseInt(fameMin as string, 10) : undefined;
-            const fameMaxInt = fameMax ? parseInt(fameMax as string, 10) : undefined;
+            const fameMinInt = fameMin ? parseFloat(fameMin as string) : undefined;
+            const fameMaxInt = fameMax ? parseFloat(fameMax as string) : undefined;
             const tagsArray = tags ? (tags as string).split(',').map(Number) : undefined;
             const sortByStr = sortBy ? (sortBy as string) : undefined;
             const orderStr = order ? (order as string).toLowerCase() : 'asc';
