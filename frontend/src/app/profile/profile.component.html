@@ -97,6 +97,16 @@
             <mat-icon>edit</mat-icon>
             Edit Profile
           </button>
+          @if (!profileId) {
+            <button
+              (click)="onDeleteUser()"
+              class="button-delete-account px-2"
+              mat-raised-button
+            >
+              Delete account
+              <!--              <mat-icon>delete</mat-icon>-->
+            </button>
+          }
           <!-- <button (click)="onDeleteProfile()" color="warn" mat-button>
             <mat-icon>delete</mat-icon>
             Delete Profile
@@ -140,11 +150,11 @@
             <mat-icon class="text-lg">exit_to_app</mat-icon>
           </button>
           <!--          <button-->
-          <!--            (click)="loggout()"-->
+          <!--            (click)="onDeleteProfile()"-->
           <!--            class="button-logout"-->
           <!--            mat-raised-button-->
           <!--          >-->
-          <!--            <span>Logout</span>-->
+          <!--            <span>DeleteProfile</span>-->
           <!--            <mat-icon>exit_to_app</mat-icon>-->
           <!--          </button>-->
 

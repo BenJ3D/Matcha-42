@@ -50,6 +50,10 @@ export class ProfileService {
     return this.http.delete<void>(`${this.apiUrl}/profiles`);
   }
 
+  deleteUser(): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/users`);
+  }
+
   getGenders(): Observable<Gender[]> {
     return this.http.get<Gender[]>(`${this.apiUrl}/genders`);
   }

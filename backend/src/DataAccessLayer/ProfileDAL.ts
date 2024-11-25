@@ -45,7 +45,7 @@ class ProfileDAL {
         // Démarrer une transaction
         return await db.transaction(async (trx) => {
             try {
-                const { biography, gender, age, main_photo_id, location } = profileData;
+                const {biography, gender, age, main_photo_id, location} = profileData;
 
                 const profileFields: any = {
                     owner_user_id: userId,
@@ -57,11 +57,11 @@ class ProfileDAL {
                 };
 
                 // Insertion dans la table 'profiles'
-                const [{ profile_id: profileId }] = await trx('profiles')
+                const [{profile_id: profileId}] = await trx('profiles')
                     .insert(profileFields)
                     .returning('profile_id');
 
-                const { tags, sexualPreferences } = profileData;
+                const {tags, sexualPreferences} = profileData;
 
                 // Insertion dans la table 'profile_tag' si des tags sont fournis
                 if (tags && tags.length > 0) {
@@ -85,8 +85,8 @@ class ProfileDAL {
 
                 // Mise à jour de la colonne 'profile_id' dans la table 'users'
                 await trx('users')
-                    .where({ id: userId })
-                    .update({ profile_id: profileId });
+                    .where({id: userId})
+                    .update({profile_id: profileId});
 
                 // Valider la transaction
                 await trx.commit();
@@ -98,11 +98,14 @@ class ProfileDAL {
                 await trx.rollback();
 
                 if (error.code === '23505') {
-                    throw { status: 409, message: "Conflit : Le profil existe déjà." };
+                    throw {status: 409, message: "Conflit : Le profil existe déjà."};
                 } else if (error.code === '23503') {
-                    throw { status: 400, message: error.detail || "Un ou plusieurs identifiants fournis sont invalides." };
+                    throw {
+                        status: 400,
+                        message: error.detail || "Un ou plusieurs identifiants fournis sont invalides."
+                    };
                 } else {
-                    throw { status: 400, message: "Erreur lors de la création du profil." };
+                    throw {status: 400, message: "Erreur lors de la création du profil."};
                 }
             }
         });
@@ -173,8 +176,16 @@ class ProfileDAL {
             }
 
             await db.transaction(async trx => {
+                // Mettre à jour les utilisateurs pour dissocier le profile_id
+                await trx('users')
+                    .where({profile_id: profileId})
+                    .update({profile_id: null});
+
+                // Supprimer les données associées dans d'autres tables
                 await trx('profile_tag').where({profile_id: profileId}).del();
                 await trx('profile_sexual_preferences').where({profile_id: profileId}).del();
+
+                // Supprimer le profil
                 await trx('profiles').where({profile_id: profileId}).del();
             });
 

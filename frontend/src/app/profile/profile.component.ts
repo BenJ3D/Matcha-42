@@ -235,23 +235,41 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
-  // onDeleteProfile() {
-  //   if (
-  //     confirm(
-  //       'Are you sure you want to delete your profile? This action cannot be undone.'
-  //     )
-  //   ) {
-  //     this.profileService.deleteProfile().subscribe({
-  //       next: () => {
-  //         console.log('Profile deleted successfully');
-  //         this.router.navigate(['/edit-profile']);
-  //       },
-  //       error: (error) => {
-  //         console.error('Error deleting profile:', error);
-  //       },
-  //     });
-  //   }
-  // }
+  onDeleteProfile() {
+    if (
+      confirm(
+        'Are you sure you want to delete your profile? This action cannot be undone.'
+      )
+    ) {
+      this.profileService.deleteProfile().subscribe({
+        next: () => {
+          console.log('Profile deleted successfully');
+          this.router.navigate(['/edit-profile']);
+        },
+        error: (error) => {
+          console.error('Error deleting profile:', error);
+        },
+      });
+    }
+  }
+
+  onDeleteUser() {
+    if (
+      confirm(
+        'Are you sure you want to delete your account? This action cannot be undone.'
+      )
+    ) {
+      this.profileService.deleteUser().subscribe({
+        next: () => {
+          console.log('User deleted successfully');
+          this.router.navigate(['/login']);
+        },
+        error: (error) => {
+          console.error('Error deleting profile:', error);
+        },
+      });
+    }
+  }
 
   toggleBlock() {
     this.readConversationIfMatched();

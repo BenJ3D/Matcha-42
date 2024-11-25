@@ -55,6 +55,20 @@
   ;
 }
 
+.button-delete-account {
+  @apply
+  flex
+  h-full
+  items-center justify-center
+  bg-red-700
+  hover:bg-red-500
+  text-white
+  font-bold
+  shadow-md shadow-gray-400
+  rounded
+  ;
+}
+
 /* profile.component.scss */
 .profile-container {
   //display: flex;

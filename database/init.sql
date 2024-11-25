@@ -17,3 +17,21 @@ ALTER TABLE ONLY "public"."users" ADD CONSTRAINT "users_profile_id_fkey" FOREIGN
 
 ALTER TABLE ONLY "public"."visited_profile_history" ADD CONSTRAINT "visited_profile_history_user_id_fk" FOREIGN KEY (visited_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
 ALTER TABLE ONLY "public"."visited_profile_history" ADD CONSTRAINT "visited_profile_history_user_id_fk_2" FOREIGN KEY (visiter_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT DEFERRABLE;
+
+ALTER TABLE notifications
+DROP CONSTRAINT notifications_users_id_fk;
+
+ALTER TABLE notifications
+ADD CONSTRAINT notifications_users_id_fk
+FOREIGN KEY (target_user)
+REFERENCES users(id)
+ON DELETE CASCADE;
+
+ALTER TABLE notifications
+DROP CONSTRAINT notifications_users_id_fk_2;
+
+ALTER TABLE notifications
+ADD CONSTRAINT notifications_users_id_fk_2
+FOREIGN KEY (source_user)
+REFERENCES users(id)
+ON DELETE CASCADE;
