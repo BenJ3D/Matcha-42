@@ -1,8 +1,9 @@
-import { Routes } from '@angular/router';
-import { DashboardComponent } from './dashboard/dashboard.component';
-import { authGuard } from '../services/auth.guard';
-import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
-import { ProfileGuard } from '../services/profile.guard';
+import {Routes} from '@angular/router';
+import {DashboardComponent} from './dashboard/dashboard.component';
+import {authGuard} from '../services/auth.guard';
+import {PageNotFoundComponent} from './page-not-found/page-not-found.component';
+import {ProfileGuard} from '../services/profile.guard';
+import {EEditStep} from "./profile/profile.component";
 
 export const routes: Routes = [
   {
@@ -27,7 +28,7 @@ export const routes: Routes = [
     component: DashboardComponent,
     canActivate: [authGuard],
     children: [
-      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      {path: '', redirectTo: 'home', pathMatch: 'full'},
       {
         path: 'home',
         loadComponent: () =>
@@ -63,10 +64,12 @@ export const routes: Routes = [
     ],
   },
   {
-    path: 'edit-profile',
+    path: 'create-profile',
     loadComponent: () =>
-      import('./edit-profile/edit-profile.component').then(
-        (m) => m.EditProfileComponent
+      import('./profile/create-profile/create-profile.component').then(
+        (m) => {
+          return m.CreateProfileComponent;
+        }
       ),
     canActivate: [authGuard],
   },

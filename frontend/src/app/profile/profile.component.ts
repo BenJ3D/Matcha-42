@@ -21,9 +21,12 @@ import {UserLightListComponent} from "../user-light-list/user-light-list.compone
 import {MatTabGroup, MatTabsModule} from "@angular/material/tabs";
 import {MatLabel} from "@angular/material/form-field";
 import {SocketService} from "../../services/socket.service";
+import {EditProfileV2} from "./edit-profile-v2/edit-profile-v2.component";
 
 export enum EEditStep {
   'idle',
+  'create',
+  'edit',
   'email',
   'name'
 }
@@ -43,10 +46,9 @@ export enum EEditStep {
     ChangeEmailComponent,
     MatTooltip,
     ChangeNameComponent,
-    UserCardComponent,
     UserLightListComponent,
-    MatLabel,
-    MatTabsModule
+    MatTabsModule,
+    EditProfileV2
   ],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
@@ -55,7 +57,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   tags: Tag[] = [];
   profileId: number | null = null;
   private profileInterval: any;
-  editStep: EEditStep = EEditStep.idle;
+  public editStep: EEditStep = EEditStep.idle;
 
   constructor(
     private router: Router,
@@ -69,10 +71,20 @@ export class ProfileComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadGenders();
     this.subscribeToQueryParams();
+    this.loadUserProfile();
   }
 
   ngOnDestroy() {
     this.clearProfileInterval();
+  }
+
+  initializeStep() {
+    if (!this.user?.profile_id) {
+      console.log('User has no profile');
+      this.editStep = EEditStep.create;
+    } else {
+      this.editStep = EEditStep.idle;
+    }
   }
 
   subscribeToQueryParams() {
@@ -92,6 +104,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.profileService.getMyProfile().subscribe({
       next: (user) => {
         this.user = user;
+        this.initializeStep();
+
       },
       error: (error) => {
         if (error.status === 401) {
@@ -244,7 +258,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.profileService.deleteProfile().subscribe({
         next: () => {
           console.log('Profile deleted successfully');
-          this.router.navigate(['/edit-profile']);
+          this.router.navigate(['/create-profile']);
         },
         error: (error) => {
           console.error('Error deleting profile:', error);

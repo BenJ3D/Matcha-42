@@ -106,6 +106,14 @@
               Delete account
               <!--              <mat-icon>delete</mat-icon>-->
             </button>
+            <button
+              (click)="onDeleteProfile()"
+              class="button-delete-account px-2"
+              mat-raised-button
+            >
+              Delete profile
+              <!--              <mat-icon>delete</mat-icon>-->
+            </button>
           }
           <!-- <button (click)="onDeleteProfile()" color="warn" mat-button>
             <mat-icon>delete</mat-icon>
@@ -223,6 +231,9 @@
 } @else if (editStep == EEditStep.name) {
   <app-change-name class=" z-10" [backToProfile]="resetStepToIdle.bind(this)"
                    [user]="user"></app-change-name>
+} @else if (editStep == EEditStep.create) {
+  <app-edit-profile-v2 class=" z-10" [backToProfile]="resetStepToIdle.bind(this)"
+                       [user]="user"></app-edit-profile-v2>
 }
 
 
