@@ -58,6 +58,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   profileId: number | null = null;
   private profileInterval: any;
   public editStep: EEditStep = EEditStep.idle;
+  hasMainPhoto: boolean = false;
 
   constructor(
     private router: Router,
@@ -103,8 +104,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.clearProfileInterval();
     this.profileService.getMyProfile().subscribe({
       next: (user) => {
-        this.user = user;
-        this.initializeStep();
+        if (!this.profileId) {
+          this.user = user;
+          this.initializeStep();
+        } else {
+          this.hasMainPhoto = user.main_photo_url != null;
+        }
 
       },
       error: (error) => {
