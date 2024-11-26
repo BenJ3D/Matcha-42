@@ -10,6 +10,12 @@ import {ProfileService} from "../../../services/profile.service";
 import {AuthService} from "../../../services/auth.service";
 import {ToastService} from "../../../services/toast.service";
 import {UserUpdateDto} from "../../../DTOs/users/UserUpdateDto";
+import {CreateProfileComponent} from "../create-profile/create-profile.component";
+import {MatAutocomplete, MatAutocompleteTrigger, MatOption} from "@angular/material/autocomplete";
+import {MatProgressSpinner} from "@angular/material/progress-spinner";
+import {MatSelect} from "@angular/material/select";
+import {ProfileCreateDto} from "../../../DTOs/profiles/ProfileCreateDto";
+import {ProfileUpdateDto} from "../../../DTOs/profiles/ProfileUpdateDto";
 
 @Component({
   selector: 'app-edit-profile-v2',
@@ -20,72 +26,56 @@ import {UserUpdateDto} from "../../../DTOs/users/UserUpdateDto";
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
-    MatButtonModule
+    MatButtonModule,
+    MatAutocomplete,
+    MatAutocompleteTrigger,
+    MatOption,
+    MatProgressSpinner,
+    MatSelect
   ],
   templateUrl: './edit-profile-v2.component.html',
   styleUrl: './edit-profile-v2.component.scss'
 })
-export class EditProfileV2 implements OnInit {
+export class EditProfileV2 extends CreateProfileComponent {
   @Input() backToProfile!: () => void;
   @Input() user!: UserResponseDto | null;
 
-  namesForm!: FormGroup;
+//   override ngOnInit() {
+// //TODO: Implement ngOnInit avec chargement des donnée de l'utilisateur
+//   }
 
-  constructor(
-    private fb: FormBuilder,
-    private profileService: ProfileService,
-    private authService: AuthService,
-    private toastService: ToastService,
-  ) {
-  }
-
-  ngOnInit(): void {
-    this.initializeForm();
-  }
-
-  initializeForm() {
-    this.namesForm = this.fb.group({
-      first_name: [
-        this.user?.first_name ?? '',
-        [
-          Validators.required,
-          Validators.maxLength(255),
-        ]
-      ],
-      last_name: [
-        this.user?.last_name ?? '',
-        [
-          Validators.required,
-          Validators.maxLength(255)
-        ]
-      ],
-    });
-  }
-
-  onSubmit() {
-    this.namesForm.value.first_name = this.namesForm.value.first_name.trim();
-    this.namesForm.value.last_name = this.namesForm.value.last_name.trim();
-    if (this.namesForm.value.first_name === this.user?.first_name && this.namesForm.value.last_name === this.user?.last_name) {
-      this.toastService.show('The first and last names is identical to the old names.');
-      this.namesForm.setValue({first_name: ''});
-      this.namesForm.touched;
-      return;
-    }
-    if (this.namesForm.valid) {
-      const updateUserData: UserUpdateDto = {
-        first_name: this.namesForm.value.first_name,
-        last_name: this.namesForm.value.last_name,
+  override onSubmit() {
+    if (this.profileForm.valid) {
+      const updateUserData: ProfileUpdateDto = {
+        biography: this.profileForm.value.biography,
+        gender: this.profileForm.value.gender,
+        sexualPreferences: this.profileForm.value.sexualPreferences,
+        age: this.profileForm.value.age,
+        tags: this.profileForm.value.tags,
+        location: this.locationSelected || this.locationIp,
       }
-      this.profileService.updateUser(updateUserData).subscribe({
+      this.isLoading = true;
+      this.profileService.updateProfile(updateUserData).subscribe({
         next: () => {
-          this.toastService.show('User updated successfully.');
+          this.toastService.show('User profile updated successfully.');
+          this.goToProfile();
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error('Error updating user profile', err);
+          this.toastService.show('Error updating user profile');
+          this.isLoading = false;
+        },
+        complete: () => {
+          this.isLoading = false;
           this.backToProfile();
         }
       });
     } else {
-      this.namesForm.touched;
+      this.profileForm.touched;
     }
   }
+
 }
 
 export class EditProfileV2Component {

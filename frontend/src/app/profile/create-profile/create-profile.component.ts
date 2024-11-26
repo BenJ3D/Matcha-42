@@ -57,8 +57,8 @@ export class CreateProfileComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private profileService: ProfileService,
-    private toastService: ToastService,
+    protected profileService: ProfileService,
+    protected toastService: ToastService,
     private http: HttpClient,
     private router: Router
   ) {

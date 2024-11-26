@@ -238,7 +238,7 @@
 } @else if (editStep == EEditStep.name) {
   <app-change-name class=" z-10" [backToProfile]="resetStepToIdle.bind(this)"
                    [user]="user"></app-change-name>
-} @else if (editStep == EEditStep.create) {
+} @else if (editStep == EEditStep.edit) {
   <app-edit-profile-v2 class=" z-10" [backToProfile]="resetStepToIdle.bind(this)"
                        [user]="user"></app-edit-profile-v2>
 }

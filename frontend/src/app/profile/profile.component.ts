@@ -22,6 +22,7 @@ import {MatTabGroup, MatTabsModule} from "@angular/material/tabs";
 import {MatLabel} from "@angular/material/form-field";
 import {SocketService} from "../../services/socket.service";
 import {EditProfileV2} from "./edit-profile-v2/edit-profile-v2.component";
+import {CreateProfileComponent} from "./create-profile/create-profile.component";
 
 export enum EEditStep {
   'idle',
@@ -48,7 +49,8 @@ export enum EEditStep {
     ChangeNameComponent,
     UserLightListComponent,
     MatTabsModule,
-    EditProfileV2
+    EditProfileV2,
+    CreateProfileComponent
   ],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
@@ -168,7 +170,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   onEditProfile() {
-    this.router.navigate(['/edit-profile']);
+    this.editStep = EEditStep.edit;
   }
 
   onChangeEmail() {
