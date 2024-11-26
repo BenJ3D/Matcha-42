@@ -113,9 +113,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
       },
       error: (error) => {
-        if (error.status === 401) {
-          this.router.navigate(['/login']);
-        }
+        // if (error.status === 401) {
+        //   this.router.navigate(['/login']);
+        // }
       },
     });
   }
