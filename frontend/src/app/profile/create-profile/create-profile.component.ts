@@ -49,7 +49,7 @@ export class CreateProfileComponent implements OnInit {
   genders: Gender[] = [];
   tags: Tag[] = [];
   locationIp: LocationDto | null = null;
-  locationSelected: LocationDto = {latitude: 0, longitude: 0};
+  locationSelected: LocationDto = {latitude: 45.783329, longitude: 4.73333};
   isCityValid: boolean = false;
   cityOptions!: Observable<string[]>;
   isLoading: boolean = false;
@@ -94,6 +94,7 @@ export class CreateProfileComponent implements OnInit {
   }
 
   onSubmit() {
+    this.onCityBlur();
     if (this.profileForm.valid) {
       const updateUserData: ProfileCreateDto = {
         biography: this.profileForm.value.biography,
@@ -101,7 +102,7 @@ export class CreateProfileComponent implements OnInit {
         sexualPreferences: this.profileForm.value.sexualPreferences,
         age: this.profileForm.value.age,
         tags: this.profileForm.value.tags,
-        location: this.locationSelected || this.locationIp,
+        location: this.locationSelected ?? this.locationIp,
       }
       this.isLoading = true;
       this.profileService.createProfile(updateUserData).subscribe({
@@ -188,8 +189,8 @@ export class CreateProfileComponent implements OnInit {
 
     if (cityControl) {
       this.cityOptions = cityControl.valueChanges.pipe(
-        // Ajoutez un délai pour réduire le nombre de requêtes
-        debounceTime(300),
+        // délai pour réduire le nombre de requêtes
+        debounceTime(5),
         // Ignorez les valeurs identiques consécutives
         distinctUntilChanged(),
         // Exécutez la recherche
@@ -201,12 +202,11 @@ export class CreateProfileComponent implements OnInit {
   onCityBlur() {
     const city: string = this.profileForm.getRawValue().city.trim();
     if (city) {
-      console.log('City:', city);
       this.searchCityCoordinates(city);
     } else {
       this.locationSelected.latitude = this.locationIp?.latitude || 0;
       this.locationSelected.longitude = this.locationIp?.longitude || 0;
-      console.log('City is empty');
+      this.locationSelected.city = this.locationIp?.city;
     }
   }
 
@@ -223,11 +223,14 @@ export class CreateProfileComponent implements OnInit {
     this.http.get<any[]>(url, {headers}).subscribe({
       next: (results) => {
         if (results && results.length > 0) {
+          console.log('City coordinates:', results[0]);
+          this.profileForm.patchValue({city: results[0].name}, {emitEvent: false});
           this.locationSelected.latitude = parseFloat(results[0].lat);
           this.locationSelected.longitude = parseFloat(results[0].lon);
+          this.locationSelected.city = results[0].name.split(',')[0].trim();
         } else {
-          this.locationSelected.latitude = this.locationIp?.latitude || 0;
-          this.locationSelected.longitude = this.locationIp?.longitude || 0;
+          this.profileForm.get('city')?.setErrors({cityNotFound: true});
+          this.toastService.show('City not found');
         }
       },
       error: (error) => {

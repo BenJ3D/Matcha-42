@@ -61,7 +61,11 @@
             <p class="select-text"><strong class="select-none">Email: </strong>{{ user.email }}</p>
           }
           <p><strong>Gender:</strong> {{ getGenderName(user.gender) }}</p>
-          <p><strong>Location:</strong> {{ user.location?.city_name }}</p>
+          <div>
+            <p><strong>Location:</strong> {{ user.location?.city_name }} </p>
+            <!--            <p class="text-gray-400 text-xs">({{ user.location?.latitude }}-->
+            <!--              , {{ user.location?.longitude }})</p>-->
+          </div>
           <p>
             <strong>Interested In:</strong>
             {{ getSexualPreferencesNames(user.sexualPreferences) }}

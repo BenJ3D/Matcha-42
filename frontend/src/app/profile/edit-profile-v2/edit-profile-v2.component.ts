@@ -1,20 +1,14 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {CommonModule} from "@angular/common";
-import {MatIcon} from "@angular/material/icon";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {ReactiveFormsModule} from "@angular/forms";
 import {MatButtonModule} from "@angular/material/button";
 import {UserResponseDto} from "../../../DTOs/users/UserResponseDto";
-import {ProfileService} from "../../../services/profile.service";
-import {AuthService} from "../../../services/auth.service";
-import {ToastService} from "../../../services/toast.service";
-import {UserUpdateDto} from "../../../DTOs/users/UserUpdateDto";
 import {CreateProfileComponent} from "../create-profile/create-profile.component";
 import {MatAutocomplete, MatAutocompleteTrigger, MatOption} from "@angular/material/autocomplete";
 import {MatProgressSpinner} from "@angular/material/progress-spinner";
 import {MatSelect} from "@angular/material/select";
-import {ProfileCreateDto} from "../../../DTOs/profiles/ProfileCreateDto";
 import {ProfileUpdateDto} from "../../../DTOs/profiles/ProfileUpdateDto";
 
 @Component({
@@ -22,7 +16,6 @@ import {ProfileUpdateDto} from "../../../DTOs/profiles/ProfileUpdateDto";
   standalone: true,
   imports: [
     CommonModule,
-    MatIcon,
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
@@ -45,6 +38,7 @@ export class EditProfileV2 extends CreateProfileComponent {
 //   }
 
   override onSubmit() {
+    this.onCityBlur();
     if (this.profileForm.valid) {
       const updateUserData: ProfileUpdateDto = {
         biography: this.profileForm.value.biography,
@@ -52,7 +46,7 @@ export class EditProfileV2 extends CreateProfileComponent {
         sexualPreferences: this.profileForm.value.sexualPreferences,
         age: this.profileForm.value.age,
         tags: this.profileForm.value.tags,
-        location: this.locationSelected || this.locationIp,
+        location: this.locationSelected ?? this.locationIp ?? {latitude: 45.783329, longitude: 4.73333},
       }
       this.isLoading = true;
       this.profileService.updateProfile(updateUserData).subscribe({
