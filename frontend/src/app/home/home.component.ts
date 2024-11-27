@@ -64,7 +64,7 @@ export class HomeComponent implements OnInit {
   ) {
   }
 
-  get currentProfile(): UserResponseDto | undefined {
+  get currentProfile(): UserResponseDto {
     return this.profiles[this.currentProfileIndex];
   }
 
@@ -204,24 +204,28 @@ export class HomeComponent implements OnInit {
     order: string
   ): UserResponseDto[] {
     return profiles.sort((a, b) => {
+      
       let aValue: any;
       let bValue: any;
 
       switch (sortBy) {
-        case 'age':
-          aValue = a.age;
-          bValue = b.age;
-          break;
-        case 'fame_rating':
-          aValue = a.fame_rating;
-          bValue = b.fame_rating;
-          break;
-        case 'location':
-          aValue = this.calculateDistance(a.location);
-          bValue = this.calculateDistance(b.location);
-          break;
-        default:
-          return 0;
+          case 'age':
+              aValue = a.age;
+              bValue = b.age;
+              break;
+          case 'fame_rating':
+              aValue = a.fame_rating;
+              bValue = b.fame_rating;
+              break;
+          case 'location':
+              aValue = this.calculateDistance(a.location);
+              bValue = this.calculateDistance(b.location);
+              break;
+          default:
+              aValue = this.countCommonTags(a.tags || []);
+              bValue = this.countCommonTags(b.tags || []);
+              break;
+            // return 0;
       }
 
       if (aValue < bValue) {
@@ -231,6 +235,16 @@ export class HomeComponent implements OnInit {
       }
       return 0;
     });
+  }
+
+  private countCommonTags(userTags: Tag[]): number {
+    if (this.currentProfile === undefined || this.currentProfile.tags === undefined) {
+      return 0;
+    }
+
+      const currentUserTagIds = this.currentProfile.tags?.map(tag => tag.tag_id) ?? [];
+      const userTagIds = userTags.map(tag => tag.tag_id);
+      return userTagIds.filter(tagId => currentUserTagIds.includes(tagId)).length;
   }
 
   private calculateDistance(location?: {
