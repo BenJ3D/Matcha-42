@@ -107,14 +107,30 @@ class UserDAL {
                 throw {status: 404, message: "Utilisateur non trouvé."};
             }
 
-            // Suppression de l'utilisateur
-            await db('users').where('id', userId).del();
+            // Utilisation d'une transaction pour garantir la cohérence
+            await db.transaction(async trx => {
+                // Supprimer les notifications liées à l'utilisateur (source_user et target_user)
+                await trx('notifications').where('source_user', userId).del();
+                await trx('notifications').where('target_user', userId).del();
+
+                // Supprimer l'utilisateur
+                await trx('users').where('id', userId).del();
+            });
+
             console.log(`Utilisateur avec id ${userId} supprimé.`);
         } catch (e: any) {
             console.error(`Erreur lors de la suppression de l'utilisateur avec id ${userId}:`, e);
-            throw {status: e.status || 500, message: e.message || "Erreur."};
+
+            if (e.status === 404) {
+                throw e;
+            } else if (e.code === '23503') {
+                throw {status: 400, message: "Erreur : Contrainte de clé étrangère."};
+            } else {
+                throw {status: 400, message: "Erreur."};
+            }
         }
-    }
+    };
+
 
     findAll = async (): Promise<UserLightResponseDto[]> => {
         try {
@@ -361,13 +377,14 @@ class UserDAL {
             query.andWhere('profiles.age', '<=', filters.ageMax);
         }
         if (filters.fameMin !== undefined) {
+            console.log('fameMin:', filters.fameMin);
             query.andWhere('profiles.fame_rating', '>=', filters.fameMin);
         }
         if (filters.fameMax !== undefined) {
             query.andWhere('profiles.fame_rating', '<=', filters.fameMax);
         }
         if (filters.location) {
-            // Add location filtering logic here
+            query.where('locations.city_name', 'ILIKE', `%${filters.location}%`);
         }
         if (filters.tags && filters.tags.length > 0) {
             query.join('profile_tag', 'profiles.profile_id', 'profile_tag.profile_id')

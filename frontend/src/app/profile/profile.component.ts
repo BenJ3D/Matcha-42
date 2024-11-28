@@ -21,9 +21,13 @@ import {UserLightListComponent} from "../user-light-list/user-light-list.compone
 import {MatTabGroup, MatTabsModule} from "@angular/material/tabs";
 import {MatLabel} from "@angular/material/form-field";
 import {SocketService} from "../../services/socket.service";
+import {EditProfileV2} from "./edit-profile-v2/edit-profile-v2.component";
+import {CreateProfileComponent} from "./create-profile/create-profile.component";
 
 export enum EEditStep {
   'idle',
+  'create',
+  'edit',
   'email',
   'name'
 }
@@ -43,10 +47,10 @@ export enum EEditStep {
     ChangeEmailComponent,
     MatTooltip,
     ChangeNameComponent,
-    UserCardComponent,
     UserLightListComponent,
-    MatLabel,
-    MatTabsModule
+    MatTabsModule,
+    EditProfileV2,
+    CreateProfileComponent
   ],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
@@ -55,7 +59,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
   tags: Tag[] = [];
   profileId: number | null = null;
   private profileInterval: any;
-  editStep: EEditStep = EEditStep.idle;
+  public editStep: EEditStep = EEditStep.idle;
+  hasMainPhoto: boolean = false;
 
   constructor(
     private router: Router,
@@ -69,10 +74,20 @@ export class ProfileComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadGenders();
     this.subscribeToQueryParams();
+    this.loadUserProfile();
   }
 
   ngOnDestroy() {
     this.clearProfileInterval();
+  }
+
+  initializeStep() {
+    if (!this.user?.profile_id) {
+      console.log('User has no profile');
+      this.editStep = EEditStep.create;
+    } else {
+      this.editStep = EEditStep.idle;
+    }
   }
 
   subscribeToQueryParams() {
@@ -91,12 +106,18 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.clearProfileInterval();
     this.profileService.getMyProfile().subscribe({
       next: (user) => {
-        this.user = user;
+        if (!this.profileId) {
+          this.user = user;
+          this.initializeStep();
+        } else {
+          this.hasMainPhoto = user.main_photo_url != null;
+        }
+
       },
       error: (error) => {
-        if (error.status === 401) {
-          this.router.navigate(['/login']);
-        }
+        // if (error.status === 401) {
+        //   this.router.navigate(['/login']);
+        // }
       },
     });
   }
@@ -149,7 +170,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   onEditProfile() {
-    this.router.navigate(['/edit-profile']);
+    this.editStep = EEditStep.edit;
   }
 
   onChangeEmail() {
@@ -235,23 +256,41 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
-  // onDeleteProfile() {
-  //   if (
-  //     confirm(
-  //       'Are you sure you want to delete your profile? This action cannot be undone.'
-  //     )
-  //   ) {
-  //     this.profileService.deleteProfile().subscribe({
-  //       next: () => {
-  //         console.log('Profile deleted successfully');
-  //         this.router.navigate(['/edit-profile']);
-  //       },
-  //       error: (error) => {
-  //         console.error('Error deleting profile:', error);
-  //       },
-  //     });
-  //   }
-  // }
+  onDeleteProfile() {
+    if (
+      confirm(
+        'Are you sure you want to delete your profile? This action cannot be undone.'
+      )
+    ) {
+      this.profileService.deleteProfile().subscribe({
+        next: () => {
+          console.log('Profile deleted successfully');
+          this.router.navigate(['/create-profile']);
+        },
+        error: (error) => {
+          console.error('Error deleting profile:', error);
+        },
+      });
+    }
+  }
+
+  onDeleteUser() {
+    if (
+      confirm(
+        'Are you sure you want to delete your account? This action cannot be undone.'
+      )
+    ) {
+      this.profileService.deleteUser().subscribe({
+        next: () => {
+          console.log('User deleted successfully');
+          this.router.navigate(['/login']);
+        },
+        error: (error) => {
+          console.error('Error deleting profile:', error);
+        },
+      });
+    }
+  }
 
   toggleBlock() {
     this.readConversationIfMatched();

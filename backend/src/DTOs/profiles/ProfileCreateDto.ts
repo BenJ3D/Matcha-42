@@ -3,6 +3,7 @@ import joi from 'joi';
 export interface LocationDto {
     latitude: number;
     longitude: number;
+    city?: string;
 }
 
 export interface ProfileCreateDto {
@@ -18,6 +19,7 @@ export interface ProfileCreateDto {
 export const LocationDtoValidation = joi.object({
     latitude: joi.number().required(),
     longitude: joi.number().required(),
+    city: joi.string(),
 });
 
 export const ProfileCreateDtoValidation = joi.object({

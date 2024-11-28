@@ -61,7 +61,11 @@
             <p class="select-text"><strong class="select-none">Email: </strong>{{ user.email }}</p>
           }
           <p><strong>Gender:</strong> {{ getGenderName(user.gender) }}</p>
-          <p><strong>Location:</strong> {{ user.location?.city_name }}</p>
+          <div>
+            <p><strong>Location:</strong> {{ user.location?.city_name }} </p>
+            <!--            <p class="text-gray-400 text-xs">({{ user.location?.latitude }}-->
+            <!--              , {{ user.location?.longitude }})</p>-->
+          </div>
           <p>
             <strong>Interested In:</strong>
             {{ getSexualPreferencesNames(user.sexualPreferences) }}
@@ -97,6 +101,24 @@
             <mat-icon>edit</mat-icon>
             Edit Profile
           </button>
+          @if (!profileId) {
+            <button
+              (click)="onDeleteUser()"
+              class="button-delete-account px-2"
+              mat-raised-button
+            >
+              Delete account
+              <!--              <mat-icon>delete</mat-icon>-->
+            </button>
+            <button
+              (click)="onDeleteProfile()"
+              class="button-delete-account px-2"
+              mat-raised-button
+            >
+              Delete profile
+              <!--              <mat-icon>delete</mat-icon>-->
+            </button>
+          }
           <!-- <button (click)="onDeleteProfile()" color="warn" mat-button>
             <mat-icon>delete</mat-icon>
             Delete Profile
@@ -104,7 +126,7 @@
         </mat-card-actions>
       } @else {
         <div class="grid grid-cols-2 gap-1 pt-6">
-          @if (!user.BlockedMe) {
+          @if (!user.BlockedMe && hasMainPhoto) {
 
             <button class="button-base" [ngClass]="{'like': user.isLiked}" (click)="toggleLike()"
                     mat-raised-button>
@@ -128,7 +150,14 @@
             Fake report
           </button>
         </div>
-
+        @if (!hasMainPhoto) {
+          <div class="flex w-full flex-1 justify-start items-center text-center p-4">You must upload a main photo to
+            have
+            access to
+            likes and
+            unlikes.
+          </div>
+        }
       }
       @if (!profileId) {
         <div class="w-full md:absolute md:right-4 md:top-4 md:w-28 h-10 mb-4 md:mb-0">
@@ -140,11 +169,11 @@
             <mat-icon class="text-lg">exit_to_app</mat-icon>
           </button>
           <!--          <button-->
-          <!--            (click)="loggout()"-->
+          <!--            (click)="onDeleteProfile()"-->
           <!--            class="button-logout"-->
           <!--            mat-raised-button-->
           <!--          >-->
-          <!--            <span>Logout</span>-->
+          <!--            <span>DeleteProfile</span>-->
           <!--            <mat-icon>exit_to_app</mat-icon>-->
           <!--          </button>-->
 
@@ -213,6 +242,9 @@
 } @else if (editStep == EEditStep.name) {
   <app-change-name class=" z-10" [backToProfile]="resetStepToIdle.bind(this)"
                    [user]="user"></app-change-name>
+} @else if (editStep == EEditStep.edit) {
+  <app-edit-profile-v2 class=" z-10" [backToProfile]="resetStepToIdle.bind(this)"
+                       [user]="user"></app-edit-profile-v2>
 }
 
 

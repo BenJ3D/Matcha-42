@@ -1,0 +1,136 @@
+<div class=" h-full w-full flex justify-center items-center rounded-xl  border-orange-600 border-4">
+  <div
+    class="flex flex-col justify-center items-center bg-white xs:p-1 rounded-lg h-1/2 w-2/3 xs:h-full xs:w-full">
+    <!--    <mat-icon class="pb-10 ">info</mat-icon>-->
+    @if (!isLoading) {
+
+      <div class="text-ellipsis text-center font-medium pb-10 text-xl">
+        You must create your profile to access the rest of the site
+      </div>
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()"
+            class="w-full max-w-sm flex flex-col justify-center items-center">
+        <!-- Biography -->
+        <mat-form-field appearance="outline" class="w-full pb-1">
+          <mat-label>Biography</mat-label>
+          <textarea
+            formControlName="biography"
+            matInput
+            required
+            maxlength="1024"
+            cdkTextareaAutosize
+            cdkAutosizeMinRows="2"
+            cdkAutosizeMaxRows="8"
+          ></textarea>
+          <mat-error
+            *ngIf="profileForm.get('biography')?.hasError('required')"
+          >
+            Biography is required
+          </mat-error>
+          <mat-error
+            *ngIf="profileForm.get('biography')?.hasError('maxlength')"
+          >
+            Biography cannot exceed 1024 characters
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Gender -->
+        <mat-form-field appearance="outline" class="w-full pb-1">
+          <mat-label>Gender</mat-label>
+          <mat-select formControlName="gender" required>
+            <mat-option
+              *ngFor="let gender of genders"
+              [value]="gender.gender_id"
+            >
+              {{ gender.name }}
+            </mat-option>
+          </mat-select>
+          <mat-error
+            *ngIf="profileForm.get('gender')?.hasError('required')"
+          >
+            Gender is required
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Sexual Preferences -->
+        <mat-form-field appearance="outline" class="w-full pb-1">
+          <mat-label>Sexual Preferences</mat-label>
+          <mat-select formControlName="sexualPreferences" multiple required>
+            <mat-option
+              *ngFor="let preference of genders"
+              [value]="preference.gender_id"
+            >
+              {{ preference.name }}
+            </mat-option>
+          </mat-select>
+          <mat-error
+            *ngIf="
+                profileForm.get('sexualPreferences')?.hasError('required')
+              "
+          >
+            Sexual preferences are required
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Age -->
+        <mat-form-field appearance="outline" class="w-full pb-1">
+          <mat-label>Age</mat-label>
+          <input
+            matInput
+            type="number"
+            formControlName="age"
+            required
+            min="18"
+            max="120"
+          />
+          <mat-error *ngIf="profileForm.get('age')?.hasError('required')">
+            Age is required
+          </mat-error>
+          <mat-error *ngIf="profileForm.get('age')?.hasError('min')">
+            Must be at least 18 years old
+          </mat-error>
+          <mat-error *ngIf="profileForm.get('age')?.hasError('max')">
+            Must be under 120 years old
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Tags -->
+        <mat-form-field appearance="outline" class="w-full pb-1">
+          <mat-label>Tags</mat-label>
+          <mat-select formControlName="tags" multiple>
+            <mat-option *ngFor="let tag of tags" [value]="tag.tag_id">
+              {{ tag.tag_name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Location -->
+        <mat-form-field appearance="outline" class="w-full pb-1">
+          <mat-label>City</mat-label>
+          <input matInput formControlName="city" [matAutocomplete]="auto" (blur)="onCityBlur()"/>
+          <mat-autocomplete #auto="matAutocomplete">
+            <mat-option *ngFor="let city of cityOptions | async" [value]="city">
+              {{ city }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+        <button class="!font-black" mat-raised-button color="primary" type="submit" hidden="hidden"></button>
+
+      </form>
+      <div class="flex flex-col w-2/3  space-y-2 max-w-96 ">
+        <button class="!font-black" mat-raised-button color="primary" type="submit" (click)="onSubmit()"
+                [disabled]="profileForm.invalid">
+          Submit
+        </button>
+        <!--      <button mat-raised-button class="font-black bg-red-800 hover:bg-red-700 text-white" (click)="backToProfile()">-->
+        <!--        logout-->
+        <!--      </button>-->
+      </div>
+    } @else {
+      <div class="text-ellipsis text-center font-medium pb-10 text-xl">
+        Your profile is being created, please wait.
+      </div>
+      <mat-spinner class="w-12 h-12" diameter="50"></mat-spinner>
+    }
+  </div>
+
+</div>

@@ -1,5 +1,4 @@
-// src/controllers/ProfileController.ts
-import {Request, Response} from 'express';
+import {Response} from 'express';
 import profileServices from '../services/ProfileServices';
 import {ProfileCreateDtoValidation} from '../DTOs/profiles/ProfileCreateDto';
 import {ProfileUpdateDtoValidation} from '../DTOs/profiles/ProfileUpdateDto';

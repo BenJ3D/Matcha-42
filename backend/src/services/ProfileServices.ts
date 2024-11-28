@@ -19,14 +19,19 @@ class ProfileServices {
         let locationId: number | undefined = undefined;
 
         if (profileData.location) {
-            const {latitude, longitude} = profileData.location;
+            const {latitude, longitude, city} = profileData.location;
 
             try {
                 // Obtenir le nom de la ville à partir des coordonnées
                 const cityName = await reverseGeocodeOpenCage(latitude, longitude);
-
+                console.log('City name:', city);
                 // Vérifier si la localisation existe déjà
                 let location = await locationDAL.findByCoordinates(latitude, longitude);
+
+                // privilégier le nom de la ville du front
+                if (location?.location_id && city) {
+                    await locationDAL.update(location.location_id, city);
+                }
 
                 if (location) {
                     locationId = location.location_id;
@@ -58,7 +63,7 @@ class ProfileServices {
         let locationId: number | undefined = undefined;
 
         if (profileData.location) {
-            const {latitude, longitude} = profileData.location;
+            const {latitude, longitude, city} = profileData.location;
 
             try {
                 // Obtenir le nom de la ville à partir des coordonnées
@@ -67,6 +72,10 @@ class ProfileServices {
                 // Vérifier si la localisation existe déjà
                 let location = await locationDAL.findByCoordinates(latitude, longitude);
 
+                // privilégier le nom de la ville du front
+                if (location?.location_id && city) {
+                    await locationDAL.update(location.location_id, city);
+                }
                 if (location) {
                     locationId = location.location_id;
                 } else {
