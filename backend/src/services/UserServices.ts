@@ -9,7 +9,7 @@ import {UserResponseDto} from "../DTOs/users/UserResponseDto";
 import EmailVerificationService from "./EmailVerificationService";
 import {UserEmailPatchDto} from "../DTOs/users/UserEmailPatchDto";
 import {UserLightResponseDto} from "../DTOs/users/UserLightResponseDto";
-import { UserOtherResponseDto } from '../DTOs/users/UserOtherResponseDto';
+import {UserOtherResponseDto} from '../DTOs/users/UserOtherResponseDto';
 
 class UserServices {
     async getAllUsers(): Promise<UserLightResponseDto[]> {
@@ -132,7 +132,6 @@ class UserServices {
 
         // Ajouter la note
         let newNote = currentRating + addNote;
-        console.log(`NEW NOOOOOTE = ${newNote}`);
         if (newNote < 0) {
             newNote = 0;
         } else if (newNote > 10) {

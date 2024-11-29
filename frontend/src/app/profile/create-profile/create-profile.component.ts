@@ -83,7 +83,7 @@ export class CreateProfileComponent implements OnInit {
     this.profileForm = this.fb.group({
       biography: ['', [Validators.required, Validators.maxLength(1024)]],
       gender: [null, [Validators.required]],
-      sexualPreferences: [[], [Validators.required]],
+      sexualPreferences: [[]],
       age: [
         null,
         [Validators.required, Validators.min(18), Validators.max(120)],
@@ -245,7 +245,7 @@ export class CreateProfileComponent implements OnInit {
     this.http.get<any[]>(url, {headers}).subscribe({
       next: (results) => {
         if (results && results.length > 0) {
-          console.log('City coordinates:', results[0]);
+          // console.log('City coordinates:', results[0]);
           this.profileForm.patchValue({city: results[0].name}, {emitEvent: false});
           this.locationSelected.latitude = parseFloat(results[0].lat);
           this.locationSelected.longitude = parseFloat(results[0].lon);
