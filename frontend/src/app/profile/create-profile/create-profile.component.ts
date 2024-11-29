@@ -68,7 +68,7 @@ export class CreateProfileComponent implements OnInit {
     this.initializeForm();
     this.loadInitialData();
     this.setupCityAutocomplete();
-    this.getLocationFromIP2().then(r => {
+    this.getLocationFromIP().then(r => {
     });
   }
 
@@ -144,7 +144,7 @@ export class CreateProfileComponent implements OnInit {
     });
   }
 
-  getLocationFromIP2(): Promise<void> {
+  getLocationFromIP(): Promise<void> {
     return new Promise((resolve) => {
       this.http.get<any>('https://ipapi.co/json/').subscribe({
         next: (data) => {
@@ -154,7 +154,29 @@ export class CreateProfileComponent implements OnInit {
               longitude: data.longitude,
             }
             console.log('Location from IP:', data.city + ', ' + data.longitude + '/' + data.latitude);
-            ;
+          }
+          resolve();
+        },
+        error: (error) => {
+          console.error('Error getting IP location from first service:', error);
+          this.isCityValid = false;
+          // Si le premier service échoue, on appelle le second
+          this.getLocationFromIP2().then(() => resolve());
+        },
+      });
+    });
+  }
+
+  getLocationFromIP2(): Promise<void> {
+    return new Promise((resolve) => {
+      this.http.get<any>('https://api.ipbase.com/v1/json/').subscribe({
+        next: (data) => {
+          if (data.city && data.latitude && data.longitude) {
+            this.locationIp = {
+              latitude: data.latitude,
+              longitude: data.longitude,
+            }
+            console.log('Location from IP2:', data.city + ', ' + data.longitude + '/' + data.latitude);
 
           }
           resolve();
