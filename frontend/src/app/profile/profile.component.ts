@@ -23,13 +23,14 @@ import {MatLabel} from "@angular/material/form-field";
 import {SocketService} from "../../services/socket.service";
 import {EditProfileV2} from "./edit-profile-v2/edit-profile-v2.component";
 import {CreateProfileComponent} from "./create-profile/create-profile.component";
+import {ChangePhotoComponent} from "./change-photo/change-photo.component";
 
 export enum EEditStep {
   'idle',
   'create',
   'edit',
   'email',
-  'name'
+  'name',
 }
 
 @Component({
@@ -50,7 +51,8 @@ export enum EEditStep {
     UserLightListComponent,
     MatTabsModule,
     EditProfileV2,
-    CreateProfileComponent
+    CreateProfileComponent,
+    ChangePhotoComponent
   ],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
@@ -181,9 +183,58 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.editStep = EEditStep.name;
   }
 
+  // onChangePhoto() {
+  //   this.editStep = EEditStep.photo;
+  // }
+
   resetStepToIdle() {
     this.loadUserProfile();
     this.editStep = EEditStep.idle;
+  }
+
+  onPhotoSelected(event: any) {
+    const files: FileList = event.target.files;
+    if (files.length > 0) {
+      const uploadPromises = Array.from(files).map((file) =>
+        this.profileService.uploadPhoto(file).toPromise()
+      );
+
+      Promise.all(uploadPromises)
+        .then((newPhotos) => {
+          // Update user photos
+          if (this.user && newPhotos) {
+            this.user.photos = [
+              ...(this.user.photos || []),
+              ...newPhotos.filter(
+                (photo): photo is Photo => photo !== undefined
+              ),
+            ];
+          }
+        })
+        .catch((error) => {
+          console.error('Error uploading photos:', error);
+        });
+    }
+  }
+
+  setAsMainPhoto(photo: Photo) {
+    if (!photo || !photo.photo_id) {
+      console.error('Invalid photo or photo ID');
+      return;
+    }
+
+    this.profileService.setMainPhoto(photo.photo_id).subscribe({
+      next: () => {
+        if (this.user) {
+          this.user.main_photo_id = photo.photo_id;
+          this.loadUserProfile();
+        }
+        console.log('Main photo set successfully');
+      },
+      error: (error) => {
+        console.error('Error setting main photo:', error);
+      },
+    });
   }
 
   deletePhoto(photo: Photo) {

@@ -1,15 +1,15 @@
-import {Component, Input} from '@angular/core';
+import {MatSelect} from "@angular/material/select";
 import {CommonModule} from "@angular/common";
-import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
-import {ReactiveFormsModule} from "@angular/forms";
-import {MatButtonModule} from "@angular/material/button";
 import {UserResponseDto} from "../../../DTOs/users/UserResponseDto";
+import {MatButtonModule} from "@angular/material/button";
+import {ProfileUpdateDto} from "../../../DTOs/profiles/ProfileUpdateDto";
+import {Component, Input} from '@angular/core';
+import {MatProgressSpinner} from "@angular/material/progress-spinner";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {ReactiveFormsModule} from "@angular/forms";
 import {CreateProfileComponent} from "../create-profile/create-profile.component";
 import {MatAutocomplete, MatAutocompleteTrigger, MatOption} from "@angular/material/autocomplete";
-import {MatProgressSpinner} from "@angular/material/progress-spinner";
-import {MatSelect} from "@angular/material/select";
-import {ProfileUpdateDto} from "../../../DTOs/profiles/ProfileUpdateDto";
 
 @Component({
   selector: 'app-edit-profile-v2',
