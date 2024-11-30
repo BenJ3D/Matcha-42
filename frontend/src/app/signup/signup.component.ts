@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   AbstractControl,
-  AbstractControlOptions,
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
@@ -17,6 +16,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { AuthService } from '../../services/auth.service';
+import { UserCreateDto } from '../../DTOs/users/UserCreateDto';
+import { SignupResponseDto } from '../../DTOs/signup/SignupResponseDto';
 
 @Component({
   selector: 'app-signup',
@@ -35,7 +36,6 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.scss'],
 })
-
 export class SignupComponent {
   form: FormGroup;
   isLoading = false;
@@ -44,12 +44,8 @@ export class SignupComponent {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService,
+    private authService: AuthService
   ) {
-    const formOptions = {
-      validators: this.checkPasswords,
-    };
-
     this.form = this.fb.group(
       {
         username: ['', Validators.required],
@@ -59,7 +55,9 @@ export class SignupComponent {
         password: ['', [Validators.required, Validators.minLength(5)]],
         confirmPassword: ['', Validators.required],
       },
-      formOptions
+      {
+        validators: this.checkPasswords,
+      }
     );
   }
 
@@ -78,34 +76,26 @@ export class SignupComponent {
     this.isLoading = true;
     this.form.disable();
 
-    const formValues = this.form.value;
-
-    const signupData = {
-      username: formValues.username,
-      first_name: formValues.first_name,
-      last_name: formValues.last_name,
-      email: formValues.email,
-      password: formValues.password,
+    const userData: UserCreateDto = {
+      username: this.form.get('username')?.value,
+      first_name: this.form.get('first_name')?.value,
+      last_name: this.form.get('last_name')?.value,
+      email: this.form.get('email')?.value,
+      password: this.form.get('password')?.value,
     };
 
-    this.authService.signup(signupData).subscribe({
-      next: () => {
+    this.authService.signup(userData).subscribe({
+      next: (response: SignupResponseDto) => {
         this.isLoading = false;
+        this.form.enable();
+        console.log('Signup successful, user ID:', response.userId);
         this.router.navigate(['/login']);
       },
-      error: (error: any) => {
+      error: (error) => {
         console.log(error);
         this.isLoading = false;
         this.form.enable();
       },
-      complete: () => {
-        console.log('Complete');
-      },
     });
-  }
-
-  signupWithGoogle(): void {
-    // Implement Google signup logic here
-    console.log('Google signup clicked');
   }
 }

@@ -1,15 +1,15 @@
-import {Component, Input} from '@angular/core';
+import {MatSelect} from "@angular/material/select";
 import {CommonModule} from "@angular/common";
-import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
-import {ReactiveFormsModule} from "@angular/forms";
-import {MatButtonModule} from "@angular/material/button";
 import {UserResponseDto} from "../../../DTOs/users/UserResponseDto";
+import {MatButtonModule} from "@angular/material/button";
+import {ProfileUpdateDto} from "../../../DTOs/profiles/ProfileUpdateDto";
+import {Component, Input} from '@angular/core';
+import {MatProgressSpinner} from "@angular/material/progress-spinner";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {ReactiveFormsModule} from "@angular/forms";
 import {CreateProfileComponent} from "../create-profile/create-profile.component";
 import {MatAutocomplete, MatAutocompleteTrigger, MatOption} from "@angular/material/autocomplete";
-import {MatProgressSpinner} from "@angular/material/progress-spinner";
-import {MatSelect} from "@angular/material/select";
-import {ProfileUpdateDto} from "../../../DTOs/profiles/ProfileUpdateDto";
 
 @Component({
   selector: 'app-edit-profile-v2',
@@ -33,9 +33,32 @@ export class EditProfileV2 extends CreateProfileComponent {
   @Input() backToProfile!: () => void;
   @Input() user!: UserResponseDto | null;
 
-//   override ngOnInit() {
-// //TODO: Implement ngOnInit avec chargement des donnée de l'utilisateur
-//   }
+  override ngOnInit() {
+    super.ngOnInit();
+    if (this.user && this.user?.profile_id) {
+      this.profileForm.patchValue({biography: this.user.biography});
+      this.profileForm.patchValue({gender: this.user.gender});
+      this.profileForm.patchValue({age: this.user.age});
+      this.profileForm.patchValue({city: this.user.location?.city_name});
+
+
+      if (this.user && this.user.sexualPreferences && this.user.sexualPreferences?.length > 0) {
+        const sexualPreferenceIds = this.user.sexualPreferences.map(pref => pref.gender_id);
+        this.profileForm.patchValue({
+          sexualPreferences: sexualPreferenceIds
+        });
+      }
+
+      if (this.user && this.user.tags && this.user.tags?.length > 0) {
+        const tagIds = this.user.tags.map(tag => tag.tag_id);
+        this.profileForm.patchValue({
+          tags: tagIds
+        });
+      }
+      this.onCityBlur();
+    }
+
+  }
 
   override onSubmit() {
     this.onCityBlur();
@@ -69,7 +92,6 @@ export class EditProfileV2 extends CreateProfileComponent {
       this.profileForm.touched;
     }
   }
-
 }
 
 export class EditProfileV2Component {

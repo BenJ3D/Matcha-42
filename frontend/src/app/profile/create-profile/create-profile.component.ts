@@ -68,7 +68,7 @@ export class CreateProfileComponent implements OnInit {
     this.initializeForm();
     this.loadInitialData();
     this.setupCityAutocomplete();
-    this.getLocationFromIP2().then(r => {
+    this.getLocationFromIP().then(r => {
     });
   }
 
@@ -83,7 +83,7 @@ export class CreateProfileComponent implements OnInit {
     this.profileForm = this.fb.group({
       biography: ['', [Validators.required, Validators.maxLength(1024)]],
       gender: [null, [Validators.required]],
-      sexualPreferences: [[], [Validators.required]],
+      sexualPreferences: [[]],
       age: [
         null,
         [Validators.required, Validators.min(18), Validators.max(120)],
@@ -144,7 +144,7 @@ export class CreateProfileComponent implements OnInit {
     });
   }
 
-  getLocationFromIP2(): Promise<void> {
+  getLocationFromIP(): Promise<void> {
     return new Promise((resolve) => {
       this.http.get<any>('https://ipapi.co/json/').subscribe({
         next: (data) => {
@@ -154,7 +154,29 @@ export class CreateProfileComponent implements OnInit {
               longitude: data.longitude,
             }
             console.log('Location from IP:', data.city + ', ' + data.longitude + '/' + data.latitude);
-            ;
+          }
+          resolve();
+        },
+        error: (error) => {
+          console.error('Error getting IP location from first service:', error);
+          this.isCityValid = false;
+          // Si le premier service échoue, on appelle le second
+          this.getLocationFromIP2().then(() => resolve());
+        },
+      });
+    });
+  }
+
+  getLocationFromIP2(): Promise<void> {
+    return new Promise((resolve) => {
+      this.http.get<any>('https://api.ipbase.com/v1/json/').subscribe({
+        next: (data) => {
+          if (data.city && data.latitude && data.longitude) {
+            this.locationIp = {
+              latitude: data.latitude,
+              longitude: data.longitude,
+            }
+            console.log('Location from IP2:', data.city + ', ' + data.longitude + '/' + data.latitude);
 
           }
           resolve();
@@ -223,7 +245,7 @@ export class CreateProfileComponent implements OnInit {
     this.http.get<any[]>(url, {headers}).subscribe({
       next: (results) => {
         if (results && results.length > 0) {
-          console.log('City coordinates:', results[0]);
+          // console.log('City coordinates:', results[0]);
           this.profileForm.patchValue({city: results[0].name}, {emitEvent: false});
           this.locationSelected.latitude = parseFloat(results[0].lat);
           this.locationSelected.longitude = parseFloat(results[0].lon);
