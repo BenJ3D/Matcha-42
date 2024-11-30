@@ -5,18 +5,18 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/users/search
+  url: {{baseUrl}}/users/search?fameMin=6.3&fameMax=6.41
   body: none
   auth: inherit
 }
 
 params:query {
+  fameMin: 6.3
+  fameMax: 6.41
   ~ageMin: 25
-  ~ageMax: 40
-  ~fameMin: 
-  ~fameMax: 
-  ~location: 
-  ~tags: 
+  ~ageMax: 26
+  ~location: Paris
+  ~tags: 1,2
   ~sortBy: 
   ~order: 
 }
