@@ -15,3 +15,4 @@ RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["ng", "serve", "--host", "0.0.0.0"]
+# CMD ["npm", "run", "start:prod"]

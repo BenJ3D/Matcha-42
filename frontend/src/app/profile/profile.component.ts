@@ -51,8 +51,6 @@ export enum EEditStep {
     UserLightListComponent,
     MatTabsModule,
     EditProfileV2,
-    CreateProfileComponent,
-    ChangePhotoComponent
   ],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
