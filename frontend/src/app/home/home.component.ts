@@ -18,7 +18,7 @@ import {Observable, of} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {UserResponseDto} from '../../DTOs/users/UserResponseDto';
-import { SearchStateService } from './search-state.service';
+import {SearchStateService} from './search-state.service';
 
 @Component({
   selector: 'app-home',
@@ -342,5 +342,18 @@ export class HomeComponent implements OnInit {
       ),
       map((cityNames) => Array.from(new Set(cityNames)))
     );
+  }
+
+  resetSearch() {
+    this.searchForm.reset({
+      ageRange: {min: this.minAge, max: this.maxAge},
+      fameRange: {min: this.minFame, max: this.maxFame},
+      location: '',
+      tags: [],
+      sortBy: '',
+      order: '',
+    });
+    this.searchStateService.clearState();
+    this.fetchProfiles();
   }
 }

@@ -182,13 +182,21 @@ class UserServices {
                 let comparison = 0;
 
                 if (sortBy === 'distance') {
-                    comparison = (a.distance || 0) - (b.distance || 0);
+                    const aDistance = Number(a.distance) || Number.MAX_SAFE_INTEGER;
+                    const bDistance = Number(b.distance) || Number.MAX_SAFE_INTEGER;
+                    comparison = aDistance - bDistance;
                 } else if (sortBy === 'fame_rating') {
-                    comparison = (a.fame_rating || 0) - (b.fame_rating || 0);
+                    const aFameRating = Number(a.fame_rating) || 0;
+                    const bFameRating = Number(b.fame_rating) || 0;
+                    comparison = aFameRating - bFameRating;
                 } else if (sortBy === 'age') {
-                    comparison = (a.age || 0) - (b.age || 0);
+                    const aAge = Number(a.age) || 0;
+                    const bAge = Number(b.age) || 0;
+                    comparison = aAge - bAge;
                 } else if (sortBy === 'totalScore') {
-                    comparison = (a.totalScore || 0) - (b.totalScore || 0);
+                    const aTotalScore = Number(a.totalScore) || 0;
+                    const bTotalScore = Number(b.totalScore) || 0;
+                    comparison = aTotalScore - bTotalScore;
                 } else {
                     comparison = 0;
                 }
@@ -197,11 +205,9 @@ class UserServices {
             });
         } else {
             usersSearch.sort((a, b) => {
-                if (a.totalScore != null && b.totalScore != null) {
-                    return b.totalScore - a.totalScore;
-                } else {
-                    return 0;
-                }
+                const aTotalScore = Number(a.totalScore) || 0;
+                const bTotalScore = Number(b.totalScore) || 0;
+                return bTotalScore - aTotalScore;
             });
         }
 
