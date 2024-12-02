@@ -71,10 +71,11 @@ class ProfileServices {
 
                 // Vérifier si la localisation existe déjà
                 let location = await locationDAL.findByCoordinates(latitude, longitude);
+                console.log(JSON.stringify(location))
 
                 // privilégier le nom de la ville du front
-                if (location?.location_id && city) {
-                    await locationDAL.update(location.location_id, city);
+                if (location?.location_id && cityName && cityName != 'Unknown') {
+                    await locationDAL.update(location.location_id, cityName);
                 }
                 if (location) {
                     locationId = location.location_id;

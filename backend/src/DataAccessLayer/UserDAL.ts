@@ -332,109 +332,167 @@ class UserDAL {
         userId: number,
         userGender: number
     ): Promise<UserLightWithRelationsResponseDto[]> {
-        const query = db('users')
+        const query = db("users")
             .select(
-                'users.id',
-                'users.username',
-                'users.first_name',
-                'users.last_name',
-                'profiles.age',
-                'profiles.fame_rating',
-                'profiles.gender as gender',
-                'photos.url as main_photo_url',
-                'locations.latitude',
-                'locations.longitude',
-                'locations.city_name',
-                'users.is_online',
-                'users.is_verified',
-                'users.last_activity'
+                "users.id",
+                "users.username",
+                "users.first_name",
+                "users.last_name",
+                "profiles.age",
+                "profiles.fame_rating",
+                "profiles.gender as gender",
+                "photos.url as main_photo_url",
+                "locations.latitude",
+                "locations.longitude",
+                "locations.city_name",
+                "users.is_online",
+                "users.is_verified",
+                "users.last_activity"
             )
-            .join('profiles', 'users.id', 'profiles.owner_user_id')
-            .join('profile_sexual_preferences', 'profiles.profile_id', 'profile_sexual_preferences.profile_id')
-            .leftJoin('photos', 'profiles.main_photo_id', 'photos.photo_id')
-            .leftJoin('locations', 'profiles.location', 'locations.location_id')
-            .where('users.id', '!=', userId)
-            .andWhere('profile_sexual_preferences.gender_id', userGender)
+            .join("profiles", "users.id", "profiles.owner_user_id")
+            .join(
+                "profile_sexual_preferences",
+                "profiles.profile_id",
+                "profile_sexual_preferences.profile_id"
+            )
+            .leftJoin("photos", "profiles.main_photo_id", "photos.photo_id")
+            .leftJoin("locations", "profiles.location", "locations.location_id")
+            .where("users.id", "!=", userId)
+            .andWhere("profile_sexual_preferences.gender_id", userGender)
             .groupBy(
-                'users.id',
-                'profiles.age',
-                'profiles.fame_rating',
-                'profiles.gender',
-                'photos.url',
-                'locations.latitude',
-                'locations.longitude',
-                'locations.city_name',
-                'users.is_online',
-                'users.is_verified',
-                'users.last_activity'
+                "users.id",
+                "profiles.age",
+                "profiles.fame_rating",
+                "profiles.gender",
+                "photos.url",
+                "locations.latitude",
+                "locations.longitude",
+                "locations.city_name",
+                "users.is_online",
+                "users.is_verified",
+                "users.last_activity"
             );
 
-        // Apply additional filters...
-        if (filters.ageMin !== undefined) {
-            query.andWhere('profiles.age', '>=', filters.ageMin);
-        }
-        if (filters.ageMax !== undefined) {
-            query.andWhere('profiles.age', '<=', filters.ageMax);
-        }
-        if (filters.fameMin !== undefined) {
-            console.log('fameMin:', filters.fameMin);
-            query.andWhere('profiles.fame_rating', '>=', filters.fameMin);
-        }
-        if (filters.fameMax !== undefined) {
-            query.andWhere('profiles.fame_rating', '<=', filters.fameMax);
-        }
-        if (filters.location) {
-            query.where('locations.city_name', 'ILIKE', `%${filters.location}%`);
-        }
+        // Apply filters
+        if (filters.ageMin !== undefined)
+            query.andWhere("profiles.age", ">=", filters.ageMin);
+        if (filters.ageMax !== undefined)
+            query.andWhere("profiles.age", "<=", filters.ageMax);
+        if (filters.fameMin !== undefined)
+            query.andWhere("profiles.fame_rating", ">=", filters.fameMin);
+        if (filters.fameMax !== undefined)
+            query.andWhere("profiles.fame_rating", "<=", filters.fameMax);
+        if (filters.location)
+            query.where("locations.city_name", "ILIKE", `%${filters.location}%`);
         if (filters.tags && filters.tags.length > 0) {
-            query.join('profile_tag', 'profiles.profile_id', 'profile_tag.profile_id')
-                .whereIn('profile_tag.profile_tag', filters.tags);
+            query
+                .join("profile_tag", "profiles.profile_id", "profile_tag.profile_id")
+                .whereIn("profile_tag.profile_tag", filters.tags);
         }
         if (filters.preferredGenders && filters.preferredGenders.length > 0) {
-            query.whereIn('profiles.gender', filters.preferredGenders);
+            query.whereIn("profiles.gender", filters.preferredGenders);
         }
         if (filters.sortBy) {
-            const order = filters.order || 'asc';
+            const order = filters.order || "asc";
             query.orderBy(filters.sortBy, order);
         }
 
         // Execute the query
-        const results = await query;
+        const users = await query;
 
-        if (results.length === 0) {
-            return [];
-        }
+        if (users.length === 0) return [];
 
-        const userIds = results.map(user => user.id);
+        const userIds = users.map((user) => user.id);
 
-        // Fetch relationship statuses
-        const [likes, unlikes, blocks, matches, fakeReports, likedMe, unlikedMe, blockedMe, fakeReportedMe] = await Promise.all([
-            db('likes').select('user_liked').where('user', userId).whereIn('user_liked', userIds),
-            db('unlikes').select('user_unliked').where('user', userId).whereIn('user_unliked', userIds),
-            db('blocked_users').select('blocked_id').where('blocker_id', userId).whereIn('blocked_id', userIds),
-            db('matches').select('user_1', 'user_2').where(function () {
-                this.whereIn('user_1', [userId]).whereIn('user_2', userIds)
-                    .orWhereIn('user_1', userIds).where('user_2', userId);
-            }),
-            db('fake_user_reporting').select('reported_user').where('user_who_reported', userId).whereIn('reported_user', userIds),
-            db('likes').select('user').where('user_liked', userId).whereIn('user', userIds),
-            db('unlikes').select('user').where('user_unliked', userId).whereIn('user', userIds),
-            db('blocked_users').select('blocker_id').where('blocked_id', userId).whereIn('blocker_id', userIds),
-            db('fake_user_reporting').select('user_who_reported').where('reported_user', userId).whereIn('user_who_reported', userIds)
+        // Fetch tags for all users in the result
+        const userTags = await db("tags")
+            .select("tags.tag_id", "tags.tag_name", "profile_tag.profile_id")
+            .join("profile_tag", "tags.tag_id", "profile_tag.profile_tag")
+            .whereIn("profile_tag.profile_id", userIds);
+
+        // Group tags by profile ID
+        const tagsByUser = userTags.reduce((acc, tag) => {
+            if (!acc[tag.profile_id]) acc[tag.profile_id] = [];
+            acc[tag.profile_id].push({tag_id: tag.tag_id, tag_name: tag.tag_name});
+            return acc;
+        }, {});
+
+        // Fetch relationship statuses (same as existing logic)
+        const [
+            likes,
+            unlikes,
+            blocks,
+            matches,
+            fakeReports,
+            likedMe,
+            unlikedMe,
+            blockedMe,
+            fakeReportedMe,
+        ] = await Promise.all([
+            db("likes")
+                .select("user_liked")
+                .where("user", userId)
+                .whereIn("user_liked", userIds),
+            db("unlikes")
+                .select("user_unliked")
+                .where("user", userId)
+                .whereIn("user_unliked", userIds),
+            db("blocked_users")
+                .select("blocked_id")
+                .where("blocker_id", userId)
+                .whereIn("blocked_id", userIds),
+            db("matches")
+                .select("user_1", "user_2")
+                .where(function () {
+                    this.whereIn("user_1", [userId])
+                        .whereIn("user_2", userIds)
+                        .orWhereIn("user_1", userIds)
+                        .where("user_2", userId);
+                }),
+            db("fake_user_reporting")
+                .select("reported_user")
+                .where("user_who_reported", userId)
+                .whereIn("reported_user", userIds),
+            db("likes")
+                .select("user")
+                .where("user_liked", userId)
+                .whereIn("user", userIds),
+            db("unlikes")
+                .select("user")
+                .where("user_unliked", userId)
+                .whereIn("user", userIds),
+            db("blocked_users")
+                .select("blocker_id")
+                .where("blocked_id", userId)
+                .whereIn("blocker_id", userIds),
+            db("fake_user_reporting")
+                .select("user_who_reported")
+                .where("reported_user", userId)
+                .whereIn("user_who_reported", userIds),
         ]);
 
         // Map the users to UserLightWithRelationsResponseDto
-        return results.map(user => {
-            const isLiked = likes.some(like => like.user_liked === user.id);
-            const isUnliked = unlikes.some(unlike => unlike.user_unliked === user.id);
-            const isBlocked = blocks.some(block => block.blocked_id === user.id);
-            const isMatched = matches.some(match => (match.user_1 === user.id && match.user_2 === userId) || (match.user_1 === userId && match.user_2 === user.id));
-            const isFakeReported = fakeReports.some(report => report.reported_user === user.id);
+        return users.map((user) => {
+            const isLiked = likes.some((like) => like.user_liked === user.id);
+            const isUnliked = unlikes.some(
+                (unlike) => unlike.user_unliked === user.id
+            );
+            const isBlocked = blocks.some((block) => block.blocked_id === user.id);
+            const isMatched = matches.some(
+                (match) =>
+                    (match.user_1 === user.id && match.user_2 === userId) ||
+                    (match.user_1 === userId && match.user_2 === user.id)
+            );
+            const isFakeReported = fakeReports.some(
+                (report) => report.reported_user === user.id
+            );
 
-            const LikedMe = likedMe.some(like => like.user === user.id);
-            const UnlikedMe = unlikedMe.some(unlike => unlike.user === user.id);
-            const BlockedMe = blockedMe.some(block => block.blocker_id === user.id);
-            const FakeReportedMe = fakeReportedMe.some(report => report.user_who_reported === user.id);
+            const LikedMe = likedMe.some((like) => like.user === user.id);
+            const UnlikedMe = unlikedMe.some((unlike) => unlike.user === user.id);
+            const BlockedMe = blockedMe.some((block) => block.blocker_id === user.id);
+            const FakeReportedMe = fakeReportedMe.some(
+                (report) => report.user_who_reported === user.id
+            );
 
             return {
                 id: user.id,
@@ -444,15 +502,19 @@ class UserDAL {
                 age: user.age || null,
                 main_photo_url: user.main_photo_url || null,
                 gender: user.gender || null,
-                location: user.latitude && user.longitude ? {
-                    latitude: parseFloat(user.latitude),
-                    longitude: parseFloat(user.longitude),
-                    city_name: user.city_name || undefined
-                } : undefined,
+                location:
+                    user.latitude && user.longitude
+                        ? {
+                            latitude: parseFloat(user.latitude),
+                            longitude: parseFloat(user.longitude),
+                            city_name: user.city_name || undefined,
+                        }
+                        : undefined,
                 fame_rating: user.fame_rating,
                 is_online: user.is_online,
                 is_verified: user.is_verified,
                 last_activity: user.last_activity,
+                tags: tagsByUser[user.id] || [], // Include the tags for this user
                 isLiked,
                 isUnliked,
                 isMatched,
@@ -461,7 +523,7 @@ class UserDAL {
                 LikedMe,
                 UnlikedMe,
                 BlockedMe,
-                FakeReportedMe
+                FakeReportedMe,
             } as UserLightWithRelationsResponseDto;
         });
     }

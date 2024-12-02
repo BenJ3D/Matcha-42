@@ -1,3 +1,4 @@
+import {Tag} from "../../models/Tags";
 import {UserLightResponseDto} from "./UserLightResponseDto";
 
 export interface UserLightWithRelationsResponseDto extends UserLightResponseDto {
@@ -11,4 +12,10 @@ export interface UserLightWithRelationsResponseDto extends UserLightResponseDto 
     UnlikedMe: boolean;
     BlockedMe: boolean;
     FakeReportedMe: boolean;
+
+    fame_rating: number;
+    tags?: Tag[];
+
+    distance?: number;
+    totalScore?: number;
 }

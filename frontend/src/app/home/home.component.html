@@ -1,113 +1,122 @@
-<mat-sidenav-container class="sidenav-container">
-  <mat-sidenav #sidenav mode="over" position="end">
-    <form [formGroup]="searchForm" class="search-form" (ngSubmit)="onSearchSubmit()">
-      <h2>Advanced Search</h2>
+@if (hasMainPhoto) {
+  <mat-sidenav-container class="sidenav-container">
+    <mat-sidenav #sidenav mode="over" position="end">
+      <form [formGroup]="searchForm" class="search-form" (ngSubmit)="onSearchSubmit()">
+        <h2>Recherche Avancée</h2>
 
-      <!-- Age Range -->
-      <div formGroupName="ageRange" class="slider-container">
-        <h3>Age Range: {{ searchForm.get('ageRange.min')?.value }} - {{ searchForm.get('ageRange.max')?.value }}</h3>
-        <mat-slider class="range-slider" [min]="minAge" [max]="maxAge" [step]="1">
-          <input matSliderStartThumb formControlName="min">
-          <input matSliderEndThumb formControlName="max">
-        </mat-slider>
+        <!-- Tranche d'âge -->
+        <div formGroupName="ageRange" class="slider-container">
+          <h3>Tranche d'âge : {{ searchForm.get('ageRange.min')?.value }}
+            - {{ searchForm.get('ageRange.max')?.value }}</h3>
+          <mat-slider class="range-slider" [min]="minAge" [max]="maxAge" [step]="1">
+            <input matSliderStartThumb formControlName="min">
+            <input matSliderEndThumb formControlName="max">
+          </mat-slider>
+        </div>
+
+        <!-- Tranche de popularité -->
+        <div formGroupName="fameRange" class="slider-container">
+          <h3>Tranche de popularité : {{ searchForm.get('fameRange.min')?.value }}
+            - {{ searchForm.get('fameRange.max')?.value }}</h3>
+          <mat-slider class="range-slider" [min]="minFame" [max]="maxFame" [step]="1">
+            <input matSliderStartThumb formControlName="min">
+            <input matSliderEndThumb formControlName="max">
+          </mat-slider>
+        </div>
+
+        <!-- Localisation -->
+        <mat-form-field appearance="outline">
+          <mat-label>Localisation</mat-label>
+          <input matInput formControlName="location" [matAutocomplete]="auto"/>
+          <mat-autocomplete #auto="matAutocomplete">
+            <mat-option *ngFor="let city of cityOptions | async" [value]="city">
+              {{ city }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+
+        <!-- Tags -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Tags</mat-label>
+          <mat-select formControlName="tags" multiple>
+            <mat-option *ngFor="let tag of tags" [value]="tag.tag_id">
+              {{ tag.tag_name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Trier par -->
+        <mat-form-field appearance="outline">
+          <mat-label>Trier par</mat-label>
+          <mat-select formControlName="sortBy">
+            <mat-option value="age">Âge</mat-option>
+            <mat-option value="fame_rating">Popularité</mat-option>
+            <mat-option value="location">Distance</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Ordre -->
+        <mat-form-field appearance="outline">
+          <mat-label>Ordre</mat-label>
+          <mat-select formControlName="order">
+            <mat-option value="asc">Ascendant</mat-option>
+            <mat-option value="desc">Descendant</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit">Rechercher</button>
+        <button mat-button type="button" (click)="resetSearch()">Réinitialiser</button>
+        <button mat-button type="button" (click)="closeSearchPanel()">Close</button>
+      </form>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+      <div class="home-header">
+        <button mat-icon-button (click)="openSearchPanel()">
+          <mat-icon>filter_list</mat-icon>
+        </button>
       </div>
 
-      <!-- Fame Rating Range -->
-      <div formGroupName="fameRange" class="slider-container">
-        <h3>Fame Rating: {{ searchForm.get('fameRange.min')?.value }}
-          - {{ searchForm.get('fameRange.max')?.value }}</h3>
-        <mat-slider class="range-slider" [min]="minFame" [max]="maxFame" [step]="1">
-          <input matSliderStartThumb formControlName="min">
-          <input matSliderEndThumb formControlName="max">
-        </mat-slider>
+      <div class="home-container">
+        <ng-container *ngIf="currentProfile; else noProfiles">
+          <mat-card (click)="goToProfile(currentProfile.id)" #swipeCard class="profile-card"
+                    [class.animate-right]="animateRight" [class.animate-left]="animateLeft">
+
+            <div class="image-container">
+              <img mat-card-image [src]="currentProfile.main_photo_url" [alt]="currentProfile.username"/>
+              <button mat-icon-button class="view-icon"
+                      (click)="goToProfile(currentProfile.id); $event.stopPropagation();">
+                <mat-icon>visibility</mat-icon>
+              </button>
+            </div>
+
+            <mat-card-content>
+              <h2>{{ currentProfile.username }}, {{ currentProfile.age }}</h2>
+              <p>{{ currentProfile.location?.city_name }}</p>
+              <p><strong>Fame Rating:</strong> {{ currentProfile.fame_rating }}</p>
+              <p><strong>Distance:</strong> {{ currentProfile.distance | number:'1.0-2' }} km</p>
+            </mat-card-content>
+          </mat-card>
+
+          <div class="action-buttons">
+            <button mat-fab color="warn" (click)="onPassClick()">
+              <mat-icon>close</mat-icon>
+            </button>
+            <button mat-fab color="primary" (click)="onLikeClick()">
+              <mat-icon>favorite</mat-icon>
+            </button>
+          </div>
+        </ng-container>
+
+        <ng-template #noProfiles>
+          <p>No profiles match your search criteria.</p>
+        </ng-template>
       </div>
-
-      <!-- Location -->
-      <mat-form-field appearance="outline">
-        <mat-label>Location</mat-label>
-        <input matInput formControlName="location" [matAutocomplete]="auto" />
-        <mat-autocomplete #auto="matAutocomplete">
-          <mat-option *ngFor="let city of cityOptions | async" [value]="city">
-            {{ city }}
-          </mat-option>
-        </mat-autocomplete>
-      </mat-form-field>
-
-
-      <!-- Tags -->
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Tags</mat-label>
-        <mat-select formControlName="tags" multiple>
-          <mat-option *ngFor="let tag of tags" [value]="tag.tag_id">
-            {{ tag.tag_name }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <!-- Sort By -->
-      <mat-form-field appearance="outline">
-        <mat-label>Sort By</mat-label>
-        <mat-select formControlName="sortBy">
-          <mat-option value="age">Age</mat-option>
-          <mat-option value="fame_rating">Fame Rating</mat-option>
-          <mat-option value="location">Distance</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <!-- Order -->
-      <mat-form-field appearance="outline">
-        <mat-label>Order</mat-label>
-        <mat-select formControlName="order">
-          <mat-option value="asc">Ascending</mat-option>
-          <mat-option value="desc">Descending</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <button mat-raised-button color="primary" type="submit">Search</button>
-      <button mat-button type="button" (click)="closeSearchPanel()">Close</button>
-    </form>
-  </mat-sidenav>
-
-  <mat-sidenav-content>
-    <div class="home-header">
-      <button mat-icon-button (click)="openSearchPanel()">
-        <mat-icon>filter_list</mat-icon>
-      </button>
-    </div>
-
-    <div class="home-container">
-      <ng-container *ngIf="currentProfile; else noProfiles">
-        <mat-card (click)="goToProfile(currentProfile.id)" #swipeCard class="profile-card"
-        [class.animate-right]="animateRight" [class.animate-left]="animateLeft">
-        
-        <div class="image-container">
-          <img mat-card-image [src]="currentProfile.main_photo_url" [alt]="currentProfile.username" />
-          <button mat-icon-button class="view-icon" (click)="goToProfile(currentProfile.id); $event.stopPropagation();">
-            <mat-icon>visibility</mat-icon>
-          </button>
-        </div>
-        
-        <mat-card-content>
-          <h2>{{ currentProfile.username }}, {{ currentProfile.age }}</h2>
-          <p>{{ currentProfile.location?.city_name }}</p>
-          <p><strong>Fame Rating:</strong> {{ currentProfile.fame_rating }}</p>
-          <p><strong>Distance:</strong> {{ currentProfile.distance | number:'1.0-2' }} km</p>
-        </mat-card-content>
-      </mat-card>      
-      
-        <div class="action-buttons">
-          <button mat-fab color="warn" (click)="onPassClick()">
-            <mat-icon>close</mat-icon>
-          </button>
-          <button mat-fab color="primary" (click)="onLikeClick()">
-            <mat-icon>favorite</mat-icon>
-          </button>
-        </div>
-      </ng-container>
-
-      <ng-template #noProfiles>
-        <p>No profiles match your search criteria.</p>
-      </ng-template>
-    </div>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+} @else {
+  <div class="centered-text">To start browsing and liking profiles, please
+    upload a
+    main profile photo to profile first.
+  </div>
+}

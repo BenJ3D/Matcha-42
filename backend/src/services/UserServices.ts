@@ -10,6 +10,9 @@ import EmailVerificationService from "./EmailVerificationService";
 import {UserEmailPatchDto} from "../DTOs/users/UserEmailPatchDto";
 import {UserLightResponseDto} from "../DTOs/users/UserLightResponseDto";
 import {UserOtherResponseDto} from '../DTOs/users/UserOtherResponseDto';
+import {UserLightWithRelationsResponseDto} from "../DTOs/users/UserLightWithRelationsResponseDto";
+import TagsService from "./TagsService";
+import {haversineDistance} from "../utils/haversineDistance";
 
 class UserServices {
     async getAllUsers(): Promise<UserLightResponseDto[]> {
@@ -39,7 +42,7 @@ class UserServices {
         newUser.password = await PasswordService.hashPassword(newUser.password);
         const userId = await UserDAL.save(newUser);
         console.log(`DBG userID = ${JSON.stringify(userId)}`);
-        EmailVerificationService.sendVerificationEmail(userId, newUser.email, newUser.first_name);
+        await EmailVerificationService.sendVerificationEmail(userId, newUser.email, newUser.first_name);
         return userId;
     }
 
@@ -91,15 +94,15 @@ class UserServices {
         sortBy?: string,
         order?: string
     ): Promise<any[]> {
-        // Récupérer le profil de l'utilisateur
+        const sortOrder: 'asc' | 'desc' = (order?.toLowerCase() === 'desc') ? 'desc' : 'asc';
+
         const userProfile = await profileDAL.findByUserId(userId);
         if (!userProfile) {
             throw {status: 404, message: 'Profil non trouvé'};
         }
-        // Récupérer les préférences sexuelles de l'utilisateur
+
         const sexualPreferences = await profileDAL.getSexualPreferences(userProfile.profile_id);
 
-        //Recup genre de l'utilisateur
         const userGender = userProfile.gender;
 
         const filters = {
@@ -111,25 +114,118 @@ class UserServices {
             tags,
             preferredGenders: sexualPreferences.map((gender) => gender.gender_id),
             sortBy,
-            order,
+            order: sortOrder,
         };
-        return await UserDAL.advancedSearch(filters, userId, userGender);
+
+        const usersSearch: UserLightWithRelationsResponseDto[] = await UserDAL.advancedSearch(filters, userId, userGender);
+
+        const currentUser: UserResponseDto | null = await this.getUserById(userId);
+
+        if (currentUser && currentUser.tags && currentUser.tags.length > 0) {
+            const currentUserTagIds = currentUser.tags.map(tag => tag.tag_id);
+            const currentUserLatitude = currentUser.location?.latitude;
+            const currentUserLongitude = currentUser.location?.longitude;
+
+            if (currentUserLatitude != null && currentUserLongitude != null) {
+                usersSearch.forEach(user => {
+                    const userLatitude = user.location?.latitude;
+                    const userLongitude = user.location?.longitude;
+
+                    if (userLatitude != null && userLongitude != null) {
+                        user.distance = haversineDistance(
+                            currentUserLatitude,
+                            currentUserLongitude,
+                            userLatitude,
+                            userLongitude
+                        );
+                    } else {
+                        user.distance = Number.MAX_SAFE_INTEGER;
+                    }
+                });
+            } else {
+                usersSearch.forEach(user => {
+                    user.distance = Number.MAX_SAFE_INTEGER;
+                });
+            }
+
+            const weightDistance = 0.5;
+            const weightCommonTags = 0.3;
+            const weightFameRating = 0.2;
+
+            const maxDistance = Math.max(...usersSearch.map(u => u.distance || 0));
+            const maxCommonTags = Math.max(...usersSearch.map(u => u.tags ? u.tags.filter(tag => currentUserTagIds.includes(tag.tag_id)).length : 0));
+            const maxFameRating = Math.max(...usersSearch.map(u => u.fame_rating || 0));
+
+            usersSearch.forEach(user => {
+                // a. Calculer le score de distance (plus proche = score plus élevé)
+                const distanceScore = user.distance != null && maxDistance > 0
+                    ? (maxDistance - user.distance) / maxDistance
+                    : 0;
+
+                // b. Calculer le score de tags en commun
+                const commonTags = user.tags ? user.tags.filter(tag => currentUserTagIds.includes(tag.tag_id)).length : 0;
+                const commonTagsScore = maxCommonTags > 0 ? commonTags / maxCommonTags : 0;
+
+                // c. Calculer le score de fame_rating
+                const fameRatingScore = maxFameRating > 0 ? user.fame_rating / maxFameRating : 0;
+
+                // d. Calculer le score total
+                user.totalScore =
+                    weightDistance * distanceScore +
+                    weightCommonTags * commonTagsScore +
+                    weightFameRating * fameRatingScore;
+            });
+        }
+
+        if (sortBy) {
+            usersSearch.sort((a, b) => {
+                let comparison = 0;
+
+                if (sortBy === 'distance') {
+                    const aDistance = Number(a.distance) || Number.MAX_SAFE_INTEGER;
+                    const bDistance = Number(b.distance) || Number.MAX_SAFE_INTEGER;
+                    comparison = aDistance - bDistance;
+                } else if (sortBy === 'fame_rating') {
+                    const aFameRating = Number(a.fame_rating) || 0;
+                    const bFameRating = Number(b.fame_rating) || 0;
+                    comparison = aFameRating - bFameRating;
+                } else if (sortBy === 'age') {
+                    const aAge = Number(a.age) || 0;
+                    const bAge = Number(b.age) || 0;
+                    comparison = aAge - bAge;
+                } else if (sortBy === 'totalScore') {
+                    const aTotalScore = Number(a.totalScore) || 0;
+                    const bTotalScore = Number(b.totalScore) || 0;
+                    comparison = aTotalScore - bTotalScore;
+                } else {
+                    comparison = 0;
+                }
+
+                return sortOrder === 'desc' ? -comparison : comparison;
+            });
+        } else {
+            usersSearch.sort((a, b) => {
+                const aTotalScore = Number(a.totalScore) || 0;
+                const bTotalScore = Number(b.totalScore) || 0;
+                return bTotalScore - aTotalScore;
+            });
+        }
+
+        return usersSearch;
     }
 
+
     async updateFameRating(userId: number, addNote: number): Promise<void> {
-        // Récupérer le profil de l'utilisateur
         const userProfile = await profileDAL.findByUserId(userId);
         if (!userProfile) {
             throw {status: 404, message: 'Profil non trouvé'};
         }
 
-        // S'assurer que fame_rating est un nombre
         const currentRating = Number(userProfile.fame_rating);
         if (isNaN(currentRating)) {
             throw {status: 400, message: 'fame_rating invalide'};
         }
 
-        // Ajouter la note
         let newNote = currentRating + addNote;
         if (newNote < 0) {
             newNote = 0;
