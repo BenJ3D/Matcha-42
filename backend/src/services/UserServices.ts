@@ -94,6 +94,8 @@ class UserServices {
         sortBy?: string,
         order?: string
     ): Promise<any[]> {
+        const sortOrder: 'asc' | 'desc' = (order?.toLowerCase() === 'desc') ? 'desc' : 'asc';
+
         const userProfile = await profileDAL.findByUserId(userId);
         if (!userProfile) {
             throw {status: 404, message: 'Profil non trouvé'};
@@ -112,7 +114,7 @@ class UserServices {
             tags,
             preferredGenders: sexualPreferences.map((gender) => gender.gender_id),
             sortBy,
-            order,
+            order: sortOrder,
         };
 
         const usersSearch: UserLightWithRelationsResponseDto[] = await UserDAL.advancedSearch(filters, userId, userGender);
@@ -173,18 +175,45 @@ class UserServices {
                     weightCommonTags * commonTagsScore +
                     weightFameRating * fameRatingScore;
             });
+        }
 
+        if (sortBy) {
             usersSearch.sort((a, b) => {
-                if (a.totalScore != null && b.totalScore != null) {
-                    return b.totalScore - a.totalScore; // Score plus élevé en premier
+                let comparison = 0;
+
+                if (sortBy === 'distance') {
+                    const aDistance = Number(a.distance) || Number.MAX_SAFE_INTEGER;
+                    const bDistance = Number(b.distance) || Number.MAX_SAFE_INTEGER;
+                    comparison = aDistance - bDistance;
+                } else if (sortBy === 'fame_rating') {
+                    const aFameRating = Number(a.fame_rating) || 0;
+                    const bFameRating = Number(b.fame_rating) || 0;
+                    comparison = aFameRating - bFameRating;
+                } else if (sortBy === 'age') {
+                    const aAge = Number(a.age) || 0;
+                    const bAge = Number(b.age) || 0;
+                    comparison = aAge - bAge;
+                } else if (sortBy === 'totalScore') {
+                    const aTotalScore = Number(a.totalScore) || 0;
+                    const bTotalScore = Number(b.totalScore) || 0;
+                    comparison = aTotalScore - bTotalScore;
                 } else {
-                    return 0;
+                    comparison = 0;
                 }
+
+                return sortOrder === 'desc' ? -comparison : comparison;
+            });
+        } else {
+            usersSearch.sort((a, b) => {
+                const aTotalScore = Number(a.totalScore) || 0;
+                const bTotalScore = Number(b.totalScore) || 0;
+                return bTotalScore - aTotalScore;
             });
         }
 
         return usersSearch;
     }
+
 
     async updateFameRating(userId: number, addNote: number): Promise<void> {
         const userProfile = await profileDAL.findByUserId(userId);

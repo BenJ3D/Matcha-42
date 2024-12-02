@@ -5,7 +5,7 @@ import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {Router} from '@angular/router';
-import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
@@ -18,6 +18,7 @@ import {Observable, of} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {UserResponseDto} from '../../DTOs/users/UserResponseDto';
+import {SearchStateService} from './search-state.service';
 
 @Component({
   selector: 'app-home',
@@ -56,11 +57,14 @@ export class HomeComponent implements OnInit {
   cityOptions!: Observable<string[]>;
   userLocation!: { latitude: number; longitude: number };
 
+  hasMainPhoto: boolean = false;
+
   constructor(
     private router: Router,
     private fb: FormBuilder,
     private profileService: ProfileService,
-    private http: HttpClient
+    private http: HttpClient,
+    private searchStateService: SearchStateService
   ) {
   }
 
@@ -70,6 +74,10 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
     this.initializeSearchForm();
+    const savedState = this.searchStateService.getState();
+    if (savedState) {
+      this.searchForm.patchValue(savedState);
+    }
     this.loadTags();
     this.setupCityAutocomplete();
     this.fetchUserLocation().subscribe({
@@ -77,11 +85,17 @@ export class HomeComponent implements OnInit {
         this.fetchProfiles();
       }
     });
+
+    this.searchForm.valueChanges.subscribe((value) => {
+      this.searchStateService.setState(value);
+    });
   }
 
   fetchUserLocation(): Observable<void> {
     return this.profileService.getMyProfile().pipe(
       map((data) => {
+        this.hasMainPhoto = !!data.main_photo_url;
+        
         if (
           data.location &&
           data.location.latitude !== null &&
@@ -101,12 +115,12 @@ export class HomeComponent implements OnInit {
   initializeSearchForm() {
     this.searchForm = this.fb.group({
       ageRange: this.fb.group({
-        min: [this.minAge],
-        max: [this.maxAge],
+        min: [this.minAge, Validators.required],
+        max: [this.maxAge, Validators.required],
       }),
       fameRange: this.fb.group({
-        min: [this.minFame],
-        max: [this.maxFame],
+        min: [this.minFame, Validators.required],
+        max: [this.maxFame, Validators.required],
       }),
       location: [''],
       tags: [[]],
@@ -222,10 +236,6 @@ export class HomeComponent implements OnInit {
           bValue = this.calculateDistance(b.location);
           break;
         default:
-          // aValue = this.calculateDistance(a.location);
-          // bValue = this.calculateDistance(b.location);
-          // order = 'asc';
-          // break;
           return 0;
       }
 
@@ -336,5 +346,18 @@ export class HomeComponent implements OnInit {
       ),
       map((cityNames) => Array.from(new Set(cityNames)))
     );
+  }
+
+  resetSearch() {
+    this.searchForm.reset({
+      ageRange: {min: this.minAge, max: this.maxAge},
+      fameRange: {min: this.minFame, max: this.maxFame},
+      location: '',
+      tags: [],
+      sortBy: '',
+      order: '',
+    });
+    this.searchStateService.clearState();
+    this.fetchProfiles();
   }
 }
