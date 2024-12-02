@@ -58,7 +58,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   genders: Gender[] = [];
   tags: Tag[] = [];
   profileId: number | null = null;
-  private profileInterval: any;
+  private profileInterval: ReturnType<typeof setInterval> | null = null;
   public editStep: EEditStep = EEditStep.idle;
   hasMainPhoto: boolean = false;
 
@@ -123,28 +123,27 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   loadUserProfileById() {
-    this.setProfileInterval();
     if (this.profileId) {
+      // Première requête immédiate
       this.profileService.getUserById(this.profileId).subscribe({
         next: (user) => {
-          if (!user) {
+          if (user) {
+            this.user = user;
+            // Démarrez l'intervalle après la première requête réussie
+            this.setProfileInterval();
+            // Marquez le profil comme visité
+            this.profileService.visitedProfile(user.id).subscribe();
+          } else {
             this.router.navigate(['/profile']);
           }
-          this.user = user;
-        },
-        complete: () => {
-          this.loadGenders();
-          if (this.user)
-            this.profileService.visitedProfile(this.user?.id).subscribe();
         },
         error: (error) => {
           if (error.status === 401) {
             this.router.navigate(['/home']);
           } else {
             this.router.navigate(['/profile']);
-
           }
-        },
+        }
       });
     }
   }
@@ -375,10 +374,31 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   private setProfileInterval() {
-    this.clearProfileInterval();
-    this.profileInterval = setInterval(() => {
-      this.loadUserProfileById();
-    }, 5000);
+    // Ne démarrez l'intervalle que si nous avons un profileId
+    if (this.profileId) {
+      this.clearProfileInterval(); // Nettoyez d'abord tout intervalle existant
+
+      this.profileInterval = setInterval(() => {
+        this.profileService.getUserById(this.profileId!).subscribe({
+          next: (user) => {
+            if (user) {
+              this.user = user;
+            } else {
+              this.clearProfileInterval(); // Arrêtez l'intervalle si l'utilisateur n'est pas trouvé
+              this.router.navigate(['/profile']);
+            }
+          },
+          error: (error) => {
+            this.clearProfileInterval(); // Arrêtez l'intervalle en cas d'erreur
+            if (error.status === 401) {
+              this.router.navigate(['/home']);
+            } else {
+              this.router.navigate(['/profile']);
+            }
+          }
+        });
+      }, 5000);
+    }
   }
 
   private clearProfileInterval() {
