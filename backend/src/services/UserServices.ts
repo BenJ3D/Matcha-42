@@ -42,7 +42,7 @@ class UserServices {
         newUser.password = await PasswordService.hashPassword(newUser.password);
         const userId = await UserDAL.save(newUser);
         console.log(`DBG userID = ${JSON.stringify(userId)}`);
-        EmailVerificationService.sendVerificationEmail(userId, newUser.email, newUser.first_name);
+        await EmailVerificationService.sendVerificationEmail(userId, newUser.email, newUser.first_name);
         return userId;
     }
 
@@ -94,16 +94,13 @@ class UserServices {
         sortBy?: string,
         order?: string
     ): Promise<any[]> {
-        // 1. Récupérer le profil de l'utilisateur
         const userProfile = await profileDAL.findByUserId(userId);
         if (!userProfile) {
             throw {status: 404, message: 'Profil non trouvé'};
         }
 
-        // 2. Récupérer les préférences sexuelles de l'utilisateur
         const sexualPreferences = await profileDAL.getSexualPreferences(userProfile.profile_id);
 
-        // 3. Récupérer le genre de l'utilisateur
         const userGender = userProfile.gender;
 
         const filters = {
@@ -118,10 +115,8 @@ class UserServices {
             order,
         };
 
-        // 4. Effectuer la recherche avancée
         const usersSearch: UserLightWithRelationsResponseDto[] = await UserDAL.advancedSearch(filters, userId, userGender);
 
-        // 5. Récupérer les détails de l'utilisateur courant
         const currentUser: UserResponseDto | null = await this.getUserById(userId);
 
         if (currentUser && currentUser.tags && currentUser.tags.length > 0) {
@@ -129,9 +124,7 @@ class UserServices {
             const currentUserLatitude = currentUser.location?.latitude;
             const currentUserLongitude = currentUser.location?.longitude;
 
-            // Vérifier que les coordonnées GPS de l'utilisateur courant sont disponibles
             if (currentUserLatitude != null && currentUserLongitude != null) {
-                // 6. Calculer la distance pour chaque utilisateur
                 usersSearch.forEach(user => {
                     const userLatitude = user.location?.latitude;
                     const userLongitude = user.location?.longitude;
@@ -144,24 +137,19 @@ class UserServices {
                             userLongitude
                         );
                     } else {
-                        // Si les coordonnées de l'utilisateur ne sont pas disponibles, définir une grande distance
                         user.distance = Number.MAX_SAFE_INTEGER;
                     }
                 });
             } else {
-                // Si les coordonnées de l'utilisateur courant ne sont pas disponibles, définir les distances à zéro
                 usersSearch.forEach(user => {
                     user.distance = Number.MAX_SAFE_INTEGER;
                 });
             }
 
-            // 7. Calculer le score total pour chaque utilisateur (optionnel)
-            // Définir les poids pour chaque critère
             const weightDistance = 0.5;
             const weightCommonTags = 0.3;
             const weightFameRating = 0.2;
 
-            // Trouver les valeurs maximales pour la normalisation
             const maxDistance = Math.max(...usersSearch.map(u => u.distance || 0));
             const maxCommonTags = Math.max(...usersSearch.map(u => u.tags ? u.tags.filter(tag => currentUserTagIds.includes(tag.tag_id)).length : 0));
             const maxFameRating = Math.max(...usersSearch.map(u => u.fame_rating || 0));
@@ -186,7 +174,6 @@ class UserServices {
                     weightFameRating * fameRatingScore;
             });
 
-            // 8. Trier usersSearch en fonction du score total
             usersSearch.sort((a, b) => {
                 if (a.totalScore != null && b.totalScore != null) {
                     return b.totalScore - a.totalScore; // Score plus élevé en premier
@@ -200,19 +187,16 @@ class UserServices {
     }
 
     async updateFameRating(userId: number, addNote: number): Promise<void> {
-        // Récupérer le profil de l'utilisateur
         const userProfile = await profileDAL.findByUserId(userId);
         if (!userProfile) {
             throw {status: 404, message: 'Profil non trouvé'};
         }
 
-        // S'assurer que fame_rating est un nombre
         const currentRating = Number(userProfile.fame_rating);
         if (isNaN(currentRating)) {
             throw {status: 400, message: 'fame_rating invalide'};
         }
 
-        // Ajouter la note
         let newNote = currentRating + addNote;
         if (newNote < 0) {
             newNote = 0;
