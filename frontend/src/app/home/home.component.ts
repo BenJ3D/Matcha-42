@@ -222,10 +222,10 @@ export class HomeComponent implements OnInit {
               bValue = this.calculateDistance(b.location);
               break;
           default:
-              aValue = this.countCommonTags(a.tags || []);
-              bValue = this.countCommonTags(b.tags || []);
-              break;
-            // return 0;
+            aValue = this.calculateDistance(a.location);
+            bValue = this.calculateDistance(b.location);
+            order = 'asc';
+            break;
       }
 
       if (aValue < bValue) {
@@ -235,16 +235,6 @@ export class HomeComponent implements OnInit {
       }
       return 0;
     });
-  }
-
-  private countCommonTags(userTags: Tag[]): number {
-    if (this.currentProfile === undefined || this.currentProfile.tags === undefined) {
-      return 0;
-    }
-
-      const currentUserTagIds = this.currentProfile.tags?.map(tag => tag.tag_id) ?? [];
-      const userTagIds = userTags.map(tag => tag.tag_id);
-      return userTagIds.filter(tagId => currentUserTagIds.includes(tagId)).length;
   }
 
   private calculateDistance(location?: {
