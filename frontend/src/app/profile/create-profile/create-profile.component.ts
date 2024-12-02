@@ -153,7 +153,7 @@ export class CreateProfileComponent implements OnInit {
               latitude: data.latitude,
               longitude: data.longitude,
             }
-            console.log('Location from IP:', data.city + ', ' + data.longitude + '/' + data.latitude);
+            // console.log('Location from IP:', data.city + ', ' + data.longitude + '/' + data.latitude);
           }
           resolve();
         },
