@@ -57,6 +57,8 @@ export class HomeComponent implements OnInit {
   cityOptions!: Observable<string[]>;
   userLocation!: { latitude: number; longitude: number };
 
+  hasMainPhoto: boolean = false;
+
   constructor(
     private router: Router,
     private fb: FormBuilder,
@@ -92,6 +94,8 @@ export class HomeComponent implements OnInit {
   fetchUserLocation(): Observable<void> {
     return this.profileService.getMyProfile().pipe(
       map((data) => {
+        this.hasMainPhoto = !!data.main_photo_url;
+        
         if (
           data.location &&
           data.location.latitude !== null &&
