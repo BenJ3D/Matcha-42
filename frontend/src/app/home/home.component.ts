@@ -204,28 +204,29 @@ export class HomeComponent implements OnInit {
     order: string
   ): UserResponseDto[] {
     return profiles.sort((a, b) => {
-      
+
       let aValue: any;
       let bValue: any;
 
       switch (sortBy) {
-          case 'age':
-              aValue = a.age;
-              bValue = b.age;
-              break;
-          case 'fame_rating':
-              aValue = a.fame_rating;
-              bValue = b.fame_rating;
-              break;
-          case 'location':
-              aValue = this.calculateDistance(a.location);
-              bValue = this.calculateDistance(b.location);
-              break;
-          default:
-            aValue = this.calculateDistance(a.location);
-            bValue = this.calculateDistance(b.location);
-            order = 'asc';
-            break;
+        case 'age':
+          aValue = a.age;
+          bValue = b.age;
+          break;
+        case 'fame_rating':
+          aValue = a.fame_rating;
+          bValue = b.fame_rating;
+          break;
+        case 'location':
+          aValue = this.calculateDistance(a.location);
+          bValue = this.calculateDistance(b.location);
+          break;
+        default:
+          // aValue = this.calculateDistance(a.location);
+          // bValue = this.calculateDistance(b.location);
+          // order = 'asc';
+          // break;
+          return 0;
       }
 
       if (aValue < bValue) {

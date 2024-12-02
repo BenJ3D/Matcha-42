@@ -10,6 +10,8 @@ import EmailVerificationService from "./EmailVerificationService";
 import {UserEmailPatchDto} from "../DTOs/users/UserEmailPatchDto";
 import {UserLightResponseDto} from "../DTOs/users/UserLightResponseDto";
 import {UserOtherResponseDto} from '../DTOs/users/UserOtherResponseDto';
+import {UserLightWithRelationsResponseDto} from "../DTOs/users/UserLightWithRelationsResponseDto";
+import TagsService from "./TagsService";
 
 class UserServices {
     async getAllUsers(): Promise<UserLightResponseDto[]> {
@@ -113,7 +115,19 @@ class UserServices {
             sortBy,
             order,
         };
-        return await UserDAL.advancedSearch(filters, userId, userGender);
+        const usersSearch: UserLightWithRelationsResponseDto[] = await UserDAL.advancedSearch(filters, userId, userGender);
+        const currentUser: UserResponseDto | null = await this.getUserById(userId);
+        if (currentUser && currentUser.tags && currentUser.tags.length > 0) {
+            const currentUserTagIds = currentUser.tags.map(tag => tag.tag_id);
+
+            // Trier usersSearch en fonction du nombre de tags communs
+            usersSearch.sort((a, b) => {
+                const aCommonTags = a.tags ? a.tags.filter(tag => currentUserTagIds.includes(tag.tag_id)).length : 0;
+                const bCommonTags = b.tags ? b.tags.filter(tag => currentUserTagIds.includes(tag.tag_id)).length : 0;
+                return bCommonTags - aCommonTags; // Descendant : plus de tags communs en premier
+            });
+        }
+        return usersSearch;
     }
 
     async updateFameRating(userId: number, addNote: number): Promise<void> {

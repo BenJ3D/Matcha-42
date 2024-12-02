@@ -1,3 +1,5 @@
+import {Tag} from "../../models/Tags";
+
 export interface UserLightResponseDto {
     id: number;
     username: string;
