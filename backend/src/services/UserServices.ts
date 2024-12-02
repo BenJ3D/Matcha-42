@@ -12,6 +12,7 @@ import {UserLightResponseDto} from "../DTOs/users/UserLightResponseDto";
 import {UserOtherResponseDto} from '../DTOs/users/UserOtherResponseDto';
 import {UserLightWithRelationsResponseDto} from "../DTOs/users/UserLightWithRelationsResponseDto";
 import TagsService from "./TagsService";
+import {haversineDistance} from "../utils/haversineDistance";
 
 class UserServices {
     async getAllUsers(): Promise<UserLightResponseDto[]> {
@@ -125,33 +126,73 @@ class UserServices {
 
         if (currentUser && currentUser.tags && currentUser.tags.length > 0) {
             const currentUserTagIds = currentUser.tags.map(tag => tag.tag_id);
-            const currentUserCity = currentUser.location?.city_name?.toLowerCase() || "";
+            const currentUserLatitude = currentUser.location?.latitude;
+            const currentUserLongitude = currentUser.location?.longitude;
 
-            // 6. Trier usersSearch en fonction des critères définis
+            // Vérifier que les coordonnées GPS de l'utilisateur courant sont disponibles
+            if (currentUserLatitude != null && currentUserLongitude != null) {
+                // 6. Calculer la distance pour chaque utilisateur
+                usersSearch.forEach(user => {
+                    const userLatitude = user.location?.latitude;
+                    const userLongitude = user.location?.longitude;
+
+                    if (userLatitude != null && userLongitude != null) {
+                        user.distance = haversineDistance(
+                            currentUserLatitude,
+                            currentUserLongitude,
+                            userLatitude,
+                            userLongitude
+                        );
+                    } else {
+                        // Si les coordonnées de l'utilisateur ne sont pas disponibles, définir une grande distance
+                        user.distance = Number.MAX_SAFE_INTEGER;
+                    }
+                });
+            } else {
+                // Si les coordonnées de l'utilisateur courant ne sont pas disponibles, définir les distances à zéro
+                usersSearch.forEach(user => {
+                    user.distance = Number.MAX_SAFE_INTEGER;
+                });
+            }
+
+            // 7. Calculer le score total pour chaque utilisateur (optionnel)
+            // Définir les poids pour chaque critère
+            const weightDistance = 0.5;
+            const weightCommonTags = 0.3;
+            const weightFameRating = 0.2;
+
+            // Trouver les valeurs maximales pour la normalisation
+            const maxDistance = Math.max(...usersSearch.map(u => u.distance || 0));
+            const maxCommonTags = Math.max(...usersSearch.map(u => u.tags ? u.tags.filter(tag => currentUserTagIds.includes(tag.tag_id)).length : 0));
+            const maxFameRating = Math.max(...usersSearch.map(u => u.fame_rating || 0));
+
+            usersSearch.forEach(user => {
+                // a. Calculer le score de distance (plus proche = score plus élevé)
+                const distanceScore = user.distance != null && maxDistance > 0
+                    ? (maxDistance - user.distance) / maxDistance
+                    : 0;
+
+                // b. Calculer le score de tags en commun
+                const commonTags = user.tags ? user.tags.filter(tag => currentUserTagIds.includes(tag.tag_id)).length : 0;
+                const commonTagsScore = maxCommonTags > 0 ? commonTags / maxCommonTags : 0;
+
+                // c. Calculer le score de fame_rating
+                const fameRatingScore = maxFameRating > 0 ? user.fame_rating / maxFameRating : 0;
+
+                // d. Calculer le score total
+                user.totalScore =
+                    weightDistance * distanceScore +
+                    weightCommonTags * commonTagsScore +
+                    weightFameRating * fameRatingScore;
+            });
+
+            // 8. Trier usersSearch en fonction du score total
             usersSearch.sort((a, b) => {
-                // a. Comparer les villes
-                const aCity = a.location?.city_name?.toLowerCase() || "";
-                const bCity = b.location?.city_name?.toLowerCase() || "";
-
-                const aSameCity = aCity === currentUserCity;
-                const bSameCity = bCity === currentUserCity;
-
-                if (aSameCity && !bSameCity) return -1;
-                if (!aSameCity && bSameCity) return 1;
-
-                // b. Comparer le nombre de tags en commun
-                const aCommonTags = a.tags ? a.tags.filter(tag => currentUserTagIds.includes(tag.tag_id)).length : 0;
-                const bCommonTags = b.tags ? b.tags.filter(tag => currentUserTagIds.includes(tag.tag_id)).length : 0;
-
-                if (aCommonTags > bCommonTags) return -1;
-                if (aCommonTags < bCommonTags) return 1;
-
-                // c. Comparer le fame_rating
-                if (a.fame_rating > b.fame_rating) return -1;
-                if (a.fame_rating < b.fame_rating) return 1;
-
-                // d. Égalité totale
-                return 0;
+                if (a.totalScore != null && b.totalScore != null) {
+                    return b.totalScore - a.totalScore; // Score plus élevé en premier
+                } else {
+                    return 0;
+                }
             });
         }
 

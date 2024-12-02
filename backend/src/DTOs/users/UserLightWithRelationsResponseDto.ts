@@ -15,4 +15,7 @@ export interface UserLightWithRelationsResponseDto extends UserLightResponseDto 
 
     fame_rating: number;
     tags?: Tag[];
+
+    distance?: number;
+    totalScore?: number;
 }
