@@ -93,15 +93,16 @@ class UserServices {
         sortBy?: string,
         order?: string
     ): Promise<any[]> {
-        // Récupérer le profil de l'utilisateur
+        // 1. Récupérer le profil de l'utilisateur
         const userProfile = await profileDAL.findByUserId(userId);
         if (!userProfile) {
             throw {status: 404, message: 'Profil non trouvé'};
         }
-        // Récupérer les préférences sexuelles de l'utilisateur
+
+        // 2. Récupérer les préférences sexuelles de l'utilisateur
         const sexualPreferences = await profileDAL.getSexualPreferences(userProfile.profile_id);
 
-        //Recup genre de l'utilisateur
+        // 3. Récupérer le genre de l'utilisateur
         const userGender = userProfile.gender;
 
         const filters = {
@@ -115,18 +116,45 @@ class UserServices {
             sortBy,
             order,
         };
+
+        // 4. Effectuer la recherche avancée
         const usersSearch: UserLightWithRelationsResponseDto[] = await UserDAL.advancedSearch(filters, userId, userGender);
+
+        // 5. Récupérer les détails de l'utilisateur courant
         const currentUser: UserResponseDto | null = await this.getUserById(userId);
+
         if (currentUser && currentUser.tags && currentUser.tags.length > 0) {
             const currentUserTagIds = currentUser.tags.map(tag => tag.tag_id);
+            const currentUserCity = currentUser.location?.city_name?.toLowerCase() || "";
 
-            // Trier usersSearch en fonction du nombre de tags communs
+            // 6. Trier usersSearch en fonction des critères définis
             usersSearch.sort((a, b) => {
+                // a. Comparer les villes
+                const aCity = a.location?.city_name?.toLowerCase() || "";
+                const bCity = b.location?.city_name?.toLowerCase() || "";
+
+                const aSameCity = aCity === currentUserCity;
+                const bSameCity = bCity === currentUserCity;
+
+                if (aSameCity && !bSameCity) return -1;
+                if (!aSameCity && bSameCity) return 1;
+
+                // b. Comparer le nombre de tags en commun
                 const aCommonTags = a.tags ? a.tags.filter(tag => currentUserTagIds.includes(tag.tag_id)).length : 0;
                 const bCommonTags = b.tags ? b.tags.filter(tag => currentUserTagIds.includes(tag.tag_id)).length : 0;
-                return bCommonTags - aCommonTags; // Descendant : plus de tags communs en premier
+
+                if (aCommonTags > bCommonTags) return -1;
+                if (aCommonTags < bCommonTags) return 1;
+
+                // c. Comparer le fame_rating
+                if (a.fame_rating > b.fame_rating) return -1;
+                if (a.fame_rating < b.fame_rating) return 1;
+
+                // d. Égalité totale
+                return 0;
             });
         }
+
         return usersSearch;
     }
 
