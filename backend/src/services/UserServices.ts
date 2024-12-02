@@ -94,6 +94,8 @@ class UserServices {
         sortBy?: string,
         order?: string
     ): Promise<any[]> {
+        const sortOrder: 'asc' | 'desc' = (order?.toLowerCase() === 'desc') ? 'desc' : 'asc';
+
         const userProfile = await profileDAL.findByUserId(userId);
         if (!userProfile) {
             throw {status: 404, message: 'Profil non trouvé'};
@@ -112,7 +114,7 @@ class UserServices {
             tags,
             preferredGenders: sexualPreferences.map((gender) => gender.gender_id),
             sortBy,
-            order,
+            order: sortOrder,
         };
 
         const usersSearch: UserLightWithRelationsResponseDto[] = await UserDAL.advancedSearch(filters, userId, userGender);
@@ -173,10 +175,30 @@ class UserServices {
                     weightCommonTags * commonTagsScore +
                     weightFameRating * fameRatingScore;
             });
+        }
 
+        if (sortBy) {
+            usersSearch.sort((a, b) => {
+                let comparison = 0;
+
+                if (sortBy === 'distance') {
+                    comparison = (a.distance || 0) - (b.distance || 0);
+                } else if (sortBy === 'fame_rating') {
+                    comparison = (a.fame_rating || 0) - (b.fame_rating || 0);
+                } else if (sortBy === 'age') {
+                    comparison = (a.age || 0) - (b.age || 0);
+                } else if (sortBy === 'totalScore') {
+                    comparison = (a.totalScore || 0) - (b.totalScore || 0);
+                } else {
+                    comparison = 0;
+                }
+
+                return sortOrder === 'desc' ? -comparison : comparison;
+            });
+        } else {
             usersSearch.sort((a, b) => {
                 if (a.totalScore != null && b.totalScore != null) {
-                    return b.totalScore - a.totalScore; // Score plus élevé en premier
+                    return b.totalScore - a.totalScore;
                 } else {
                     return 0;
                 }
@@ -185,6 +207,7 @@ class UserServices {
 
         return usersSearch;
     }
+
 
     async updateFameRating(userId: number, addNote: number): Promise<void> {
         const userProfile = await profileDAL.findByUserId(userId);

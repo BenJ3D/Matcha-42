@@ -1,30 +1,29 @@
 <mat-sidenav-container class="sidenav-container">
   <mat-sidenav #sidenav mode="over" position="end">
     <form [formGroup]="searchForm" class="search-form" (ngSubmit)="onSearchSubmit()">
-      <h2>Advanced Search</h2>
+      <h2>Recherche Avancée</h2>
 
-      <!-- Age Range -->
+      <!-- Tranche d'âge -->
       <div formGroupName="ageRange" class="slider-container">
-        <h3>Age Range: {{ searchForm.get('ageRange.min')?.value }} - {{ searchForm.get('ageRange.max')?.value }}</h3>
+        <h3>Tranche d'âge : {{ searchForm.get('ageRange.min')?.value }} - {{ searchForm.get('ageRange.max')?.value }}</h3>
         <mat-slider class="range-slider" [min]="minAge" [max]="maxAge" [step]="1">
           <input matSliderStartThumb formControlName="min">
           <input matSliderEndThumb formControlName="max">
         </mat-slider>
       </div>
 
-      <!-- Fame Rating Range -->
+      <!-- Tranche de popularité -->
       <div formGroupName="fameRange" class="slider-container">
-        <h3>Fame Rating: {{ searchForm.get('fameRange.min')?.value }}
-          - {{ searchForm.get('fameRange.max')?.value }}</h3>
+        <h3>Tranche de popularité : {{ searchForm.get('fameRange.min')?.value }} - {{ searchForm.get('fameRange.max')?.value }}</h3>
         <mat-slider class="range-slider" [min]="minFame" [max]="maxFame" [step]="1">
           <input matSliderStartThumb formControlName="min">
           <input matSliderEndThumb formControlName="max">
         </mat-slider>
       </div>
 
-      <!-- Location -->
+      <!-- Localisation -->
       <mat-form-field appearance="outline">
-        <mat-label>Location</mat-label>
+        <mat-label>Localisation</mat-label>
         <input matInput formControlName="location" [matAutocomplete]="auto" />
         <mat-autocomplete #auto="matAutocomplete">
           <mat-option *ngFor="let city of cityOptions | async" [value]="city">
@@ -32,7 +31,6 @@
           </mat-option>
         </mat-autocomplete>
       </mat-form-field>
-
 
       <!-- Tags -->
       <mat-form-field appearance="outline" class="full-width">
@@ -44,26 +42,26 @@
         </mat-select>
       </mat-form-field>
 
-      <!-- Sort By -->
+      <!-- Trier par -->
       <mat-form-field appearance="outline">
-        <mat-label>Sort By</mat-label>
+        <mat-label>Trier par</mat-label>
         <mat-select formControlName="sortBy">
-          <mat-option value="age">Age</mat-option>
-          <mat-option value="fame_rating">Fame Rating</mat-option>
+          <mat-option value="age">Âge</mat-option>
+          <mat-option value="fame_rating">Popularité</mat-option>
           <mat-option value="location">Distance</mat-option>
         </mat-select>
       </mat-form-field>
 
-      <!-- Order -->
+      <!-- Ordre -->
       <mat-form-field appearance="outline">
-        <mat-label>Order</mat-label>
+        <mat-label>Ordre</mat-label>
         <mat-select formControlName="order">
-          <mat-option value="asc">Ascending</mat-option>
-          <mat-option value="desc">Descending</mat-option>
+          <mat-option value="asc">Ascendant</mat-option>
+          <mat-option value="desc">Descendant</mat-option>
         </mat-select>
       </mat-form-field>
 
-      <button mat-raised-button color="primary" type="submit">Search</button>
+      <button mat-raised-button color="primary" type="submit">Rechercher</button>
       <button mat-button type="button" (click)="closeSearchPanel()">Close</button>
     </form>
   </mat-sidenav>
@@ -79,22 +77,22 @@
       <ng-container *ngIf="currentProfile; else noProfiles">
         <mat-card (click)="goToProfile(currentProfile.id)" #swipeCard class="profile-card"
         [class.animate-right]="animateRight" [class.animate-left]="animateLeft">
-        
+
         <div class="image-container">
           <img mat-card-image [src]="currentProfile.main_photo_url" [alt]="currentProfile.username" />
           <button mat-icon-button class="view-icon" (click)="goToProfile(currentProfile.id); $event.stopPropagation();">
             <mat-icon>visibility</mat-icon>
           </button>
         </div>
-        
+
         <mat-card-content>
           <h2>{{ currentProfile.username }}, {{ currentProfile.age }}</h2>
           <p>{{ currentProfile.location?.city_name }}</p>
           <p><strong>Fame Rating:</strong> {{ currentProfile.fame_rating }}</p>
           <p><strong>Distance:</strong> {{ currentProfile.distance | number:'1.0-2' }} km</p>
         </mat-card-content>
-      </mat-card>      
-      
+      </mat-card>
+
         <div class="action-buttons">
           <button mat-fab color="warn" (click)="onPassClick()">
             <mat-icon>close</mat-icon>
