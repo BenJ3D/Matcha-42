@@ -51,6 +51,7 @@ export class ConversationComponent implements OnInit, OnDestroy {
 
   newMessage: string = '';
   private messageSubscription!: Subscription;
+  messageLikes = new Map<string, boolean>();
 
   @ViewChild('messageList') messageList!: ElementRef;
 
@@ -75,6 +76,17 @@ export class ConversationComponent implements OnInit, OnDestroy {
 
     // Scroll au bas lors du chargement initial
     this.scrollToBottom();
+  }
+  
+  toggleLike(messageId: string) {
+    const isLiked = this.messageLikes.get(messageId) || false;
+    this.messageLikes.set(messageId, !isLiked);
+    // Backend call will go here later
+    this.cdr.markForCheck();
+  }
+  
+  isMessageLiked(messageId: string): boolean {
+    return this.messageLikes.get(messageId) || false;
   }
 
   /**
