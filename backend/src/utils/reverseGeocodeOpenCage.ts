@@ -41,14 +41,14 @@ export async function reverseGeocodeOpenCage(lat: number, lon: number): Promise<
                 || components.city_district
                 || components.county
                 || components.state
-                || 'Unknown';
+                || 'Bagneux';
 
             return cityName;
         } else {
-            return 'Unknown';
+            return 'Bagneux';
         }
     } catch (error) {
         console.error('Erreur lors du géocodage inverse OpenCage:', error);
-        return 'Unknown';
+        return 'Bagneux';
     }
 }
