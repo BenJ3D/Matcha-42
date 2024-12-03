@@ -48,16 +48,20 @@ const initializeSockets = (io: Server) => {
         chatSocketEventHandler(socket, io);
 
         // Gérer la déconnexion
-        socket.on("disconnect", () => {
-            const userSet = onlineUsers.get(userId);
-            if (userSet) {
-                userSet.delete(socket);
-                if (userSet.size === 0) {
-                    onlineUsers.delete(userId);
-                    userServices.setOfflineUser(userId);
+        socket.on("disconnect", async () => {
+            try {
+                const userSet = onlineUsers.get(userId);
+                if (userSet) {
+                    userSet.delete(socket);
+                    if (userSet.size === 0) {
+                        onlineUsers.delete(userId);
+                        await userServices.setOfflineUser(userId);
+                    }
                 }
+                console.log(`User ${userId} déconnecté du socket ${socket.id}`);
+            } catch (error) {
+                console.error(`Erreur lors de la déconnexion de l'utilisateur ${userId}:`, error);
             }
-            console.log(`User ${userId} déconnecté du socket ${socket.id}`);
         });
     });
 };
