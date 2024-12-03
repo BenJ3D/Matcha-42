@@ -14,22 +14,20 @@
   </div>
   <div class="message-list" #messageList>
     <div *ngFor="let message of messages" [ngClass]="{
-        message: true,
-        'user-message': message.owner_user === getCurrentUserId(),
-        'other-message': message.owner_user !== getCurrentUserId()
-      }">
+      message: true,
+      'user-message': message.owner_user === getCurrentUserId(),
+      'other-message': message.owner_user !== getCurrentUserId()
+    }">
       <div class="message-content">
         {{ message.content }}
         <div class="message-timestamp">
           {{ message.created_at | date : "shortTime" }}
         </div>
       </div>
-      <div class="like-icon" *ngIf="message.owner_user !== getCurrentUserId()"
-        (click)="toggleLike(message.message_id.toString())">
-        <mat-icon>
-          {{
-          isMessageLiked(message.message_id.toString()) ? "favorite" : "favorite_border"
-          }}
+      <div class="like-icon" [class.readonly]="message.owner_user === getCurrentUserId()"
+        *ngIf="message.owner_user !== getCurrentUserId() || message.is_liked">
+        <mat-icon [class.clickable]="message.owner_user !== getCurrentUserId()" (click)="toggleLike(message)">
+          {{ message.is_liked ? "favorite" : "favorite_border" }}
         </mat-icon>
       </div>
     </div>

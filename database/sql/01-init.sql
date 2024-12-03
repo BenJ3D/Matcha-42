@@ -148,6 +148,7 @@ CREATE TABLE "public"."messages" (
     "created_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     "owner_user" integer NOT NULL,
     "target_user" integer NOT NULL,
+    "is_liked" boolean DEFAULT false NOT NULL,
     CONSTRAINT "messages_pk" PRIMARY KEY ("message_id")
 ) WITH (oids = false);
 

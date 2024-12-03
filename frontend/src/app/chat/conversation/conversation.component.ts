@@ -10,6 +10,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef
 } from '@angular/core';
+import { Message } from '../../../models/Message';
 import {Subscription} from 'rxjs';
 import {SocketService} from '../../../services/socket.service';
 import {AuthService} from '../../../services/auth.service';
@@ -78,11 +79,21 @@ export class ConversationComponent implements OnInit, OnDestroy {
     this.scrollToBottom();
   }
   
-  toggleLike(messageId: string) {
-    const isLiked = this.messageLikes.get(messageId) || false;
-    this.messageLikes.set(messageId, !isLiked);
-    // Backend call will go here later
-    this.cdr.markForCheck();
+  toggleLike(message: Message) {
+    if (message.owner_user === this.getCurrentUserId()) {
+      return; // Can't like your own message
+    }
+
+    const endpoint = `messages/${message.message_id}/${message.is_liked ? 'unlike' : 'like'}`;
+
+    this.apiService.post(endpoint, {}).subscribe({
+      next: () => {
+        message.is_liked = !message.is_liked;
+      },
+      error: (error) => {
+        console.error('Error updating like status:', error);
+      },
+    });
   }
   
   isMessageLiked(messageId: string): boolean {
@@ -142,5 +153,4 @@ export class ConversationComponent implements OnInit, OnDestroy {
   getCurrentUserId(): number {
     return this.authService.getCurrentUserId();
   }
-
 }

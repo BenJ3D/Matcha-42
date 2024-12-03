@@ -4,4 +4,5 @@ export interface Message {
     created_at: Date;
     owner_user: number;
     target_user: number;
+    is_liked: boolean;
 }

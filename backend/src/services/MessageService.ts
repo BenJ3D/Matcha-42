@@ -63,6 +63,38 @@ class MessageService {
     async getConversation(userId1: number, userId2: number): Promise<Message[]> {
         return await MessageDAL.getMessagesBetweenUsers(userId1, userId2);
     }
+
+    async getMessageById(messageId: number): Promise<Message | undefined> {
+        return await MessageDAL.getMessageById(messageId);
+    }
+
+    async likeMessage(messageId: number, userId: number): Promise<void> {
+        const message = await this.getMessageById(messageId);
+        if (!message) {
+            throw { status: 404, message: 'Message not found' };
+        }
+        if (message.target_user !== userId) {
+            throw { status: 403, message: 'You can only like messages sent to you' };
+        }
+        if (message.is_liked) {
+            throw { status: 400, message: 'Message is already liked' };
+        }
+        await MessageDAL.updateMessageLikeStatus(messageId, true);
+    }
+
+    async unlikeMessage(messageId: number, userId: number): Promise<void> {
+        const message = await this.getMessageById(messageId);
+        if (!message) {
+            throw { status: 404, message: 'Message not found' };
+        }
+        if (message.target_user !== userId) {
+            throw { status: 403, message: 'You can only unlike messages sent to you' };
+        }
+        if (!message.is_liked) {
+            throw { status: 400, message: 'Message is not liked' };
+        }
+        await MessageDAL.updateMessageLikeStatus(messageId, false);
+    }
 }
 
 export default new MessageService();

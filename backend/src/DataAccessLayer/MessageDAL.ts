@@ -32,6 +32,19 @@ class MessageDAL {
             throw new Error('Impossible de récupérer les messages.');
         }
     }
+
+    async getMessageById(messageId: number): Promise<Message | undefined> {
+        return await db('messages')
+            .select('*')
+            .where({ message_id: messageId })
+            .first();
+    }
+
+    async updateMessageLikeStatus(messageId: number, isLiked: boolean): Promise<void> {
+        await db('messages')
+            .where({ message_id: messageId })
+            .update({ is_liked: isLiked });
+    }
 }
 
 export default new MessageDAL();
