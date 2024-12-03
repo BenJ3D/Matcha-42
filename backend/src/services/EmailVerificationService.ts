@@ -16,7 +16,7 @@ class EmailVerificationService {
             const token: string = jwtService.generateGenericToken(payload, config.jwtEmailSecret + email, config.jwtEmailExpiration);
 
             // Créer le lien de vérification
-            const verificationLink = `${config.frontUrl}/callback`;
+            const verificationLink = `${config.frontUrl}callback`;
             const fullVerificationLink = `${verificationLink}/verify-email?token=${token}`;
 
             // Envoyer l'email de vérification
