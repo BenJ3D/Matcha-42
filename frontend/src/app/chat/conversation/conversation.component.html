@@ -25,19 +25,19 @@
         </div>
       </div>
       <div class="like-icon" [class.readonly]="message.owner_user === getCurrentUserId()"
-        *ngIf="message.owner_user !== getCurrentUserId() || message.is_liked">
+           *ngIf="message.owner_user !== getCurrentUserId() || message.is_liked">
         <mat-icon [class.clickable]="message.owner_user !== getCurrentUserId()" (click)="toggleLike(message)">
           {{ message.is_liked ? "favorite" : "favorite_border" }}
         </mat-icon>
       </div>
     </div>
-    <div class="message-input">
-      <mat-form-field appearance="outline" class="message-field">
-        <input matInput [(ngModel)]="newMessage" placeholder="Tapez un message..." (keyup.enter)="sendMessage()" />
-        <button mat-icon-button matSuffix color="primary" (click)="sendMessage()">
-          <mat-icon>send</mat-icon>
-        </button>
-      </mat-form-field>
-    </div>
+  </div>
+  <div class="message-input">
+    <mat-form-field appearance="outline" class="message-field">
+      <input matInput [(ngModel)]="newMessage" placeholder="Tapez un message..." (keyup.enter)="sendMessage()"/>
+      <button mat-icon-button matSuffix color="primary" (click)="sendMessage()">
+        <mat-icon>send</mat-icon>
+      </button>
+    </mat-form-field>
   </div>
 </div>
