@@ -10,6 +10,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef
 } from '@angular/core';
+import { Message } from '../../../models/Message';
 import {Subscription} from 'rxjs';
 import {SocketService} from '../../../services/socket.service';
 import {AuthService} from '../../../services/auth.service';
@@ -51,6 +52,7 @@ export class ConversationComponent implements OnInit, OnDestroy {
 
   newMessage: string = '';
   private messageSubscription!: Subscription;
+  messageLikes = new Map<string, boolean>();
 
   @ViewChild('messageList') messageList!: ElementRef;
 
@@ -75,6 +77,27 @@ export class ConversationComponent implements OnInit, OnDestroy {
 
     // Scroll au bas lors du chargement initial
     this.scrollToBottom();
+  }
+  
+  toggleLike(message: Message) {
+    if (message.owner_user === this.getCurrentUserId()) {
+      return; // Can't like your own message
+    }
+
+    const endpoint = `messages/${message.message_id}/${message.is_liked ? 'unlike' : 'like'}`;
+
+    this.apiService.post(endpoint, {}).subscribe({
+      next: () => {
+        message.is_liked = !message.is_liked;
+      },
+      error: (error) => {
+        console.error('Error updating like status:', error);
+      },
+    });
+  }
+  
+  isMessageLiked(messageId: string): boolean {
+    return this.messageLikes.get(messageId) || false;
   }
 
   /**
@@ -130,5 +153,4 @@ export class ConversationComponent implements OnInit, OnDestroy {
   getCurrentUserId(): number {
     return this.authService.getCurrentUserId();
   }
-
 }

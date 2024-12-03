@@ -72,4 +72,7 @@ router.post('/', MessageController.sendMessage);
  */
 router.get('/:userId', validateIdMiddleware, MessageController.getConversation);
 
+router.post('/:messageId/like', MessageController.likeMessage);
+router.post('/:messageId/unlike', MessageController.unlikeMessage);
+
 export default router;

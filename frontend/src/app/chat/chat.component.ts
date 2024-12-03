@@ -52,6 +52,10 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.socketService.on('reload_chat').subscribe(() => {
       this.fetchMatches();
     });
+    this.socketService.on('refresh_message').subscribe(() => {
+      if (this.selectedUser)
+        this.fetchMessages(this.selectedUser.id);
+    });
     // Récupérer la liste des matches via l'API
     this.fetchMatches();
 

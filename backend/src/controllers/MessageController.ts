@@ -42,6 +42,35 @@ class MessageController {
             res.status(500).json({error: error.message || 'Erreur'});
         }
     }
+
+    async likeMessage(req: AuthenticatedRequest, res: Response) {
+        console.log('likeMessage');
+        try {
+            const userId = req.userId!;
+            const messageId = parseInt(req.params.messageId, 10);
+            console.log('userId', userId);
+
+            await MessageService.likeMessage(messageId, userId);
+
+            res.status(200).json({ message: 'Message liked successfully' });
+        } catch (error: any) {
+            res.status(error.status || 500).json({ error: error.message || 'Unable to like message' });
+        }
+    }
+
+    async unlikeMessage(req: AuthenticatedRequest, res: Response) {
+        try {
+            const userId = req.userId!;
+            const messageId = parseInt(req.params.messageId, 10);
+            console.log('userId', userId);
+
+            await MessageService.unlikeMessage(messageId, userId);
+
+            res.status(200).json({ message: 'Message unliked successfully' });
+        } catch (error: any) {
+            res.status(error.status || 500).json({ error: error.message || 'Unable to unlike message' });
+        }
+    }
 }
 
 export default new MessageController();
