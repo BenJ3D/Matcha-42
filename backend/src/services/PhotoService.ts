@@ -51,35 +51,31 @@ class PhotoService {
         return photo;
     }
 
+    async unsetMainPhoto(userId: number): Promise<void> {
+        // Unset the main photo for the user
+        await ProfileDAL.updateMainPhoto(userId, null);
+    }
+
     async deletePhoto(userId: number, photoId: number): Promise<void> {
-        // Récupérer la photo
+        // Verify that the photo belongs to the user
         const photo = await PhotoDAL.findPhotoById(photoId);
         if (!photo) {
             throw {status: 404, message: 'Photo non trouvée.'};
         }
 
-        // Vérifier si l'utilisateur est le propriétaire
         if (photo.owner_user_id !== userId) {
             throw {status: 403, message: 'Vous n\'êtes pas autorisé à supprimer cette photo.'};
         }
 
-        // Supprimer la photo de la base de données
-        await PhotoDAL.deletePhoto(photoId);
-
-        // Supprimer le fichier du système
-        const filePath = path.join(__dirname, '../../uploads', path.basename(photo.url));
-        if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
-        }
-
-        // Vérifier si la photo supprimée est la photo principale
+        // Check if the photo is the main photo
         const profile = await ProfileDAL.findByUserId(userId);
-        if (profile && profile.main_photo_id === photoId) {
-            // Si l'utilisateur a d'autres photos, définir la première comme principale
-            const userPhotos = await PhotoDAL.getPhotosByUser(userId);
-            const newMainPhotoId = userPhotos.length > 0 ? userPhotos[0].photo_id : null;
-            await ProfileDAL.updateMainPhoto(userId, newMainPhotoId);
+        if (profile?.main_photo_id === photoId) {
+            // Unset the main photo
+            await this.unsetMainPhoto(userId);
         }
+
+        // Delete the photo
+        await PhotoDAL.deletePhoto(photoId);
     }
 
     async setMainPhoto(userId: number, photoId: number): Promise<void> {

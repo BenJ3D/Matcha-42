@@ -238,6 +238,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
               (p) => p.photo_id !== photo.photo_id
             );
           }
+          this.loadUserProfile();
+
         },
         error: (error) => {
         },
