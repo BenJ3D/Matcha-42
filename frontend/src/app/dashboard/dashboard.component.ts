@@ -102,7 +102,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }
     });
     this.subscriptions.add(routerSub);
-
+    localStorage.removeItem('resendToken');
 
   }
 

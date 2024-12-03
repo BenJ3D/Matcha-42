@@ -95,7 +95,7 @@ export class HomeComponent implements OnInit {
     return this.profileService.getMyProfile().pipe(
       map((data) => {
         this.hasMainPhoto = !!data.main_photo_url;
-        
+
         if (
           data.location &&
           data.location.latitude !== null &&

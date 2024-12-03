@@ -1,5 +1,5 @@
 import {Inject, Injectable, PLATFORM_ID} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {BehaviorSubject, Observable, of} from 'rxjs';
 import {catchError, map, tap} from 'rxjs/operators';
 import {Router} from '@angular/router';
@@ -69,8 +69,15 @@ export class AuthService {
   }
 
   resendVerificationEmail(): Observable<{ message: string }> {
+    let token = localStorage.getItem('accessToken');
+    if (!token)
+      token = localStorage.getItem('resendToken');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    localStorage.removeItem('resendToken');
+
     return this.http.get<{ message: string }>(
-      `${this.apiUrl}/verify-email/resend`
+      `${this.apiUrl}/verify-email/resend`,
+      {headers}
     );
   }
 

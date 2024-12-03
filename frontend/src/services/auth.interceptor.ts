@@ -1,8 +1,8 @@
-import { HttpInterceptorFn } from '@angular/common/http';
-import { inject, Injector } from '@angular/core';
-import { catchError, switchMap } from 'rxjs/operators';
-import { throwError } from 'rxjs';
-import { AuthService } from './auth.service';
+import {HttpInterceptorFn} from '@angular/common/http';
+import {inject, Injector} from '@angular/core';
+import {catchError, switchMap} from 'rxjs/operators';
+import {throwError} from 'rxjs';
+import {AuthService} from './auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const injector = inject(Injector);
@@ -39,6 +39,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           }),
           catchError(err => {
             const authService = injector.get(AuthService);
+            const token = localStorage.getItem('accessToken');
+            localStorage.setItem('resendToken', token ?? '');
             authService.logout();
             return throwError(() => err);
           })
