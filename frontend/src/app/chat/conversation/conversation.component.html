@@ -1,19 +1,11 @@
 <div class="conversation-container">
   <div class="conversation-header">
-    <button
-      mat-icon-button
-      (click)="closeConversation()"
-      matTooltip="{{ 'Close conversation' }}"
-    >
+    <button mat-icon-button (click)="closeConversation()" matTooltip="{{ 'Close conversation' }}">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <div
-      class="text-2xl font-semibold hover:text-orange-600 flex justify-center space-x-2 space-y-2"
-      matTooltip="{{
+    <div class="text-2xl font-semibold hover:text-orange-600 flex justify-center space-x-2 space-y-2" matTooltip="{{
         user ? 'View the profile of ' + user.username : 'Undefined user'
-      }}"
-      (click)="user ? profileService.goToProfile(user.id, router) : null"
-    >
+      }}" (click)="user ? profileService.goToProfile(user.id, router) : null">
       <div>
         {{ user?.username }}
       </div>
@@ -21,42 +13,30 @@
     </div>
   </div>
   <div class="message-list" #messageList>
-    <div
-      *ngFor="let message of messages"
-      [ngClass]="{
+    <div *ngFor="let message of messages" [ngClass]="{
         message: true,
         'user-message': message.owner_user === getCurrentUserId(),
         'other-message': message.owner_user !== getCurrentUserId()
-      }"
-    >
+      }">
       <div class="message-content">
         {{ message.content }}
         <div class="message-timestamp">
           {{ message.created_at | date : "shortTime" }}
         </div>
       </div>
-      <div class="like-icon" (click)="toggleLike(message.message_id.toString())">
+      <div class="like-icon" *ngIf="message.owner_user !== getCurrentUserId()"
+        (click)="toggleLike(message.message_id.toString())">
         <mat-icon>
           {{
-            isMessageLiked(message.message_id.toString()) ? "favorite" : "favorite_border"
+          isMessageLiked(message.message_id.toString()) ? "favorite" : "favorite_border"
           }}
         </mat-icon>
       </div>
     </div>
     <div class="message-input">
       <mat-form-field appearance="outline" class="message-field">
-        <input
-          matInput
-          [(ngModel)]="newMessage"
-          placeholder="Tapez un message..."
-          (keyup.enter)="sendMessage()"
-        />
-        <button
-          mat-icon-button
-          matSuffix
-          color="primary"
-          (click)="sendMessage()"
-        >
+        <input matInput [(ngModel)]="newMessage" placeholder="Tapez un message..." (keyup.enter)="sendMessage()" />
+        <button mat-icon-button matSuffix color="primary" (click)="sendMessage()">
           <mat-icon>send</mat-icon>
         </button>
       </mat-form-field>
