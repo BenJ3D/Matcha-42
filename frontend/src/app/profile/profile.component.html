@@ -124,16 +124,18 @@
         <div class="grid grid-cols-2 gap-1 pt-6">
           @if (!user.BlockedMe && hasMainPhoto) {
 
-            <button class="button-base" [ngClass]="{'like': user.isLiked}" (click)="toggleLike()"
-                    mat-raised-button>
-              <mat-icon>favorite</mat-icon>
-              Like
-            </button>
-            <button [ngClass]="{'unlike': user.isUnliked}" class="button-base" (click)="toggleUnlike()"
-                    mat-raised-button>
-              <mat-icon>thumb_down</mat-icon>
-              Unlike
-            </button>
+            @if (!user.isBlocked) {
+              <button class="button-base" [ngClass]="{'like': user.isLiked}" (click)="toggleLike()"
+                      mat-raised-button>
+                <mat-icon>favorite</mat-icon>
+                Like
+              </button>
+              <button [ngClass]="{'unlike': user.isUnliked}" class="button-base" (click)="toggleUnlike()"
+                      mat-raised-button>
+                <mat-icon>thumb_down</mat-icon>
+                Unlike
+              </button>
+            }
           }
           <button [ngClass]="{'blocked': user.isBlocked}" class="button-base" (click)="toggleBlock()" mat-raised-button>
             <mat-icon>block</mat-icon>
@@ -277,15 +279,15 @@
             </div>
           }
         </mat-tab>
-        <!--        <mat-tab label="Has blocked">-->
-        <!--          @if (user && user.blocked) {-->
-        <!--            <div class="card-shared mt-5 shadow">-->
-        <!--              <app-user-light-list-->
-        <!--                [users]="user.blocked"-->
-        <!--              ></app-user-light-list>-->
-        <!--            </div>-->
-        <!--          }-->
-        <!--        </mat-tab>-->
+        <mat-tab label="Has blocked">
+          @if (user && user.blocked) {
+            <div class="card-shared mt-5 shadow">
+              <app-user-blocked-list
+                [users]="user.blocked"
+              ></app-user-blocked-list>
+            </div>
+          }
+        </mat-tab>
       </mat-tab-group>
     }
   </div>

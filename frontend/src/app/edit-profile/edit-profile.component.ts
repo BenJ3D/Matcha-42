@@ -277,7 +277,7 @@ export class EditProfileComponent implements OnInit {
               latitude: data.latitude,
               longitude: data.longitude,
             }
-            console.log('Location from IP:', data.city);
+            // console.log('Location from IP:', data.city);
 
           }
           resolve();
