@@ -34,7 +34,8 @@
   </div>
   <div class="message-input">
     <mat-form-field appearance="outline" class="message-field">
-      <input matInput [(ngModel)]="newMessage" placeholder="Tapez un message..." (keyup.enter)="sendMessage()"/>
+      <input matInput [(ngModel)]="newMessage" placeholder="Tapez un message..." (keyup.enter)="sendMessage()"
+             maxlength="500"/>
       <button mat-icon-button matSuffix color="primary" (click)="sendMessage()">
         <mat-icon>send</mat-icon>
       </button>
