@@ -41,7 +41,7 @@ class UserServices {
         newUser.email = newUser.email.toLowerCase();
         newUser.password = await PasswordService.hashPassword(newUser.password);
         const userId = await UserDAL.save(newUser);
-        console.log(`DBG userID = ${JSON.stringify(userId)}`);
+        // console.log(`DBG userID = ${JSON.stringify(userId)}`);
         await EmailVerificationService.sendVerificationEmail(userId, newUser.email, newUser.first_name);
         return userId;
     }

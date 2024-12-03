@@ -18,32 +18,36 @@ class ProfileServices {
     async createProfile(userId: number, profileData: ProfileCreateDto): Promise<number> {
         let locationId: number | undefined = undefined;
 
-        if (profileData.location) {
-            const {latitude, longitude, city} = profileData.location;
 
-            try {
-                // Obtenir le nom de la ville à partir des coordonnées
-                const cityName = await reverseGeocodeOpenCage(latitude, longitude);
-                console.log('City name:', city);
-                // Vérifier si la localisation existe déjà
-                let location = await locationDAL.findByCoordinates(latitude, longitude);
-
-                // privilégier le nom de la ville du front
-                if (location?.location_id && city) {
-                    await locationDAL.update(location.location_id, city);
-                }
-
-                if (location) {
-                    locationId = location.location_id;
-                } else {
-                    // Créer une nouvelle localisation
-                    locationId = await locationDAL.create(latitude, longitude, cityName);
-                }
-            } catch (error) {
-                console.error('Erreur lors du géocodage inverse :', error);
-                throw new Error('Impossible de déterminer la localisation. Veuillez réessayer plus tard.');
-            }
+        if (!profileData.location) {
+            profileData.location = {latitude: 45.7844, longitude: 4.7355, city: 'Charbonnières-les-Bains'};
         }
+        // if (profileData.location) {
+        const {latitude, longitude, city} = profileData.location;
+
+        try {
+            // Obtenir le nom de la ville à partir des coordonnées
+            const cityName = await reverseGeocodeOpenCage(latitude, longitude);
+            console.log('City name:', city);
+            // Vérifier si la localisation existe déjà
+            let location = await locationDAL.findByCoordinates(latitude, longitude);
+
+            // privilégier le nom de la ville du front
+            if (location?.location_id && city) {
+                await locationDAL.update(location.location_id, city);
+            }
+
+            if (location) {
+                locationId = location.location_id;
+            } else {
+                // Créer une nouvelle localisation
+                locationId = await locationDAL.create(latitude, longitude, cityName);
+            }
+        } catch (error) {
+            console.error('Erreur lors du géocodage inverse :', error);
+            throw new Error('Impossible de déterminer la localisation. Veuillez réessayer plus tard.');
+        }
+        // }
 
         // Préparer les données du profil avec l'ID de localisation
         const profileDataWithLocationId = {
@@ -62,32 +66,35 @@ class ProfileServices {
 
         let locationId: number | undefined = undefined;
 
-        if (profileData.location) {
-            const {latitude, longitude, city} = profileData.location;
-
-            try {
-                // Obtenir le nom de la ville à partir des coordonnées
-                const cityName = await reverseGeocodeOpenCage(latitude, longitude);
-
-                // Vérifier si la localisation existe déjà
-                let location = await locationDAL.findByCoordinates(latitude, longitude);
-                console.log(JSON.stringify(location))
-
-                // privilégier le nom de la ville du front
-                if (location?.location_id && cityName && cityName != 'Unknown') {
-                    await locationDAL.update(location.location_id, cityName);
-                }
-                if (location) {
-                    locationId = location.location_id;
-                } else {
-                    // Créer une nouvelle localisation
-                    locationId = await locationDAL.create(latitude, longitude, cityName);
-                }
-            } catch (error) {
-                console.error('Erreur lors du géocodage inverse :', error);
-                throw new Error('Impossible de déterminer la localisation. Veuillez réessayer plus tard.');
-            }
+        if (!profileData.location) {
+            profileData.location = {latitude: 45.7844, longitude: 4.7355, city: 'Charbonnières-les-Bains'};
         }
+        // if (profileData.location) {
+        const {latitude, longitude, city} = profileData.location;
+
+        try {
+            // Obtenir le nom de la ville à partir des coordonnées
+            const cityName = await reverseGeocodeOpenCage(latitude, longitude);
+
+            // Vérifier si la localisation existe déjà
+            let location = await locationDAL.findByCoordinates(latitude, longitude);
+            console.log(JSON.stringify(location))
+
+            // privilégier le nom de la ville du front
+            if (location?.location_id && cityName && cityName != 'Unknown') {
+                await locationDAL.update(location.location_id, cityName);
+            }
+            if (location) {
+                locationId = location.location_id;
+            } else {
+                // Créer une nouvelle localisation
+                locationId = await locationDAL.create(latitude, longitude, cityName);
+            }
+        } catch (error) {
+            console.error('Erreur lors du géocodage inverse :', error);
+            throw new Error('Impossible de déterminer la localisation. Veuillez réessayer plus tard.');
+        }
+        // }
 
         // Préparer les données du profil avec l'ID de localisation
         const profileDataToUpdate: any = {
