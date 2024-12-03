@@ -24,6 +24,7 @@ import {SocketService} from "../../services/socket.service";
 import {EditProfileV2} from "./edit-profile-v2/edit-profile-v2.component";
 import {CreateProfileComponent} from "./create-profile/create-profile.component";
 import {ChangePhotoComponent} from "./change-photo/change-photo.component";
+import {UserBlockedListComponent} from "../user-blocked-list/user-blocked-list.component";
 
 export enum EEditStep {
   'idle',
@@ -51,6 +52,7 @@ export enum EEditStep {
     UserLightListComponent,
     MatTabsModule,
     EditProfileV2,
+    UserBlockedListComponent,
   ],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
@@ -112,26 +114,19 @@ export class ProfileComponent implements OnInit, OnDestroy {
         } else {
           this.hasMainPhoto = user.main_photo_url != null;
         }
-
       },
-      error: (error) => {
-        // if (error.status === 401) {
-        //   this.router.navigate(['/login']);
-        // }
+      error: () => {
       },
     });
   }
 
   loadUserProfileById() {
     if (this.profileId) {
-      // Première requête immédiate
       this.profileService.getUserById(this.profileId).subscribe({
         next: (user) => {
           if (user) {
             this.user = user;
-            // Démarrez l'intervalle après la première requête réussie
             this.setProfileInterval();
-            // Marquez le profil comme visité
             this.profileService.visitedProfile(user.id).subscribe();
           } else {
             this.router.navigate(['/profile']);
