@@ -109,6 +109,7 @@ export class ConversationComponent implements OnInit, OnDestroy {
           this.cdr.detectChanges();
         },
         error: (error) => {
+          console.error('Error while sending message', error);
         },
       });
     }

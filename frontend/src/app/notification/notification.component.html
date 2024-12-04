@@ -19,7 +19,6 @@
         [ngClass]="{ 'unread-notification bg-gray-50': !notification.has_read }"
         class="notification-item flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white rounded-lg shadow hover:bg-gray-100 cursor-pointer">
         <div class="flex flex-1 flex-col sm:flex-row sm:items-center">
-          <!-- Icône de la notification -->
           <mat-icon class="notification-icon text-2xl mr-0 sm:mr-4 mb-2 sm:mb-0">
             {{ getNotificationIcon(notification.type) }}
           </mat-icon>

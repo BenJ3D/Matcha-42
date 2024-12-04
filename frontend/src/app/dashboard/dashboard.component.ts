@@ -107,7 +107,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this._notificationMarker$.next(count > 0);
       },
       error: (error: any) => {
-        console.error('Erreur lors de la récupération des notifications :', error);
+        console.error('Error while fetching notifications:', error);
       },
     });
   }
@@ -121,7 +121,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this._unreadChatIdsMarker$.next(userIds.unreadMessages);
       },
       error: (error: any) => {
-        console.error('Erreur lors de la récupération des notifications :', error);
+        console.error('Error while fetching unread messages:', error);
       },
     });
   }

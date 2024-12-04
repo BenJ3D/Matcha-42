@@ -1,13 +1,13 @@
-import {Inject, Injectable, PLATFORM_ID} from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {BehaviorSubject, Observable, of} from 'rxjs';
-import {catchError, map, tap} from 'rxjs/operators';
-import {Router} from '@angular/router';
-import {isPlatformBrowser} from '@angular/common';
-import {LoginResponseDTO} from "../DTOs/login/LoginResponseDTO";
-import {UserResponseDto} from "../DTOs/users/UserResponseDto";
-import {LoginDto} from "../DTOs/login/LoginDto";
-import {environment} from "../environment/environment";
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
+import { Router } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
+import { LoginResponseDTO } from "../DTOs/login/LoginResponseDTO";
+import { UserResponseDto } from "../DTOs/users/UserResponseDto";
+import { LoginDto } from "../DTOs/login/LoginDto";
+import { environment } from "../environment/environment";
 
 interface SignupResponse {
   userId: number;
@@ -43,14 +43,12 @@ export class AuthService {
     }
   }
 
-  // Méthode pour initialiser la récupération de l'utilisateur
   initUser(): void {
     if (this.isBrowser) {
       this.loadCurrentUser();
     }
   }
 
-  // Méthode pour récupérer le profil utilisateur
   fetchUserProfile(): Observable<UserResponseDto> {
     return this.http.get<UserResponseDto>(`${this.apiUrl}/users/me`).pipe(
       tap((user) => this.userSubject.next(user)),
@@ -77,7 +75,7 @@ export class AuthService {
 
     return this.http.get<{ message: string }>(
       `${this.apiUrl}/verify-email/resend`,
-      {headers}
+      { headers }
     );
   }
 
@@ -122,21 +120,20 @@ export class AuthService {
       .pipe(map((response) => response.valid));
   }
 
-  // Méthode pour rafraîchir le token (optionnelle)
   refreshToken(): Observable<any> {
     const refreshToken = localStorage.getItem('refreshToken');
     if (!refreshToken) {
       return of(null);
     }
 
-    return this.http.post<any>(`${this.apiUrl}/login/refresh`, {"refreshToken": refreshToken}).pipe(
+    return this.http.post<any>(`${this.apiUrl}/login/refresh`, { "refreshToken": refreshToken }).pipe(
       tap((response) => {
         localStorage.setItem('accessToken', response.accessToken);
         localStorage.setItem('refreshToken', response.refreshToken);
         this.userSubject.next(response.user);
       }),
       catchError((error) => {
-        console.error('Erreur de rafraîchissement du token:', error);
+        console.error('Error refreshing token:', error);
         this.logout();
         return of(null);
       })
@@ -149,7 +146,7 @@ export class AuthService {
     }
     return this.http.get<UserResponseDto>(`${this.apiUrl}/users/me`).pipe(
       catchError((error) => {
-        console.error('Erreur lors de la récupération de l\'utilisateur:', error);
+        console.error('Error retrieving user:', error);
         return of(null as any);
       })
     );
@@ -157,7 +154,7 @@ export class AuthService {
 
   getCurrentUserId(): number {
     const user = this.userSubject.value;
-    return user ? user.id : 0; // Ajustez selon votre structure UserResponseDto
+    return user ? user.id : 0;
   }
 
   private loadCurrentUser(): void {
@@ -172,7 +169,7 @@ export class AuthService {
           }
         },
         error: (error) => {
-          console.error('Erreur lors du chargement de l\'utilisateur:', error);
+          console.error('Error loading user:', error);
           this.logout();
         },
       });

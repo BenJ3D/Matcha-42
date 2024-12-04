@@ -1,9 +1,9 @@
-import {Injectable} from '@angular/core';
-import {CanActivate, Router} from '@angular/router';
-import {ProfileService} from '../services/profile.service';
-import {Observable, of} from 'rxjs';
-import {map, tap, catchError} from 'rxjs/operators';
-import {UserResponseDto} from '../DTOs/users/UserResponseDto';
+import { Injectable } from '@angular/core';
+import { CanActivate, Router } from '@angular/router';
+import { ProfileService } from '../services/profile.service';
+import { Observable, of } from 'rxjs';
+import { map, tap, catchError } from 'rxjs/operators';
+import { UserResponseDto } from '../DTOs/users/UserResponseDto';
 
 @Injectable({
   providedIn: 'root',

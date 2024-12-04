@@ -58,7 +58,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     });
     this.fetchMatches();
 
-
     this.route.queryParams.subscribe(params => {
       const userId = +params['id'];
       if (userId) {
@@ -98,7 +97,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   checkIfMobile() {
     this.isMobile = window.innerWidth <= 600;
-    this.cdr.detectChanges(); // Rafraîchir la détection des changements
+    this.cdr.detectChanges();
   }
 
   selectConversationById(userId: number): void {
@@ -111,7 +110,7 @@ export class ChatComponent implements OnInit, OnDestroy {
         if (userAfterFetch) {
           this.selectConversation(userAfterFetch);
         } else {
-          console.warn(`Utilisateur avec ID ${userId} non trouvé.`);
+            console.warn(`User with ID ${userId} not found.`);
         }
       });
     }
@@ -126,7 +125,7 @@ export class ChatComponent implements OnInit, OnDestroy {
           resolve();
         },
         error: (error) => {
-          console.error('Erreur lors de la récupération des matches:', error);
+            console.error('Error while fetching matches:', error);
           reject(error);
         },
       });
@@ -146,12 +145,11 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.apiService.get<any>(`messages/${userId}`).subscribe({
       next: (msgs) => {
         this.messages = msgs.messages;
-        // Trier les messages par date de création
         this.messages.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
         this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Erreur lors de la récupération des messages:', error);
+        console.error('Error while fetching messages:', error);
       },
     });
   }

@@ -107,7 +107,6 @@ export class ChangePhotoComponent implements OnInit {
     }
   }
 
-
   onImageError(event: Event) {
     const imgElement = event.target as HTMLImageElement;
     console.error('Image failed to load:', imgElement.src);

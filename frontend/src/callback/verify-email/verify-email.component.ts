@@ -19,7 +19,7 @@ import { MatButtonModule } from '@angular/material/button';
   styleUrls: ['./verify-email.component.scss'],
 })
 export class VerifyEmailComponent implements OnInit {
-  verificationMessage: string = 'Vérification de votre email en cours...';
+  verificationMessage: string = 'Verifying your email...';
   isLoading: boolean = true;
   isBrowser: boolean;
 
@@ -48,16 +48,16 @@ export class VerifyEmailComponent implements OnInit {
           error: (error: any) => {
             console.error('Erreur de vérification :', error);
             this.verificationMessage =
-              error?.error?.message || 'Une erreur est survenue lors de la vérification de votre email.';
+              error?.error?.message || 'An error occurred while verifying your email.';
             this.isLoading = false;
           },
         });
       } else {
-        this.verificationMessage = 'Jeton de vérification introuvable dans l’URL.';
+        this.verificationMessage = 'Verification token not found in the URL.';
         this.isLoading = false;
       }
     } else {
-      this.verificationMessage = 'Chargement...';
+      this.verificationMessage = 'Loading...';
       this.isLoading = false;
     }
   }

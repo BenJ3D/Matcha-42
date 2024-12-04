@@ -186,7 +186,7 @@ export class NotificationComponent implements OnInit, OnDestroy {
           resolve();
         },
         error: (error) => {
-          console.warn('Erreur lors du like:', error);
+            console.error('Error during like:', error);
           reject(error);
         },
       });
