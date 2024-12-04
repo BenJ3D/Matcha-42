@@ -256,6 +256,7 @@
             <div class="card-shared mt-5 shadow">
               <app-user-light-list
                 [users]="user.likers"
+                [loadUserCallBack]="loadUserProfile.bind(this)"
               ></app-user-light-list>
             </div>
           }
@@ -265,6 +266,7 @@
             <div class="card-shared mt-5 shadow">
               <app-user-light-list
                 [users]="user.visitors"
+                [loadUserCallBack]="loadUserProfile.bind(this)"
               ></app-user-light-list>
             </div>
           }
@@ -274,6 +276,7 @@
             <div class="card-shared mt-5 shadow">
               <app-user-light-list
                 [users]="user.matchers"
+                [loadUserCallBack]="loadUserProfile.bind(this)"
               ></app-user-light-list>
             </div>
           }

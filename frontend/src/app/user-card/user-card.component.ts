@@ -28,6 +28,11 @@ export class UserCardComponent {
   }
 
   @Input() user!: UserLightResponseDto;
+  @Input() loadUserCallBack!: () => void;
 
+  goToProfile(userId: number) {
+    this.router.navigate(['/profile'], {queryParams: {id: userId}});
+    this.loadUserCallBack();
+  }
 
 }

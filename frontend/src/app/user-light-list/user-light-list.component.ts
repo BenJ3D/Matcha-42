@@ -15,5 +15,6 @@ import {BlockedUserResponseDto} from "../../DTOs/users/BlockedUserResponseDto";
 export class UserLightListComponent {
   @Input() users: UserLightResponseDto[] = [];
   @Input() ListTitle: string = '';
+  @Input() loadUserCallBack!: () => void;
 
 }

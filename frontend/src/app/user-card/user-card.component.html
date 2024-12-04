@@ -1,6 +1,6 @@
 <div class="flex flex-col bg-rose-500 flex-1 w-full rounded-xl border-4 border-rose-500 h-45 p-0.5">
   <div class="flex justify-center items-center relative group"
-       (click)="profileService.goToProfile(user.id, router); $event.stopPropagation();">
+       (click)="goToProfile(user.id); $event.stopPropagation();">
     <img mat-card-image class="hover:blur group-hover:opacity-70 rounded" [src]="user.main_photo_url"
          [alt]="user.username"/>
     <div mat-icon-button

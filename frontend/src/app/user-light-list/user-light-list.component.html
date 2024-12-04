@@ -3,7 +3,7 @@
   @if (users.length > 0) {
     <ul class="grid grid-flow-row xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 flex flex-1 w-full">
       @for (user of users; track user.id) {
-        <app-user-card [user]="user"></app-user-card>
+        <app-user-card [user]="user" [loadUserCallBack]="loadUserCallBack.bind(this)"></app-user-card>
       }
     </ul>
   } @else {
