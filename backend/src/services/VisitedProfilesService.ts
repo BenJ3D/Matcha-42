@@ -1,24 +1,22 @@
 import VisitedProfilesDAL from '../DataAccessLayer/VisitedProfilesDAL';
 import UserDAL from '../DataAccessLayer/UserDAL';
-import {UserLightResponseDto} from '../DTOs/users/UserLightResponseDto';
-import {NotificationType} from "../models/Notifications";
+import { UserLightResponseDto } from '../DTOs/users/UserLightResponseDto';
+import { NotificationType } from "../models/Notifications";
 import NotificationsService from "./NotificationsService";
 
 class VisitedProfilesService {
     async addVisit(visiterId: number, visitedId: number): Promise<void> {
         if (visiterId === visitedId) {
-            throw {status: 400, message: 'Vous ne pouvez pas visiter votre propre profil'};
+            throw { status: 400, message: 'Vous ne pouvez pas visiter votre propre profil' };
         }
 
-        // Vérifier si l'utilisateur visité existe
         const visitedExists = await UserDAL.findOne(visitedId);
         if (!visitedExists) {
-            throw {status: 404, message: 'Utilisateur visité non trouvé'};
+            throw { status: 404, message: 'Utilisateur visité non trouvé' };
         }
 
         await VisitedProfilesDAL.addVisit(visiterId, visitedId);
 
-        // NEW_VISIT notification pour l'user visited
         await NotificationsService.createNotification(
             visitedId,
             visiterId,
@@ -30,7 +28,6 @@ class VisitedProfilesService {
         visitsMade: (UserLightResponseDto & { viewed_at: Date })[],
         visitsReceived: (UserLightResponseDto & { viewed_at: Date })[]
     }> {
-        // Visites reçues
         const visitsReceived = await VisitedProfilesDAL.getVisitsForUser(userId);
         const visiterIdsReceived = visitsReceived.map(visit => visit.visiter_id);
         const visitorsReceived = visiterIdsReceived.length > 0 ? await UserDAL.getUsersByIds(visiterIdsReceived) : [];
@@ -42,7 +39,6 @@ class VisitedProfilesService {
             };
         });
 
-        // Visites effectuées
         const visitsMade = await VisitedProfilesDAL.getVisitsMadeByUser(userId);
         const visitedIdsMade = visitsMade.map(visit => visit.visited_id);
         const visitedUsersMade = visitedIdsMade.length > 0 ? await UserDAL.getUsersByIds(visitedIdsMade) : [];

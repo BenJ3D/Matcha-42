@@ -1,5 +1,5 @@
 import db from '../config/knexConfig';
-import {Visit} from '../models/Visit';
+import { Visit } from '../models/Visit';
 
 class VisitedProfilesDAL {
     async addVisit(visiterId: number, visitedId: number): Promise<void> {
@@ -11,9 +11,9 @@ class VisitedProfilesDAL {
             });
         } catch (error: any) {
             if (error.code == 23505) {
-                throw {status: 201, message: 'Visite déjà enregistrée'};
+                throw { status: 201, message: 'Visite déjà enregistrée' };
             }
-            throw {status: 400, message: 'Impossible d\'ajouter l\'enregistrement de la visite BLABLABLA'};
+            throw { status: 400, message: 'Impossible d\'ajouter l\'enregistrement de la visite BLABLABLA' };
         }
     }
 
@@ -25,7 +25,7 @@ class VisitedProfilesDAL {
                 .orderBy('viewed_at', 'desc');
             return visits;
         } catch (error: any) {
-            throw {status: 400, message: 'Impossible de récupérer l\'historique des visites'};
+            throw { status: 400, message: 'Impossible de récupérer l\'historique des visites' };
         }
     }
 
@@ -37,7 +37,7 @@ class VisitedProfilesDAL {
                 .orderBy('viewed_at', 'desc');
             return visits;
         } catch (error: any) {
-            throw {status: 400, message: 'Impossible de récupérer l\'historique des visites effectuées'};
+            throw { status: 400, message: 'Impossible de récupérer l\'historique des visites effectuées' };
         }
     }
 

@@ -1,6 +1,5 @@
 import {Socket, Server} from "socket.io";
 import NotificationsService from "../../services/NotificationsService";
-import UnreadUserMessageService from "../../services/UnreadUserMessageService";
 
 const notificationEventHandler = (socket: Socket, io: Server) => {
 

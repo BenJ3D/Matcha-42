@@ -1,4 +1,4 @@
-import {Request, Response} from 'express';
+import { Request, Response } from 'express';
 import GendersService from '../services/GendersService';
 
 class GendersController {
@@ -7,7 +7,7 @@ class GendersController {
             const genders = await GendersService.getAllGenders();
             res.json(genders);
         } catch (error: any) {
-            res.status(error.status || 500).json({error: error.message || 'Erreur'});
+            res.status(error.status || 500).json({ error: error.message || 'Erreur' });
         }
     }
 }

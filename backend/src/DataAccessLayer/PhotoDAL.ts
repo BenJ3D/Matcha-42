@@ -1,5 +1,5 @@
 import db from '../config/knexConfig';
-import {Photo} from '../models/Photo';
+import { Photo } from '../models/Photo';
 
 class PhotoDAL {
     async getPhotoCountByUser(userId: number): Promise<number> {
@@ -9,7 +9,7 @@ class PhotoDAL {
 
     async insertPhoto(ownerUserId: number, url: string, description: string): Promise<Photo> {
         const [photo] = await db('photos')
-            .insert({owner_user_id: ownerUserId, url, description})
+            .insert({ owner_user_id: ownerUserId, url, description })
             .returning('*');
         return photo;
     }

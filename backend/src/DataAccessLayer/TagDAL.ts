@@ -1,12 +1,12 @@
 import db from '../config/knexConfig';
-import {Tag} from '../models/Tags';
+import { Tag } from '../models/Tags';
 
 class TagDAL {
     async getAllTags(): Promise<Tag[]> {
         try {
             return await db('tags').select('*');
         } catch (error) {
-            throw {status: 400, message: 'Impossible de récupérer les tags'};
+            throw { status: 400, message: 'Impossible de récupérer les tags' };
         }
     }
 
@@ -18,7 +18,7 @@ class TagDAL {
                 .first();
             return tag || null;
         } catch (error) {
-            throw {status: 400, message: 'Impossible de récupérer le tag'};
+            throw { status: 400, message: 'Impossible de récupérer le tag' };
         }
     }
 }

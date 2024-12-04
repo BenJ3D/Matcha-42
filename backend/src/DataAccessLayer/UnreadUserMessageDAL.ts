@@ -1,4 +1,3 @@
-// src/DataAccessLayer/UnreadUserChatDAL.ts
 import db from '../config/knexConfig';
 import {UnreadUserMessage} from '../models/UnreadUserMessage';
 
@@ -10,8 +9,7 @@ class UnreadUserChatDAL {
                 target_message_user: targetMessageUser
             });
         } catch (error: any) {
-            if (error.code === '23505') { // Violation de contrainte d'unicité
-                // L'entrée existe déjà, on ne fait rien
+            if (error.code === '23505') {
                 return;
             } else {
                 throw {status: 400, message: 'Erreur lors de l\'ajout du message non lu'};

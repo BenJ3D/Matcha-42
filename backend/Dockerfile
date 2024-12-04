@@ -15,4 +15,4 @@ CMD ["npm", "run", "dev"]
 
 # Production
 # RUN npm run build
-# CMD ["npm", "run", "start"] ==> passage en prod
+# CMD ["npm", "run", "start"]

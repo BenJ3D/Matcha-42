@@ -1,9 +1,6 @@
 import UnlikesDAL from '../DataAccessLayer/UnlikesDAL';
-import MatchesService from './MatchesService';
 import LikesService from "./LikesService";
-import {NotificationType} from "../models/Notifications";
-import NotificationsService from "./NotificationsService";
-import {UserLightResponseDto} from "../DTOs/users/UserLightResponseDto";
+import { UserLightResponseDto } from "../DTOs/users/UserLightResponseDto";
 import userDAL from "../DataAccessLayer/UserDAL";
 import UserServices from "./UserServices";
 import fameRatingConfig from "../config/fameRating.config";
@@ -14,12 +11,10 @@ class UnlikesService {
         unlikesGiven: UserLightResponseDto[],
         unlikesReceived: UserLightResponseDto[]
     }> {
-        // Unlikes donnés
         const unlikesGiven = await UnlikesDAL.getUnlikesByUserId(userId);
         const unlikesGivenUserIds = unlikesGiven.map(unlike => unlike.user_unliked);
         const unlikesGivenUsers = unlikesGivenUserIds.length > 0 ? await userDAL.getUsersByIds(unlikesGivenUserIds) : [];
 
-        // Unlikes reçus
         const unlikesReceived = await UnlikesDAL.getUnlikesReceivedByUserId(userId);
         const unlikesReceivedUserIds = unlikesReceived.map(unlike => unlike.user);
         const unlikesReceivedUsers = unlikesReceivedUserIds.length > 0 ? await userDAL.getUsersByIds(unlikesReceivedUserIds) : [];
@@ -32,13 +27,12 @@ class UnlikesService {
 
     async addUnlike(userId: number, targetUserId: number): Promise<void> {
         if (userId === targetUserId) {
-            throw {status: 400, message: 'Vous ne pouvez pas unliker vous-même'};
+            throw { status: 400, message: 'Vous ne pouvez pas unliker vous-même' };
         }
 
-        // Vérifier si l'utilisateur cible existe
         const targetExists = await UnlikesDAL.userExists(targetUserId);
         if (!targetExists) {
-            throw {status: 404, message: 'Utilisateur cible non trouvé'};
+            throw { status: 404, message: 'Utilisateur cible non trouvé' };
         }
 
         await BlockedUsersService.checkIsUserBlocked(targetUserId, userId);

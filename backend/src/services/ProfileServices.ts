@@ -22,7 +22,6 @@ class ProfileServices {
         if (!profileData.location) {
             profileData.location = {latitude: 45.7844, longitude: 4.7355, city: 'Charbonnières-les-Bains'};
         }
-        // if (profileData.location) {
         const {latitude, longitude, city} = profileData.location;
 
         try {

@@ -1,5 +1,5 @@
 import db from '../config/knexConfig';
-import {Notification, NotificationType} from '../models/Notifications';
+import { Notification, NotificationType } from '../models/Notifications';
 
 class NotificationsDAL {
     async createNotification(
@@ -55,7 +55,7 @@ class NotificationsDAL {
             await db('notifications')
                 .whereIn('notification_id', notificationIds)
                 .andWhere('target_user', userId)
-                .update({has_read: true});
+                .update({ has_read: true });
         } catch (error) {
             throw new Error('Could not update notifications');
         }

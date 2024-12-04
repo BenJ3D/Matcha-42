@@ -1,5 +1,5 @@
-import {Photo} from "../../models/Photo";
-import {Tag} from "../../models/Tags";
+import { Photo } from "../../models/Photo";
+import { Tag } from "../../models/Tags";
 
 export interface ProfileResponseDto {
     profile_id: number;

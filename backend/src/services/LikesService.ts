@@ -3,39 +3,35 @@ import MatchesService from './MatchesService';
 import userDAL from '../DataAccessLayer/UserDAL';
 import UnlikesService from "./UnlikesService";
 import NotificationsService from "./NotificationsService";
-import {NotificationType} from "../models/Notifications";
+import { NotificationType } from "../models/Notifications";
 import UserServices from "./UserServices";
 import fameRatingConfig from "../config/fameRating.config";
 import UserDAL from "../DataAccessLayer/UserDAL";
-import {UserLikesResponseDto} from "../DTOs/likes/UserLikesReponseDto";
+import { UserLikesResponseDto } from "../DTOs/likes/UserLikesReponseDto";
 import BlockedUsersService from "./BlockedUsersService";
 
 class LikesService {
 
     async getUserLikes(userId: number): Promise<UserLikesResponseDto> {
-        // Likes donnés
         const likesGiven = await LikesDAL.getLikesByUserId(userId);
         const likesGivenUserIds = likesGiven.map(like => like.user_liked);
         const likesGivenUsers = likesGivenUserIds.length > 0 ? await userDAL.getUsersByIds(likesGivenUserIds) : [];
-
-        // Likes reçus
         const likesReceived = await LikesDAL.getLikesReceivedByUserId(userId);
         const likesReceivedUserIds = likesReceived.map(like => like.user);
         const likesReceivedUsers = likesReceivedUserIds.length > 0 ? await userDAL.getUsersByIds(likesReceivedUserIds) : [];
 
-        const likeResp = {likesGiven: likesGivenUsers, likesReceived: likesReceivedUsers};
+        const likeResp = { likesGiven: likesGivenUsers, likesReceived: likesReceivedUsers };
         return likeResp;
     }
 
     async addLike(userId: number, targetUserId: number): Promise<void> {
         if (userId === targetUserId) {
-            throw {status: 400, message: 'Vous ne pouvez pas liker vous-même'};
+            throw { status: 400, message: 'Vous ne pouvez pas liker vous-même' };
         }
 
-        // Vérifier si l'utilisateur cible existe
         const targetExists = await UserDAL.userExists(targetUserId);
         if (!targetExists) {
-            throw {status: 404, message: 'Utilisateur cible non trouvé'};
+            throw { status: 404, message: 'Utilisateur cible non trouvé' };
         }
 
         await BlockedUsersService.checkIsUserBlocked(targetUserId, userId);
@@ -43,14 +39,12 @@ class LikesService {
         await LikesDAL.addLike(userId, targetUserId);
         await UserServices.updateFameRating(targetUserId, fameRatingConfig.like);
 
-        //Suppression d'un eventuel unlike, catch vide pour ne pas retourné de 404 si le unlike n'existe pas
         try {
             await UnlikesService.removeUnlike(userId, targetUserId);
         } catch (e: any) {
 
         }
 
-        // Vérifier si c'est un match
         const reciprocalLikes = await LikesDAL.getLikesByUserId(targetUserId);
         const isMutual = reciprocalLikes.some(like => like.user_liked === userId);
         const targetUnlike = await UnlikesService.getUserUnlikes(userId);
@@ -58,7 +52,6 @@ class LikesService {
         if (isMutual) {
             await MatchesService.createMatch(userId, targetUserId);
         } else if (!isUnlikedByTarget) {
-            // LIKE notification pour target user
             await NotificationsService.createNotification(
                 targetUserId,
                 userId,
@@ -75,8 +68,6 @@ class LikesService {
         await UserServices.updateFameRating(targetUserId, fameRatingConfig.dislike);
 
         if (await MatchesService.isMatched(userId, targetUserId)) {
-
-            //Supprimer un match s'il existe
             await MatchesService.deleteMatch(userId, targetUserId);
         }
     }

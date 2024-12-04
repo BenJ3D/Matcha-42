@@ -1,21 +1,20 @@
-import {onlineUsers} from '../sockets/events/onlineUsers';
-import {CreateMessageDto} from '../DTOs/chat/CreateMessageDto';
+import { onlineUsers } from '../sockets/events/onlineUsers';
+import { CreateMessageDto } from '../DTOs/chat/CreateMessageDto';
 import MessageDAL from '../DataAccessLayer/MessageDAL';
 import MatchesService from "./MatchesService";
-import {Message} from '../models/Message';
-import {Socket} from 'socket.io';
+import { Message } from '../models/Message';
+import { Socket } from 'socket.io';
 import NotificationsService from "./NotificationsService";
-import {NotificationType} from "../models/Notifications";
+import { NotificationType } from "../models/Notifications";
 import UnreadUserMessageService from "./UnreadUserMessageService";
 
 class MessageService {
     async createMessage(ownerUserId: number, createMessageDto: CreateMessageDto): Promise<Message> {
-        const {target_user, content} = createMessageDto;
+        const { target_user, content } = createMessageDto;
 
-        // Vérifier si les utilisateurs sont matchés
         const isMatched = await MatchesService.isMatched(ownerUserId, target_user);
         if (!isMatched) {
-            throw {status: 403, message: 'Vous pouvez seulement envoyer des messages aux utilisateurs matchés.'};
+            throw { status: 403, message: 'Vous pouvez seulement envoyer des messages aux utilisateurs matchés.' };
         }
 
         const messageData: Partial<Message> = {
@@ -25,17 +24,12 @@ class MessageService {
             created_at: new Date(),
         };
 
-        // Créer le message dans la base de données
         const message = await MessageDAL.createMessage(messageData);
 
-        // Ajouter un message non lu pour le destinataire
         await UnreadUserMessageService.addUnreadChat(ownerUserId, target_user);
 
-        // Supprimer le message non lu pour l'envoyeur (s'il existe)
         await UnreadUserMessageService.removeUnreadChat(target_user, ownerUserId);
 
-
-        // Émettre le message à l'utilisateur cible s'il est en ligne
         const targetUserSockets = onlineUsers.get(target_user);
         if (targetUserSockets) {
             targetUserSockets.forEach((socket: Socket) => {
@@ -48,7 +42,6 @@ class MessageService {
             )
         }
 
-        // Émettre le message à l'utilisateur propriétaire (envoyeur)
         const ownerUserSockets = onlineUsers.get(ownerUserId);
         if (ownerUserSockets) {
             ownerUserSockets.forEach((socket: Socket) => {
@@ -59,7 +52,6 @@ class MessageService {
         return message;
     }
 
-    // Méthode pour récupérer l'historique des messages avec un autre utilisateur
     async getConversation(userId1: number, userId2: number): Promise<Message[]> {
         return await MessageDAL.getMessagesBetweenUsers(userId1, userId2);
     }
@@ -71,13 +63,13 @@ class MessageService {
     async likeMessage(messageId: number, userId: number): Promise<void> {
         const message = await this.getMessageById(messageId);
         if (!message) {
-            throw {status: 404, message: 'Message not found'};
+            throw { status: 404, message: 'Message not found' };
         }
         if (message.target_user !== userId) {
-            throw {status: 403, message: 'You can only like messages sent to you'};
+            throw { status: 403, message: 'You can only like messages sent to you' };
         }
         if (message.is_liked) {
-            throw {status: 400, message: 'Message is already liked'};
+            throw { status: 400, message: 'Message is already liked' };
         }
         await MessageDAL.updateMessageLikeStatus(messageId, true);
         this.emitRefreshMessageToAllConcern(message);
@@ -86,13 +78,13 @@ class MessageService {
     async unlikeMessage(messageId: number, userId: number): Promise<void> {
         const message = await this.getMessageById(messageId);
         if (!message) {
-            throw {status: 404, message: 'Message not found'};
+            throw { status: 404, message: 'Message not found' };
         }
         if (message.target_user !== userId) {
-            throw {status: 403, message: 'You can only unlike messages sent to you'};
+            throw { status: 403, message: 'You can only unlike messages sent to you' };
         }
         if (!message.is_liked) {
-            throw {status: 400, message: 'Message is not liked'};
+            throw { status: 400, message: 'Message is not liked' };
         }
         await MessageDAL.updateMessageLikeStatus(messageId, false);
         this.emitRefreshMessageToAllConcern(message);
