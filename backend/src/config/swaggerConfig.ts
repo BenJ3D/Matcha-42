@@ -55,7 +55,6 @@ const swaggerDefinition: SwaggerDefinition = {
                     },
                 },
             },
-            // Schéma pour ProfileCreateDto
             ProfileCreateDto: {
                 type: 'object',
                 required: ['biography', 'gender', 'age'],
@@ -107,7 +106,6 @@ const swaggerDefinition: SwaggerDefinition = {
                     },
                 },
             },
-            // Schéma pour ProfileUpdateDto
             ProfileUpdateDto: {
                 type: 'object',
                 properties: {
@@ -222,7 +220,6 @@ const swaggerDefinition: SwaggerDefinition = {
                     },
                 },
             },
-            // Schéma pour Photo
             Photo: {
                 type: 'object',
                 properties: {
@@ -244,7 +241,6 @@ const swaggerDefinition: SwaggerDefinition = {
                     },
                 },
             },
-            // Schéma pour Tag
             Tag: {
                 type: 'object',
                 properties: {
@@ -258,7 +254,6 @@ const swaggerDefinition: SwaggerDefinition = {
                     },
                 },
             },
-            // Schéma pour CreateMessageDto
             CreateMessageDto: {
                 type: 'object',
                 required: ['target_user', 'content'],
@@ -274,7 +269,6 @@ const swaggerDefinition: SwaggerDefinition = {
                     },
                 },
             },
-            // Schéma pour Message
             Message: {
                 type: 'object',
                 properties: {

@@ -1,5 +1,3 @@
-// src/routes/verifyTokenRoutes.ts
-
 import {Router} from 'express';
 import VerifyTokenController from '../controllers/VerifyTokenController';
 

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
-import { MatBadgeModule } from '@angular/material/badge'; // Import MatBadgeModule
+import { MatBadgeModule } from '@angular/material/badge';
 import { SocketService } from "../../services/socket.service";
 import { async, BehaviorSubject, filter, Subscription } from 'rxjs';
 import { NotificationsReceiveDto } from "../../DTOs/notifications/NotificationsReceiveDto";

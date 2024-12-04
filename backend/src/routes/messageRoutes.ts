@@ -1,5 +1,3 @@
-// src/routes/messageRoutes.ts
-
 import {Router} from 'express';
 import MessageController from '../controllers/MessageController';
 import {validateIdMiddleware} from '../middlewares/validateIdMiddleware';

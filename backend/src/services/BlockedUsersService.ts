@@ -1,5 +1,3 @@
-// services/BlockedUsersService.ts
-
 import BlockedUsersDAL from '../DataAccessLayer/BlockedUsersDAL';
 import userDAL from '../DataAccessLayer/UserDAL';
 import { BlockedUserResponseDto } from '../DTOs/users/BlockedUserResponseDto';

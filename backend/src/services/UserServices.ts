@@ -155,19 +155,14 @@ class UserServices {
             const maxFameRating = Math.max(...usersSearch.map(u => u.fame_rating || 0));
 
             usersSearch.forEach(user => {
-                // a. Calculer le score de distance (plus proche = score plus élevé)
                 const distanceScore = user.distance != null && maxDistance > 0
                     ? (maxDistance - user.distance) / maxDistance
                     : 0;
 
-                // b. Calculer le score de tags en commun
                 const commonTags = user.tags ? user.tags.filter(tag => currentUserTagIds.includes(tag.tag_id)).length : 0;
                 const commonTagsScore = maxCommonTags > 0 ? commonTags / maxCommonTags : 0;
-
-                // c. Calculer le score de fame_rating
                 const fameRatingScore = maxFameRating > 0 ? user.fame_rating / maxFameRating : 0;
 
-                // d. Calculer le score total
                 user.totalScore =
                     weightDistance * distanceScore +
                     weightCommonTags * commonTagsScore +

@@ -1,4 +1,3 @@
-// search-state.service.ts
 import { Injectable } from '@angular/core';
 
 @Injectable({
