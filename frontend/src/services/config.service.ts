@@ -1,5 +1,5 @@
-import {Injectable} from '@angular/core';
-import {PORT_API} from "../config/global.env";
+import { Injectable } from '@angular/core';
+import { PORT_API } from "../config/global.env";
 
 @Injectable({
   providedIn: 'root'
@@ -12,8 +12,8 @@ export class ConfigService {
   }
 
   private determineServerUrl(): string {
-    const protocol = window.location.protocol; // 'http:' ou 'https:'
-    const host = window.location.hostname; // 'localhost', '192.168.x.x', 'votredomaine.com', etc.
+    const protocol = window.location.protocol;
+    const host = window.location.hostname;
     return `${protocol}//${host}:${PORT_API}/`;
   }
 

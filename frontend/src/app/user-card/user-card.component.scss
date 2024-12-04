@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 .relative {
   position: relative;
 }
@@ -22,7 +23,7 @@
 
 .hover\:blur:hover,
 .group:hover .hover\:blur {
-  filter: blur(5px); /* Blur activé quand l'image ou le bouton est survolé */
+  filter: blur(5px);
 }
 
 .transition {
@@ -30,19 +31,19 @@
 }
 
 .text-4xl {
-  font-size: 2.5rem; /* Taille de l'icône */
+  font-size: 2.5rem;
 }
 
 .icon-button {
-  width: 3rem; /* Optionnel pour ajuster la zone cliquable */
+  width: 3rem;
   height: 3rem;
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 50%; /* Pour un effet arrondi */
-  background-color: rgba(0, 0, 0, 0.5); /* Optionnel : fond derrière l'icône */
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 .icon-button:hover {
-  background-color: rgba(0, 0, 0, 0.7); /* Changez la couleur lors du survol */
+  background-color: rgba(0, 0, 0, 0.7);
 }

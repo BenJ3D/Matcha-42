@@ -1,10 +1,9 @@
 <div class="flex flex-col bg-red-700 flex-1 w-full rounded-xl border-4 border-red-700 h-45 p-0.5">
   <div class="flex justify-center items-center relative group"
-       (click)="profileService.goToProfile(user.id, router); $event.stopPropagation();">
+    (click)="profileService.goToProfile(user.id, router); $event.stopPropagation();">
     <img mat-card-image class="hover:blur group-hover:opacity-70 rounded" [src]="user.main_photo_url"
-         [alt]="user.username"/>
-    <div mat-icon-button
-         class="absolute opacity-0 group-hover:opacity-100 transition duration-300 text-white text-2xl">
+      [alt]="user.username" />
+    <div mat-icon-button class="absolute opacity-0 group-hover:opacity-100 transition duration-300 text-white text-2xl">
       <mat-icon>visibility</mat-icon>
     </div>
   </div>
@@ -15,4 +14,3 @@
     </div>
   </div>
 </div>
-

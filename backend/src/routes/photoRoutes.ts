@@ -7,10 +7,9 @@ import authMiddleware from '../middlewares/authMiddleware';
 
 const router = Router();
 
-// Configuration de multer pour gérer les fichiers
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, '/tmp'); // Dossier temporaire
+        cb(null, '/tmp');
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.random().toString(36).substring(2, 15);
@@ -23,8 +22,8 @@ const upload = multer({
     storage,
     fileFilter: imageFileFilter,
     limits: {
-        fileSize: 5 * 1024 * 1024, // Limite de 5 MB
-        files: 1, // Limite le nombre de fichiers à 1
+        fileSize: 5 * 1024 * 1024,
+        files: 1,
     },
 });
 

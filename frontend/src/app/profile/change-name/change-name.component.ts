@@ -1,15 +1,15 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {CommonModule} from "@angular/common";
-import {MatIcon} from "@angular/material/icon";
-import {MatFormFieldModule} from "@angular/material/form-field";
-import {MatInputModule} from "@angular/material/input";
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
-import {MatButtonModule} from "@angular/material/button";
-import {UserResponseDto} from "../../../DTOs/users/UserResponseDto";
-import {ProfileService} from "../../../services/profile.service";
-import {AuthService} from "../../../services/auth.service";
-import {ToastService} from "../../../services/toast.service";
-import {UserUpdateDto} from "../../../DTOs/users/UserUpdateDto";
+import { Component, Input, OnInit } from '@angular/core';
+import { CommonModule } from "@angular/common";
+import { MatIcon } from "@angular/material/icon";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatInputModule } from "@angular/material/input";
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { UserResponseDto } from "../../../DTOs/users/UserResponseDto";
+import { ProfileService } from "../../../services/profile.service";
+import { AuthService } from "../../../services/auth.service";
+import { ToastService } from "../../../services/toast.service";
+import { UserUpdateDto } from "../../../DTOs/users/UserUpdateDto";
 
 @Component({
   selector: 'app-change-name',
@@ -34,7 +34,6 @@ export class ChangeNameComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private profileService: ProfileService,
-    private authService: AuthService,
     private toastService: ToastService,
   ) {
   }
@@ -67,7 +66,7 @@ export class ChangeNameComponent implements OnInit {
     this.namesForm.value.last_name = this.namesForm.value.last_name.trim();
     if (this.namesForm.value.first_name === this.user?.first_name && this.namesForm.value.last_name === this.user?.last_name) {
       this.toastService.show('The first and last names is identical to the old names.');
-      this.namesForm.setValue({first_name: ''});
+      this.namesForm.setValue({ first_name: '' });
       this.namesForm.touched;
       return;
     }

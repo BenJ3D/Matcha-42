@@ -9,12 +9,10 @@ class MessageDAL {
                 .returning('*');
             return message;
         } catch (error) {
-            console.error('Error creating message:', error);
             throw new Error('Impossible de créer le message.');
         }
     }
 
-    // Méthode pour récupérer les messages entre deux utilisateurs
     async getMessagesBetweenUsers(userId1: number, userId2: number): Promise<Message[]> {
         try {
             const messages = await db('messages')
@@ -28,7 +26,6 @@ class MessageDAL {
                 .orderBy('created_at', 'asc');
             return messages;
         } catch (error) {
-            console.error('Error fetching messages:', error);
             throw new Error('Impossible de récupérer les messages.');
         }
     }

@@ -50,7 +50,6 @@
   font-weight: 500;
 }
 
-/* Styles pour les petits écrans */
 @media (max-width: 600px) {
   .chat-container {
     flex-direction: column;
@@ -61,8 +60,6 @@
     width: 100%;
     max-width: none;
     border-right: none;
-    //border-bottom: 1px solid #ccc;
-    /* Lorsque caché, déplacez hors de l'écran */
     &.hidden {
       display: none;
     }

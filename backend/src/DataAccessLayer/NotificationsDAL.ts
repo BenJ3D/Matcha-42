@@ -1,5 +1,5 @@
 import db from '../config/knexConfig';
-import {Notification, NotificationType} from '../models/Notifications';
+import { Notification, NotificationType } from '../models/Notifications';
 
 class NotificationsDAL {
     async createNotification(
@@ -22,7 +22,6 @@ class NotificationsDAL {
 
             return notification;
         } catch (error) {
-            console.error('Error creating notification:', error);
             throw new Error('Could not create notification');
         }
     }
@@ -44,7 +43,6 @@ class NotificationsDAL {
             const notifications = await query;
             return notifications;
         } catch (error) {
-            console.error('Error fetching notifications:', error);
             throw new Error('Could not fetch notifications');
         }
     }
@@ -56,10 +54,9 @@ class NotificationsDAL {
         try {
             await db('notifications')
                 .whereIn('notification_id', notificationIds)
-                .andWhere('target_user', userId) //evite qu'un autre user puisse modifier cette notification
-                .update({has_read: true});
+                .andWhere('target_user', userId)
+                .update({ has_read: true });
         } catch (error) {
-            console.error('Error updating notifications:', error);
             throw new Error('Could not update notifications');
         }
     }
@@ -71,10 +68,9 @@ class NotificationsDAL {
         try {
             await db('notifications')
                 .whereIn('notification_id', notificationIds)
-                .andWhere('target_user', userId) //evite qu'un autre user puisse supprimer cette notification
+                .andWhere('target_user', userId)
                 .del();
         } catch (error) {
-            console.error('Error deleting notification:', error);
             throw new Error('Could not delete notification');
         }
     }

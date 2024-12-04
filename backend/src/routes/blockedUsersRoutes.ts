@@ -1,5 +1,3 @@
-// routes/blockedUsersRoutes.ts
-
 import {Router} from 'express';
 import BlockedUsersController from '../controllers/BlockedUsersController';
 import {validateIdMiddleware} from '../middlewares/validateIdMiddleware';

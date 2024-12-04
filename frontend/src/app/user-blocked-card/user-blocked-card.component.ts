@@ -1,13 +1,10 @@
-import {Component, Input} from '@angular/core';
-import {UserResponseDto} from "../../DTOs/users/UserResponseDto";
-import {UserLightResponseDto} from "../../DTOs/users/UserLightResponseDto";
-import {MatCardImage} from "@angular/material/card";
-import {MatIcon} from "@angular/material/icon";
-import {MatIconButton} from "@angular/material/button";
-import {ProfileService} from "../../services/profile.service";
-import {Router} from "@angular/router";
-import {DatePipe, SlicePipe} from "@angular/common";
-import {BlockedUserResponseDto} from "../../DTOs/users/BlockedUserResponseDto";
+import { Component, Input } from '@angular/core';
+import { MatCardImage } from "@angular/material/card";
+import { MatIcon } from "@angular/material/icon";
+import { ProfileService } from "../../services/profile.service";
+import { Router } from "@angular/router";
+import { DatePipe, SlicePipe } from "@angular/common";
+import { BlockedUserResponseDto } from "../../DTOs/users/BlockedUserResponseDto";
 
 @Component({
   selector: 'app-user-blocked-card',
@@ -29,6 +26,4 @@ export class UserBlockedCardComponent {
   }
 
   @Input() user!: BlockedUserResponseDto;
-
-
 }

@@ -1,5 +1,5 @@
 import joi from 'joi';
-import {LocationDto, LocationDtoValidation} from "./ProfileCreateDto";
+import { LocationDto, LocationDtoValidation } from "./ProfileCreateDto";
 
 export interface ProfileUpdateDto {
     biography: string;

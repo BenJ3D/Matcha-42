@@ -1,9 +1,7 @@
-// controllers/BlockedUsersController.ts
-
-import {Response} from 'express';
-import {AuthenticatedRequest} from '../middlewares/authMiddleware';
+import { Response } from 'express';
+import { AuthenticatedRequest } from '../middlewares/authMiddleware';
 import BlockedUsersService from '../services/BlockedUsersService';
-import {validateIdNumber} from '../utils/validateIdNumber';
+import { validateIdNumber } from '../utils/validateIdNumber';
 
 class BlockedUsersController {
     async blockUser(req: AuthenticatedRequest, res: Response) {
@@ -15,10 +13,9 @@ class BlockedUsersController {
 
             await BlockedUsersService.blockUser(blockerId, blockedId);
 
-            res.status(200).json({message: 'Utilisateur bloqué avec succès'});
+            res.status(200).json({ message: 'Utilisateur bloqué avec succès' });
         } catch (error: any) {
-            console.error('Erreur lors du blocage de l\'utilisateur:', error);
-            res.status(error.status || 400).json({error: error.message || 'Erreur'});
+            res.status(error.status || 400).json({ error: error.message || 'Erreur' });
         }
     }
 
@@ -31,10 +28,9 @@ class BlockedUsersController {
 
             await BlockedUsersService.unblockUser(blockerId, blockedId);
 
-            res.status(200).json({message: 'Utilisateur débloqué avec succès'});
+            res.status(200).json({ message: 'Utilisateur débloqué avec succès' });
         } catch (error: any) {
-            console.error('Erreur lors du déblocage de l\'utilisateur:', error);
-            res.status(error.status || 400).json({error: error.message || 'Erreur'});
+            res.status(error.status || 400).json({ error: error.message || 'Erreur' });
         }
     }
 
@@ -46,8 +42,7 @@ class BlockedUsersController {
 
             res.status(200).json(blockedData);
         } catch (error: any) {
-            console.error('Erreur lors de la récupération des données de blocage:', error);
-            res.status(error.status || 400).json({error: error.message || 'Erreur'});
+            res.status(error.status || 400).json({ error: error.message || 'Erreur' });
         }
     }
 }

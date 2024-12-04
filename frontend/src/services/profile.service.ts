@@ -1,18 +1,18 @@
-import {Injectable} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
-import {BehaviorSubject, Observable, catchError, throwError} from 'rxjs';
-import {map, tap} from 'rxjs/operators';
-import {ProfileCreateDto} from '../DTOs/profiles/ProfileCreateDto';
-import {ProfileUpdateDto} from '../DTOs/profiles/ProfileUpdateDto';
-import {UserResponseDto} from '../DTOs/users/UserResponseDto';
-import {Gender} from '../models/Genders';
-import {Tag} from '../models/Tags';
-import {Photo} from '../models/Photo';
-import {UploadPhotoResponse} from '../DTOs/upload-photo-response';
-import {UserProfile} from '../models/Profiles';
-import {Router} from "@angular/router";
-import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
-import {environment} from "../environment/environment";
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { BehaviorSubject, Observable, catchError, throwError } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
+import { ProfileCreateDto } from '../DTOs/profiles/ProfileCreateDto';
+import { ProfileUpdateDto } from '../DTOs/profiles/ProfileUpdateDto';
+import { UserResponseDto } from '../DTOs/users/UserResponseDto';
+import { Gender } from '../models/Genders';
+import { Tag } from '../models/Tags';
+import { Photo } from '../models/Photo';
+import { UploadPhotoResponse } from '../DTOs/upload-photo-response';
+import { UserProfile } from '../models/Profiles';
+import { Router } from "@angular/router";
+import { UserUpdateDto } from "../DTOs/users/UserUpdateDto";
+import { environment } from "../environment/environment";
 
 @Injectable({
   providedIn: 'root',
@@ -25,7 +25,6 @@ export class ProfileService {
   constructor(private http: HttpClient) {
   }
 
-  // Méthode pour récupérer les données de l'utilisateur
   getMyProfile(): Observable<UserResponseDto> {
     return this.http.get<UserResponseDto>(`${this.apiUrl}/users/me`).pipe(
       tap((userResponse) => {
@@ -63,12 +62,12 @@ export class ProfileService {
   }
 
   updateEmail(email: string): Observable<{ message: string }> {
-    return this.http.patch<{ message: string }>(`${this.apiUrl}/users/email`, {email});
+    return this.http.patch<{ message: string }>(`${this.apiUrl}/users/email`, { email });
   }
 
   uploadPhoto(photo: File, description?: string): Observable<Photo> {
     const formData = new FormData();
-    formData.append('photo', photo); // Le nom du champ doit correspondre
+    formData.append('photo', photo);
     if (description) {
       formData.append('description', description);
     }
@@ -77,17 +76,15 @@ export class ProfileService {
       .post<UploadPhotoResponse>(`${this.apiUrl}/photos`, formData)
       .pipe(
         tap(() => {
-          // Après un upload réussi, recharger les données utilisateur
           this.getMyProfile().subscribe();
         }),
-        map((response) => response.photo) // Extraction de l'objet 'photo'
+        map((response) => response.photo)
       );
   }
 
   setMainPhoto(photoId: number): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.apiUrl}/photos/${photoId}/set-main`, {}).pipe(
       tap(() => {
-        // Après avoir défini la photo principale, recharger les données utilisateur
         this.getMyProfile().subscribe();
       })
     );
@@ -96,7 +93,6 @@ export class ProfileService {
   deletePhoto(photoId: number): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${this.apiUrl}/photos/${photoId}`).pipe(
       tap(() => {
-        // Après la suppression d'une photo, recharger les données utilisateur
         this.getMyProfile().subscribe();
       })
     );
@@ -114,7 +110,7 @@ export class ProfileService {
   }
 
   searchProfiles(searchParams: HttpParams): Observable<UserResponseDto[]> {
-    return this.http.get<UserProfile[]>(`${this.apiUrl}/users/search`, {params: searchParams}).pipe(
+    return this.http.get<UserProfile[]>(`${this.apiUrl}/users/search`, { params: searchParams }).pipe(
       map(this.mapProfilesResponse),
       catchError(this.handleError)
     );
@@ -146,14 +142,12 @@ export class ProfileService {
       matchers: profile.matchers || [],
       visitors: profile.visitors || [],
 
-      // Adding missing required boolean properties
       isLiked: profile.isLiked || false,
       isUnliked: profile.isUnliked || false,
       isMatched: profile.isMatched || false,
       isBlocked: profile.isBlocked || false,
       isFakeReported: profile.isFakeReported || false,
 
-      // Adding Me-suffixed properties
       LikedMe: profile.LikedMe || false,
       UnlikedMe: profile.UnlikedMe || false,
       BlockedMe: profile.BlockedMe || false,
@@ -162,7 +156,6 @@ export class ProfileService {
   }
 
   private handleError(error: any): Observable<never> {
-    console.error('API Error:', error);
     return throwError(() => new Error(error.message || 'Server error'));
   }
 
@@ -203,7 +196,7 @@ export class ProfileService {
   }
 
   goToProfile(userId: number, router: Router) {
-    router.navigate(['/profile'], {queryParams: {id: userId}});
+    router.navigate(['/profile'], { queryParams: { id: userId } });
   }
 
 }

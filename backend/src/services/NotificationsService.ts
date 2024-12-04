@@ -1,11 +1,8 @@
 import NotificationsDAL from '../DataAccessLayer/NotificationsDAL';
-import {NotificationType, Notification} from '../models/Notifications';
-import {onlineUsers} from '../sockets/events/onlineUsers';
-import {NotificationEmitDto} from "../DTOs/notification/NotificationEmitDto";
-import UserServices from "./UserServices";
+import { NotificationType, Notification } from '../models/Notifications';
+import { onlineUsers } from '../sockets/events/onlineUsers';
 import UserDAL from "../DataAccessLayer/UserDAL";
 import BlockedUsersService from "./BlockedUsersService";
-import {UserBlockedResponseDto} from "../DTOs/blocked/UserBlockedResponseDto";
 
 class NotificationsService {
     async createNotification(
@@ -22,7 +19,6 @@ class NotificationsService {
             type
         );
 
-        // Vérifier si l'utilisateur cible est en ligne
         const userSockets = onlineUsers.get(targetUserId);
         if (userSockets) {
             userSockets.forEach((socket) => {

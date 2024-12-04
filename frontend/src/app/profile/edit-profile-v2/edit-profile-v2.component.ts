@@ -78,8 +78,7 @@ export class EditProfileV2 extends CreateProfileComponent {
           this.goToProfile();
           this.isLoading = false;
         },
-        error: (err) => {
-          console.error('Error updating user profile', err);
+        error: (error) => {
           this.toastService.show('Error updating user profile');
           this.isLoading = false;
         },

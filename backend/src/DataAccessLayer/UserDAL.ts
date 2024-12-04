@@ -1,17 +1,17 @@
 import db from "../config/knexConfig";
-import {BlockedUserResponseDto} from "../DTOs/users/BlockedUserResponseDto";
-import {UserLightResponseDto} from "../DTOs/users/UserLightResponseDto";
-import {UserResponseDto} from "../DTOs/users/UserResponseDto";
-import {UserCreateDto} from "../DTOs/users/UserCreateDto";
-import {Tag} from "../models/Tags";
-import {UserLoginPasswordCheckDto} from "../DTOs/users/UserLoginPasswordCheckDto";
-import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
-import {Gender} from "../models/Genders";
-import {UserEmailPatchDto} from "../DTOs/users/UserEmailPatchDto";
-import {User} from "../models/User";
-import {UserOtherResponseDto} from "../DTOs/users/UserOtherResponseDto";
-import {TagInCommonDto} from "../DTOs/users/TagInCommonDto";
-import {UserLightWithRelationsResponseDto} from "../DTOs/users/UserLightWithRelationsResponseDto";
+import { BlockedUserResponseDto } from "../DTOs/users/BlockedUserResponseDto";
+import { UserLightResponseDto } from "../DTOs/users/UserLightResponseDto";
+import { UserResponseDto } from "../DTOs/users/UserResponseDto";
+import { UserCreateDto } from "../DTOs/users/UserCreateDto";
+import { Tag } from "../models/Tags";
+import { UserLoginPasswordCheckDto } from "../DTOs/users/UserLoginPasswordCheckDto";
+import { UserUpdateDto } from "../DTOs/users/UserUpdateDto";
+import { Gender } from "../models/Genders";
+import { UserEmailPatchDto } from "../DTOs/users/UserEmailPatchDto";
+import { User } from "../models/User";
+import { UserOtherResponseDto } from "../DTOs/users/UserOtherResponseDto";
+import { TagInCommonDto } from "../DTOs/users/TagInCommonDto";
+import { UserLightWithRelationsResponseDto } from "../DTOs/users/UserLightWithRelationsResponseDto";
 
 class UserDAL {
 
@@ -20,29 +20,22 @@ class UserDAL {
             // Vérifie si l'utilisateur existe avant de tenter la mise à jour
             const user = await db('users').where('id', userId).first();
             if (!user) {
-                throw {status: 404, message: "Utilisateur non trouvé."};
+                throw { status: 404, message: "Utilisateur non trouvé." };
             }
 
-            // Effectuer la mise à jour
             await db('users')
                 .where('id', userId)
                 .update(userUpdate);
 
-            console.log(`Utilisateur avec id ${userId} mis à jour.`);
-
         } catch (e: any) {
-            if (e.code === '23505') {  // Violation d'unicité (par ex. email déjà pris)
-                console.error("Erreur: email déjà utilisé par un autre utilisateur.", e);
-                throw {status: 409, message: "Cet email est déjà pris."};
-            } else if (e.code === '23503') {  // Violation de contrainte de clé étrangère
-                console.error("Erreur: contrainte de clé étrangère non respectée.", e);
-                throw {status: 400, message: "La mise à jour viole une contrainte de clé étrangère."};
-            } else if (e.status === 404) {  // Cas où l'utilisateur n'est pas trouvé
-                console.error("Erreur: utilisateur non trouvé.", e);
-                throw e;  // La relancer directement
+            if (e.code === '23505') {
+                throw { status: 409, message: "Cet email est déjà pris." };
+            } else if (e.code === '23503') {
+                throw { status: 400, message: "La mise à jour viole une contrainte de clé étrangère." };
+            } else if (e.status === 404) {
+                throw e;
             } else {
-                console.error("Erreur lors de la mise à jour de l'utilisateur:", e);
-                throw {status: 400, message: "Erreur"};
+                throw { status: 400, message: "Erreur" };
             }
         }
     };
@@ -52,7 +45,7 @@ class UserDAL {
             // Vérifie si l'utilisateur existe avant de tenter la mise à jour
             const user = await db('users').where('id', userId).first();
             if (!user) {
-                throw {status: 404, message: "Utilisateur non trouvé."};
+                throw { status: 404, message: "Utilisateur non trouvé." };
             }
 
             // Effectuer la mise à jour
@@ -60,21 +53,16 @@ class UserDAL {
                 .where('id', userId)
                 .update(userEmailPatch);
 
-            console.log(`Utilisateur avec id ${userId} mis à jour.`);
 
         } catch (e: any) {
-            if (e.code === '23505') {  // Violation d'unicité (par ex. email déjà pris)
-                console.error("Erreur: email déjà utilisé par un autre utilisateur.", e);
-                throw {status: 409, message: "Cet email est déjà pris."};
-            } else if (e.code === '23503') {  // Violation de contrainte de clé étrangère
-                console.error("Erreur: contrainte de clé étrangère non respectée.", e);
-                throw {status: 400, message: "La mise à jour viole une contrainte de clé étrangère."};
-            } else if (e.status === 404) {  // Cas où l'utilisateur n'est pas trouvé
-                console.error("Erreur: utilisateur non trouvé.", e);
-                throw e;  // La relancer directement
+            if (e.code === '23505') {
+                throw { status: 409, message: "Cet email est déjà pris." };
+            } else if (e.code === '23503') {
+                throw { status: 400, message: "La mise à jour viole une contrainte de clé étrangère." };
+            } else if (e.status === 404) {
+                throw e;
             } else {
-                console.error("Erreur lors de la mise à jour de l'utilisateur:", e);
-                throw {status: 400, message: "Erreur"};
+                throw { status: 400, message: "Erreur" };
             }
         }
     };
@@ -86,47 +74,35 @@ class UserDAL {
                 .returning('id')
                 .then((rows) => rows.map(row => row.id));
 
-            console.log(`Nouvel utilisateur sauvegardé avec id ${userId}`);
             return userId;
         } catch (e: any) {
-            if (e.code === '23505') {  // Code PostgreSQL pour violation d'unicité
-                console.error("Erreur: utilisateur déjà présent en base de données.", e);
-                throw {status: 409, message: "L'email existe déjà."};
+            if (e.code === '23505') {
+                throw { status: 409, message: "L'email existe déjà." };
             } else {
-                console.error("Erreur lors de l'insertion de l'utilisateur:", e);
-                throw {status: 400, message: "Erreur."};
+                throw { status: 400, message: "Erreur." };
             }
         }
     }
 
     delete = async (userId: number): Promise<void> => {
         try {
-            // Vérifie si l'utilisateur existe avant de tenter la suppression
             const user = await db('users').where('id', userId).first();
             if (!user) {
-                throw {status: 404, message: "Utilisateur non trouvé."};
+                throw { status: 404, message: "Utilisateur non trouvé." };
             }
 
-            // Utilisation d'une transaction pour garantir la cohérence
             await db.transaction(async trx => {
-                // Supprimer les notifications liées à l'utilisateur (source_user et target_user)
                 await trx('notifications').where('source_user', userId).del();
                 await trx('notifications').where('target_user', userId).del();
-
-                // Supprimer l'utilisateur
                 await trx('users').where('id', userId).del();
             });
-
-            console.log(`Utilisateur avec id ${userId} supprimé.`);
         } catch (e: any) {
-            console.error(`Erreur lors de la suppression de l'utilisateur avec id ${userId}:`, e);
-
             if (e.status === 404) {
                 throw e;
             } else if (e.code === '23503') {
-                throw {status: 400, message: "Erreur : Contrainte de clé étrangère."};
+                throw { status: 400, message: "Erreur : Contrainte de clé étrangère." };
             } else {
-                throw {status: 400, message: "Erreur."};
+                throw { status: 400, message: "Erreur." };
             }
         }
     };
@@ -172,7 +148,6 @@ class UserDAL {
                 last_activity: user.last_activity,
             }));
         } catch (error) {
-            console.error("Error fetching users:", error);
             throw new Error("Could not fetch users");
         }
     }
@@ -223,7 +198,7 @@ class UserDAL {
                 .orderBy('viewed_at', 'desc');
 
             const visitorDetails = await this.getUserLightResponseList(
-                visitors.map(visit => ({id: visit.visiter_id}))
+                visitors.map(visit => ({ id: visit.visiter_id }))
             );
 
             const visitsWithDetails = visitorDetails.map(visitor => {
@@ -303,7 +278,6 @@ class UserDAL {
             } as UserResponseDto;
 
         } catch (error) {
-            console.error("Error fetching user:", error);
             throw new Error(`Could not fetch user id ${id}`);
         }
     };
@@ -312,7 +286,6 @@ class UserDAL {
         try {
             return await db('users').select('id', 'email', 'password').where('email', email).first();
         } catch (e) {
-            console.error("Error fetching users:", e);
             throw new Error("Could not fetch users");
         }
     }
@@ -413,7 +386,7 @@ class UserDAL {
         // Group tags by profile ID
         const tagsByUser = userTags.reduce((acc, tag) => {
             if (!acc[tag.profile_id]) acc[tag.profile_id] = [];
-            acc[tag.profile_id].push({tag_id: tag.tag_id, tag_name: tag.tag_name});
+            acc[tag.profile_id].push({ tag_id: tag.tag_id, tag_name: tag.tag_name });
             return acc;
         }, {});
 
@@ -569,20 +542,17 @@ class UserDAL {
                 } : undefined
             }));
         } catch (error) {
-            console.error('Erreur lors de la récupération des utilisateurs:', error);
-            throw {status: 400, message: 'Impossible de récupérer les utilisateurs'};
+            throw { status: 400, message: 'Impossible de récupérer les utilisateurs' };
         }
     }
 
     async updateOnlineStatus(userId: number, newStatus: boolean): Promise<void> {
         try {
-            // Vérifie si l'utilisateur existe avant de tenter la mise à jour
             const user = await db('users').where('id', userId).first();
             if (!user) {
-                throw {status: 404, message: "Utilisateur non trouvé."};
+                throw { status: 404, message: "Utilisateur non trouvé." };
             }
 
-            // Effectuer la mise à jour
             await db('users')
                 .where('id', userId)
                 .update('is_online', newStatus);
@@ -591,21 +561,15 @@ class UserDAL {
                 .where('id', userId)
                 .update('last_activity', new Date().toISOString());
 
-            console.log(`Utilisateur avec id ${userId} mis à jour.`);
-
         } catch (e: any) {
-            if (e.code === '23505') {  // Violation d'unicité (par ex. email déjà pris)
-                console.error("Erreur: email déjà utilisé par un autre utilisateur.", e);
-                throw {status: 409, message: "Cet email est déjà pris."};
-            } else if (e.code === '23503') {  // Violation de contrainte de clé étrangère
-                console.error("Erreur: contrainte de clé étrangère non respectée.", e);
-                throw {status: 400, message: "La mise à jour viole une contrainte de clé étrangère."};
-            } else if (e.status === 404) {  // Cas où l'utilisateur n'est pas trouvé
-                console.error("Erreur: utilisateur non trouvé.", e);
-                throw e;  // La relancer directement
+            if (e.code === '23505') {
+                throw { status: 409, message: "Cet email est déjà pris." };
+            } else if (e.code === '23503') {
+                throw { status: 400, message: "La mise à jour viole une contrainte de clé étrangère." };
+            } else if (e.status === 404) {
+                throw e;
             } else {
-                console.error("Erreur lors de la mise à jour de l'utilisateur:", e);
-                throw {status: 400, message: "Erreur"};
+                throw { status: 400, message: "Erreur" };
             }
         }
     };
@@ -614,9 +578,8 @@ class UserDAL {
         try {
             await db('users').where('id', userId).update('is_verified', false);
         } catch (e: any) {
-            if (e.status === 404) {  // Cas où l'utilisateur n'est pas trouvé
-                console.error("Erreur: utilisateur non trouvé.", e);
-                throw e;  // La relancer directement
+            if (e.status === 404) {
+                throw e;
             }
         }
     }
@@ -630,8 +593,7 @@ class UserDAL {
 
             return user?.username;
         } catch (error: any) {
-            console.error("Erreur lors de la récupération de l'utilisateur :", error);
-            throw error; // Relance l'erreur pour qu'elle puisse être gérée par l'appelant
+            throw error;
         }
     }
 
@@ -639,9 +601,8 @@ class UserDAL {
         try {
             return db('users').where('id', userId).select('first_name').first();
         } catch (e: any) {
-            if (e.status === 404) {  // Cas où l'utilisateur n'est pas trouvé
-                console.error("Erreur: utilisateur non trouvé.", e);
-                throw e;  // La relancer directement
+            if (e.status === 404) {
+                throw e;
             }
         }
     }
@@ -650,9 +611,8 @@ class UserDAL {
         try {
             await db('users').where('id', userId).update('is_verified', true);
         } catch (e: any) {
-            if (e.status === 404) {  // Cas où l'utilisateur n'est pas trouvé
-                console.error("Erreur: utilisateur non trouvé.", e);
-                throw e;  // La relancer directement
+            if (e.status === 404) {
+                throw e;
             }
         }
     }
@@ -661,9 +621,8 @@ class UserDAL {
         try {
             await db('profiles').where('owner_user_id', userId).update('fame_rating', newNote);
         } catch (e: any) {
-            if (e.status === 404) {  // Cas où l'utilisateur n'est pas trouvé
-                console.error("Erreur: utilisateur non trouvé.", e);
-                throw e;  // La relancer directement
+            if (e.status === 404) {
+                throw e;
             }
         }
     }
@@ -673,20 +632,12 @@ class UserDAL {
             const user: User | undefined = await db('users').select('id').where('id', userId).first();
             return !!user;
         } catch (error) {
-            console.error(`Erreur lors de la vérification de l'existence de l'utilisateur ${userId}:`, error);
-            throw {status: 400, message: 'Impossible de vérifier l\'existence de l\'utilisateur'};
+            throw { status: 400, message: 'Impossible de vérifier l\'existence de l\'utilisateur' };
         }
     }
 
-    /**
-     * Récupère les détails d'un utilisateur avec les statuts de relation par rapport à l'utilisateur actuel.
-     * @param currentUserId ID de l'utilisateur authentifié.
-     * @param userId ID de l'utilisateur ciblé.
-     * @returns UserOtherResponseDto ou null si l'utilisateur n'est pas trouvé.
-     */
     async getUserOtherById(currentUserId: number, userId: number): Promise<UserOtherResponseDto | null> {
         try {
-            // Fetch the target user's data
             const user = await db('users')
                 .select(
                     'users.id',
@@ -715,13 +666,11 @@ class UserDAL {
 
             if (!user) return null;
 
-            // Fetch the target user's tags
             const targetUserTags: Tag[] = await db('tags')
                 .select('tags.tag_id', 'tags.tag_name')
                 .join('profile_tag', 'tags.tag_id', 'profile_tag.profile_tag')
                 .where('profile_tag.profile_id', user.profile_id);
 
-            // Fetch the current user's profile ID
             const currentUser = await db('users')
                 .select('profile_id')
                 .where('id', currentUserId)
@@ -729,20 +678,17 @@ class UserDAL {
 
             let currentUserTags: Tag[] = [];
             if (currentUser) {
-                // Fetch the current user's tags
                 currentUserTags = await db('tags')
                     .select('tags.tag_id', 'tags.tag_name')
                     .join('profile_tag', 'tags.tag_id', 'profile_tag.profile_tag')
                     .where('profile_tag.profile_id', currentUser.profile_id);
             }
 
-            // Map target user's tags to include inCommon flag
             const tags: TagInCommonDto[] = targetUserTags.map(tag => ({
                 ...tag,
                 inCommon: currentUserTags.some(currentTag => currentTag.tag_id === tag.tag_id)
             }));
 
-            // Fetch other necessary data (photos, sexualPreferences, etc.)
             const photos = await db('photos')
                 .select('photo_id', 'url', 'description', 'owner_user_id')
                 .where('owner_user_id', userId);
@@ -752,7 +698,6 @@ class UserDAL {
                 .join('profile_sexual_preferences', 'genders.gender_id', 'profile_sexual_preferences.gender_id')
                 .where('profile_sexual_preferences.profile_id', user.profile_id);
 
-            // Fetch relationship statuses
             const [
                 isLikedRow,
                 isUnlikedRow,
@@ -760,14 +705,14 @@ class UserDAL {
                 isBlockedRow,
                 isFakeReportedRow
             ] = await Promise.all([
-                db('likes').where({user: currentUserId, user_liked: userId}).first(),
-                db('unlikes').where({user: currentUserId, user_unliked: userId}).first(),
+                db('likes').where({ user: currentUserId, user_liked: userId }).first(),
+                db('unlikes').where({ user: currentUserId, user_unliked: userId }).first(),
                 db('matches').where(function () {
-                    this.where({user_1: currentUserId, user_2: userId})
-                        .orWhere({user_1: userId, user_2: currentUserId});
+                    this.where({ user_1: currentUserId, user_2: userId })
+                        .orWhere({ user_1: userId, user_2: currentUserId });
                 }).first(),
-                db('blocked_users').where({blocker_id: currentUserId, blocked_id: userId}).first(),
-                db('fake_user_reporting').where({user_who_reported: currentUserId, reported_user: userId}).first(),
+                db('blocked_users').where({ blocker_id: currentUserId, blocked_id: userId }).first(),
+                db('fake_user_reporting').where({ user_who_reported: currentUserId, reported_user: userId }).first(),
             ]);
 
             const [
@@ -776,10 +721,10 @@ class UserDAL {
                 blockedMeRow,
                 fakeReportedMeRow
             ] = await Promise.all([
-                db('likes').where({user: userId, user_liked: currentUserId}).first(),
-                db('unlikes').where({user: userId, user_unliked: currentUserId}).first(),
-                db('blocked_users').where({blocker_id: userId, blocked_id: currentUserId}).first(),
-                db('fake_user_reporting').where({user_who_reported: userId, reported_user: currentUserId}).first(),
+                db('likes').where({ user: userId, user_liked: currentUserId }).first(),
+                db('unlikes').where({ user: userId, user_unliked: currentUserId }).first(),
+                db('blocked_users').where({ blocker_id: userId, blocked_id: currentUserId }).first(),
+                db('fake_user_reporting').where({ user_who_reported: userId, reported_user: currentUserId }).first(),
             ]);
 
             return {
@@ -804,7 +749,6 @@ class UserDAL {
                 FakeReportedMe: !!fakeReportedMeRow,
             };
         } catch (error) {
-            console.error("Error fetching user:", error);
             throw new Error(`Could not fetch user id ${userId}`);
         }
     }
@@ -820,11 +764,10 @@ class UserDAL {
             if (result) {
                 return;
             } else {
-                throw {status: 400, message: 'Impossible de vérifier l\'existence de l\'utilisateur'};
+                throw { status: 400, message: 'Impossible de vérifier l\'existence de l\'utilisateur' };
             }
         } catch (error) {
-            console.error('Erreur lors de la mise à jour :', error);
-            throw {status: 400, message: 'Erreur'};
+            throw { status: 400, message: 'Erreur' };
         }
     }
 
@@ -834,8 +777,6 @@ class UserDAL {
         }
 
         const userIds = userRows.map(user => user.id);
-
-        // Récupérer les informations de tous les utilisateurs en une seule requête
         const users = await db('users')
             .select(
                 'users.id',
@@ -858,7 +799,6 @@ class UserDAL {
             .leftJoin('locations', 'profiles.location', 'locations.location_id')
             .whereIn('users.id', userIds);
 
-        // Mapper les utilisateurs pour correspondre à l'interface UserLightResponseDto
         return users.map(user => ({
             id: user.id,
             username: user.username,

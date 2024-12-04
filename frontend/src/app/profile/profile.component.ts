@@ -1,30 +1,25 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute, Router, RouterModule} from '@angular/router';
-import {ProfileService} from '../../services/profile.service';
-import {UserResponseDto} from '../../DTOs/users/UserResponseDto';
-import {Gender} from '../../models/Genders';
-import {Tag} from '../../models/Tags';
-import {Photo} from '../../models/Photo';
-
-import {CommonModule} from '@angular/common';
-import {MatCardModule} from '@angular/material/card';
-import {MatButtonModule} from '@angular/material/button';
-import {MatIconModule} from '@angular/material/icon';
-import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import {finalize} from "rxjs";
-import {AuthService} from "../../services/auth.service";
-import {ChangeEmailComponent} from "./change-email/change-email.component";
-import {MatTooltip} from "@angular/material/tooltip";
-import {ChangeNameComponent} from "./change-name/change-name.component";
-import {UserCardComponent} from "../user-card/user-card.component";
-import {UserLightListComponent} from "../user-light-list/user-light-list.component";
-import {MatTabGroup, MatTabsModule} from "@angular/material/tabs";
-import {MatLabel} from "@angular/material/form-field";
-import {SocketService} from "../../services/socket.service";
-import {EditProfileV2} from "./edit-profile-v2/edit-profile-v2.component";
-import {CreateProfileComponent} from "./create-profile/create-profile.component";
-import {ChangePhotoComponent} from "./change-photo/change-photo.component";
-import {UserBlockedListComponent} from "../user-blocked-list/user-blocked-list.component";
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ProfileService } from '../../services/profile.service';
+import { UserResponseDto } from '../../DTOs/users/UserResponseDto';
+import { Gender } from '../../models/Genders';
+import { Tag } from '../../models/Tags';
+import { Photo } from '../../models/Photo';
+import { CommonModule } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { finalize } from "rxjs";
+import { AuthService } from "../../services/auth.service";
+import { ChangeEmailComponent } from "./change-email/change-email.component";
+import { MatTooltip } from "@angular/material/tooltip";
+import { ChangeNameComponent } from "./change-name/change-name.component";
+import { UserLightListComponent } from "../user-light-list/user-light-list.component";
+import { MatTabsModule } from "@angular/material/tabs";
+import { SocketService } from "../../services/socket.service";
+import { EditProfileV2 } from "./edit-profile-v2/edit-profile-v2.component";
+import { UserBlockedListComponent } from "../user-blocked-list/user-blocked-list.component";
 
 export enum EEditStep {
   'idle',
@@ -85,7 +80,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   initializeStep() {
     if (!this.user?.profile_id) {
-      console.log('User has no profile');
       this.editStep = EEditStep.create;
     } else {
       this.editStep = EEditStep.idle;
@@ -114,8 +108,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
         } else {
           this.hasMainPhoto = user.main_photo_url != null;
         }
-      },
-      error: () => {
       },
     });
   }
@@ -148,8 +140,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       next: (genders) => {
         this.genders = genders;
       },
-      error: (error) => {
-      },
     });
   }
 
@@ -175,10 +165,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.editStep = EEditStep.name;
   }
 
-  // onChangePhoto() {
-  //   this.editStep = EEditStep.photo;
-  // }
-
   resetStepToIdle() {
     this.loadUserProfile();
     this.editStep = EEditStep.idle;
@@ -193,7 +179,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
       Promise.all(uploadPromises)
         .then((newPhotos) => {
-          // Update user photos
           if (this.user && newPhotos) {
             this.user.photos = [
               ...(this.user.photos || []),
@@ -204,14 +189,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
           }
         })
         .catch((error) => {
-          console.error('Error uploading photos:', error);
         });
     }
   }
 
   setAsMainPhoto(photo: Photo) {
     if (!photo || !photo.photo_id) {
-      console.error('Invalid photo or photo ID');
       return;
     }
 
@@ -221,10 +204,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
           this.user.main_photo_id = photo.photo_id;
           this.loadUserProfile();
         }
-        console.log('Main photo set successfully');
-      },
-      error: (error) => {
-        console.error('Error setting main photo:', error);
       },
     });
   }
@@ -241,8 +220,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
           this.loadUserProfile();
 
         },
-        error: (error) => {
-        },
       });
     }
   }
@@ -253,7 +230,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   readConversationIfMatched() {
     if (this.user && this.user.isMatched) {
-      this.socketService.emit('conversation_read', {data: this.user.id});
+      this.socketService.emit('conversation_read', { data: this.user.id });
     }
   }
 
@@ -309,11 +286,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     ) {
       this.profileService.deleteProfile().subscribe({
         next: () => {
-          console.log('Profile deleted successfully');
           this.router.navigate(['/create-profile']);
-        },
-        error: (error) => {
-          console.error('Error deleting profile:', error);
         },
       });
     }
@@ -327,11 +300,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     ) {
       this.profileService.deleteUser().subscribe({
         next: () => {
-          console.log('User deleted successfully');
           this.router.navigate(['/login']);
-        },
-        error: (error) => {
-          console.error('Error deleting profile:', error);
         },
       });
     }
@@ -371,9 +340,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   private setProfileInterval() {
-    // Ne démarrez l'intervalle que si nous avons un profileId
     if (this.profileId) {
-      this.clearProfileInterval(); // Nettoyez d'abord tout intervalle existant
+      this.clearProfileInterval();
 
       this.profileInterval = setInterval(() => {
         this.profileService.getUserById(this.profileId!).subscribe({
@@ -381,12 +349,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
             if (user) {
               this.user = user;
             } else {
-              this.clearProfileInterval(); // Arrêtez l'intervalle si l'utilisateur n'est pas trouvé
+              this.clearProfileInterval();
               this.router.navigate(['/profile']);
             }
           },
           error: (error) => {
-            this.clearProfileInterval(); // Arrêtez l'intervalle en cas d'erreur
+            this.clearProfileInterval();
             if (error.status === 401) {
               this.router.navigate(['/home']);
             } else {

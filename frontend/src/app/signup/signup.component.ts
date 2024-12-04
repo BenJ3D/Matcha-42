@@ -17,7 +17,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { AuthService } from '../../services/auth.service';
 import { UserCreateDto } from '../../DTOs/users/UserCreateDto';
-import { SignupResponseDto } from '../../DTOs/signup/SignupResponseDto';
 
 @Component({
   selector: 'app-signup',
@@ -48,10 +47,10 @@ export class SignupComponent {
   ) {
     this.form = this.fb.group(
       {
-        username: ['', Validators.required],
-        first_name: ['', Validators.required],
-        last_name: ['', Validators.required],
-        email: ['', [Validators.required, Validators.email]],
+        username: ['', [Validators.required, Validators.maxLength(50)]],
+        first_name: ['', [Validators.required, Validators.maxLength(255)]],
+        last_name: ['', [Validators.required, Validators.maxLength(255)]],
+        email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
         password: ['', [Validators.required, Validators.minLength(5)]],
         confirmPassword: ['', Validators.required],
       },
@@ -69,7 +68,6 @@ export class SignupComponent {
 
   onSubmit(): void {
     if (this.form.invalid) {
-      console.log('Invalid form');
       return;
     }
 
@@ -85,14 +83,12 @@ export class SignupComponent {
     };
 
     this.authService.signup(userData).subscribe({
-      next: (response: SignupResponseDto) => {
+      next: () => {
         this.isLoading = false;
         this.form.enable();
-        console.log('Signup successful, user ID:', response.userId);
         this.router.navigate(['/login']);
       },
       error: (error) => {
-        console.log(error);
         this.isLoading = false;
         this.form.enable();
       },

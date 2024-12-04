@@ -1,18 +1,17 @@
 import zxcvbn from 'zxcvbn';
 import config from "../config/config";
 import UserDAL from "../DataAccessLayer/UserDAL";
-import {PasswordService} from "./PasswordService";
+import { PasswordService } from "./PasswordService";
 import profileDAL from "../DataAccessLayer/ProfileDAL";
-import {UserCreateDto} from "../DTOs/users/UserCreateDto";
-import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
-import {UserResponseDto} from "../DTOs/users/UserResponseDto";
+import { UserCreateDto } from "../DTOs/users/UserCreateDto";
+import { UserUpdateDto } from "../DTOs/users/UserUpdateDto";
+import { UserResponseDto } from "../DTOs/users/UserResponseDto";
 import EmailVerificationService from "./EmailVerificationService";
-import {UserEmailPatchDto} from "../DTOs/users/UserEmailPatchDto";
-import {UserLightResponseDto} from "../DTOs/users/UserLightResponseDto";
-import {UserOtherResponseDto} from '../DTOs/users/UserOtherResponseDto';
-import {UserLightWithRelationsResponseDto} from "../DTOs/users/UserLightWithRelationsResponseDto";
-import TagsService from "./TagsService";
-import {haversineDistance} from "../utils/haversineDistance";
+import { UserEmailPatchDto } from "../DTOs/users/UserEmailPatchDto";
+import { UserLightResponseDto } from "../DTOs/users/UserLightResponseDto";
+import { UserOtherResponseDto } from '../DTOs/users/UserOtherResponseDto';
+import { UserLightWithRelationsResponseDto } from "../DTOs/users/UserLightWithRelationsResponseDto";
+import { haversineDistance } from "../utils/haversineDistance";
 
 class UserServices {
     async getAllUsers(): Promise<UserLightResponseDto[]> {
@@ -41,7 +40,6 @@ class UserServices {
         newUser.email = newUser.email.toLowerCase();
         newUser.password = await PasswordService.hashPassword(newUser.password);
         const userId = await UserDAL.save(newUser);
-        // console.log(`DBG userID = ${JSON.stringify(userId)}`);
         await EmailVerificationService.sendVerificationEmail(userId, newUser.email, newUser.first_name);
         return userId;
     }
@@ -54,7 +52,7 @@ class UserServices {
         const userId = existingUser.id;
         const username = existingUser.username;
         if (existingUser.email == userEmailPatchDto.email) {
-            throw {status: 409, message: 'Email identique à l\'actuel'};
+            throw { status: 409, message: 'Email identique à l\'actuel' };
         }
         await UserDAL.emailUpdate(userId, userEmailPatchDto);
         await UserDAL.resetIsVerified(userId);
@@ -66,7 +64,7 @@ class UserServices {
         const userEmail = user.email;
         const username = user.username;
         if (user.is_verified) {
-            throw {status: 409, message: 'Votre email est déjà vérifié'};
+            throw { status: 409, message: 'Votre email est déjà vérifié' };
         }
         await EmailVerificationService.sendVerificationEmail(userId, userEmail, username);
     }
@@ -98,7 +96,7 @@ class UserServices {
 
         const userProfile = await profileDAL.findByUserId(userId);
         if (!userProfile) {
-            throw {status: 404, message: 'Profil non trouvé'};
+            throw { status: 404, message: 'Profil non trouvé' };
         }
 
         const sexualPreferences = await profileDAL.getSexualPreferences(userProfile.profile_id);
@@ -157,19 +155,14 @@ class UserServices {
             const maxFameRating = Math.max(...usersSearch.map(u => u.fame_rating || 0));
 
             usersSearch.forEach(user => {
-                // a. Calculer le score de distance (plus proche = score plus élevé)
                 const distanceScore = user.distance != null && maxDistance > 0
                     ? (maxDistance - user.distance) / maxDistance
                     : 0;
 
-                // b. Calculer le score de tags en commun
                 const commonTags = user.tags ? user.tags.filter(tag => currentUserTagIds.includes(tag.tag_id)).length : 0;
                 const commonTagsScore = maxCommonTags > 0 ? commonTags / maxCommonTags : 0;
-
-                // c. Calculer le score de fame_rating
                 const fameRatingScore = maxFameRating > 0 ? user.fame_rating / maxFameRating : 0;
 
-                // d. Calculer le score total
                 user.totalScore =
                     weightDistance * distanceScore +
                     weightCommonTags * commonTagsScore +
@@ -218,12 +211,12 @@ class UserServices {
     async updateFameRating(userId: number, addNote: number): Promise<void> {
         const userProfile = await profileDAL.findByUserId(userId);
         if (!userProfile) {
-            throw {status: 404, message: 'Profil non trouvé'};
+            throw { status: 404, message: 'Profil non trouvé' };
         }
 
         const currentRating = Number(userProfile.fame_rating);
         if (isNaN(currentRating)) {
-            throw {status: 400, message: 'fame_rating invalide'};
+            throw { status: 400, message: 'fame_rating invalide' };
         }
 
         let newNote = currentRating + addNote;

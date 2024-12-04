@@ -1,6 +1,5 @@
-import { TagInCommonDto } from './../DTOs/users/TagInCommonDto';
 import TagDAL from '../DataAccessLayer/TagDAL';
-import {Tag} from '../models/Tags';
+import { Tag } from '../models/Tags';
 
 class TagsService {
     async getAllTags(): Promise<Tag[]> {

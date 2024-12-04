@@ -1,8 +1,8 @@
 import MatchesDAL from '../DataAccessLayer/MatchesDAL';
 import userDAL from '../DataAccessLayer/UserDAL';
-import {UserLightResponseDto} from '../DTOs/users/UserLightResponseDto';
+import { UserLightResponseDto } from '../DTOs/users/UserLightResponseDto';
 import NotificationsService from "./NotificationsService";
-import {NotificationType} from "../models/Notifications";
+import { NotificationType } from "../models/Notifications";
 import UserServices from "./UserServices";
 import fameRatingConfig from "../config/fameRating.config";
 
@@ -14,12 +14,10 @@ class MatchesService {
             return [];
         }
 
-        // Récupérer les IDs des utilisateurs avec qui l'utilisateur est matché
         const matchedUserIds = matches.map(match => {
             return match.user_1 === userId ? match.user_2 : match.user_1;
         });
 
-        // Récupérer les informations des utilisateurs matchés
         const matchedUsers = await userDAL.getUsersByIds(matchedUserIds);
 
         return matchedUsers;
@@ -30,7 +28,6 @@ class MatchesService {
         await UserServices.updateFameRating(userId1, fameRatingConfig.match);
         await UserServices.updateFameRating(userId2, fameRatingConfig.match);
 
-        // notifications MATCH pour les deux users
         await NotificationsService.createNotification(
             userId1,
             userId2,

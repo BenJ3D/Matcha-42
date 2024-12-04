@@ -2,24 +2,21 @@ import transporter from '../config/mailer';
 import config from '../config/config';
 import db from '../config/knexConfig';
 import jwtService from "./JwtService";
-import {IJwtPayload} from "../types/IJwtPayload";
+import { IJwtPayload } from "../types/IJwtPayload";
 import UserServices from "./UserServices";
 
 class EmailVerificationService {
     async sendVerificationEmail(userId: number, email: string, firstName: string): Promise<void> {
         try {
-            // Générer un token JWT pour la vérification
             const payload: IJwtPayload = {
                 id: userId,
             }
 
             const token: string = jwtService.generateGenericToken(payload, config.jwtEmailSecret + email, config.jwtEmailExpiration);
 
-            // Créer le lien de vérification
             const verificationLink = `${config.frontUrl}callback`;
             const fullVerificationLink = `${verificationLink}/verify-email?token=${token}`;
 
-            // Envoyer l'email de vérification
             const mailOptions = {
                 from: config.emailFrom,
                 to: email,
@@ -32,12 +29,8 @@ class EmailVerificationService {
                 `,
             };
 
-            console.log(`Sending verification email to ${email} with token: ${token} | payload: ${JSON.stringify(payload)}`);
-            console.log(`Validation link URL ${fullVerificationLink}`);
             await transporter.sendMail(mailOptions);
-            console.log(`Verification email sent successfully to ${email} | id: ${JSON.stringify(userId)}`);
         } catch (error) {
-            console.error(`Error sending verification email to ${email}:`, error);
             throw {
                 status: 400,
                 message: 'Impossible d\'envoyer l\'email de vérification.'
@@ -56,7 +49,6 @@ class EmailVerificationService {
                 };
             }
 
-            //Verifier si l' user est déjà is_verified=true
             const user = await UserServices.getUserById(userId);
             if (!user) {
                 throw {
@@ -65,7 +57,7 @@ class EmailVerificationService {
                 };
             }
             if (user.is_verified) {
-                return {success: false, message: 'Utilisateur déjà vérifié.'};
+                return { success: false, message: 'Utilisateur déjà vérifié.' };
             }
             const payload = jwtService.verifyGenericToken(token, config.jwtEmailSecret + user.email);
             if (!payload) {
@@ -75,20 +67,15 @@ class EmailVerificationService {
                 };
             }
 
-            // Mettre à jour l'utilisateur comme vérifié
-            const updatedRows = await db('users').where({id: userId}).update({is_verified: true});
+            const updatedRows = await db('users').where({ id: userId }).update({ is_verified: true });
 
             if (updatedRows === 0) {
-                console.log(`User with ID ${userId} not found for verification.`);
-                return {success: false, message: 'Utilisateur non trouvé.'};
+                return { success: false, message: 'Utilisateur non trouvé.' };
             }
 
-            console.log(`Email verified successfully for user ID ${userId}`);
-            return {success: true, message: 'Email vérifié avec succès.'};
+            return { success: true, message: 'Email vérifié avec succès.' };
         } catch (error) {
-            console.error('Erreur lors de la vérification de l\'email:', error);
             throw Error();
-            return {success: false, message: 'Token de vérification invalide ou expiré.'};
         }
     }
 }

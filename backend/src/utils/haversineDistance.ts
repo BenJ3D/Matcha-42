@@ -1,7 +1,7 @@
 export function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
     const toRadians = (degrees: number) => degrees * Math.PI / 180;
 
-    const R = 6371; // Rayon de la Terre en kilomètres
+    const R = 6371;
 
     const dLat = toRadians(lat2 - lat1);
     const dLon = toRadians(lon2 - lon1);
@@ -18,5 +18,5 @@ export function haversineDistance(lat1: number, lon1: number, lat2: number, lon2
 
     const distance = R * c;
 
-    return distance; // Distance en kilomètres
+    return distance;
 }

@@ -11,23 +11,22 @@ import {
   ChangeDetectorRef
 } from '@angular/core';
 import { Message } from '../../../models/Message';
-import {Subscription} from 'rxjs';
-import {SocketService} from '../../../services/socket.service';
-import {AuthService} from '../../../services/auth.service';
-import {MessageDto} from '../../../DTOs/chat/MessageDto';
-import {CreateMessageDto} from '../../../DTOs/chat/CreateMessageDto';
-import {HttpClient} from '@angular/common/http';
-import {UserLightResponseDto} from "../../../DTOs/users/UserLightResponseDto";
-import {MatIconModule} from "@angular/material/icon";
-import {CommonModule, DatePipe, NgClass, NgForOf} from "@angular/common";
-import {MatFormFieldModule} from "@angular/material/form-field";
-import {FormsModule} from "@angular/forms";
-import {MatButtonModule} from "@angular/material/button";
-import {MatInputModule} from "@angular/material/input";
-import {ApiService} from "../../../services/api.service";
-import {ProfileService} from "../../../services/profile.service";
-import {Router} from "@angular/router";
-import {MatTooltip} from "@angular/material/tooltip";
+import { Subscription } from 'rxjs';
+import { SocketService } from '../../../services/socket.service';
+import { AuthService } from '../../../services/auth.service';
+import { MessageDto } from '../../../DTOs/chat/MessageDto';
+import { CreateMessageDto } from '../../../DTOs/chat/CreateMessageDto';
+import { UserLightResponseDto } from "../../../DTOs/users/UserLightResponseDto";
+import { MatIconModule } from "@angular/material/icon";
+import { CommonModule } from "@angular/common";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { FormsModule } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatInputModule } from "@angular/material/input";
+import { ApiService } from "../../../services/api.service";
+import { ProfileService } from "../../../services/profile.service";
+import { Router } from "@angular/router";
+import { MatTooltip } from "@angular/material/tooltip";
 
 @Component({
   selector: 'app-conversation',
@@ -67,21 +66,17 @@ export class ConversationComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-
-    // S'abonner aux messages globaux
     this.messageSubscription = this.socketService.messages$.subscribe((msg) => {
       this.scrollToBottom();
-      this.cdr.markForCheck(); // Demander une vérification des changements
+      this.cdr.markForCheck();
     });
 
-
-    // Scroll au bas lors du chargement initial
     this.scrollToBottom();
   }
-  
+
   toggleLike(message: Message) {
     if (message.owner_user === this.getCurrentUserId()) {
-      return; // Can't like your own message
+      return;
     }
 
     const endpoint = `messages/${message.message_id}/${message.is_liked ? 'unlike' : 'like'}`;
@@ -90,19 +85,13 @@ export class ConversationComponent implements OnInit, OnDestroy {
       next: () => {
         message.is_liked = !message.is_liked;
       },
-      error: (error) => {
-        console.error('Error updating like status:', error);
-      },
     });
   }
-  
+
   isMessageLiked(messageId: string): boolean {
     return this.messageLikes.get(messageId) || false;
   }
 
-  /**
-   * Envoie un message à l'utilisateur sélectionné via une requête HTTP POST.
-   */
   sendMessage(): void {
     if (this.newMessage.trim() && this.user) {
       const messageDto: CreateMessageDto = {
@@ -115,17 +104,11 @@ export class ConversationComponent implements OnInit, OnDestroy {
           this.newMessage = '';
           this.scrollToBottom();
           this.cdr.detectChanges();
-          // Le message sera ajouté via le socket, donc pas besoin de l'ajouter ici
-        },
-        error: (error) => {
         },
       });
     }
   }
 
-  /**
-   * Fait défiler automatiquement la liste des messages vers le bas.
-   */
   private scrollToBottom(): void {
     setTimeout(() => {
       if (this.messageList && this.messageList.nativeElement) {
@@ -134,9 +117,7 @@ export class ConversationComponent implements OnInit, OnDestroy {
     }, 100);
   }
 
-  /**
-   * Ferme la conversation.
-   */
+
   closeConversation(): void {
     this.close.emit();
   }
@@ -147,9 +128,6 @@ export class ConversationComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Récupère l'ID de l'utilisateur actuel à partir de AuthService.
-   */
   getCurrentUserId(): number {
     return this.authService.getCurrentUserId();
   }

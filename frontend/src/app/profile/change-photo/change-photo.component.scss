@@ -4,24 +4,23 @@
 
 .edit-profile-container {
   display: flex;
-  align-items: flex-start; // Change from center to allow scrolling
+  align-items: flex-start;
   justify-content: center;
   height: 100%;
   background-color: #f5f5f5;
   padding: 10px;
-  overflow-x: hidden; // Prevent horizontal scrolling
+  overflow-x: hidden;
 
   ::ng-deep .mat-horizontal-stepper-wrapper {
     width: 100%;
-    min-width: 320px; // Minimum width for mobile
-    max-width: 600px; // Maximum width for larger screens
+    min-width: 320px;
+    max-width: 600px;
     background: white;
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 15px;
     margin: 10px;
 
-    // Make stepper responsive
     @media (max-width: 600px) {
       .mat-horizontal-stepper-header-container {
         padding: 0 8px;
@@ -65,11 +64,10 @@
 
     button {
       flex: 1;
-      min-width: auto; // Allow buttons to shrink
+      min-width: auto;
     }
   }
 
-  // Photo section improvements
   .photo-upload-section {
     width: 100%;
     margin: 16px 0;
@@ -119,7 +117,6 @@
     }
   }
 
-  // Add media queries for different screen sizes
   @media (max-width: 375px) {
     padding: 5px;
 

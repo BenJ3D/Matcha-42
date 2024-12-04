@@ -3,7 +3,6 @@ import { ProfileService } from './../../services/profile.service';
 import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { UserResponseDto } from '../../DTOs/users/UserResponseDto';
 import { Router } from '@angular/router';
 import * as L from 'leaflet';
 
@@ -38,14 +37,13 @@ export class NearbyComponent implements OnInit {
     @Inject(PLATFORM_ID) private platformId: Object,
     private profileService: ProfileService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.initMap();
       this.profileService.getMyProfile().subscribe((user) => {
         this.currentPosition = { lat: user.location?.latitude, lng: user.location?.longitude };
-        console.log('Current position:', this.currentPosition);
         this.map.setView([this.currentPosition.lat, this.currentPosition.lng], 13);
         this.addCurrentPositionMarker();
       });
@@ -62,15 +60,6 @@ export class NearbyComponent implements OnInit {
 
     this.addCurrentPositionMarker();
     this.addNearbyUsersMarkers();
-
-    // if ('geolocation' in navigator) {
-    //   navigator.geolocation.getCurrentPosition((position) => {
-    //     this.currentPosition = { lat: position.coords.latitude, lng: position.coords.longitude };
-    //     this.map.setView([this.currentPosition.lat, this.currentPosition.lng], 13);
-    //     this.addCurrentPositionMarker();
-    //     this.addNearbyUsersMarkers();
-    //   });
-    // }
   }
 
   private addCurrentPositionMarker(): void {
@@ -91,7 +80,7 @@ export class NearbyComponent implements OnInit {
     let params = new HttpParams();
     this.profileService.searchProfiles(params).subscribe((users) => {
       this.nearbyUsers = users
-        .filter((user): user is (typeof user & { location: NonNullable<typeof user.location> }) => 
+        .filter((user): user is (typeof user & { location: NonNullable<typeof user.location> }) =>
           !!user.location?.latitude && !!user.location?.longitude
         )
         .map((user) => ({
@@ -107,12 +96,11 @@ export class NearbyComponent implements OnInit {
             city_name: user.location.city_name
           }
         }));
-      
+
       this.addNearbyUsersMarkers();
-      console.log('Fetched nearby users:', this.nearbyUsers);
     });
   }
-  
+
   private addNearbyUsersMarkers(): void {
     this.nearbyUsers.forEach(user => {
       if (user.lat && user.lng) {
@@ -128,7 +116,7 @@ export class NearbyComponent implements OnInit {
           iconSize: [40, 40],
           iconAnchor: [20, 40]
         });
-  
+
         const marker = L.marker([user.lat, user.lng], { icon: customIcon })
           .addTo(this.map)
           .bindPopup(`
@@ -149,7 +137,7 @@ export class NearbyComponent implements OnInit {
           `, {
             className: 'custom-popup'
           });
-  
+
         marker.on('click', () => {
           this.router.navigate(['/profile'], { queryParams: { id: user.id } });
         });

@@ -1,5 +1,5 @@
 import db from '../config/knexConfig';
-import {Gender} from '../models/Genders';
+import { Gender } from '../models/Genders';
 
 class GenderDAL {
     async getAllGenders(): Promise<Gender[]> {
@@ -7,8 +7,7 @@ class GenderDAL {
             const genders = await db('genders').select('*');
             return genders;
         } catch (error) {
-            console.error('Erreur lors de la récupération des genres:', error);
-            throw {status: 400, message: 'Impossible de récupérer les genres'};
+            throw { status: 400, message: 'Impossible de récupérer les genres' };
         }
     }
 }

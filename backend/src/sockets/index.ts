@@ -35,9 +35,7 @@ const initializeSockets = (io: Server) => {
 
     io.on("connection", (socket: Socket) => {
         const userId = socket.data.userId as number;
-        console.log(`User ${userId} connecté avec le socket ${socket.id}`);
 
-        // Ajouter le socket à la map onlineUsers
         if (!onlineUsers.has(userId)) {
             onlineUsers.set(userId, new Set());
             userServices.setOnlineUser(userId);
@@ -58,9 +56,7 @@ const initializeSockets = (io: Server) => {
                         await userServices.setOfflineUser(userId);
                     }
                 }
-                console.log(`User ${userId} déconnecté du socket ${socket.id}`);
             } catch (error) {
-                console.error(`Erreur lors de la déconnexion de l'utilisateur ${userId}:`, error);
             }
         });
     });

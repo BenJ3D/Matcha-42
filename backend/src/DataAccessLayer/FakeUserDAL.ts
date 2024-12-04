@@ -5,7 +5,6 @@ class FakeUserDAL {
         try {
             await db('fake_user_reporting').insert({ user_who_reported: userWhoReported, reported_user: reportedUser });
         } catch (error: any) {
-            console.error(`Erreur lors de la déclaration de l'utilisateur ${reportedUser} comme faux par ${userWhoReported}:`, error);
             throw { status: 400, message: 'Impossible de déclarer l\'utilisateur comme faux' };
         }
     }
@@ -19,7 +18,6 @@ class FakeUserDAL {
                 throw { status: 404, message: 'Déclaration non trouvée' };
             }
         } catch (error: any) {
-            console.error(`Erreur lors du retrait de la déclaration de l'utilisateur ${reportedUser} par ${userWhoReported}:`, error);
             throw { status: error.status || 500, message: error.message || 'Impossible de retirer la déclaration' };
         }
     }
@@ -29,7 +27,6 @@ class FakeUserDAL {
             const count = await db('fake_user_reporting').where('reported_user', userId).count('id as count');
             return parseInt(count[0].count.toString(), 10) > 0;
         } catch (error) {
-            console.error(`Erreur lors de la vérification si l'utilisateur ${userId} est faux:`, error);
             throw { status: 400, message: 'Impossible de vérifier l\'état de l\'utilisateur' };
         }
     }

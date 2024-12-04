@@ -1,19 +1,19 @@
 #!/bin/sh
 
-# Remplacement des valeurs dynamiques pour apiUrl
+# Replace dynamic values for apiUrl
 sed -i "s|^.*window.__env.apiUrl = .*|window.__env.apiUrl = '$BACK_URL';|g" /app/src/assets/env.js
 
-# Remplacement des valeurs dynamiques pour frontUrl
+# Replace dynamic values for frontUrl
 sed -i "s|^.*window.__env.frontUrl = .*|window.__env.frontUrl = '$FRONT_URL';|g" /app/src/assets/env.js
 
-# Démarrer l'application
+# Start the application
 exec "$@"
 
 
 ##!/bin/sh
-## Remplacement des variables dans le fichier env.js
+## Replace variables in the env.js file
 #sed -i "s|\${BACK_URL}|$BACK_URL|g" /app/src/assets/env.js
 #sed -i "s|\${FRONT_URL}|$FRONT_URL|g" /app/src/assets/env.js
 #
-## Démarrer l'application
+## Start the application
 #exec "$@"

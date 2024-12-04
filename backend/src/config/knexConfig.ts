@@ -2,7 +2,7 @@ import {Knex, knex} from 'knex';
 import config from './config'
 
 const knexConfig: Knex.Config = {
-    client: 'pg', // Remplacez par 'pg' pour PostgreSQL, 'sqlite3' pour SQLite, etc.
+    client: 'pg',
     connection: {
         host: config.databaseUrl,
         user: config.databaseUser,

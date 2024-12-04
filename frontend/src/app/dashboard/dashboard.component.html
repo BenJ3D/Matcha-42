@@ -3,39 +3,25 @@
     <router-outlet></router-outlet>
   </div>
   <nav [tabPanel]="tabPanel" class="bottom-tab-bar" mat-tab-nav-bar>
-    <a #rla="routerLinkActive"
-       *ngFor="let tab of tabs"
-       [active]="rla.isActive"
-       [routerLink]="tab.path" mat-tab-link
-       routerLinkActive>
+    <a #rla="routerLinkActive" *ngFor="let tab of tabs" [active]="rla.isActive" [routerLink]="tab.path" mat-tab-link
+      routerLinkActive>
 
-      <!-- Cas pour l'onglet 'chat' -->
       <ng-container *ngIf="tab.path === 'chat'; else notificationBadge">
-        <mat-icon [matBadge]="(unreadChatMarker$ | async) ? (countChatUnreadMarker$ | async) : null"
-                  aria-hidden="false"
-                  matBadgeColor="warn"
-                  matBadgeOverlap="false"
-                  matBadgeSize="small"
-        >
+        <mat-icon [matBadge]="(unreadChatMarker$ | async) ? (countChatUnreadMarker$ | async) : null" aria-hidden="false"
+          matBadgeColor="warn" matBadgeOverlap="false" matBadgeSize="small">
           {{ tab.icon }}
         </mat-icon>
       </ng-container>
 
-      <!-- Cas pour l'onglet 'notification' -->
       <ng-template #notificationBadge>
         <ng-container *ngIf="tab.path === 'notification'; else defaultIcon">
           <mat-icon [matBadge]="(notificationMarker$ | async) ? (countNotificationMarker$ | async) : null"
-                    aria-hidden="false"
-                    matBadgeColor="warn"
-                    matBadgeOverlap="false"
-                    matBadgeSize="small"
-          >
+            aria-hidden="false" matBadgeColor="warn" matBadgeOverlap="false" matBadgeSize="small">
             {{ tab.icon }}
           </mat-icon>
         </ng-container>
       </ng-template>
 
-      <!-- Icône par défaut pour les autres onglets -->
       <ng-template #defaultIcon>
         <mat-icon>{{ tab.icon }}</mat-icon>
       </ng-template>

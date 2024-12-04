@@ -5,8 +5,7 @@ export class PasswordService {
         try {
             return await bcrypt.hash(password, 10);
         } catch (error) {
-            console.error('Error hashing password:', error);
-            throw error; // Re-lance l'erreur pour être capturée dans createUser
+            throw error;
         }
     }
 

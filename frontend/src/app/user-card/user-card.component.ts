@@ -1,12 +1,12 @@
-import {Component, Input} from '@angular/core';
-import {UserResponseDto} from "../../DTOs/users/UserResponseDto";
-import {UserLightResponseDto} from "../../DTOs/users/UserLightResponseDto";
-import {MatCardImage} from "@angular/material/card";
-import {MatIcon} from "@angular/material/icon";
-import {MatIconButton} from "@angular/material/button";
-import {ProfileService} from "../../services/profile.service";
-import {Router} from "@angular/router";
-import {SlicePipe} from "@angular/common";
+import { Component, Input } from '@angular/core';
+import { UserResponseDto } from "../../DTOs/users/UserResponseDto";
+import { UserLightResponseDto } from "../../DTOs/users/UserLightResponseDto";
+import { MatCardImage } from "@angular/material/card";
+import { MatIcon } from "@angular/material/icon";
+import { MatIconButton } from "@angular/material/button";
+import { ProfileService } from "../../services/profile.service";
+import { Router } from "@angular/router";
+import { SlicePipe } from "@angular/common";
 
 @Component({
   selector: 'app-user-card',
@@ -31,8 +31,7 @@ export class UserCardComponent {
   @Input() loadUserCallBack!: () => void;
 
   goToProfile(userId: number) {
-    this.router.navigate(['/profile'], {queryParams: {id: userId}});
+    this.router.navigate(['/profile'], { queryParams: { id: userId } });
     this.loadUserCallBack();
   }
-
 }

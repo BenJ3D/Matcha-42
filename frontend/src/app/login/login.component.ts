@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -6,17 +6,17 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { AuthService } from '../../services/auth.service';
-import { LoginDto } from '../../DTOs/login/LoginDto';
-import { LoginResponseDTO } from '../../DTOs/login/LoginResponseDTO';
-import { Router, RouterModule } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { CommonModule } from '@angular/common';
+import {AuthService} from '../../services/auth.service';
+import {LoginDto} from '../../DTOs/login/LoginDto';
+import {LoginResponseDTO} from '../../DTOs/login/LoginResponseDTO';
+import {Router, RouterModule} from '@angular/router';
+import {MatCardModule} from '@angular/material/card';
+import {MatInputModule} from '@angular/material/input';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {CommonModule} from '@angular/common';
 
 @Component({
   selector: 'app-login',
@@ -47,8 +47,8 @@ export class LoginComponent {
     private authService: AuthService
   ) {
     this.form = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(5)]],
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
+      password: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(255)]],
     });
   }
 
@@ -69,7 +69,6 @@ export class LoginComponent {
           this.router.navigate(['/home']);
         },
         error: (error) => {
-          console.log(error);
           this.isLoading = false;
           this.form.enable();
         },

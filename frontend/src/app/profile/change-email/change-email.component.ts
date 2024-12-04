@@ -1,17 +1,14 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {EEditStep} from "../profile.component";
-import {MatIcon} from "@angular/material/icon";
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
-import {Router} from "@angular/router";
-import {AuthService} from "../../../services/auth.service";
-import {MatError, MatFormField, MatFormFieldModule} from "@angular/material/form-field";
-import {MatInputModule} from "@angular/material/input";
-import {MatButtonModule} from "@angular/material/button";
-import * as http from "node:http";
-import {ProfileService} from "../../../services/profile.service";
-import {UserResponseDto} from "../../../DTOs/users/UserResponseDto";
-import {ToastService} from "../../../services/toast.service";
+import { Component, Input, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatIcon } from "@angular/material/icon";
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import { AuthService } from "../../../services/auth.service";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatInputModule } from "@angular/material/input";
+import { MatButtonModule } from "@angular/material/button";
+import { ProfileService } from "../../../services/profile.service";
+import { UserResponseDto } from "../../../DTOs/users/UserResponseDto";
+import { ToastService } from "../../../services/toast.service";
 
 @Component({
   selector: 'app-change-email',
@@ -62,7 +59,7 @@ export class ChangeEmailComponent implements OnInit {
   onSubmit() {
     if (this.emailForm.value.newEmail === this.user?.email) {
       this.toastService.show('The email is identical to the old email.');
-      this.emailForm.setValue({newEmail: ''});
+      this.emailForm.setValue({ newEmail: '' });
       this.emailForm.touched;
       return;
     }
