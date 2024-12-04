@@ -55,7 +55,6 @@ export class SocketService implements OnDestroy {
     });
 
     this.socket.on('connect_error', (error: any) => {
-      console.error('Erreur de connexion Socket.IO:', error);
       this.socketConnected$.next(false);
     });
 

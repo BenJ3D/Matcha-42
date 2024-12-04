@@ -12,7 +12,6 @@ class VisitedProfilesController {
             const {visitsMade, visitsReceived} = await VisitedProfilesService.getVisitHistoryForUser(userId);
             res.json({visitsMade, visitsReceived});
         } catch (error: any) {
-            console.error('Erreur lors de la récupération de l\'historique des visites:', error);
             res.status(error.status || 400).json({error: error.message || 'Erreur'});
         }
     }

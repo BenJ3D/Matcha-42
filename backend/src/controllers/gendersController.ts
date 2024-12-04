@@ -7,7 +7,6 @@ class GendersController {
             const genders = await GendersService.getAllGenders();
             res.json(genders);
         } catch (error: any) {
-            console.error('Erreur lors de la récupération des genres:', error);
             res.status(error.status || 500).json({error: error.message || 'Erreur'});
         }
     }

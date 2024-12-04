@@ -28,17 +28,14 @@ class JwtService {
         try {
             return jwt.verify(token, JWT_SECRET) as IJwtPayload;
         } catch (error) {
-            console.error('Erreur de validation du token JWT:', error);
             return null;
         }
     }
 
-    // Vérifie le refresh token
     verifyRefreshToken(token: string): IJwtPayload | null {
         try {
             return jwt.verify(token, REFRESH_TOKEN_SECRET) as IJwtPayload;
         } catch (error) {
-            console.error('Erreur de validation du refresh token:', error);
             return null;
         }
     }
@@ -53,7 +50,6 @@ class JwtService {
         try {
             return jwt.verify(token, secret) as IJwtPayload;
         } catch (error) {
-            console.error('Erreur de validation du refresh token:', error);
             return null;
         }
     }
@@ -83,7 +79,6 @@ class JwtService {
             }
             return null;
         } catch (error) {
-            console.error('Erreur de décodage du token JWT:', error);
             return null;
         }
     }

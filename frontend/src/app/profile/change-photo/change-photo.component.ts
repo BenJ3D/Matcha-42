@@ -61,7 +61,6 @@ export class ChangePhotoComponent implements OnInit {
           }
         })
         .catch((error) => {
-          console.error('Error uploading photos:', error);
           this.isLoading = false;
         });
     }
@@ -69,7 +68,6 @@ export class ChangePhotoComponent implements OnInit {
 
   setAsMainPhoto(photo: Photo) {
     if (!photo || !photo.photo_id) {
-      console.error('Invalid photo or photo ID');
       return;
     }
 
@@ -79,15 +77,11 @@ export class ChangePhotoComponent implements OnInit {
           this.user.main_photo_id = photo.photo_id;
         }
       },
-      error: (error) => {
-        console.error('Error setting main photo:', error);
-      },
     });
   }
 
   deletePhoto(photo: Photo) {
     if (!photo || !photo.photo_id) {
-      console.error('Invalid photo or photo ID');
       return;
     }
 
@@ -100,16 +94,12 @@ export class ChangePhotoComponent implements OnInit {
             );
           }
         },
-        error: (error) => {
-          console.error('Error deleting photo:', error);
-        },
       });
     }
   }
 
   onImageError(event: Event) {
     const imgElement = event.target as HTMLImageElement;
-    console.error('Image failed to load:', imgElement.src);
   }
 
 }

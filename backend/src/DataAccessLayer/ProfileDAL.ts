@@ -14,7 +14,6 @@ class ProfileDAL {
 
             return profile;
         } catch (error) {
-            console.error(`Erreur lors de la récupération du profil avec l'ID ${profileId}:`, error);
             throw {status: 400, message: "Erreur."};
         }
     }
@@ -30,7 +29,6 @@ class ProfileDAL {
 
             return profile;
         } catch (error: any) {
-            console.error(`Erreur lors de la récupération du profil pour l'utilisateur ID ${userId}:`, error);
             throw {status: error.status || 500, message: error.message || "Erreur."};
         }
     }
@@ -83,18 +81,14 @@ class ProfileDAL {
                     );
                 }
 
-                // Mise à jour de la colonne 'profile_id' dans la table 'users'
                 await trx('users')
                     .where({id: userId})
                     .update({profile_id: profileId});
 
-                // Valider la transaction
                 await trx.commit();
 
                 return profileId;
             } catch (error: any) {
-                console.error("Erreur lors de la création du profil:", error);
-                // Annuler la transaction en cas d'erreur
                 await trx.rollback();
 
                 if (error.code === '23505') {
@@ -155,8 +149,6 @@ class ProfileDAL {
                 }
             }
         } catch (error: any) {
-            console.error(`Erreur lors de la mise à jour du profil ID ${profileId}:`, error);
-
             if (error.status === 404) {
                 throw error;
             } else if (error.code === '23503') {
@@ -181,17 +173,13 @@ class ProfileDAL {
                     .where({profile_id: profileId})
                     .update({profile_id: null});
 
-                // Supprimer les données associées dans d'autres tables
                 await trx('profile_tag').where({profile_id: profileId}).del();
                 await trx('profile_sexual_preferences').where({profile_id: profileId}).del();
 
-                // Supprimer le profil
                 await trx('profiles').where({profile_id: profileId}).del();
             });
 
-            console.log(`Profil avec l'ID ${profileId} supprimé.`);
         } catch (error: any) {
-            console.error(`Erreur lors de la suppression du profil ID ${profileId}:`, error);
             if (error.status === 404) {
                 throw error;
             } else if (error.code === '23503') {
@@ -211,7 +199,6 @@ class ProfileDAL {
 
             return preferences;
         } catch (error) {
-            console.error(`Erreur lors de la récupération des préférences sexuelles pour le profil ID ${profileId}:`, error);
             throw {status: 400, message: "Erreur."};
         }
     }

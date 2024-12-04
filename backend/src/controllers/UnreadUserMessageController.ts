@@ -18,7 +18,6 @@ class UnreadUserMessageController {
     async removeUnreadChat(req: AuthenticatedRequest, res: Response) {
         const ownerUserId = req.userId!;
         const targetUserId = parseInt(req.params.userId, 10);
-        console.log('DBG UNREAD DELETE : ' + ownerUserId + ' | ' + targetUserId);
 
         try {
             await UnreadUserMessageService.removeUnreadChat(targetUserId, ownerUserId);

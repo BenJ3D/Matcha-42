@@ -20,7 +20,6 @@ class MessageController {
 
             res.status(201).json({message});
         } catch (error: any) {
-            console.error('Erreur lors de l\'envoi du message:', error);
             res.status(error.status || 500).json({error: error.message || 'Erreur'});
         }
     }
@@ -38,17 +37,14 @@ class MessageController {
             const messages = await MessageService.getConversation(userId, otherUserId);
             res.status(200).json({messages});
         } catch (error: any) {
-            console.error('Erreur lors de la récupération de la conversation:', error);
             res.status(500).json({error: error.message || 'Erreur'});
         }
     }
 
     async likeMessage(req: AuthenticatedRequest, res: Response) {
-        console.log('likeMessage');
         try {
             const userId = req.userId!;
             const messageId = parseInt(req.params.messageId, 10);
-            console.log('userId', userId);
 
             await MessageService.likeMessage(messageId, userId);
 
@@ -62,7 +58,6 @@ class MessageController {
         try {
             const userId = req.userId!;
             const messageId = parseInt(req.params.messageId, 10);
-            console.log('userId', userId);
 
             await MessageService.unlikeMessage(messageId, userId);
 

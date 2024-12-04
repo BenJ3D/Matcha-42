@@ -46,7 +46,6 @@ export class VerifyEmailComponent implements OnInit {
             }, 2000);
           },
           error: (error: any) => {
-            console.error('Erreur de vérification :', error);
             this.verificationMessage =
               error?.error?.message || 'An error occurred while verifying your email.';
             this.isLoading = false;

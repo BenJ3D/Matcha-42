@@ -109,8 +109,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
           this.hasMainPhoto = user.main_photo_url != null;
         }
       },
-      error: () => {
-      },
     });
   }
 
@@ -191,14 +189,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
           }
         })
         .catch((error) => {
-          console.error('Error uploading photos:', error);
         });
     }
   }
 
   setAsMainPhoto(photo: Photo) {
     if (!photo || !photo.photo_id) {
-      console.error('Invalid photo or photo ID');
       return;
     }
 
@@ -208,9 +204,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
           this.user.main_photo_id = photo.photo_id;
           this.loadUserProfile();
         }
-      },
-      error: (error) => {
-        console.error('Error setting main photo:', error);
       },
     });
   }
@@ -295,9 +288,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
         next: () => {
           this.router.navigate(['/create-profile']);
         },
-        error: (error) => {
-          console.error('Error deleting profile:', error);
-        },
       });
     }
   }
@@ -311,9 +301,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.profileService.deleteUser().subscribe({
         next: () => {
           this.router.navigate(['/login']);
-        },
-        error: (error) => {
-          console.error('Error deleting profile:', error);
         },
       });
     }

@@ -171,7 +171,6 @@ export class NotificationComponent implements OnInit, OnDestroy {
           resolve();
         },
         error: (error) => {
-          console.error('Erreur lors de la récupération des notifications:', error);
           reject(error);
         },
       });
@@ -186,7 +185,6 @@ export class NotificationComponent implements OnInit, OnDestroy {
           resolve();
         },
         error: (error) => {
-            console.error('Error during like:', error);
           reject(error);
         },
       });

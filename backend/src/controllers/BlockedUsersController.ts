@@ -17,7 +17,6 @@ class BlockedUsersController {
 
             res.status(200).json({message: 'Utilisateur bloqué avec succès'});
         } catch (error: any) {
-            console.error('Erreur lors du blocage de l\'utilisateur:', error);
             res.status(error.status || 400).json({error: error.message || 'Erreur'});
         }
     }
@@ -33,7 +32,6 @@ class BlockedUsersController {
 
             res.status(200).json({message: 'Utilisateur débloqué avec succès'});
         } catch (error: any) {
-            console.error('Erreur lors du déblocage de l\'utilisateur:', error);
             res.status(error.status || 400).json({error: error.message || 'Erreur'});
         }
     }
@@ -46,7 +44,6 @@ class BlockedUsersController {
 
             res.status(200).json(blockedData);
         } catch (error: any) {
-            console.error('Erreur lors de la récupération des données de blocage:', error);
             res.status(error.status || 400).json({error: error.message || 'Erreur'});
         }
     }

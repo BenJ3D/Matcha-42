@@ -18,7 +18,6 @@ const userController = {
             const users: UserLightResponseDto[] = await UserServices.getAllUsers();
             res.json(users);
         } catch (error: any) {
-            console.error("Error fetching users:", error);
             res.status(400).json({error: 'Could not fetch users'});
         }
     },

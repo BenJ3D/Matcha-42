@@ -112,7 +112,6 @@ export class CreateProfileComponent implements OnInit {
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Error creating user profile', error);
           this.toastService.show('Error creating user profile');
           this.isLoading = false;
         },
@@ -130,7 +129,6 @@ export class CreateProfileComponent implements OnInit {
       next: (genders) => {
         this.genders = genders;
       },
-      error: (error) => console.error('Error loading genders', error),
     });
   }
 
@@ -140,7 +138,6 @@ export class CreateProfileComponent implements OnInit {
         this.tags = tags.sort((a, b) => a.tag_name.localeCompare(b.tag_name));
 
       },
-      error: (error) => console.error('Error loading tags', error),
     });
   }
 
@@ -157,7 +154,6 @@ export class CreateProfileComponent implements OnInit {
           resolve();
         },
         error: (error) => {
-          console.error('Error getting IP location from first service:', error);
           this.isCityValid = false;
           this.getLocationFromIP2().then(() => resolve());
         },
@@ -178,7 +174,6 @@ export class CreateProfileComponent implements OnInit {
           resolve();
         },
         error: (error) => {
-          console.error('Error getting IP location:', error);
           this.isCityValid = false;
           resolve();
         },
@@ -246,9 +241,6 @@ export class CreateProfileComponent implements OnInit {
           this.profileForm.get('city')?.setErrors({ cityNotFound: true });
           this.toastService.show('City not found');
         }
-      },
-      error: (error) => {
-        console.error('Error fetching city coordinates:', error);
       },
     });
   }

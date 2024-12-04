@@ -69,7 +69,6 @@ export class LoginComponent {
           this.router.navigate(['/home']);
         },
         error: (error) => {
-          console.error(error);
           this.isLoading = false;
           this.form.enable();
         },

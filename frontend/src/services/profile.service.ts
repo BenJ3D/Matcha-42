@@ -156,7 +156,6 @@ export class ProfileService {
   }
 
   private handleError(error: any): Observable<never> {
-    console.error('API Error:', error);
     return throwError(() => new Error(error.message || 'Server error'));
   }
 

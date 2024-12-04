@@ -85,9 +85,6 @@ export class ConversationComponent implements OnInit, OnDestroy {
       next: () => {
         message.is_liked = !message.is_liked;
       },
-      error: (error) => {
-        console.error('Error updating like status:', error);
-      },
     });
   }
 
@@ -107,9 +104,6 @@ export class ConversationComponent implements OnInit, OnDestroy {
           this.newMessage = '';
           this.scrollToBottom();
           this.cdr.detectChanges();
-        },
-        error: (error) => {
-          console.error('Error while sending message', error);
         },
       });
     }

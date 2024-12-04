@@ -108,7 +108,6 @@ router.get('/', async (req, res) => {
                 };
             }).filter((info: CityInfo) => info.name !== 'Unknown');
 
-            // Supprimer les doublons
             const uniqueCityInfos = Array.from(new Set(cityInfos.map(info => JSON.stringify(info)))).map(info => JSON.parse(info));
 
             return res.status(200).json(uniqueCityInfos);
@@ -116,7 +115,6 @@ router.get('/', async (req, res) => {
             return res.status(404).json({error: 'Aucun résultat trouvé.'});
         }
     } catch (error) {
-        console.error('Erreur lors du géocodage direct:', error);
         return res.status(500).json({error: 'Erreur interne du serveur.'});
     }
 });

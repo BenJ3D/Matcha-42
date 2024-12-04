@@ -8,7 +8,6 @@ class TagsController {
             const tags = await TagsService.getAllTags();
             res.json(tags);
         } catch (error: any) {
-            console.error('Erreur lors de la récupération des likes:', error);
             res.status(error.status || 400).json({error: error.message || 'Erreur'});
         }
     }
@@ -22,10 +21,6 @@ class TagsController {
             }
             res.json(tag);
         } catch (error: any) {
-            console.error(
-                `Erreur lors de la récupération du tag avec l'ID ${req.params.tagId}:`,
-                error
-            );
             res
                 .status(error.status || 500)
                 .json({error: error.message || 'Erreur'});

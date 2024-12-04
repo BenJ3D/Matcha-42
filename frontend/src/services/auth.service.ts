@@ -53,7 +53,6 @@ export class AuthService {
     return this.http.get<UserResponseDto>(`${this.apiUrl}/users/me`).pipe(
       tap((user) => this.userSubject.next(user)),
       catchError((error) => {
-        console.error('Erreur lors de la récupération du profil utilisateur:', error);
         this.logout();
         return of(null as any);
       })
@@ -93,7 +92,6 @@ export class AuthService {
         this.userSubject.next(response.user);
       }),
       catchError((error) => {
-        console.error('Erreur de connexion:', error);
         return of(null as any);
       })
     );
@@ -133,7 +131,6 @@ export class AuthService {
         this.userSubject.next(response.user);
       }),
       catchError((error) => {
-        console.error('Error refreshing token:', error);
         this.logout();
         return of(null);
       })
@@ -146,7 +143,6 @@ export class AuthService {
     }
     return this.http.get<UserResponseDto>(`${this.apiUrl}/users/me`).pipe(
       catchError((error) => {
-        console.error('Error retrieving user:', error);
         return of(null as any);
       })
     );
@@ -169,7 +165,6 @@ export class AuthService {
           }
         },
         error: (error) => {
-          console.error('Error loading user:', error);
           this.logout();
         },
       });

@@ -7,7 +7,6 @@ class GenderDAL {
             const genders = await db('genders').select('*');
             return genders;
         } catch (error) {
-            console.error('Erreur lors de la récupération des genres:', error);
             throw {status: 400, message: 'Impossible de récupérer les genres'};
         }
     }

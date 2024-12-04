@@ -19,7 +19,6 @@ class EmailVerificationController {
             }
 
         } catch (error) {
-            console.error('Erreur lors de la vérification de l\'email:', error);
             return res.status(400).json({message: 'Token de vérification invalide ou expiré.'});
         }
     }

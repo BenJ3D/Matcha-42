@@ -54,7 +54,6 @@ const loginController = {
                 refreshToken: newTokens.refreshToken,
             });
         } catch (e: any) {
-            console.error("Erreur lors du rafraîchissement du token:", e);
             res.status(500).json({error: "Erreur"});
         }
     },

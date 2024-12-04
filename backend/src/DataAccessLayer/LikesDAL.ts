@@ -8,7 +8,6 @@ class LikesDAL {
             const likes = await db('likes').select('*').where('user', userId);
             return likes;
         } catch (error) {
-            console.error(`Erreur lors de la récupération des likes pour l'utilisateur ${userId}:`, error);
             throw {status: 400, message: 'Impossible de récupérer les likes pour cet utilisateur'};
         }
     }
@@ -18,7 +17,6 @@ class LikesDAL {
             const likes = await db('likes').select('*').where('user_liked', userId);
             return likes;
         } catch (error) {
-            console.error(`Erreur lors de la récupération des likes reçus pour l'utilisateur ${userId}:`, error);
             throw {status: 400, message: 'Impossible de récupérer les likes reçus pour cet utilisateur'};
         }
     }
@@ -27,11 +25,9 @@ class LikesDAL {
         try {
             await db('likes').insert({user: userId, user_liked: userLikedId});
         } catch (error: any) {
-            console.error(`Erreur lors de l'ajout du like de l'utilisateur ${userId} vers ${userLikedId}:`, error);
-            // Vérifier si c'est une duplication
-            if (error.code === '23505') { // PostgreSQL unique_violation
+            if (error.code === '23505') {
                 throw {status: 409, message: 'Like déjà existant'};
-            } else if (error.code === '23503') { // Foreign key violation
+            } else if (error.code === '23503') {
                 throw {status: 404, message: 'Utilisateur cible non trouvé'};
             }
             throw {status: 400, message: 'Impossible d\'ajouter le like'};
@@ -45,7 +41,6 @@ class LikesDAL {
                 throw {status: 404, message: 'Like non trouvé'};
             }
         } catch (error: any) {
-            console.error(`Erreur lors de la suppression du like de l'utilisateur ${userId} vers ${userLikedId}:`, error);
             throw {status: error.status || 500, message: error.message || 'Impossible de supprimer le like'};
         }
     }
@@ -55,7 +50,6 @@ class LikesDAL {
             const likes = await db('likes').select('user_liked').where('user', userId);
             return likes.map(like => like.user_liked);
         } catch (error) {
-            console.error(`Erreur lors de la récupération des IDs des likes pour l'utilisateur ${userId}:`, error);
             throw {status: 400, message: 'Impossible de récupérer les IDs des likes'};
         }
     }

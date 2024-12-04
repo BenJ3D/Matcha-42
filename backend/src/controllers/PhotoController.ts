@@ -42,7 +42,6 @@ class PhotoController {
 
             res.status(201).json({message: 'Photo uploadée avec succès.', photo});
         } catch (error: any) {
-            console.error('Erreur lors de l\'upload de la photo:', error);
             res.status(error.status || 500).json({error: error.message || 'Erreur'});
         }
     }
@@ -62,7 +61,6 @@ class PhotoController {
 
             res.json({message: 'Photo supprimée avec succès.'});
         } catch (error: any) {
-            console.error('Erreur lors de la suppression de la photo:', error);
             res.status(error.status || 400).json({error: error.message || 'Erreur'});
         }
     }
@@ -82,7 +80,6 @@ class PhotoController {
 
             res.json({message: 'Photo définie comme principale avec succès.'});
         } catch (error: any) {
-            console.error('Erreur lors de la définition de la photo principale:', error);
             res.status(error.status || 400).json({error: error.message || 'Erreur'});
         }
     }

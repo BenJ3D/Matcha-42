@@ -105,8 +105,6 @@ export class HomeComponent implements OnInit {
             latitude: data.location.latitude,
             longitude: data.location.longitude,
           };
-        } else {
-          console.error('Location data is missing from the user profile.');
         }
       })
     );
@@ -134,7 +132,6 @@ export class HomeComponent implements OnInit {
       next: (tags) => {
         this.tags = tags;
       },
-      error: (error) => console.error('Error loading tags', error),
     });
   }
 
@@ -207,7 +204,6 @@ export class HomeComponent implements OnInit {
       },
       error: (error) => {
         this.isLoading = false;
-        console.error('Error fetching profiles:', error);
       },
     });
   }

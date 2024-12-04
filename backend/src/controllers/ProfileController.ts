@@ -50,7 +50,6 @@ class ProfileController {
             await profileServices.deleteProfile(userId);
             res.status(200).json({message: 'Profil supprimé avec succès'});
         } catch (error: any) {
-            console.error('Erreur lors de la suppression du profil:', error);
             if (error.status === 404) {
                 res.status(404).json({error: error.message});
             } else {

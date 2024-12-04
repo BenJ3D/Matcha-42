@@ -46,15 +46,10 @@ class UnlikesService {
         await UnlikesDAL.addUnlike(userId, targetUserId);
         await UserServices.updateFameRating(targetUserId, fameRatingConfig.unlike);
 
-        //Suppression d'un eventuel like, catch vide pour ne pas retourné de 404 si le like n'existe pas
         try {
             await LikesService.removeLike(userId, targetUserId);
-
-            console.log(`DBG il avait un like avec user ${targetUserId}`)
         } catch (e: any) {
-            console.log(`DBG il n'y avait aucun like avec user ${targetUserId}`)
         }
-
     }
 
     async removeUnlike(userId: number, targetUserId: number): Promise<void> {

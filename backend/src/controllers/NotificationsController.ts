@@ -13,7 +13,6 @@ class NotificationsController {
             );
             res.json(notifications);
         } catch (error: any) {
-            console.error('Error fetching notifications:', error);
             res
                 .status(400)
                 .json({error: error.message || 'error'});
@@ -32,7 +31,6 @@ class NotificationsController {
             await NotificationsService.markNotificationsAsRead(userId, notificationIds);
             res.status(200).json({message: 'Notifications marked as read'});
         } catch (error: any) {
-            console.error('Error updating notifications:', error);
             res
                 .status(400)
                 .json({error: error.message || 'error'});
@@ -49,7 +47,6 @@ class NotificationsController {
             await NotificationsService.deleteNotifications(userId, [notificationId]);
             res.status(200).json({message: 'Notification deleted'});
         } catch (error: any) {
-            console.error('Error deleting notification:', error);
             res
                 .status(400)
                 .json({error: error.message || 'error'});

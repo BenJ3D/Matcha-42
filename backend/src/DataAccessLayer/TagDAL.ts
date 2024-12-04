@@ -6,7 +6,6 @@ class TagDAL {
         try {
             return await db('tags').select('*');
         } catch (error) {
-            console.error('Erreur lors de la récupération des tags:', error);
             throw {status: 400, message: 'Impossible de récupérer les tags'};
         }
     }
@@ -19,7 +18,6 @@ class TagDAL {
                 .first();
             return tag || null;
         } catch (error) {
-            console.error(`Erreur lors de la récupération du tag avec l'ID ${tagId}:`, error);
             throw {status: 400, message: 'Impossible de récupérer le tag'};
         }
     }

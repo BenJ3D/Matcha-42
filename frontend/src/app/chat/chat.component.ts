@@ -109,8 +109,6 @@ export class ChatComponent implements OnInit, OnDestroy {
         const userAfterFetch = this.chatUsers.find(u => u.id === userId);
         if (userAfterFetch) {
           this.selectConversation(userAfterFetch);
-        } else {
-            console.warn(`User with ID ${userId} not found.`);
         }
       });
     }
@@ -125,7 +123,6 @@ export class ChatComponent implements OnInit, OnDestroy {
           resolve();
         },
         error: (error) => {
-            console.error('Error while fetching matches:', error);
           reject(error);
         },
       });
@@ -147,9 +144,6 @@ export class ChatComponent implements OnInit, OnDestroy {
         this.messages = msgs.messages;
         this.messages.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
         this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('Error while fetching messages:', error);
       },
     });
   }

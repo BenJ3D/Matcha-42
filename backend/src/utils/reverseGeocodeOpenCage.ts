@@ -25,7 +25,6 @@ export async function reverseGeocodeOpenCage(lat: number, lon: number): Promise<
 
     try {
         const response = await axios.get(url);
-        console.log(response);
         const data = response.data;
 
         if (data.results && data.results.length > 0) {
@@ -48,7 +47,6 @@ export async function reverseGeocodeOpenCage(lat: number, lon: number): Promise<
             return 'Bagneux';
         }
     } catch (error) {
-        console.error('Erreur lors du géocodage inverse OpenCage:', error);
         return 'Bagneux';
     }
 }
