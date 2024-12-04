@@ -6,14 +6,10 @@
       time
     </div>
     <form [formGroup]="namesForm" (ngSubmit)="onSubmit()"
-          class="w-full max-w-sm flex flex-col justify-center items-center">
+      class="w-full max-w-sm flex flex-col justify-center items-center">
       <mat-form-field class="w-full pb-5" appearance="fill">
         <mat-label>First name</mat-label>
-        <input
-          matInput
-          type="text"
-          formControlName="first_name"
-        />
+        <input matInput type="text" formControlName="first_name" />
         <mat-error *ngIf="namesForm.get('first_name')?.hasError('required')">
           First name is required.
         </mat-error>
@@ -23,11 +19,7 @@
       </mat-form-field>
       <mat-form-field class="w-full pb-10" appearance="fill">
         <mat-label>Last name</mat-label>
-        <input
-          matInput
-          type="text"
-          formControlName="last_name"
-        />
+        <input matInput type="text" formControlName="last_name" />
         <mat-error *ngIf="namesForm.get('last_name')?.hasError('required')">
           Last name is required.
         </mat-error>
@@ -40,7 +32,7 @@
     </form>
     <div class="flex flex-col w-2/3  space-y-2 max-w-96 ">
       <button class="!font-black" mat-raised-button color="primary" type="submit" (click)="onSubmit()"
-              [disabled]="namesForm.invalid">
+        [disabled]="namesForm.invalid">
         Submit
       </button>
       <button mat-raised-button class="font-black bg-red-800 hover:bg-red-700 text-white" (click)="backToProfile()">

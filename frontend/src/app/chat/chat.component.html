@@ -1,46 +1,23 @@
 <div class="chat-container">
-  <!--  <div-->
-  <!--    class="font-semibold text-2xl w-full justify-center items-center bg-gray-200 text-center z-10 ">-->
-  <!--    Chat-->
-  <!--  </div>-->
-  <mat-card
-    [class.hidden]="isMobile && selectedUser"
-    class="chat-users-card"
-  >
+  <mat-card [class.hidden]="isMobile && selectedUser" class="chat-users-card">
     <mat-card-header class="flex justify-center items-center">
       <mat-card-title class="text-2xl">Conversations</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <mat-list>
-        <mat-list-item
-          (click)="selectConversation(user)"
-          *ngFor="let user of chatUsers"
-          class="hover:bg-slate-300"
-          [class.selected]="user.id == selectedUser?.id"
-        >
-          <div
-            [class.text-selected]="user.id == selectedUser?.id"
-            [class.unread-chat]="checkIfUnreadChat(user.id) && user.id != selectedUser?.id"
-
-            class="text-2xl">{{ user.username }}
+        <mat-list-item (click)="selectConversation(user)" *ngFor="let user of chatUsers" class="hover:bg-slate-300"
+          [class.selected]="user.id == selectedUser?.id">
+          <div [class.text-selected]="user.id == selectedUser?.id"
+            [class.unread-chat]="checkIfUnreadChat(user.id) && user.id != selectedUser?.id" class="text-2xl">{{
+            user.username }}
           </div>
         </mat-list-item>
       </mat-list>
     </mat-card-content>
   </mat-card>
-
   <mat-card *ngIf="selectedUser" class="chat-conversation-card">
-    <app-conversation
-      (close)="closeConversation()"
-      [messages]="messages"
-      [user]="selectedUser">
+    <app-conversation (close)="closeConversation()" [messages]="messages" [user]="selectedUser">
     </app-conversation>
   </mat-card>
 
 </div>
-<!--<div-->
-<!--  class=" md:box-border font-semibold text-2xl justify-center items-center bg-green-200 md:bg-gray-200 text-center z-10 fixed left-0 w-full top-0 py-3">-->
-<!--  Chat-->
-<!--</div>-->
-<!--<div class="bg-amber-700 w-full h-full">-->
-<!--</div>-->

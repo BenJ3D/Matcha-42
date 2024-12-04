@@ -40,7 +40,7 @@
       width: 100%;
       box-sizing: border-box;
       margin: 0;
-      padding: 0 8px; // Add padding to match form fields
+      padding: 0 8px;
     }
   }
 
@@ -73,7 +73,6 @@
   align-items: center;
   justify-content: center;
   height: 75vh;
-  // padding: 20px;
   overflow: hidden;
 }
 
@@ -140,7 +139,7 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  font-weight: 500; /* équivalent à font-medium */
+  font-weight: 500;
 }
 
 @keyframes swipeRight {

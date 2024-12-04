@@ -1,12 +1,12 @@
 <h3 class="flex justify-center items-center">{{ ListTitle }}</h3>
 <div class="z-10 bg-white p-5 justify-center items-center rounded mt-5 flex w-full">
   @if (users.length > 0) {
-    <ul class="grid grid-flow-row xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 flex flex-1 w-full">
-      @for (user of users; track user.id) {
-        <app-user-blocked-card [user]="user"></app-user-blocked-card>
-      }
-    </ul>
+  <ul class="grid grid-flow-row xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 flex flex-1 w-full">
+    @for (user of users; track user.id) {
+    <app-user-blocked-card [user]="user"></app-user-blocked-card>
+    }
+  </ul>
   } @else {
-    No content for the moment
+  No content for the moment
   }
 </div>

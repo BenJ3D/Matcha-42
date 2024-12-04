@@ -17,7 +17,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { AuthService } from '../../services/auth.service';
 import { UserCreateDto } from '../../DTOs/users/UserCreateDto';
-import { SignupResponseDto } from '../../DTOs/signup/SignupResponseDto';
 
 @Component({
   selector: 'app-signup',
@@ -69,7 +68,6 @@ export class SignupComponent {
 
   onSubmit(): void {
     if (this.form.invalid) {
-      console.log('Invalid form');
       return;
     }
 
@@ -85,10 +83,9 @@ export class SignupComponent {
     };
 
     this.authService.signup(userData).subscribe({
-      next: (response: SignupResponseDto) => {
+      next: () => {
         this.isLoading = false;
         this.form.enable();
-        console.log('Signup successful, user ID:', response.userId);
         this.router.navigate(['/login']);
       },
       error: (error) => {

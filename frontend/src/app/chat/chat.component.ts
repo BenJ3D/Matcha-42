@@ -1,16 +1,16 @@
-import {ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit} from '@angular/core';
-import {Subscription} from 'rxjs';
-import {SocketService} from '../../services/socket.service';
-import {AuthService} from '../../services/auth.service';
-import {MessageDto} from '../../DTOs/chat/MessageDto';
-import {UserLightResponseDto} from "../../DTOs/users/UserLightResponseDto";
-import {MatCardModule} from "@angular/material/card";
-import {MatListModule} from "@angular/material/list";
-import {ConversationComponent} from "./conversation/conversation.component";
-import {CommonModule} from "@angular/common";
-import {ActivatedRoute} from "@angular/router";
-import {ApiService} from '../../services/api.service';
-import {DashboardComponent} from "../dashboard/dashboard.component";
+import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { SocketService } from '../../services/socket.service';
+import { AuthService } from '../../services/auth.service';
+import { MessageDto } from '../../DTOs/chat/MessageDto';
+import { UserLightResponseDto } from "../../DTOs/users/UserLightResponseDto";
+import { MatCardModule } from "@angular/material/card";
+import { MatListModule } from "@angular/material/list";
+import { ConversationComponent } from "./conversation/conversation.component";
+import { CommonModule } from "@angular/common";
+import { ActivatedRoute } from "@angular/router";
+import { ApiService } from '../../services/api.service';
+import { DashboardComponent } from "../dashboard/dashboard.component";
 
 @Component({
   selector: 'app-chat',
@@ -56,20 +56,17 @@ export class ChatComponent implements OnInit, OnDestroy {
       if (this.selectedUser)
         this.fetchMessages(this.selectedUser.id);
     });
-    // Récupérer la liste des matches via l'API
     this.fetchMatches();
 
 
     this.route.queryParams.subscribe(params => {
-      const userId = +params['id']; // Convertir en nombre
+      const userId = +params['id'];
       if (userId) {
         this.selectConversationById(userId);
       }
     });
 
-    // S'abonner aux messages globaux
     this.messageSubscription = this.socketService.messages$.subscribe((msg) => {
-      // Vérifier si le message concerne l'utilisateur sélectionné
       if (
         (msg.owner_user === this.getCurrentUserId() && msg.target_user === this.selectedUser?.id) ||
         (msg.owner_user === this.selectedUser?.id && msg.target_user === this.getCurrentUserId())
@@ -80,7 +77,7 @@ export class ChatComponent implements OnInit, OnDestroy {
         }
       }
       if (msg.owner_user == this.selectedUser?.id) {
-        this.socketService.emit('conversation_read', {data: msg.owner_user});
+        this.socketService.emit('conversation_read', { data: msg.owner_user });
       }
     });
 
@@ -91,37 +88,24 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   checkIfUnreadChat(userId: number) {
-    // console.warn(this.unreadUserIds.includes(userId));
     return this.unreadUserIds.includes(userId);
   }
 
-  /**
-   * Détecte les changements de taille de la fenêtre.
-   * Utilisé par le décorateur @HostListener.
-   */
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
     this.checkIfMobile();
   }
 
-  /**
-   * Vérifie si la taille de la fenêtre correspond à un écran mobile.
-   */
   checkIfMobile() {
     this.isMobile = window.innerWidth <= 600;
     this.cdr.detectChanges(); // Rafraîchir la détection des changements
   }
 
-  /**
-   * Sélectionne une conversation en fonction de l'ID de l'utilisateur.
-   * @param userId L'ID de l'utilisateur avec qui ouvrir la conversation.
-   */
   selectConversationById(userId: number): void {
     const user = this.chatUsers.find(u => u.id === userId);
     if (user) {
       this.selectConversation(user);
     } else {
-      // Si l'utilisateur n'est pas encore chargé, attendre que les matches soient récupérés
       this.fetchMatches().then(() => {
         const userAfterFetch = this.chatUsers.find(u => u.id === userId);
         if (userAfterFetch) {
@@ -133,9 +117,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Récupère la liste des utilisateurs avec qui l'utilisateur est en match.
-   */
   fetchMatches(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.apiService.get<UserLightResponseDto[]>('matches').subscribe({
@@ -152,23 +133,15 @@ export class ChatComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Sélectionne une conversation avec un utilisateur spécifique.
-   * @param user L'utilisateur sélectionné.
-   */
   selectConversation(user: UserLightResponseDto): void {
     this.selectedUser = user;
     this.fetchMessages(user.id);
     if (this.unreadUserIds.includes(user.id)) {
-      this.socketService.emit('conversation_read', {data: user.id});
+      this.socketService.emit('conversation_read', { data: user.id });
       this.unreadUserIds = this.unreadUserIds.filter(elem => elem !== user.id);
     }
   }
 
-  /**
-   * Récupère les messages de la conversation avec un utilisateur spécifique.
-   * @param userId L'ID de l'utilisateur avec qui récupérer les messages.
-   */
   fetchMessages(userId: number): void {
     this.apiService.get<any>(`messages/${userId}`).subscribe({
       next: (msgs) => {
@@ -183,9 +156,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Ferme la conversation actuelle.
-   */
   closeConversation(): void {
     this.selectedUser = null;
     this.messages = [];
@@ -196,15 +166,9 @@ export class ChatComponent implements OnInit, OnDestroy {
     if (this.messageSubscription) {
       this.messageSubscription.unsubscribe();
     }
-    // Aucun abonnement supplémentaire à nettoyer
   }
 
-  /**
-   * Récupère l'ID de l'utilisateur actuel à partir de AuthService.
-   */
   getCurrentUserId(): number {
     return this.authService.getCurrentUserId();
   }
-
-
 }

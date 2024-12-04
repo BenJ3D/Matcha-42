@@ -1,25 +1,25 @@
-import {Component, OnInit} from '@angular/core';
-import {CommonModule, NgForOf, NgIf} from "@angular/common";
-import {MatIconModule} from "@angular/material/icon";
-import {MatFormFieldModule} from "@angular/material/form-field";
-import {MatInputModule} from "@angular/material/input";
-import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
-import {MatButtonModule} from "@angular/material/button";
-import {ProfileService} from "../../../services/profile.service";
-import {ToastService} from "../../../services/toast.service";
-import {MatSelectModule} from "@angular/material/select";
-import {Gender} from "../../../models/Genders";
-import {Tag} from "../../../models/Tags";
-import {MatCardModule} from "@angular/material/card";
-import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
-import {MatAutocompleteModule} from "@angular/material/autocomplete";
-import {MatCheckboxModule} from "@angular/material/checkbox";
-import {MatSlideToggleModule} from "@angular/material/slide-toggle";
-import {HttpClient} from "@angular/common/http";
-import {LocationDto, ProfileCreateDto} from "../../../DTOs/profiles/ProfileCreateDto";
-import {distinctUntilChanged, Observable, of} from "rxjs";
-import {debounceTime, map, switchMap} from "rxjs/operators";
-import {Router} from "@angular/router";
+import { Component, OnInit } from '@angular/core';
+import { CommonModule, NgForOf, NgIf } from "@angular/common";
+import { MatIconModule } from "@angular/material/icon";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatInputModule } from "@angular/material/input";
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { ProfileService } from "../../../services/profile.service";
+import { ToastService } from "../../../services/toast.service";
+import { MatSelectModule } from "@angular/material/select";
+import { Gender } from "../../../models/Genders";
+import { Tag } from "../../../models/Tags";
+import { MatCardModule } from "@angular/material/card";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatAutocompleteModule } from "@angular/material/autocomplete";
+import { MatCheckboxModule } from "@angular/material/checkbox";
+import { MatSlideToggleModule } from "@angular/material/slide-toggle";
+import { HttpClient } from "@angular/common/http";
+import { LocationDto, ProfileCreateDto } from "../../../DTOs/profiles/ProfileCreateDto";
+import { distinctUntilChanged, Observable, of } from "rxjs";
+import { debounceTime, map, switchMap } from "rxjs/operators";
+import { Router } from "@angular/router";
 
 @Component({
   selector: 'app-create-profile',
@@ -49,7 +49,7 @@ export class CreateProfileComponent implements OnInit {
   genders: Gender[] = [];
   tags: Tag[] = [];
   locationIp: LocationDto | null = null;
-  locationSelected: LocationDto = {latitude: 45.783329, longitude: 4.73333};
+  locationSelected: LocationDto = { latitude: 45.783329, longitude: 4.73333 };
   isCityValid: boolean = false;
   cityOptions!: Observable<string[]>;
   isLoading: boolean = false;
@@ -75,7 +75,7 @@ export class CreateProfileComponent implements OnInit {
   loadInitialData() {
     this.loadGenders();
     this.loadTags();
-    this.profileService.getMyProfile().subscribe(); // Initial fetch
+    this.profileService.getMyProfile().subscribe();
   }
 
 
@@ -153,14 +153,12 @@ export class CreateProfileComponent implements OnInit {
               latitude: data.latitude,
               longitude: data.longitude,
             }
-            // console.log('Location from IP:', data.city + ', ' + data.longitude + '/' + data.latitude);
           }
           resolve();
         },
         error: (error) => {
           console.error('Error getting IP location from first service:', error);
           this.isCityValid = false;
-          // Si le premier service échoue, on appelle le second
           this.getLocationFromIP2().then(() => resolve());
         },
       });
@@ -176,8 +174,6 @@ export class CreateProfileComponent implements OnInit {
               latitude: data.latitude,
               longitude: data.longitude,
             }
-            console.log('Location from IP2:', data.city + ', ' + data.longitude + '/' + data.latitude);
-
           }
           resolve();
         },
@@ -211,11 +207,8 @@ export class CreateProfileComponent implements OnInit {
 
     if (cityControl) {
       this.cityOptions = cityControl.valueChanges.pipe(
-        // délai pour réduire le nombre de requêtes
         debounceTime(5),
-        // Ignorez les valeurs identiques consécutives
         distinctUntilChanged(),
-        // Exécutez la recherche
         switchMap((value) => this.searchCities(value))
       );
     }
@@ -242,16 +235,15 @@ export class CreateProfileComponent implements OnInit {
       'User-Agent': 'matcha - matcha@example.com',
     };
 
-    this.http.get<any[]>(url, {headers}).subscribe({
+    this.http.get<any[]>(url, { headers }).subscribe({
       next: (results) => {
         if (results && results.length > 0) {
-          // console.log('City coordinates:', results[0]);
-          this.profileForm.patchValue({city: results[0].name}, {emitEvent: false});
+          this.profileForm.patchValue({ city: results[0].name }, { emitEvent: false });
           this.locationSelected.latitude = parseFloat(results[0].lat);
           this.locationSelected.longitude = parseFloat(results[0].lon);
           this.locationSelected.city = results[0].name.split(',')[0].trim();
         } else {
-          this.profileForm.get('city')?.setErrors({cityNotFound: true});
+          this.profileForm.get('city')?.setErrors({ cityNotFound: true });
           this.toastService.show('City not found');
         }
       },
@@ -264,5 +256,4 @@ export class CreateProfileComponent implements OnInit {
   goToProfile() {
     this.router.navigate(['/profile']);
   }
-
 }

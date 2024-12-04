@@ -1,15 +1,15 @@
-import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
-import {Subscription} from 'rxjs';
-import {SocketService} from '../../services/socket.service';
-import {CommonModule} from "@angular/common";
-import {MatListModule} from "@angular/material/list";
-import {MatIconModule} from "@angular/material/icon";
-import {Router} from "@angular/router";
-import {NotificationsReceiveDto} from "../../DTOs/notifications/NotificationsReceiveDto";
-import {NotificationType} from "../../models/Notifications";
-import {MatTooltip} from "@angular/material/tooltip";
-import {MatCardModule} from "@angular/material/card";
-import {ApiService} from "../../services/api.service";
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { SocketService } from '../../services/socket.service';
+import { CommonModule } from "@angular/common";
+import { MatListModule } from "@angular/material/list";
+import { MatIconModule } from "@angular/material/icon";
+import { Router } from "@angular/router";
+import { NotificationsReceiveDto } from "../../DTOs/notifications/NotificationsReceiveDto";
+import { NotificationType } from "../../models/Notifications";
+import { MatTooltip } from "@angular/material/tooltip";
+import { MatCardModule } from "@angular/material/card";
+import { ApiService } from "../../services/api.service";
 
 @Component({
   selector: 'app-notification',
@@ -37,12 +37,11 @@ export class NotificationComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Écouter les notifications en temps réel
     this.notificationSubscription = this.socketService.on<NotificationsReceiveDto>('notification').subscribe((notification) => {
-      this.notifications.unshift(notification); // Ajouter en haut de la liste
+      this.notifications.unshift(notification);
     });
 
-    this.socketService.on('fetch_notifications').subscribe(() => { // Rafraîchir la liste après suppression d'une notification
+    this.socketService.on('fetch_notifications').subscribe(() => {
       this.fetchNotification();
     });
 
@@ -50,18 +49,16 @@ export class NotificationComponent implements OnInit, OnDestroy {
   }
 
   onNotificationClick(notification: NotificationsReceiveDto): void {
-    console.log(notification);
     this.readNotification(notification);
     this.navigateToRelevantPage(notification);
   }
 
   readNotification(notification: NotificationsReceiveDto): void {
     if (!notification.has_read) {
-      this.socketService.emit('notification_read', {data: [notification.notification_id]});
+      this.socketService.emit('notification_read', { data: [notification.notification_id] });
     }
     if (notification.type == NotificationType.NEW_MESSAGE) {
-      this.socketService.emit('conversation_read', {data: notification.source_user});
-      // Mettre à jour l'état local
+      this.socketService.emit('conversation_read', { data: notification.source_user });
       notification.has_read = true;
       this.cdr.detectChanges();
     }
@@ -73,8 +70,7 @@ export class NotificationComponent implements OnInit, OnDestroy {
       .map(notification => notification.notification_id);
 
     if (unreadIds.length > 0) {
-      this.socketService.emit('notification_read', {data: unreadIds});
-      // Mettre à jour l'état local
+      this.socketService.emit('notification_read', { data: unreadIds });
       this.notifications.forEach(notification => {
         if (!notification.has_read) {
           notification.has_read = true;
@@ -93,7 +89,7 @@ export class NotificationComponent implements OnInit, OnDestroy {
   }
 
   deleteNotification(notification: NotificationsReceiveDto): void {
-    this.socketService.emit('notifications_delete', {data: [notification.notification_id]});
+    this.socketService.emit('notifications_delete', { data: [notification.notification_id] });
   }
 
   deleteAllNotifications(): void {
@@ -101,8 +97,7 @@ export class NotificationComponent implements OnInit, OnDestroy {
       .map(notification => notification.notification_id);
 
     if (unreadIds.length > 0) {
-      this.socketService.emit('notifications_delete', {data: unreadIds});
-      // Mettre à jour l'état local
+      this.socketService.emit('notifications_delete', { data: unreadIds });
       this.notifications.forEach(notification => {
         if (!notification.has_read) {
           notification.has_read = true;
@@ -113,17 +108,16 @@ export class NotificationComponent implements OnInit, OnDestroy {
   }
 
   navigateToRelevantPage(notification: NotificationsReceiveDto): void {
-    // Implémenter la navigation en fonction du type de notification
     switch (notification.type) {
       case 'LIKE':
       case 'UNLIKE':
       case 'NEW_VISIT':
-        this.router.navigate(['/profile'], {queryParams: {id: notification.source_user}});
+        this.router.navigate(['/profile'], { queryParams: { id: notification.source_user } });
         break;
       case 'MATCH':
       case 'NEW_MESSAGE':
         console.log('Naviguer vers /chat avec id :', notification.source_user);
-        this.router.navigate(['/chat'], {queryParams: {id: notification.source_user}});
+        this.router.navigate(['/chat'], { queryParams: { id: notification.source_user } });
         break;
       default:
         break;
@@ -169,9 +163,6 @@ export class NotificationComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Récupère la liste des notifications
-   */
   fetchNotification(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.apiService.get<NotificationsReceiveDto[]>('notifications?includeRead=true').subscribe({
@@ -188,9 +179,6 @@ export class NotificationComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Like un utilisateur en retour d'un like.
-   */
   likingBack(notification: NotificationsReceiveDto): Promise<void> {
     return new Promise((resolve, reject) => {
       this.readNotification(notification);

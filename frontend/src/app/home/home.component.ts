@@ -1,24 +1,24 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {MatSidenavModule, MatSidenav} from '@angular/material/sidenav';
-import {MatCardModule} from '@angular/material/card';
-import {MatButtonModule} from '@angular/material/button';
-import {MatIconModule} from '@angular/material/icon';
-import {Router} from '@angular/router';
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatInputModule} from '@angular/material/input';
-import {MatSelectModule} from '@angular/material/select';
-import {MatSliderModule} from '@angular/material/slider';
-import {ProfileService} from '../../services/profile.service';
-import {Tag} from '../../models/Tags';
-import {HttpParams} from '@angular/common/http';
-import {debounceTime, map, switchMap} from 'rxjs/operators';
-import {Observable, of} from 'rxjs';
-import {HttpClient} from '@angular/common/http';
-import {MatAutocompleteModule} from '@angular/material/autocomplete';
-import {UserResponseDto} from '../../DTOs/users/UserResponseDto';
-import {SearchStateService} from './search-state.service';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatSidenavModule, MatSidenav } from '@angular/material/sidenav';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSliderModule } from '@angular/material/slider';
+import { ProfileService } from '../../services/profile.service';
+import { Tag } from '../../models/Tags';
+import { HttpParams } from '@angular/common/http';
+import { debounceTime, map, switchMap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { UserResponseDto } from '../../DTOs/users/UserResponseDto';
+import { SearchStateService } from './search-state.service';
 
 @Component({
   selector: 'app-home',
@@ -254,7 +254,7 @@ export class HomeComponent implements OnInit {
     city_name?: string;
   }): number {
     if (!location || !this.userLocation) {
-      return Number.MAX_SAFE_INTEGER; // Return maximum value for undefined locations
+      return Number.MAX_SAFE_INTEGER;
     }
 
     const userLatitude = this.userLocation.latitude;
@@ -302,7 +302,7 @@ export class HomeComponent implements OnInit {
     if (this.currentProfileIndex < this.profiles.length - 1) {
       this.currentProfileIndex++;
     } else {
-      this.profiles = []; // No more profiles
+      this.profiles = [];
     }
   }
 
@@ -320,7 +320,7 @@ export class HomeComponent implements OnInit {
   }
 
   goToProfile(userId: number) {
-    this.router.navigate(['/profile'], {queryParams: {id: userId}});
+    this.router.navigate(['/profile'], { queryParams: { id: userId } });
   }
 
   setupCityAutocomplete() {
@@ -350,8 +350,8 @@ export class HomeComponent implements OnInit {
 
   resetSearch() {
     this.searchForm.reset({
-      ageRange: {min: this.minAge, max: this.maxAge},
-      fameRange: {min: this.minFame, max: this.maxFame},
+      ageRange: { min: this.minAge, max: this.maxAge },
+      fameRange: { min: this.minFame, max: this.maxFame },
       location: '',
       tags: [],
       sortBy: '',

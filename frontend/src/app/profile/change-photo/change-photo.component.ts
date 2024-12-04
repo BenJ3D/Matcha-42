@@ -1,13 +1,12 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {MatButton, MatIconButton} from "@angular/material/button";
-import {MatIcon} from "@angular/material/icon";
-import {MatProgressSpinner} from "@angular/material/progress-spinner";
-import {MatStepLabel, MatStepperPrevious} from "@angular/material/stepper";
-import {NgForOf, NgIf} from "@angular/common";
-import {FormBuilder, FormGroup, ReactiveFormsModule} from "@angular/forms";
-import {Photo} from "../../../models/Photo";
-import {ProfileService} from "../../../services/profile.service";
-import {UserResponseDto} from "../../../DTOs/users/UserResponseDto";
+import { Component, Input, OnInit } from '@angular/core';
+import { MatButton, MatIconButton } from "@angular/material/button";
+import { MatIcon } from "@angular/material/icon";
+import { MatStepLabel } from "@angular/material/stepper";
+import { NgForOf, NgIf } from "@angular/common";
+import { FormBuilder, FormGroup, ReactiveFormsModule } from "@angular/forms";
+import { Photo } from "../../../models/Photo";
+import { ProfileService } from "../../../services/profile.service";
+import { UserResponseDto } from "../../../DTOs/users/UserResponseDto";
 
 @Component({
   selector: 'app-change-photo',
@@ -52,7 +51,6 @@ export class ChangePhotoComponent implements OnInit {
       Promise.all(uploadPromises)
         .then((newPhotos) => {
           this.isLoading = false;
-          // Update user photos
           if (this.user && newPhotos) {
             this.user.photos = [
               ...(this.user.photos || []),
@@ -80,7 +78,6 @@ export class ChangePhotoComponent implements OnInit {
         if (this.user) {
           this.user.main_photo_id = photo.photo_id;
         }
-        console.log('Main photo set successfully');
       },
       error: (error) => {
         console.error('Error setting main photo:', error);
@@ -102,7 +99,6 @@ export class ChangePhotoComponent implements OnInit {
               (p) => p.photo_id !== photo.photo_id
             );
           }
-          console.log('Photo deleted successfully');
         },
         error: (error) => {
           console.error('Error deleting photo:', error);

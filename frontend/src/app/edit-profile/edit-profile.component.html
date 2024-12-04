@@ -1,85 +1,51 @@
 <div class="edit-profile-container">
   <mat-stepper #stepper [linear]="isLinear" (selectionChange)="onStepChange($event)">
-    <!-- Step 1: Profile -->
-    <mat-step
-      [stepControl]="profileInfoForm"
-      [completed]="profileInfoForm.valid"
-    >
+    <mat-step [stepControl]="profileInfoForm" [completed]="profileInfoForm.valid">
       <ng-template matStepLabel>
         <mat-icon>person</mat-icon>
       </ng-template>
       <form [formGroup]="profileInfoForm">
         <div class="mat-step-content">
-          <!-- Biography -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Biography</mat-label>
-            <textarea
-              formControlName="biography"
-              matInput
-              required
-              rows="4"
-            ></textarea>
-            <mat-error
-              *ngIf="profileInfoForm.get('biography')?.hasError('required')"
-            >
+            <textarea formControlName="biography" matInput required rows="4"></textarea>
+            <mat-error *ngIf="profileInfoForm.get('biography')?.hasError('required')">
               Biography is required
             </mat-error>
-            <mat-error
-              *ngIf="profileInfoForm.get('biography')?.hasError('maxlength')"
-            >
+            <mat-error *ngIf="profileInfoForm.get('biography')?.hasError('maxlength')">
               Biography cannot exceed 1024 characters
             </mat-error>
           </mat-form-field>
 
-          <!-- Gender -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Gender</mat-label>
             <mat-select formControlName="gender" required>
-              <mat-option
-                *ngFor="let gender of genders"
-                [value]="gender.gender_id"
-              >
+              <mat-option *ngFor="let gender of genders" [value]="gender.gender_id">
                 {{ gender.name }}
               </mat-option>
             </mat-select>
-            <mat-error
-              *ngIf="profileInfoForm.get('gender')?.hasError('required')"
-            >
+            <mat-error *ngIf="profileInfoForm.get('gender')?.hasError('required')">
               Gender is required
             </mat-error>
           </mat-form-field>
 
-          <!-- Sexual Preferences -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Sexual Preferences</mat-label>
             <mat-select formControlName="sexualPreferences" multiple required>
-              <mat-option
-                *ngFor="let preference of genders"
-                [value]="preference.gender_id"
-              >
+              <mat-option *ngFor="let preference of genders" [value]="preference.gender_id">
                 {{ preference.name }}
               </mat-option>
             </mat-select>
-            <mat-error
-              *ngIf="
+            <mat-error *ngIf="
                 profileInfoForm.get('sexualPreferences')?.hasError('required')
-              "
-            >
+              ">
               Sexual preferences are required
             </mat-error>
           </mat-form-field>
 
-          <!-- Age -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Age</mat-label>
-            <input
-              matInput
-              type="number"
-              formControlName="age"
-              required
-              min="18"
-              max="120"
-            />
+            <input matInput type="number" formControlName="age" required min="18" max="120" />
             <mat-error *ngIf="profileInfoForm.get('age')?.hasError('required')">
               Age is required
             </mat-error>
@@ -91,7 +57,6 @@
             </mat-error>
           </mat-form-field>
 
-          <!-- Tags -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Tags</mat-label>
             <mat-select formControlName="tags" multiple>
@@ -102,12 +67,7 @@
           </mat-form-field>
 
           <div class="button-container">
-            <button
-              mat-button
-              matStepperNext
-              [disabled]="!profileInfoForm.valid"
-              (click)="onPartialSubmit()"
-            >
+            <button mat-button matStepperNext [disabled]="!profileInfoForm.valid" (click)="onPartialSubmit()">
               Next
             </button>
           </div>
@@ -115,7 +75,6 @@
       </form>
     </mat-step>
 
-    <!-- Update location step in edit-profile.component.html -->
     <mat-step [stepControl]="locationForm">
       <ng-template matStepLabel>
         <mat-icon>place</mat-icon>
@@ -124,17 +83,9 @@
         <div class="mat-step-content">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>City</mat-label>
-            <input
-              matInput
-              formControlName="city"
-              [matAutocomplete]="auto"
-              (blur)="onCityBlur()"
-            />
+            <input matInput formControlName="city" [matAutocomplete]="auto" (blur)="onCityBlur()" />
             <mat-autocomplete #auto="matAutocomplete">
-              <mat-option
-                *ngFor="let city of cityOptions | async"
-                [value]="city"
-              >
+              <mat-option *ngFor="let city of cityOptions | async" [value]="city">
                 {{ city }}
               </mat-option>
             </mat-autocomplete>
@@ -148,7 +99,6 @@
       </form>
     </mat-step>
 
-    <!-- Step 3: Photos -->
     <mat-step [stepControl]="photoForm">
       <ng-template matStepLabel>
         <mat-icon>photo_camera</mat-icon>
@@ -156,50 +106,25 @@
       <form [formGroup]="photoForm">
         <div class="mat-step-content">
           <div class="photo-upload-section">
-            <input
-              type="file"
-              (change)="onPhotoSelected($event)"
-              accept="image/*"
-              multiple
-              #fileInput
-              style="display: none"
-            />
-            <button
-              mat-raised-button
-              color="primary"
-              (click)="fileInput.click()"
-            >
+            <input type="file" (change)="onPhotoSelected($event)" accept="image/*" multiple #fileInput
+              style="display: none" />
+            <button mat-raised-button color="primary" (click)="fileInput.click()">
               <mat-icon>add_photo_alternate</mat-icon>
               Add Photos
             </button>
 
             <div class="photo-preview" *ngIf="user?.photos?.length">
               <div class="photo-item" *ngFor="let photo of user?.photos">
-                <img
-                  [src]="photo.url"
-                  [alt]="user?.username"
-                  (error)="onImageError($event)"
-                />
+                <img [src]="photo.url" [alt]="user?.username" (error)="onImageError($event)" />
                 <div class="photo-actions">
-                  <button
-                    mat-icon-button
-                    color="warn"
-                    (click)="deletePhoto(photo)"
-                  >
+                  <button mat-icon-button color="warn" (click)="deletePhoto(photo)">
                     <mat-icon>delete</mat-icon>
                   </button>
-                  <button
-                    mat-icon-button
-                    color="primary"
-                    *ngIf="user?.main_photo_id !== photo.photo_id"
-                    (click)="setAsMainPhoto(photo)"
-                  >
+                  <button mat-icon-button color="primary" *ngIf="user?.main_photo_id !== photo.photo_id"
+                    (click)="setAsMainPhoto(photo)">
                     <mat-icon>star</mat-icon>
                   </button>
-                  <mat-icon
-                    *ngIf="user?.main_photo_id === photo.photo_id"
-                    color="primary"
-                  >
+                  <mat-icon *ngIf="user?.main_photo_id === photo.photo_id" color="primary">
                     check_circle
                   </mat-icon>
                 </div>
@@ -209,17 +134,8 @@
 
           <div class="button-container">
             <button mat-button matStepperPrevious>Back</button>
-            <button
-              mat-raised-button
-              color="primary"
-              (click)="onSubmit()"
-              [disabled]="isLoading"
-            >
-              <mat-progress-spinner
-                *ngIf="isLoading"
-                diameter="20"
-                mode="indeterminate"
-              >
+            <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="isLoading">
+              <mat-progress-spinner *ngIf="isLoading" diameter="20" mode="indeterminate">
               </mat-progress-spinner>
               <span *ngIf="!isLoading">
                 {{ existingProfile ? "Update" : "Create" }} Profile
