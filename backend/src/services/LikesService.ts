@@ -37,7 +37,7 @@ class LikesService {
         if (!targetExists) {
             throw {status: 404, message: 'Utilisateur cible non trouvé'};
         }
-        
+
         await BlockedUsersService.checkIsUserBlocked(targetUserId, userId);
 
         await LikesDAL.addLike(userId, targetUserId);
@@ -53,11 +53,12 @@ class LikesService {
         // Vérifier si c'est un match
         const reciprocalLikes = await LikesDAL.getLikesByUserId(targetUserId);
         const isMutual = reciprocalLikes.some(like => like.user_liked === userId);
+        const targetUnlike = await UnlikesService.getUserUnlikes(userId);
+        const isUnlikedByTarget = targetUnlike.unlikesReceived.some(user => user.id == targetUserId);
+        console.log('DBG unlike blocked ? ', isUnlikedByTarget);
         if (isMutual) {
             await MatchesService.createMatch(userId, targetUserId);
-
-
-        } else {
+        } else if (!isUnlikedByTarget) {
             // LIKE notification pour target user
             await NotificationsService.createNotification(
                 targetUserId,
