@@ -19,7 +19,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           'Resend',
           () => authService.resendVerificationEmail().subscribe({
             next: () => toastService.show('Verification email resent successfully.', 'Close'),
-            error: (err) => toastService.show('Error resending the email.', 'Close')
+            error: () => toastService.show('Error resending the email.', 'Close')
           })
         );
       } else if (error.status >= 400 && error.status < 500) {

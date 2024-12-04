@@ -6,4 +6,4 @@ import {AppComponent} from './app/app.component';
 // enableProdMode();
 
 bootstrapApplication(AppComponent, appConfig)
-  .catch((err) => console.error(err));
+  .catch((error) => console.error(error));

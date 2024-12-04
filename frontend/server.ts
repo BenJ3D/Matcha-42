@@ -38,7 +38,7 @@ export function app(): express.Express {
         providers: [{ provide: APP_BASE_HREF, useValue: baseUrl }],
       })
       .then((html) => res.send(html))
-      .catch((err) => next(err));
+      .catch((error) => next(error));
   });
 
   return server;

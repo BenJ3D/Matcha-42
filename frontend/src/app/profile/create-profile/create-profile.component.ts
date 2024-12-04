@@ -111,8 +111,8 @@ export class CreateProfileComponent implements OnInit {
           this.goToProfile();
           this.isLoading = false;
         },
-        error: (err) => {
-          console.error('Error creating user profile', err);
+        error: (error) => {
+          console.error('Error creating user profile', error);
           this.toastService.show('Error creating user profile');
           this.isLoading = false;
         },
@@ -130,7 +130,7 @@ export class CreateProfileComponent implements OnInit {
       next: (genders) => {
         this.genders = genders;
       },
-      error: (err) => console.error('Error loading genders', err),
+      error: (error) => console.error('Error loading genders', error),
     });
   }
 
@@ -140,7 +140,7 @@ export class CreateProfileComponent implements OnInit {
         this.tags = tags.sort((a, b) => a.tag_name.localeCompare(b.tag_name));
 
       },
-      error: (err) => console.error('Error loading tags', err),
+      error: (error) => console.error('Error loading tags', error),
     });
   }
 

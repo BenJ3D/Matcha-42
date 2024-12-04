@@ -134,7 +134,7 @@ export class HomeComponent implements OnInit {
       next: (tags) => {
         this.tags = tags;
       },
-      error: (err) => console.error('Error loading tags', err),
+      error: (error) => console.error('Error loading tags', error),
     });
   }
 
