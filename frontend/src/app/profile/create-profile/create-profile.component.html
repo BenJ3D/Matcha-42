@@ -67,11 +67,14 @@
       <mat-form-field appearance="outline" class="w-full pb-1">
         <mat-label>City</mat-label>
         <input matInput formControlName="city" [matAutocomplete]="auto" (blur)="onCityBlur()" />
-        <mat-autocomplete #auto="matAutocomplete">
+        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onCitySelection($event.option.value)">
           <mat-option *ngFor="let city of cityOptions | async" [value]="city">
             {{ city }}
           </mat-option>
         </mat-autocomplete>
+        <mat-error *ngIf="profileForm.get('city')?.hasError('invalidCity')">
+          Please select a valid city from the list or leave it empty.
+        </mat-error>
       </mat-form-field>
       <button class="!font-black" mat-raised-button color="primary" type="submit" hidden="hidden"></button>
 

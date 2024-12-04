@@ -3,7 +3,7 @@ import { CommonModule, NgForOf, NgIf } from "@angular/common";
 import { MatIconModule } from "@angular/material/icon";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { ProfileService } from "../../../services/profile.service";
 import { ToastService } from "../../../services/toast.service";
@@ -53,7 +53,7 @@ export class CreateProfileComponent implements OnInit {
   isCityValid: boolean = false;
   cityOptions!: Observable<string[]>;
   isLoading: boolean = false;
-
+  validCities: string[] = []; // Step 1
 
   constructor(
     private fb: FormBuilder,
@@ -61,15 +61,13 @@ export class CreateProfileComponent implements OnInit {
     protected toastService: ToastService,
     private http: HttpClient,
     private router: Router
-  ) {
-  }
+  ) {}
 
   ngOnInit(): void {
     this.initializeForm();
     this.loadInitialData();
     this.setupCityAutocomplete();
-    this.getLocationFromIP().then(r => {
-    });
+    this.getLocationFromIP().then(r => {});
   }
 
   loadInitialData() {
@@ -77,7 +75,6 @@ export class CreateProfileComponent implements OnInit {
     this.loadTags();
     this.profileService.getMyProfile().subscribe();
   }
-
 
   initializeForm() {
     this.profileForm = this.fb.group({
@@ -89,7 +86,91 @@ export class CreateProfileComponent implements OnInit {
         [Validators.required, Validators.min(18), Validators.max(120)],
       ],
       tags: [[]],
-      city: [''],
+      city: ['', this.cityValidator.bind(this)], // Step 4
+    });
+  }
+
+  // Step 3
+  cityValidator(control: AbstractControl): ValidationErrors | null {
+    const city = control.value.trim();
+    if (city === '') {
+      return null;
+    }
+    return this.validCities.includes(city) ? null : { invalidCity: true };
+  }
+
+  private searchCities(cityName: string): Observable<string[]> {
+    if (!cityName) return of([]);
+
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=10&class=place&type=city`;
+
+    return this.http.get<any[]>(url).pipe(
+      map((results) =>
+        results.map((result) => {
+          const cityName = result.display_name.split(',')[0].trim();
+          return cityName;
+        })
+      ),
+      map((cityNames) => {
+        const uniqueCities = Array.from(new Set(cityNames));
+        this.validCities = uniqueCities; // Step 2
+        return uniqueCities;
+      })
+    );
+  }
+
+  private setupCityAutocomplete(): void {
+    const cityControl = this.profileForm.get('city');
+
+    if (cityControl) {
+      this.cityOptions = cityControl.valueChanges.pipe(
+        debounceTime(5),
+        distinctUntilChanged(),
+        switchMap((value) => this.searchCities(value))
+      );
+    }
+  }
+
+  onCitySelection(city: string) { // Step 5
+    this.validCities = [city];
+    this.profileForm.get('city')?.updateValueAndValidity();
+  }
+
+  onCityBlur() {
+    const city: string = this.profileForm.getRawValue().city.trim();
+    if (city) {
+      this.searchCityCoordinates(city);
+    } else {
+      this.locationSelected.latitude = this.locationIp?.latitude || 0;
+      this.locationSelected.longitude = this.locationIp?.longitude || 0;
+      this.locationSelected.city = this.locationIp?.city;
+    }
+  }
+
+  searchCityCoordinates(cityName: string) {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+      cityName
+    )}&format=json&limit=5`;
+    const headers = {
+      'Accept-Language': 'fr',
+      'User-Agent': 'matcha - matcha@example.com',
+    };
+
+    this.http.get<any[]>(url, { headers }).subscribe({
+      next: (results) => {
+        if (results && results.length > 0) {
+          this.profileForm.patchValue({ city: results[0].name }, { emitEvent: false });
+          this.locationSelected.latitude = parseFloat(results[0].lat);
+          this.locationSelected.longitude = parseFloat(results[0].lon);
+          this.locationSelected.city = results[0].name.split(',')[0].trim();
+        } else {
+          this.profileForm.get('city')?.setErrors({ cityNotFound: true });
+          this.toastService.show('City not found');
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching city coordinates:', error);
+      },
     });
   }
 
@@ -121,7 +202,7 @@ export class CreateProfileComponent implements OnInit {
         }
       });
     } else {
-      this.profileForm.touched;
+      this.profileForm.markAllAsTouched();
     }
   }
 
@@ -183,73 +264,6 @@ export class CreateProfileComponent implements OnInit {
           resolve();
         },
       });
-    });
-  }
-
-  private searchCities(cityName: string): Observable<string[]> {
-    if (!cityName) return of([]);
-
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=10&class=place&type=city`;
-
-    return this.http.get<any[]>(url).pipe(
-      map((results) =>
-        results.map((result) => {
-          const cityName = result.display_name.split(',')[0].trim();
-          return cityName;
-        })
-      ),
-      map((cityNames) => Array.from(new Set(cityNames)))
-    );
-  }
-
-  private setupCityAutocomplete(): void {
-    const cityControl = this.profileForm.get('city');
-
-    if (cityControl) {
-      this.cityOptions = cityControl.valueChanges.pipe(
-        debounceTime(5),
-        distinctUntilChanged(),
-        switchMap((value) => this.searchCities(value))
-      );
-    }
-  }
-
-  onCityBlur() {
-    const city: string = this.profileForm.getRawValue().city.trim();
-    if (city) {
-      this.searchCityCoordinates(city);
-    } else {
-      this.locationSelected.latitude = this.locationIp?.latitude || 0;
-      this.locationSelected.longitude = this.locationIp?.longitude || 0;
-      this.locationSelected.city = this.locationIp?.city;
-    }
-  }
-
-
-  searchCityCoordinates(cityName: string) {
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-      cityName
-    )}&format=json&limit=5`;
-    const headers = {
-      'Accept-Language': 'fr',
-      'User-Agent': 'matcha - matcha@example.com',
-    };
-
-    this.http.get<any[]>(url, { headers }).subscribe({
-      next: (results) => {
-        if (results && results.length > 0) {
-          this.profileForm.patchValue({ city: results[0].name }, { emitEvent: false });
-          this.locationSelected.latitude = parseFloat(results[0].lat);
-          this.locationSelected.longitude = parseFloat(results[0].lon);
-          this.locationSelected.city = results[0].name.split(',')[0].trim();
-        } else {
-          this.profileForm.get('city')?.setErrors({ cityNotFound: true });
-          this.toastService.show('City not found');
-        }
-      },
-      error: (error) => {
-        console.error('Error fetching city coordinates:', error);
-      },
     });
   }
 
