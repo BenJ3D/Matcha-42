@@ -283,11 +283,9 @@ export class HomeComponent implements OnInit {
     if (!currentProfileId) return;
 
     if (liked) {
-      console.log('Liked profile:', this.currentProfile?.username);
       this.animateRight = true;
       this.profileService.addLikeUser(currentProfileId).subscribe({});
     } else {
-      console.log('Passed profile:', this.currentProfile?.username);
       this.animateLeft = true;
       this.profileService.addUnlikeUser(currentProfileId).subscribe({});
     }

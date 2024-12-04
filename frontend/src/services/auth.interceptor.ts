@@ -25,8 +25,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             if (response && response.accessToken) {
               localStorage.setItem('accessToken', response.accessToken);
               localStorage.setItem('refreshToken', response.refreshToken);
-              console.log('Access token refreshed');
-
               const newAuthReq = req.clone({
                 headers: req.headers.set('Authorization', `Bearer ${response.accessToken}`),
               });

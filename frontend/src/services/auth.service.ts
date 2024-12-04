@@ -91,7 +91,6 @@ export class AuthService {
         if (this.isBrowser) {
           localStorage.setItem('accessToken', response.accessToken);
           localStorage.setItem('refreshToken', response.refreshToken);
-          console.log(response);
         }
         this.userSubject.next(response.user);
       }),

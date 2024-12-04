@@ -314,7 +314,6 @@ export class EditProfileComponent implements OnInit {
   }
 
   onSubmit() {
-    console.log('Submitting form' + JSON.stringify(this.locationIp));
     if (this.profileInfoForm.valid && this.locationForm.valid) {
       this.isLoading = true;
       const profileData = {
@@ -376,7 +375,6 @@ export class EditProfileComponent implements OnInit {
         if (this.user) {
           this.user.main_photo_id = photo.photo_id;
         }
-        console.log('Main photo set successfully');
       },
       error: (error) => {
         console.error('Error setting main photo:', error);
@@ -398,7 +396,7 @@ export class EditProfileComponent implements OnInit {
               (p) => p.photo_id !== photo.photo_id
             );
           }
-          console.log('Photo deleted successfully');
+
         },
         error: (error) => {
           console.error('Error deleting photo:', error);

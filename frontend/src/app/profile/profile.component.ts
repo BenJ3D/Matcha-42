@@ -80,7 +80,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   initializeStep() {
     if (!this.user?.profile_id) {
-      console.log('User has no profile');
       this.editStep = EEditStep.create;
     } else {
       this.editStep = EEditStep.idle;
@@ -209,7 +208,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
           this.user.main_photo_id = photo.photo_id;
           this.loadUserProfile();
         }
-        console.log('Main photo set successfully');
       },
       error: (error) => {
         console.error('Error setting main photo:', error);
@@ -295,7 +293,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     ) {
       this.profileService.deleteProfile().subscribe({
         next: () => {
-          console.log('Profile deleted successfully');
           this.router.navigate(['/create-profile']);
         },
         error: (error) => {
@@ -313,7 +310,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     ) {
       this.profileService.deleteUser().subscribe({
         next: () => {
-          console.log('User deleted successfully');
           this.router.navigate(['/login']);
         },
         error: (error) => {

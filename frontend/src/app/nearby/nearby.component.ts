@@ -44,7 +44,6 @@ export class NearbyComponent implements OnInit {
       this.initMap();
       this.profileService.getMyProfile().subscribe((user) => {
         this.currentPosition = { lat: user.location?.latitude, lng: user.location?.longitude };
-        console.log('Current position:', this.currentPosition);
         this.map.setView([this.currentPosition.lat, this.currentPosition.lng], 13);
         this.addCurrentPositionMarker();
       });
@@ -99,7 +98,6 @@ export class NearbyComponent implements OnInit {
         }));
 
       this.addNearbyUsersMarkers();
-      console.log('Fetched nearby users:', this.nearbyUsers);
     });
   }
 

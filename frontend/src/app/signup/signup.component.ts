@@ -89,7 +89,7 @@ export class SignupComponent {
         this.router.navigate(['/login']);
       },
       error: (error) => {
-        console.log(error);
+        console.error(error);
         this.isLoading = false;
         this.form.enable();
       },

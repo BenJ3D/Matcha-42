@@ -116,7 +116,6 @@ export class NotificationComponent implements OnInit, OnDestroy {
         break;
       case 'MATCH':
       case 'NEW_MESSAGE':
-        console.log('Naviguer vers /chat avec id :', notification.source_user);
         this.router.navigate(['/chat'], { queryParams: { id: notification.source_user } });
         break;
       default:
