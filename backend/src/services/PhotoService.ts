@@ -3,26 +3,26 @@ import path from 'path';
 import sharp from 'sharp';
 import PhotoDAL from '../DataAccessLayer/PhotoDAL';
 import ProfileDAL from '../DataAccessLayer/ProfileDAL';
-import { Photo } from '../models/Photo';
+import {Photo} from '../models/Photo';
 
 class PhotoService {
     async uploadPhoto(userId: number, file: Express.Multer.File, description: string): Promise<Photo> {
         const photoCount = await PhotoDAL.getPhotoCountByUser(userId);
         if (photoCount >= 5) {
             fs.unlinkSync(file.path);
-            throw { status: 400, message: 'Vous avez atteint la limite de 5 photos.' };
+            throw {status: 400, message: 'You have reached the limit of 5 photos.'};
         }
 
         const processedFilePath = path.join('./uploads', `processed-${file.filename}`);
 
         try {
             await sharp(file.path)
-                .resize({ width: 800 })
+                .resize({width: 800})
                 .toFile(processedFilePath);
         } catch (err) {
             if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
             if (fs.existsSync(processedFilePath)) fs.unlinkSync(processedFilePath);
-            throw { status: 400, message: 'Le fichier fourni n\'est pas une image valide ou est corrompu.' };
+            throw {status: 400, message: 'The file supplied is not a valid image or is corrupt.'};
         }
 
         fs.unlinkSync(file.path);
@@ -49,11 +49,11 @@ class PhotoService {
     async deletePhoto(userId: number, photoId: number): Promise<void> {
         const photo = await PhotoDAL.findPhotoById(photoId);
         if (!photo) {
-            throw { status: 404, message: 'Photo non trouvée.' };
+            throw {status: 404, message: 'Photo not found.'};
         }
 
         if (photo.owner_user_id !== userId) {
-            throw { status: 403, message: 'Vous n\'êtes pas autorisé à supprimer cette photo.' };
+            throw {status: 403, message: 'You are not authorized to delete this photo.'};
         }
 
         const profile = await ProfileDAL.findByUserId(userId);
@@ -67,11 +67,11 @@ class PhotoService {
     async setMainPhoto(userId: number, photoId: number): Promise<void> {
         const photo = await PhotoDAL.findPhotoById(photoId);
         if (!photo) {
-            throw { status: 404, message: 'Photo non trouvée.' };
+            throw {status: 404, message: 'Photo not found.'};
         }
 
         if (photo.owner_user_id !== userId) {
-            throw { status: 403, message: 'Vous n\'êtes pas autorisé à définir cette photo comme principale.' };
+            throw {status: 403, message: 'You are not allowed to set this photo as main.'};
         }
 
         await ProfileDAL.updateMainPhoto(userId, photoId);
