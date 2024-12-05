@@ -10,7 +10,10 @@ const imageFileFilter = (req: Request, file: Express.Multer.File, cb: FileFilter
     if (allowedTypes.includes(file.mimetype) && allowedExtensions.includes(extension)) {
         cb(null, true);
     } else {
-        cb(new Error('Type de fichier non supporté. Seuls les fichiers JPEG et PNG sont acceptés.'));
+        const error = new Error('File type not supported. Only JPEG and PNG files are accepted.');
+        //@ts-ignore
+        error.status = 400;
+        cb(error);
     }
 };
 
