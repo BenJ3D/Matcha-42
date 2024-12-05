@@ -43,7 +43,7 @@
       <!-- Age -->
       <mat-form-field appearance="outline" class="w-full pb-1">
         <mat-label>Age</mat-label>
-        <input matInput type="number" formControlName="age" required min="18" max="120" />
+        <input matInput type="number" step="1" formControlName="age" required min="18" max="120"  (keydown)="preventDecimal($event)"/>
         <mat-error *ngIf="profileForm.get('age')?.hasError('required')">
           Age is required
         </mat-error>
@@ -52,6 +52,9 @@
         </mat-error>
         <mat-error *ngIf="profileForm.get('age')?.hasError('max')">
           Must be under 120 years old
+        </mat-error>
+        <mat-error *ngIf="profileForm.get('age')?.hasError('integer')">
+          L'âge doit être un nombre entier.
         </mat-error>
       </mat-form-field>
 
