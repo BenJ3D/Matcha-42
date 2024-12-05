@@ -1,16 +1,16 @@
-import { Request, Response } from 'express';
+import {Request, Response} from 'express';
 import UserServices from '../services/UserServices';
-import { UserLightResponseDto } from "../DTOs/users/UserLightResponseDto";
-import { UserResponseDto } from "../DTOs/users/UserResponseDto";
-import { UserCreateDtoValidation } from "../DTOs/users/UserCreateDtoValidation";
+import {UserLightResponseDto} from "../DTOs/users/UserLightResponseDto";
+import {UserResponseDto} from "../DTOs/users/UserResponseDto";
+import {UserCreateDtoValidation} from "../DTOs/users/UserCreateDtoValidation";
 import userServices from "../services/UserServices";
-import { UserUpdateDtoValidation } from "../DTOs/users/UserUpdateDtoValidation";
-import { AuthenticatedRequest } from "../middlewares/authMiddleware";
-import { SearchValidationSchema } from "../DTOs/users/SearchValidationSchemaDto";
-import { VALID_SORT_FIELDS, VALID_ORDER_VALUES, SortField, SortOrder } from '../config/sortConfig';
-import { UserEmailPatchDtoValidation } from "../DTOs/users/UserEmailPatchDtoValidation";
-import { validateIdNumber } from "../utils/validateIdNumber";
-import { UserOtherResponseDto } from "../DTOs/users/UserOtherResponseDto";
+import {UserUpdateDtoValidation} from "../DTOs/users/UserUpdateDtoValidation";
+import {AuthenticatedRequest} from "../middlewares/authMiddleware";
+import {SearchValidationSchema} from "../DTOs/users/SearchValidationSchemaDto";
+import {VALID_SORT_FIELDS, VALID_ORDER_VALUES, SortField, SortOrder} from '../config/sortConfig';
+import {UserEmailPatchDtoValidation} from "../DTOs/users/UserEmailPatchDtoValidation";
+import {validateIdNumber} from "../utils/validateIdNumber";
+import {UserOtherResponseDto} from "../DTOs/users/UserOtherResponseDto";
 
 const userController = {
     getAllUsers: async (req: Request, res: Response) => {
@@ -18,7 +18,7 @@ const userController = {
             const users: UserLightResponseDto[] = await UserServices.getAllUsers();
             res.json(users);
         } catch (error: any) {
-            res.status(400).json({ error: 'Could not fetch users' });
+            res.status(error.status).json({error: 'Could not fetch users'});
         }
     },
 
@@ -26,19 +26,19 @@ const userController = {
         try {
             let userId: number;
             if (!req.userId) {
-                return res.status(401).json({ error: "Non Authenticated" });
+                return res.status(401).json({error: "Non Authenticated"});
             }
             userId = req.userId;
             if (isNaN(userId)) {
-                return res.status(400).json({ message: 'Invalid user ID' });
+                return res.status(400).json({message: 'Invalid user ID'});
             }
             const user: UserResponseDto | null = await UserServices.getUserById(userId);
             if (!user) {
-                return res.status(404).json({ message: 'User not found' });
+                return res.status(404).json({message: 'User not found'});
             }
             res.json(user);
         } catch (error: any) {
-            res.status(400).json({ error: error.message });
+            res.status(error.status).json({error: error.message});
 
         }
     },
@@ -46,96 +46,96 @@ const userController = {
     getUserById: async (req: AuthenticatedRequest, res: Response) => {
         try {
             if (!req.userId) {
-                return res.status(401).json({ error: "Non Authenticated" });
+                return res.status(401).json({error: "Non Authenticated"});
             }
             const currentUserId = req.userId;
             const userId = parseInt(req.params.id, 10);
             if (currentUserId == userId) {
-                return res.status(204).json({ message: 'Its yourself' });
+                return res.status(204).json({message: 'Its yourself'});
 
             }
             if (isNaN(userId)) {
-                return res.status(400).json({ message: 'Invalid user ID' });
+                return res.status(400).json({message: 'Invalid user ID'});
             }
             const user: UserOtherResponseDto | null = await UserServices.getUserOtherById(currentUserId, userId);
             if (!user) {
-                return res.status(404).json({ message: 'User not found' });
+                return res.status(404).json({message: 'User not found'});
             }
             res.json(user);
         } catch (error: any) {
-            res.status(500).json({ error: error.message });
+            res.status(500).json({error: error.message});
 
         }
     },
 
     createUser: async (req: Request, res: Response) => {
-        const { error, value: newUser } = UserCreateDtoValidation.validate(req.body);
+        const {error, value: newUser} = UserCreateDtoValidation.validate(req.body);
         if (error) {
-            return res.status(400).json({ error: "Validation échouée", details: error.details });
+            return res.status(400).json({error: "Validation échouée", details: error.details});
         }
         try {
             const userId = await userServices.createUser(newUser);
-            return res.status(201).json({ userId });
+            return res.status(201).json({userId});
         } catch (e: any) {
-            res.status(e.status || 400).json({ error: e.message });
+            res.status(e.status || 500).json({error: e.message});
         }
     },
 
     updateUser: async (req: AuthenticatedRequest, res: Response) => {
-        const { error, value: updateUser } = UserUpdateDtoValidation.validate(req.body);
+        const {error, value: updateUser} = UserUpdateDtoValidation.validate(req.body);
 
         if (error) {
-            return res.status(400).json({ error: "Validation échouée", details: error.details });
+            return res.status(400).json({error: "Validation échouée", details: error.details});
         }
 
         try {
             const userId = req.userId;
             if (!userId) {
-                return res.status(401).json({ error: "Non Authenticated" });
+                return res.status(401).json({error: "Non Authenticated"});
             }
             const existingUser = await userServices.getUserById(userId);
             if (!existingUser) {
-                return res.status(404).json({ message: "Utilisateur non trouvé." });
+                return res.status(404).json({message: "Utilisateur non trouvé."});
             }
 
             await userServices.updateUser(userId, updateUser);
-            return res.status(200).json({ message: "Utilisateur mis à jour avec succès." });
+            return res.status(200).json({message: "Utilisateur mis à jour avec succès."});
 
         } catch (e: any) {
             if (e.code === '23505') {
-                return res.status(409).json({ error: "Cet email est déjà pris." });
+                return res.status(409).json({error: "Cet email est déjà pris."});
             }
 
-            res.status(e.status || 400).json({ error: e.message || "Erreur" });
+            res.status(e.status || 500).json({error: e.message || "Erreur"});
         }
     },
 
     patchUserEmail: async (req: AuthenticatedRequest, res: Response) => {
-        const { error, value: patchUser } = UserEmailPatchDtoValidation.validate(req.body);
+        const {error, value: patchUser} = UserEmailPatchDtoValidation.validate(req.body);
         if (error) {
-            return res.status(400).json({ error: "Validation échouée", details: error.details });
+            return res.status(400).json({error: "Validation échouée", details: error.details});
         }
 
         try {
             const userId = req.userId;
             if (!userId) {
-                return res.status(401).json({ error: "Non Authenticated" });
+                return res.status(401).json({error: "Non Authenticated"});
             }
             validateIdNumber(userId, res);
             const existingUser = await userServices.getUserById(userId);
             if (!existingUser) {
-                return res.status(404).json({ message: "Utilisateur non trouvé." });
+                return res.status(404).json({message: "Utilisateur non trouvé."});
             }
 
             await userServices.patchEmailUser(existingUser, patchUser);
-            return res.status(200).json({ message: "Email utilisateur mis à jour avec succès." });
+            return res.status(200).json({message: "Email utilisateur mis à jour avec succès."});
 
         } catch (e: any) {
             if (e.code === '23505') {
-                return res.status(409).json({ error: "Cet email est déjà pris." });
+                return res.status(409).json({error: "Cet email est déjà pris."});
             }
 
-            res.status(e.status || 400).json({ error: e.message || "Erreur" });
+            res.status(e.status || 500).json({error: e.message || "Erreur"});
         }
     },
 
@@ -143,23 +143,23 @@ const userController = {
         try {
             const userId = req.userId;
             if (!userId) {
-                return res.status(401).json({ error: "Non Authenticated" });
+                return res.status(401).json({error: "Non Authenticated"});
             }
             validateIdNumber(userId, res);
             const existingUser = await userServices.getUserById(userId);
             if (!existingUser) {
-                return res.status(404).json({ message: "Utilisateur non trouvé." });
+                return res.status(404).json({message: "Utilisateur non trouvé."});
             }
 
             await userServices.sendEmailWithTokenEmailValidation(existingUser);
-            return res.status(200).json({ message: "Email envoyé." });
+            return res.status(200).json({message: "Email envoyé."});
 
         } catch (e: any) {
             if (e.code === '23505') {
-                return res.status(409).json({ error: "Cet email est déjà pris." });
+                return res.status(409).json({error: "Cet email est déjà pris."});
             }
 
-            res.status(e.status || 400).json({ error: e.message || "Erreur" });
+            res.status(e.status || 500).json({error: e.message || "Erreur"});
         }
     },
 
@@ -168,31 +168,31 @@ const userController = {
             const userId = req.userId;
             validateIdNumber(userId, res);
             if (!userId) {
-                return res.status(401).json({ error: "Non Authenticated" });
+                return res.status(401).json({error: "Non Authenticated"});
             }
             if (isNaN(userId)) {
-                return res.status(400).json({ message: 'Invalid user ID' });
+                return res.status(400).json({message: 'Invalid user ID'});
             }
 
             await userServices.deleteUser(userId);
-            return res.status(200).json({ message: "Utilisateur supprimé avec succès." });
+            return res.status(200).json({message: "Utilisateur supprimé avec succès."});
         } catch (e: any) {
-            res.status(e.status || 500).json({ error: e.message || "Erreur" });
+            res.status(e.status || 500).json({error: e.message || "Erreur"});
         }
     },
 
     advancedSearch: async (req: AuthenticatedRequest, res: Response) => {
-        const { error, value: newUser } = SearchValidationSchema.validate(req.body);
+        const {error, value: newUser} = SearchValidationSchema.validate(req.body);
 
         if (error) {
-            return res.status(400).json({ error: "Validation échouée", details: error.details });
+            return res.status(400).json({error: "Validation échouée", details: error.details});
         }
 
 
         try {
             const userId = req.userId;
             if (!userId) {
-                return res.status(401).json({ error: "Non Authenticated" });
+                return res.status(401).json({error: "Non Authenticated"});
             }
 
             const {
@@ -240,7 +240,7 @@ const userController = {
 
             return res.json(results);
         } catch (e: any) {
-            res.status(e.status || 500).json({ error: e.message });
+            res.status(e.status || 500).json({error: e.message});
         }
     }
 };

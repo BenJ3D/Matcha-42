@@ -9,8 +9,8 @@ class MatchesDAL {
                 .where('user_1', userId)
                 .orWhere('user_2', userId);
             return matches;
-        } catch (error) {
-            throw {status: 400, message: 'Impossible de récupérer les matches pour cet utilisateur'};
+        } catch (error: any) {
+            throw {status: error.status, message: 'Impossible de récupérer les matches pour cet utilisateur'};
         }
     }
 
@@ -26,8 +26,8 @@ class MatchesDAL {
             }
 
             await db('matches').insert({user_1: user1, user_2: user2});
-        } catch (error) {
-            throw {status: 400, message: 'Impossible d\'ajouter le match'};
+        } catch (error: any) {
+            throw {status: error.status, message: 'Impossible d\'ajouter le match'};
         }
     }
 
@@ -35,8 +35,8 @@ class MatchesDAL {
         try {
             const [user1, user2] = userId1 < userId2 ? [userId1, userId2] : [userId2, userId1];
             await db('matches').where({user_1: user1, user_2: user2}).del();
-        } catch (error) {
-            throw {status: 400, message: 'Impossible de supprimer le match'};
+        } catch (error: any) {
+            throw {status: error.status, message: 'Impossible de supprimer le match'};
         }
     }
 
@@ -50,8 +50,8 @@ class MatchesDAL {
                 .first();
 
             return !!match;
-        } catch (error) {
-            throw {status: 400, message: 'Erreur'};
+        } catch (error: any) {
+            throw {status: error.status, message: 'Erreur'};
         }
     }
 

@@ -35,7 +35,7 @@ class UserDAL {
             } else if (e.status === 404) {
                 throw e;
             } else {
-                throw {status: 400, message: "Erreur"};
+                throw {status: e.status, message: e.status};
             }
         }
     };
@@ -62,7 +62,7 @@ class UserDAL {
             } else if (e.status === 404) {
                 throw e;
             } else {
-                throw {status: 400, message: "Erreur"};
+                throw {status: e.status, message: e.message};
             }
         }
     };
@@ -79,7 +79,7 @@ class UserDAL {
             if (e.code === '23505') {
                 throw {status: 409, message: "L'email existe déjà."};
             } else {
-                throw {status: 400, message: "Erreur."};
+                throw {status: e.status, message: e.message};
             }
         }
     }
@@ -102,7 +102,7 @@ class UserDAL {
             } else if (e.code === '23503') {
                 throw {status: 400, message: "Erreur : Contrainte de clé étrangère."};
             } else {
-                throw {status: 400, message: "Erreur."};
+                throw {status: e.status, message: e.message};
             }
         }
     };

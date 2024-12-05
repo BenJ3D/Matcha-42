@@ -5,8 +5,8 @@ class TagDAL {
     async getAllTags(): Promise<Tag[]> {
         try {
             return await db('tags').select('*');
-        } catch (error) {
-            throw { status: 400, message: 'Impossible de récupérer les tags' };
+        } catch (error: any) {
+            throw {status: error.status, message: 'Impossible de récupérer les tags' };
         }
     }
 
@@ -17,8 +17,8 @@ class TagDAL {
                 .where('tag_id', tagId)
                 .first();
             return tag || null;
-        } catch (error) {
-            throw { status: 400, message: 'Impossible de récupérer le tag' };
+        } catch (error: any) {
+            throw {status: error.status, message: 'Impossible de récupérer le tag' };
         }
     }
 }

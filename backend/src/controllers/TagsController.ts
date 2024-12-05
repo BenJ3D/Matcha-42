@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import {Request, Response} from 'express';
 import TagsService from '../services/TagsService';
 
 class TagsController {
@@ -7,7 +7,7 @@ class TagsController {
             const tags = await TagsService.getAllTags();
             res.json(tags);
         } catch (error: any) {
-            res.status(error.status || 400).json({ error: error.message || 'Erreur' });
+            res.status(error.status || 500).json({error: error.message || 'Erreur'});
         }
     }
 
@@ -16,13 +16,13 @@ class TagsController {
             const tagId = parseInt(req.params.tagId, 10);
             const tag = await TagsService.getTagById(tagId);
             if (!tag) {
-                return res.status(404).json({ error: 'Tag non trouvé' });
+                return res.status(404).json({error: 'Tag non trouvé'});
             }
             res.json(tag);
         } catch (error: any) {
             res
                 .status(error.status || 500)
-                .json({ error: error.message || 'Erreur' });
+                .json({error: error.message || 'Erreur'});
         }
     }
 }

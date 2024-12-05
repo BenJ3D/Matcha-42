@@ -7,8 +7,8 @@ class UnlikesDAL {
         try {
             const unlikes = await db('unlikes').select('*').where('user', userId);
             return unlikes;
-        } catch (error) {
-            throw { status: 400, message: 'Impossible de récupérer les unlikes pour cet utilisateur' };
+        } catch (error: any) {
+            throw {status: error.status, message: 'Impossible de récupérer les unlikes pour cet utilisateur' };
         }
     }
 
@@ -16,8 +16,8 @@ class UnlikesDAL {
         try {
             const unlikes = await db('unlikes').select('*').where('user_unliked', userId);
             return unlikes;
-        } catch (error) {
-            throw { status: 400, message: 'Impossible de récupérer les unlikes reçus pour cet utilisateur' };
+        } catch (error: any) {
+            throw {status: error.status, message: 'Impossible de récupérer les unlikes reçus pour cet utilisateur' };
         }
     }
 
@@ -30,7 +30,7 @@ class UnlikesDAL {
             } else if (error.code === '23503') {
                 throw { status: 404, message: 'Utilisateur cible non trouvé' };
             }
-            throw { status: 400, message: 'Impossible d\'ajouter le unlike' };
+            throw { status: error.status, message: 'Impossible d\'ajouter le unlike' };
         }
     }
 
@@ -41,7 +41,7 @@ class UnlikesDAL {
                 throw { status: 404, message: 'Unlike non trouvé' };
             }
         } catch (error: any) {
-            throw { status: error.status || 400, message: error.message || 'Impossible de supprimer le unlike' };
+            throw { status: error.status || 500, message: error.message || 'Impossible de supprimer le unlike' };
         }
     }
 
@@ -49,8 +49,8 @@ class UnlikesDAL {
         try {
             const unlikes = await db('unlikes').select('user_unliked').where('user', userId);
             return unlikes.map(unlike => unlike.user_unliked);
-        } catch (error) {
-            throw { status: 400, message: 'Impossible de récupérer les IDs des unlikes' };
+        } catch (error: any) {
+            throw {status: error.status, message: 'Impossible de récupérer les IDs des unlikes' };
         }
     }
 
@@ -58,8 +58,8 @@ class UnlikesDAL {
         try {
             const user: User | undefined = await db('users').select('id').where('id', userId).first();
             return !!user;
-        } catch (error) {
-            throw { status: 400, message: 'Impossible de vérifier l\'existence de l\'utilisateur' };
+        } catch (error: any) {
+            throw {status: error.status, message: 'Impossible de vérifier l\'existence de l\'utilisateur' };
         }
     }
 }

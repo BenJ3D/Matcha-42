@@ -21,7 +21,7 @@ const errorHandler = (err: any, req: Request, res: Response, next: NextFunction)
     }
 
     if (err instanceof SyntaxError && 'body' in err) {
-        return res.status(400).json({ error: 'JSON malformé dans le corps de la requête.' });
+        return res.status(400).json({error: 'JSON malformé dans le corps de la requête.'});
     }
 
     if (err.message === 'Unexpected end of form') {
@@ -31,7 +31,7 @@ const errorHandler = (err: any, req: Request, res: Response, next: NextFunction)
     }
 
     if (err) {
-        return res.status(400).json({error: 'Erreur.'});
+        return res.status(500).json({error: err.message});
     }
 
     next();
