@@ -1,25 +1,33 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule, NgForOf, NgIf } from "@angular/common";
-import { MatIconModule } from "@angular/material/icon";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatInputModule } from "@angular/material/input";
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from "@angular/forms";
-import { MatButtonModule } from "@angular/material/button";
-import { ProfileService } from "../../../services/profile.service";
-import { ToastService } from "../../../services/toast.service";
-import { MatSelectModule } from "@angular/material/select";
-import { Gender } from "../../../models/Genders";
-import { Tag } from "../../../models/Tags";
-import { MatCardModule } from "@angular/material/card";
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { MatAutocompleteModule } from "@angular/material/autocomplete";
-import { MatCheckboxModule } from "@angular/material/checkbox";
-import { MatSlideToggleModule } from "@angular/material/slide-toggle";
-import { HttpClient } from "@angular/common/http";
-import { LocationDto, ProfileCreateDto } from "../../../DTOs/profiles/ProfileCreateDto";
-import { distinctUntilChanged, Observable, of } from "rxjs";
-import { debounceTime, map, switchMap } from "rxjs/operators";
-import { Router } from "@angular/router";
+import {Component, OnInit} from '@angular/core';
+import {CommonModule, NgForOf, NgIf} from "@angular/common";
+import {MatIconModule} from "@angular/material/icon";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatInputModule} from "@angular/material/input";
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+  AbstractControl,
+  ValidationErrors
+} from "@angular/forms";
+import {MatButtonModule} from "@angular/material/button";
+import {ProfileService} from "../../../services/profile.service";
+import {ToastService} from "../../../services/toast.service";
+import {MatSelectModule} from "@angular/material/select";
+import {Gender} from "../../../models/Genders";
+import {Tag} from "../../../models/Tags";
+import {MatCardModule} from "@angular/material/card";
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
+import {MatAutocompleteModule} from "@angular/material/autocomplete";
+import {MatCheckboxModule} from "@angular/material/checkbox";
+import {MatSlideToggleModule} from "@angular/material/slide-toggle";
+import {HttpClient} from "@angular/common/http";
+import {LocationDto, ProfileCreateDto} from "../../../DTOs/profiles/ProfileCreateDto";
+import {distinctUntilChanged, Observable, of} from "rxjs";
+import {debounceTime, map, switchMap} from "rxjs/operators";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-create-profile',
@@ -45,11 +53,21 @@ import { Router } from "@angular/router";
   styleUrl: './create-profile.component.scss'
 })
 export class CreateProfileComponent implements OnInit {
+  preventDecimal(event: KeyboardEvent) {
+
+    if (event.key === '.' || event.key === ',') {
+
+      event.preventDefault();
+
+    }
+
+  }
+
   profileForm!: FormGroup;
   genders: Gender[] = [];
   tags: Tag[] = [];
   locationIp: LocationDto | null = null;
-  locationSelected: LocationDto = { latitude: 45.783329, longitude: 4.73333 };
+  locationSelected: LocationDto = {latitude: 45.783329, longitude: 4.73333};
   isCityValid: boolean = false;
   cityOptions!: Observable<string[]>;
   isLoading: boolean = false;
@@ -61,13 +79,15 @@ export class CreateProfileComponent implements OnInit {
     protected toastService: ToastService,
     private http: HttpClient,
     private router: Router
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.initializeForm();
     this.loadInitialData();
     this.setupCityAutocomplete();
-    this.getLocationFromIP().then(r => {});
+    this.getLocationFromIP().then(r => {
+    });
   }
 
   loadInitialData() {
@@ -96,7 +116,7 @@ export class CreateProfileComponent implements OnInit {
     if (city === '') {
       return null;
     }
-    return this.validCities.includes(city) ? null : { invalidCity: true };
+    return this.validCities.includes(city) ? null : {invalidCity: true};
   }
 
   private searchCities(cityName: string): Observable<string[]> {
@@ -156,15 +176,22 @@ export class CreateProfileComponent implements OnInit {
       'User-Agent': 'matcha - matcha@example.com',
     };
 
-    this.http.get<any[]>(url, { headers }).subscribe({
+    this.http.get<any[]>(url, {headers}).subscribe({
       next: (results) => {
         if (results && results.length > 0) {
-          this.profileForm.patchValue({ city: results[0].name }, { emitEvent: false });
+          const selectedCity = results[0].name.split(',')[0].trim();
+          this.profileForm.patchValue({city: selectedCity}, {emitEvent: false});
           this.locationSelected.latitude = parseFloat(results[0].lat);
           this.locationSelected.longitude = parseFloat(results[0].lon);
-          this.locationSelected.city = results[0].name.split(',')[0].trim();
+          this.locationSelected.city = selectedCity;
+
+          // Ajouter la ville sélectionnée à validCities
+          this.validCities = Array.from(new Set([...this.validCities, selectedCity]));
+
+          // Mettre à jour la validité du champ "City"
+          this.profileForm.get('city')?.updateValueAndValidity();
         } else {
-          this.profileForm.get('city')?.setErrors({ cityNotFound: true });
+          this.profileForm.get('city')?.setErrors({cityNotFound: true});
           this.toastService.show('City not found');
         }
       },
@@ -193,7 +220,8 @@ export class CreateProfileComponent implements OnInit {
           this.isLoading = false;
         },
         error: (error) => {
-          this.toastService.show('Error creating user profile');
+          if (error.status < 500)
+            this.toastService.show('Error: ' + error.error.error);
           this.isLoading = false;
         },
         complete: () => {
