@@ -47,6 +47,9 @@ export class HomeComponent implements OnInit {
   readonly minFame = 0;
   readonly maxFame = 10;
 
+  private isActionInProgress: boolean = false;
+  private isAnimating: boolean = false;
+
   currentProfileIndex: number = 0;
   animateRight: boolean = false;
   animateLeft: boolean = false;
@@ -276,20 +279,46 @@ export class HomeComponent implements OnInit {
 
   onSwipe(liked: boolean) {
     const currentProfileId = this.currentProfile?.id;
-    if (!currentProfileId) return;
+    if (!currentProfileId || this.isActionInProgress || this.isAnimating) return;
+
+    this.isActionInProgress = true;
+    this.isAnimating = true;
 
     if (liked) {
       this.animateRight = true;
-      this.profileService.addLikeUser(currentProfileId).subscribe({});
+      this.profileService.addLikeUser(currentProfileId).subscribe({
+        next: () => {
+          setTimeout(() => {
+            this.nextProfile();
+            this.resetAnimations();
+            this.isActionInProgress = false;
+            this.isAnimating = false;
+          }, 500);
+        },
+        error: () => {
+          this.resetAnimations();
+          this.isActionInProgress = false;
+          this.isAnimating = false;
+        }
+      });
     } else {
       this.animateLeft = true;
-      this.profileService.addUnlikeUser(currentProfileId).subscribe({});
+      this.profileService.addUnlikeUser(currentProfileId).subscribe({
+        next: () => {
+          setTimeout(() => {
+            this.nextProfile();
+            this.resetAnimations();
+            this.isActionInProgress = false;
+            this.isAnimating = false;
+          }, 500);
+        },
+        error: () => {
+          this.resetAnimations();
+          this.isActionInProgress = false;
+          this.isAnimating = false;
+        }
+      });
     }
-
-    setTimeout(() => {
-      this.nextProfile();
-      this.resetAnimations();
-    }, 500);
   }
 
   nextProfile() {
