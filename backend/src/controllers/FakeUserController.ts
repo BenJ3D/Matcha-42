@@ -1,7 +1,7 @@
-import { Response } from 'express';
+import {Response} from 'express';
 import FakeUserService from '../services/FakeUserService';
-import { AuthenticatedRequest } from '../middlewares/authMiddleware';
-import { validateIdNumber } from "../utils/validateIdNumber";
+import {AuthenticatedRequest} from '../middlewares/authMiddleware';
+import {validateIdNumber} from "../utils/validateIdNumber";
 
 class FakeUserController {
     async reportUser(req: AuthenticatedRequest, res: Response) {
@@ -13,9 +13,9 @@ class FakeUserController {
             validateIdNumber(reportedUserId, res);
 
             await FakeUserService.reportUser(reporterId, reportedUserId);
-            res.status(200).json({ message: 'Utilisateur déclaré comme faux avec succès' });
+            res.status(200).json({message: 'Utilisateur déclaré comme faux avec succès'});
         } catch (error: any) {
-            res.status(error.status || 400).json({ error: error.message || 'Erreur' });
+            res.status(error.status || 500).json({error: error.message || 'Erreur'});
         }
     }
 
@@ -28,9 +28,9 @@ class FakeUserController {
             validateIdNumber(reportedUserId, res);
 
             await FakeUserService.unreportUser(reporterId, reportedUserId);
-            res.status(200).json({ message: 'Déclaration retirée avec succès' });
+            res.status(200).json({message: 'Déclaration retirée avec succès'});
         } catch (error: any) {
-            res.status(error.status || 400).json({ error: error.message || 'Erreur' });
+            res.status(error.status || 500).json({error: error.message || 'Erreur'});
         }
     }
 
@@ -40,9 +40,9 @@ class FakeUserController {
             validateIdNumber(userId, res);
 
             const isFake = await FakeUserService.checkIfUserIsFake(userId);
-            res.json({ isFake });
+            res.json({isFake});
         } catch (error: any) {
-            res.status(error.status || 400).json({ error: error.message || 'Erreur' });
+            res.status(error.status || 500).json({error: error.message || 'Erreur'});
         }
     }
 }

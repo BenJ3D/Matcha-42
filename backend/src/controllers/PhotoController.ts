@@ -1,10 +1,10 @@
-import { Response } from 'express';
+import {Response} from 'express';
 import PhotoService from '../services/PhotoService';
 
 import fileType from 'file-type';
 import fs from 'fs';
 import sharp from 'sharp';
-import { AuthenticatedRequest } from '../middlewares/authMiddleware';
+import {AuthenticatedRequest} from '../middlewares/authMiddleware';
 
 class PhotoController {
     async uploadPhoto(req: AuthenticatedRequest, res: Response) {
@@ -12,7 +12,7 @@ class PhotoController {
         const description = req.body.description || '';
 
         if (!file) {
-            return res.status(400).json({ error: 'Aucun fichier téléchargé. Assurez-vous que le champ est nommé "photo".' });
+            return res.status(400).json({error: 'Aucun fichier téléchargé. Assurez-vous que le champ est nommé "photo".'});
         }
 
         try {
@@ -22,21 +22,21 @@ class PhotoController {
 
             if (!type || (type.mime !== 'image/jpeg' && type.mime !== 'image/png')) {
                 fs.unlinkSync(file.path);
-                return res.status(400).json({ error: 'Le fichier fourni n\'est pas une image valide.' });
+                return res.status(400).json({error: 'Le fichier fourni n\'est pas une image valide.'});
             }
 
             try {
                 await sharp(file.path).metadata();
             } catch (err) {
                 fs.unlinkSync(file.path);
-                return res.status(400).json({ error: 'L\'image est corrompue ou invalide.' });
+                return res.status(400).json({error: 'L\'image est corrompue ou invalide.'});
             }
 
             const photo = await PhotoService.uploadPhoto(userId, file, description);
 
-            res.status(201).json({ message: 'Photo uploadée avec succès.', photo });
+            res.status(201).json({message: 'Photo uploadée avec succès.', photo});
         } catch (error: any) {
-            res.status(error.status || 500).json({ error: error.message || 'Erreur' });
+            res.status(error.status || 500).json({error: error.message || 'Erreur'});
         }
     }
 
@@ -46,14 +46,14 @@ class PhotoController {
             const photoId = parseInt(req.params.photoId, 10);
 
             if (isNaN(photoId)) {
-                return res.status(400).json({ error: 'ID de photo invalide.' });
+                return res.status(400).json({error: 'ID de photo invalide.'});
             }
 
             await PhotoService.deletePhoto(userId, photoId);
 
-            res.json({ message: 'Photo supprimée avec succès.' });
+            res.json({message: 'Photo supprimée avec succès.'});
         } catch (error: any) {
-            res.status(error.status || 400).json({ error: error.message || 'Erreur' });
+            res.status(error.status || 500).json({error: error.message || 'Erreur'});
         }
     }
 
@@ -63,13 +63,13 @@ class PhotoController {
             const photoId = parseInt(req.params.photoId, 10);
 
             if (isNaN(photoId)) {
-                return res.status(400).json({ error: 'ID de photo invalide.' });
+                return res.status(400).json({error: 'ID de photo invalide.'});
             }
             await PhotoService.setMainPhoto(userId, photoId);
 
-            res.json({ message: 'Photo définie comme principale avec succès.' });
+            res.json({message: 'Photo définie comme principale avec succès.'});
         } catch (error: any) {
-            res.status(error.status || 400).json({ error: error.message || 'Erreur' });
+            res.status(error.status || 500).json({error: error.message || 'Erreur'});
         }
     }
 }

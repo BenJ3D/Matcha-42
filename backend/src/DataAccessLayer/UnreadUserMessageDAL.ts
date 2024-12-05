@@ -12,7 +12,7 @@ class UnreadUserChatDAL {
             if (error.code === '23505') {
                 return;
             } else {
-                throw {status: 400, message: 'Erreur lors de l\'ajout du message non lu'};
+                throw {status: error.status, message: 'Erreur lors de l\'ajout du message non lu'};
             }
         }
     }
@@ -25,8 +25,8 @@ class UnreadUserChatDAL {
                     target_message_user: targetMessageUser
                 })
                 .del();
-        } catch (error) {
-            throw {status: 400, message: 'Erreur lors de la suppression du message non lu'};
+        } catch (error: any) {
+            throw {status: error.status, message: 'Erreur lors de la suppression du message non lu'};
         }
     }
 
@@ -40,8 +40,8 @@ class UnreadUserChatDAL {
                 })
                 .first();
             return !!result;
-        } catch (error) {
-            throw {status: 400, message: 'Erreur lors de la vérification du message non lu'};
+        } catch (error: any) {
+            throw {status: error.status, message: 'Erreur lors de la vérification du message non lu'};
         }
     }
 
@@ -50,8 +50,8 @@ class UnreadUserChatDAL {
             return await db('unread_user_message')
                 .select('*')
                 .where('target_message_user', userId);
-        } catch (error) {
-            throw {status: 400, message: 'Erreur lors de la récupération des messages non lus'};
+        } catch (error: any) {
+            throw {status: error.status, message: 'Erreur lors de la récupération des messages non lus'};
         }
     }
 }

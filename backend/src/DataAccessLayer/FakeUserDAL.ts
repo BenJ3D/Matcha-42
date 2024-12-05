@@ -5,7 +5,7 @@ class FakeUserDAL {
         try {
             await db('fake_user_reporting').insert({ user_who_reported: userWhoReported, reported_user: reportedUser });
         } catch (error: any) {
-            throw { status: 400, message: 'Impossible de déclarer l\'utilisateur comme faux' };
+            throw { status: error.status, message: 'Impossible de déclarer l\'utilisateur comme faux' };
         }
     }
 
@@ -26,8 +26,8 @@ class FakeUserDAL {
         try {
             const count = await db('fake_user_reporting').where('reported_user', userId).count('id as count');
             return parseInt(count[0].count.toString(), 10) > 0;
-        } catch (error) {
-            throw { status: 400, message: 'Impossible de vérifier l\'état de l\'utilisateur' };
+        } catch (error: any) {
+            throw {status: error.status, message: 'Impossible de vérifier l\'état de l\'utilisateur' };
         }
     }
 }

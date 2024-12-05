@@ -45,7 +45,6 @@ const initializeSockets = (io: Server) => {
         notificationEventHandler(socket, io);
         chatSocketEventHandler(socket, io);
 
-        // Gérer la déconnexion
         socket.on("disconnect", async () => {
             try {
                 const userSet = onlineUsers.get(userId);
