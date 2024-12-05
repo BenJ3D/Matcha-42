@@ -642,7 +642,6 @@ class UserDAL {
                 .select(
                     'users.id',
                     'users.username',
-                    'users.email',
                     'users.created_at',
                     'users.first_name',
                     'users.last_name',
