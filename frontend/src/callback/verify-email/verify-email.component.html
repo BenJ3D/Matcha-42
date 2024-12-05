@@ -6,7 +6,7 @@
       <mat-spinner></mat-spinner>
       } @else {
       <p>{{ verificationMessage }}</p>
-      <button mat-button routerLink="/login">Go to Login</button>
+      <button mat-button routerLink="/login" (click)="goToLogin()">Go to Login</button>
       }
     </mat-card-content>
   </mat-card>
