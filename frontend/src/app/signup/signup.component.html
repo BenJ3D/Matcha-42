@@ -33,7 +33,6 @@
         <mat-form-field appearance="outline">
           <mat-label>Password</mat-label>
           <input matInput type="password" formControlName="password" required maxlength="255" />
-          <mat-error *ngIf="form.get('password')?.hasError('required')">Password is required</mat-error>
           <mat-error *ngIf="form.get('password')?.hasError('minlength')">
             Password must be at least 5 characters long
           </mat-error>
@@ -42,7 +41,6 @@
         <mat-form-field appearance="outline">
           <mat-label>Confirm Password</mat-label>
           <input matInput type="password" formControlName="confirmPassword" required maxlength="255"/>
-          <mat-error *ngIf="form.get('confirmPassword')?.hasError('required')">Confirm Password is required</mat-error>
           <mat-error *ngIf="form.hasError('notSame')">Passwords do not match</mat-error>
         </mat-form-field>
 
