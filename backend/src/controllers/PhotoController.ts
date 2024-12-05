@@ -20,7 +20,7 @@ class PhotoController {
             const buffer = fs.readFileSync(file.path);
             const type = await fileType.fromBuffer(buffer);
 
-            if (!type || (type.mime !== 'image/jpeg' && type.mime !== 'image/png')) {
+            if (!type || (type.mime !== 'image/jpeg' && type.mime !== 'image/png' && type.mime !== 'image/gif')) {
                 fs.unlinkSync(file.path);
                 return res.status(400).json({error: 'Le fichier fourni n\'est pas une image valide.'});
             }
