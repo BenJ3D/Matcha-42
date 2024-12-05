@@ -78,6 +78,18 @@ class EmailVerificationService {
             throw Error();
         }
     }
+    
+    async sendEmail(mailOptions: any): Promise<void> {
+        try {
+          await transporter.sendMail(mailOptions);
+        } catch (error) {
+          throw {
+            status: 500,
+            message: 'Erreur lors de l\'envoi de l\'email.'
+          };
+        }
+      }
+
 }
 
 export default new EmailVerificationService();

@@ -232,6 +232,14 @@ class UserServices {
         return await UserDAL.getUsernameByUserId(userId);
     }
 
+    async getUserByEmail(email: string): Promise<UserResponseDto | null> {
+        return await UserDAL.findByEmail(email);
+      }
+      
+      async updatePassword(userId: number, hashedPassword: string): Promise<void> {
+        return await UserDAL.updatePassword(userId, hashedPassword);
+      }
+
 }
 
 export default new UserServices();

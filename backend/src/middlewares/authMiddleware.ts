@@ -13,6 +13,8 @@ const excludedPaths = [
     {url: /^\/api\/login\/?$/, methods: ['POST']},
     {url: /^\/api\/login\/refresh\/?$/, methods: ['POST']},
     {url: /^\/api\/users\/?$/, methods: ['POST']},
+    {url: /^\/api\/password-reset\/request\/?$/, methods: ['POST']},
+    {url: /^\/api\/password-reset\/reset\/?$/, methods: ['POST']},  
     {url: /^\/api-docs\/?$/, methods: ['GET']},
     {url: /^\/api-docs\.json$/, methods: ['GET']},
     {url: /^\/uploads\/?$/, methods: ['GET']},
