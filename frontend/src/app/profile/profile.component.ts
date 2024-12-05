@@ -1,25 +1,25 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { ProfileService } from '../../services/profile.service';
-import { UserResponseDto } from '../../DTOs/users/UserResponseDto';
-import { Gender } from '../../models/Genders';
-import { Tag } from '../../models/Tags';
-import { Photo } from '../../models/Photo';
-import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { finalize } from "rxjs";
-import { AuthService } from "../../services/auth.service";
-import { ChangeEmailComponent } from "./change-email/change-email.component";
-import { MatTooltip } from "@angular/material/tooltip";
-import { ChangeNameComponent } from "./change-name/change-name.component";
-import { UserLightListComponent } from "../user-light-list/user-light-list.component";
-import { MatTabsModule } from "@angular/material/tabs";
-import { SocketService } from "../../services/socket.service";
-import { EditProfileV2 } from "./edit-profile-v2/edit-profile-v2.component";
-import { UserBlockedListComponent } from "../user-blocked-list/user-blocked-list.component";
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
+import {ProfileService} from '../../services/profile.service';
+import {UserResponseDto} from '../../DTOs/users/UserResponseDto';
+import {Gender} from '../../models/Genders';
+import {Tag} from '../../models/Tags';
+import {Photo} from '../../models/Photo';
+import {CommonModule} from '@angular/common';
+import {MatCardModule} from '@angular/material/card';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {finalize} from "rxjs";
+import {AuthService} from "../../services/auth.service";
+import {ChangeEmailComponent} from "./change-email/change-email.component";
+import {MatTooltip} from "@angular/material/tooltip";
+import {ChangeNameComponent} from "./change-name/change-name.component";
+import {UserLightListComponent} from "../user-light-list/user-light-list.component";
+import {MatTabsModule} from "@angular/material/tabs";
+import {SocketService} from "../../services/socket.service";
+import {EditProfileV2} from "./edit-profile-v2/edit-profile-v2.component";
+import {UserBlockedListComponent} from "../user-blocked-list/user-blocked-list.component";
 
 export enum EEditStep {
   'idle',
@@ -230,7 +230,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   readConversationIfMatched() {
     if (this.user && this.user.isMatched) {
-      this.socketService.emit('conversation_read', { data: this.user.id });
+      this.socketService.emit('conversation_read', {data: this.user.id});
     }
   }
 
@@ -375,4 +375,5 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
 
   protected readonly EEditStep = EEditStep;
+  protected readonly MatTooltip = MatTooltip;
 }
