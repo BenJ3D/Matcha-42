@@ -124,7 +124,7 @@ export class CreateProfileComponent implements OnInit {
 
     if (cityControl) {
       this.cityOptions = cityControl.valueChanges.pipe(
-        debounceTime(5),
+        debounceTime(300),
         distinctUntilChanged(),
         switchMap((value) => this.searchCities(value))
       );
