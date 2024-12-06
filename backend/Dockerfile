@@ -9,10 +9,10 @@ RUN npm ci
 COPY . .
 
 # Development
-# RUN npm install -g nodemon
-# CMD ["npm", "run", "dev"]
+RUN npm install -g nodemon
+CMD ["npm", "run", "dev"]
 
 
 # Production
 # RUN npm run build
-CMD ["npm", "run", "start"]
+# CMD ["npm", "run", "start"]

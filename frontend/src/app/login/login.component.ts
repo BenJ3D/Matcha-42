@@ -72,8 +72,12 @@ export class LoginComponent {
       this.authService.login(loginData).subscribe({
         next: (response: LoginResponseDTO) => {
           this.isLoading = false;
-          localStorage.setItem('accessToken', response.accessToken);
-          localStorage.setItem('refreshToken', response.refreshToken);
+          if (response) {
+            if (response.accessToken)
+              localStorage.setItem('accessToken', response.accessToken);
+            if (response.refreshToken)
+              localStorage.setItem('refreshToken', response.refreshToken);
+          }
           this.router.navigate(['/home']);
         },
         error: (error) => {

@@ -40,7 +40,7 @@ import {MatInput} from "@angular/material/input";
 })
 export class ResetPasswordComponent implements OnInit {
   verificationMessage: string = 'Verifying your email...';
-  isLoading: boolean = true;
+  isLoading: boolean = false;
   isBrowser: boolean;
   resetPasswordForm!: FormGroup;
   private token: string | null = ''
@@ -89,29 +89,31 @@ export class ResetPasswordComponent implements OnInit {
       const token = this.route.snapshot.queryParamMap.get('token');
       if (token) {
         const data = {token: token, newPassword: this.resetPasswordForm.get('password')?.value};
+        this.isLoading = true; // Démarre le chargement
         this.profileService.resetPassword(data).subscribe({
-
-          complete(): void {
-          },
           error: (error: any) => {
             this.verificationMessage =
-              error?.error?.message || 'An error occurred while verifying your email.';
+              error?.error?.message || 'Une erreur est survenue lors de la vérification de votre email.';
+            if (error?.error?.code === 'PASSWORD_WEAK') {
+              this.resetPasswordForm.get('password')?.setErrors({weakPassword: true});
+            }
             this.isLoading = false;
           },
           next: () => {
-            this.isLoading = false;
+            this.toastService.showWithAction('Votre mot de passe a été réinitialisé.', 'Go to login', this.goToLogin.bind(this));
             setTimeout(() => {
-              this.toastService.show('Your password has been reset.')
               this.router.navigate(['/login']);
-            }, 2000);
+            }, 4000);
+          },
+          complete: () => {
           },
         });
       } else {
-        this.verificationMessage = 'Verification token not found in the URL.';
+        this.verificationMessage = 'Le token de vérification est introuvable dans l\'URL.';
         this.isLoading = false;
       }
     } else {
-      this.verificationMessage = 'Loading...';
+      this.verificationMessage = 'Chargement...';
       this.isLoading = false;
     }
   }
