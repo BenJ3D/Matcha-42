@@ -22,10 +22,24 @@ class EmailVerificationService {
                 to: email,
                 subject: 'Vérifiez votre compte Matcha',
                 html: `
-                    <p>Bonjour ${firstName},</p>
-                    <p>Merci de vous être inscrit sur Matcha. Veuillez cliquer sur le lien ci-dessous pour vérifier votre compte :</p>
-                    <a href="${fullVerificationLink}">Vérifier mon compte</a>
-                    <p>Ce lien expirera dans ${config.jwtEmailExpiration}.</p>
+                    <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; font-family: Arial, sans-serif;">
+                        <h2 style="color: #4B0082;">Bienvenue sur Matcha</h2>
+                        <p>Bonjour ${firstName},</p>
+                        <p>Merci de vous être inscrit sur Matcha. Pour vérifier votre compte, veuillez cliquer sur le bouton ci-dessous :</p>
+                        <a href="${fullVerificationLink}" style="
+                            display: inline-block;
+                            padding: 10px 20px;
+                            font-size: 16px;
+                            color: #fff;
+                            background-color: #4B0082;
+                            text-decoration: none;
+                            border-radius: 5px;
+                            margin: 20px 0;
+                        ">Vérifier mon compte</a>
+                        <p>Ce lien expirera dans ${config.jwtEmailExpiration}.</p>
+                        <hr style="border: none; border-top: 1px solid #eee;">
+                        <p style="color: #555;">Si vous n'avez pas créé de compte, veuillez ignorer cet email.</p>
+                    </div>
                 `,
             };
 
