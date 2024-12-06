@@ -1,18 +1,18 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError, throwError } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
-import { ProfileCreateDto } from '../DTOs/profiles/ProfileCreateDto';
-import { ProfileUpdateDto } from '../DTOs/profiles/ProfileUpdateDto';
-import { UserResponseDto } from '../DTOs/users/UserResponseDto';
-import { Gender } from '../models/Genders';
-import { Tag } from '../models/Tags';
-import { Photo } from '../models/Photo';
-import { UploadPhotoResponse } from '../DTOs/upload-photo-response';
-import { UserProfile } from '../models/Profiles';
-import { Router } from "@angular/router";
-import { UserUpdateDto } from "../DTOs/users/UserUpdateDto";
-import { environment } from "../environment/environment";
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {BehaviorSubject, Observable, catchError, throwError} from 'rxjs';
+import {map, tap} from 'rxjs/operators';
+import {ProfileCreateDto} from '../DTOs/profiles/ProfileCreateDto';
+import {ProfileUpdateDto} from '../DTOs/profiles/ProfileUpdateDto';
+import {UserResponseDto} from '../DTOs/users/UserResponseDto';
+import {Gender} from '../models/Genders';
+import {Tag} from '../models/Tags';
+import {Photo} from '../models/Photo';
+import {UploadPhotoResponse} from '../DTOs/upload-photo-response';
+import {UserProfile} from '../models/Profiles';
+import {Router} from "@angular/router";
+import {UserUpdateDto} from "../DTOs/users/UserUpdateDto";
+import {environment} from "../environment/environment";
 
 @Injectable({
   providedIn: 'root',
@@ -62,7 +62,7 @@ export class ProfileService {
   }
 
   updateEmail(email: string): Observable<{ message: string }> {
-    return this.http.patch<{ message: string }>(`${this.apiUrl}/users/email`, { email });
+    return this.http.patch<{ message: string }>(`${this.apiUrl}/users/email`, {email});
   }
 
   uploadPhoto(photo: File, description?: string): Observable<Photo> {
@@ -110,10 +110,18 @@ export class ProfileService {
   }
 
   searchProfiles(searchParams: HttpParams): Observable<UserResponseDto[]> {
-    return this.http.get<UserProfile[]>(`${this.apiUrl}/users/search`, { params: searchParams }).pipe(
+    return this.http.get<UserProfile[]>(`${this.apiUrl}/users/search`, {params: searchParams}).pipe(
       map(this.mapProfilesResponse),
       catchError(this.handleError)
     );
+  }
+
+  requestNewPassword(data: { email: string }): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/password-reset/request`, data);
+  }
+
+  resetPassword(data: { token: string, newPassword: string }): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/password-reset/reset`, data);
   }
 
   private mapProfilesResponse(profiles: any[]): UserResponseDto[] {
@@ -196,7 +204,7 @@ export class ProfileService {
   }
 
   goToProfile(userId: number, router: Router) {
-    router.navigate(['/profile'], { queryParams: { id: userId } });
+    router.navigate(['/profile'], {queryParams: {id: userId}});
   }
 
 }

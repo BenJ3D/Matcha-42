@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { IJwtPayload } from "../types/IJwtPayload";
+import {IJwtPayload} from "../types/IJwtPayload";
 
 if (!process.env.JWT_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
     throw new Error("Les variables d'environnement JWT_SECRET et REFRESH_TOKEN_SECRET sont obligatoires.");
@@ -14,11 +14,11 @@ const REFRESH_TOKEN_EXPIRATION = '7d';
 
 class JwtService {
     generateAccessToken(payload: IJwtPayload): string {
-        return jwt.sign(payload, JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRATION });
+        return jwt.sign(payload, JWT_SECRET, {expiresIn: ACCESS_TOKEN_EXPIRATION});
     }
 
     generateRefreshToken(payload: IJwtPayload): string {
-        return jwt.sign(payload, REFRESH_TOKEN_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRATION });
+        return jwt.sign(payload, REFRESH_TOKEN_SECRET, {expiresIn: REFRESH_TOKEN_EXPIRATION});
     }
 
     verifyAccessToken(token: string): IJwtPayload | null {
@@ -38,13 +38,14 @@ class JwtService {
     }
 
     generateGenericToken(payload: IJwtPayload, secret: string, expiration: string): string {
-        return jwt.sign(payload, secret, { expiresIn: expiration });
+        return jwt.sign(payload, secret, {expiresIn: expiration});
     }
 
     verifyGenericToken(token: string, secret: string): IJwtPayload | null {
         try {
             return jwt.verify(token, secret) as IJwtPayload;
         } catch (error) {
+            console.log(JSON.stringify(error))
             return null;
         }
     }
@@ -52,7 +53,7 @@ class JwtService {
     generateTokens(payload: IJwtPayload): { accessToken: string, refreshToken: string } {
         const accessToken = this.generateAccessToken(payload);
         const refreshToken = this.generateRefreshToken(payload);
-        return { accessToken, refreshToken };
+        return {accessToken, refreshToken};
     }
 
     refreshAccessToken(refreshToken: string): string | null {

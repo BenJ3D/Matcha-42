@@ -1,7 +1,7 @@
-import { Routes } from '@angular/router';
-import { DashboardComponent } from './dashboard/dashboard.component';
-import { authGuard } from '../services/auth.guard';
-import { ProfileGuard } from '../services/profile.guard';
+import {Routes} from '@angular/router';
+import {DashboardComponent} from './dashboard/dashboard.component';
+import {authGuard} from '../services/auth.guard';
+import {ProfileGuard} from '../services/profile.guard';
 
 export const routes: Routes = [
   {
@@ -9,6 +9,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('../callback/verify-email/verify-email.component').then(
         (m) => m.VerifyEmailComponent
+      ),
+  }, {
+    path: 'callback/password-reset',
+    loadComponent: () =>
+      import('../callback/reset-password/reset-password.component').then(
+        (m) => m.ResetPasswordComponent
       ),
   },
   {
@@ -26,7 +32,7 @@ export const routes: Routes = [
     component: DashboardComponent,
     canActivate: [authGuard],
     children: [
-      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      {path: '', redirectTo: 'home', pathMatch: 'full'},
       {
         path: 'home',
         loadComponent: () =>

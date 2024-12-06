@@ -19,7 +19,8 @@ const POSTGRES_HOST = process.env.POSTGRES_HOST || 'postgres';
 const JWT_SECRET = process.env.JWT_SECRET;
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
 const JWT_EMAIL_SECRET = process.env.JWT_EMAIL;
-const JWT_EMAIL_EXPIRATION = process.env.JWT_EMAIL_EXPIRATION ?? '5d';
+const JWT_EMAIL_EXPIRATION = process.env.JWT_EMAIL_EXPIRATION ?? '10m';
+const JWT_RESET_PASSWORD = process.env.JWT_RESET_PASSWORD;
 
 const OPENCAGE_API = process.env.OPENCAGE_API;
 
@@ -101,6 +102,10 @@ if (!FRONT_URL) {
     throw new Error('La variable d\'environnement FRONT_URL est manquante.');
 }
 
+if (!JWT_RESET_PASSWORD) {
+    throw new Error('La variable d\'environnement JWT_RESET_PASSWORD est manquante.');
+}
+
 // Validation supplémentaire pour les variables numériques ou booléennes
 const parsedDatabasePort = parseInt(DATABASE_PORT, 10);
 if (isNaN(parsedDatabasePort) || parsedDatabasePort <= 0) {
@@ -152,6 +157,7 @@ export default {
     jwtSecret: JWT_SECRET,
     refreshTokenSecret: REFRESH_TOKEN_SECRET,
     jwtEmailSecret: JWT_EMAIL_SECRET,
+    jwtPassResetSecret: JWT_RESET_PASSWORD,
     jwtEmailExpiration: JWT_EMAIL_EXPIRATION,
 
     // API externes

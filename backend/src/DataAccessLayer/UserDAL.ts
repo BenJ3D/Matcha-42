@@ -849,6 +849,15 @@ class UserDAL {
             .first();
         return photo ? photo.url : null;
     }
+
+    async findByEmail(email: string): Promise<UserResponseDto | null> {
+        const user = await db('users').where('email', email).first();
+        return user ?? null;
+      }
+      
+      async updatePassword(userId: number, hashedPassword: string): Promise<void> {
+        await db('users').where('id', userId).update({ password: hashedPassword });
+      }
 }
 
 export default new UserDAL();
