@@ -1,34 +1,40 @@
 <div class="login-container">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Login</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        <mat-form-field appearance="outline">
-          <mat-label>Email</mat-label>
-          <input matInput type="email" formControlName="email" maxlength="255" required/>
-          <mat-error *ngIf="form.get('email')?.hasError('required')">Email is required</mat-error>
-          <mat-error *ngIf="form.get('email')?.hasError('email')">Invalid email format</mat-error>
-        </mat-form-field>
+  @if (editStep == ELoginStep.idle) {
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Login</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <mat-form-field appearance="outline">
+            <mat-label>Email or Username</mat-label>
+            <input matInput type="text" formControlName="email" maxlength="255" required/>
+            <mat-error *ngIf="form.get('email')?.hasError('required')">Email or Username is required</mat-error>
+          </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Password</mat-label>
-          <input matInput maxlength="255" type="password" formControlName="password" required/>
-          <mat-error *ngIf="form.get('password')?.hasError('required')">Password is required</mat-error>
-          <mat-error *ngIf="form.get('password')?.hasError('minlength')">Password must be at least 5 characters
-            long
-          </mat-error>
-        </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input matInput maxlength="255" type="password" formControlName="password" required/>
+            <mat-error *ngIf="form.get('password')?.hasError('required')">Password is required</mat-error>
+            <mat-error *ngIf="form.get('password')?.hasError('minlength')">Password must be at least 5 characters
+              long
+            </mat-error>
+          </mat-form-field>
 
-        <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || isLoading">
-          <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
-          <span *ngIf="!isLoading">Login</span>
-        </button>
-      </form>
-    </mat-card-content>
-    <mat-card-actions>
-      <a mat-button routerLink="/signup">Don't have an account? Sign up</a>
-    </mat-card-actions>
-  </mat-card>
+          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || isLoading">
+            <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+            <span *ngIf="!isLoading">Login</span>
+          </button>
+        </form>
+      </mat-card-content>
+      <mat-card-actions>
+        <a mat-button routerLink="/signup">Don't have an account? Sign up</a>
+      </mat-card-actions>
+      <mat-card-actions>
+        <a mat-button class="forget-pass-link" (click)="goToRequestNewPass()">Forget your password ?</a>
+      </mat-card-actions>
+    </mat-card>
+  } @else if (editStep == ELoginStep.resetpass) {
+    <app-request-pass class="flex w-full h-full " [goBack]="cancelRequestNewPass.bind(this)"></app-request-pass>
+  }
 </div>

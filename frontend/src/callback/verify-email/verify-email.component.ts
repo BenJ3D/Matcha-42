@@ -1,10 +1,11 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
-import { MatCardModule } from '@angular/material/card';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
+import {Component, OnInit, Inject, PLATFORM_ID} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {AuthService} from '../../services/auth.service';
+import {MatCardModule} from '@angular/material/card';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {CommonModule, isPlatformBrowser} from '@angular/common';
+import {MatButtonModule} from '@angular/material/button';
+import {ToastService} from "../../services/toast.service";
 
 @Component({
   selector: 'app-verify-email',
@@ -22,11 +23,13 @@ export class VerifyEmailComponent implements OnInit {
   verificationMessage: string = 'Verifying your email...';
   isLoading: boolean = true;
   isBrowser: boolean;
+  protected verificationIsOk: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
     private authService: AuthService,
     private router: Router,
+    private toastService: ToastService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -41,9 +44,10 @@ export class VerifyEmailComponent implements OnInit {
           next: (response: { message: string }) => {
             this.verificationMessage = response.message;
             this.isLoading = false;
+            this.verificationIsOk = true;
             setTimeout(() => {
               this.router.navigate(['/login']);
-            }, 2000);
+            }, 4000);
           },
           error: (error: any) => {
             this.verificationMessage =
@@ -61,7 +65,20 @@ export class VerifyEmailComponent implements OnInit {
     }
   }
 
-  goToLogin():void {
+  goToLogin(): void {
     this.router.navigate(['/login']);
+  }
+
+  resendEmail() {
+    this.authService.resendVerificationEmail().subscribe({
+      next: () => {
+        this.toastService.show('Verification email resent successfully.', 'Close');
+        this.goToLogin();
+      },
+      error: () => {
+        this.toastService.show('Error resending the email.', 'Close');
+        this.goToLogin();
+      }
+    })
   }
 }

@@ -17,6 +17,12 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {CommonModule} from '@angular/common';
+import {RequestPassComponent} from "./request-pass/request-pass.component";
+
+export enum ELoginStep {
+  'idle',
+  'resetpass',
+}
 
 @Component({
   selector: 'app-login',
@@ -32,6 +38,7 @@ import {CommonModule} from '@angular/common';
     MatProgressSpinnerModule,
     MatIconModule,
     RouterModule,
+    RequestPassComponent,
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
@@ -40,6 +47,7 @@ export class LoginComponent {
   form: FormGroup;
   isLoading = false;
   loginError: string | null = null;
+  public editStep: ELoginStep = ELoginStep.idle;
 
   constructor(
     private fb: FormBuilder,
@@ -47,7 +55,7 @@ export class LoginComponent {
     private authService: AuthService
   ) {
     this.form = this.fb.group({
-      email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
+      email: ['', [Validators.required, Validators.maxLength(255)]],
       password: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(255)]],
     });
   }
@@ -75,4 +83,14 @@ export class LoginComponent {
       });
     }
   }
+
+  goToRequestNewPass() {
+    this.editStep = ELoginStep.resetpass;
+  }
+
+  cancelRequestNewPass() {
+    this.editStep = ELoginStep.idle;
+  }
+
+  protected readonly ELoginStep = ELoginStep;
 }

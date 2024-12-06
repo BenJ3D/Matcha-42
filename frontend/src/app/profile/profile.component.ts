@@ -300,7 +300,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     ) {
       this.profileService.deleteUser().subscribe({
         next: () => {
-          this.router.navigate(['/login']);
+          this.loggout()
         },
       });
     }

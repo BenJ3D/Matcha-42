@@ -1,4 +1,9 @@
 <div class="dashboard-container">
+  <div class="logout-button">
+    <button mat-icon-button class="text-gray-600 hover:text-red-600" (click)="logout()" matTooltip="Logout">
+      <mat-icon>logout</mat-icon>
+    </button>
+  </div>
   <div class="content-area">
     <router-outlet></router-outlet>
   </div>
