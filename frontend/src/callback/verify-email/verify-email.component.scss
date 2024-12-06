@@ -1,0 +1,85 @@
+.verification-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 20px;
+  background-color: #f5f5f5;
+
+  .verification-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+
+    mat-card-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+
+      .loading-section,
+      .success-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        p {
+          margin-top: 20px;
+          font-size: 16px;
+          color: #333333;
+        }
+      }
+
+      .success-section {
+        h2 {
+          color: #4B0082;
+          margin-bottom: 15px;
+        }
+
+        button {
+          margin-top: 20px;
+          background-color: #4B0082;
+          color: #ffffff;
+
+          &:hover {
+            background-color: darken(#4B0082, 10%);
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .verification-container {
+    .verification-card {
+      padding: 20px;
+
+      mat-card-content {
+        .success-section {
+          h2 {
+            font-size: 1.5rem;
+          }
+
+          p {
+            font-size: 1rem;
+          }
+
+          button {
+            width: 100%;
+          }
+        }
+
+        .loading-section {
+          p {
+            font-size: 1rem;
+          }
+        }
+      }
+    }
+  }
+}

@@ -17,6 +17,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {AuthService} from '../../services/auth.service';
 import {UserCreateDto} from '../../DTOs/users/UserCreateDto';
+import {ToastService} from "../../services/toast.service";
 
 @Component({
   selector: 'app-signup',
@@ -42,7 +43,8 @@ export class SignupComponent {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private toastService: ToastService,
   ) {
     this.form = this.fb.group(
       {
@@ -85,6 +87,7 @@ export class SignupComponent {
       next: () => {
         this.isLoading = false;
         this.form.enable();
+        this.toastService.show('Your account has been created, check your mailbox.')
         this.router.navigate(['/login']);
       },
       error: (error) => {

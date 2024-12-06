@@ -1,13 +1,17 @@
 <div class="verification-container">
-  <mat-card>
+  <mat-card class="verification-card">
     <mat-card-content>
-      @if (isLoading) {
-      <p>{{ verificationMessage }}</p>
-      <mat-spinner></mat-spinner>
-      } @else {
-      <p>{{ verificationMessage }}</p>
-      <button mat-button routerLink="/login" (click)="goToLogin()">Go to Login</button>
-      }
+      <div *ngIf="isLoading" class="loading-section">
+        <mat-spinner></mat-spinner>
+        <p>{{ verificationMessage }}</p>
+      </div>
+      <div class="success-section">
+        <h2 [hidden]="!isLoading">Verification...</h2>
+        <h2>{{ verificationMessage }}</h2>
+        @if (!isLoading) {
+          <button mat-raised-button color="primary" (click)="goToLogin()">Go to login</button>
+        }
+      </div>
     </mat-card-content>
   </mat-card>
 </div>
