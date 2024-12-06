@@ -4,6 +4,7 @@ import config from '../config/config';
 import EmailVerificationService from './EmailVerificationService';
 import {PasswordService} from './PasswordService';
 import zxcvbn from "zxcvbn";
+import UserDAL from "../DataAccessLayer/UserDAL";
 
 class PasswordResetService {
     async sendResetEmail(email: string) {
@@ -53,7 +54,11 @@ class PasswordResetService {
     async resetPassword(token: string, newPassword: string) {
         const payload = jwtService.verifyGenericToken(token, config.jwtPassResetSecret);
         if (!payload || !payload.id) {
-            throw {status: 401, message: 'Token invalide ou expiré.'};
+            throw {status: 401, message: 'Invalid or expired token.'};
+        }
+        const targetExists = await UserDAL.userExists(payload.id);
+        if (!targetExists) {
+            throw {status: 404, message: 'User of your token does not exist'};
         }
 
         const requiredScore = config.userPasswordStrengthForce;
@@ -62,7 +67,7 @@ class PasswordResetService {
         if (passwordEvaluation.score < requiredScore) {
             throw {
                 status: 400,
-                message: 'Le mot de passe est trop faible. Veuillez en choisir un plus robuste.'
+                message: 'The password is too weak. Please choose a stronger one.'
             };
         }
 
