@@ -29,7 +29,7 @@ class LocationDAL {
     }
 
     async update(locationId: number, cityName: string): Promise<void> {
-        console.info('Updating location', locationId, cityName);
+        // console.info('Updating location', locationId, cityName);
         await db('locations')
             .update({city_name: cityName})
             .where({location_id: locationId});
