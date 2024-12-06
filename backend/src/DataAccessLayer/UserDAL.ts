@@ -360,7 +360,21 @@ class UserDAL {
         if (filters.tags && filters.tags.length > 0) {
             query
                 .join("profile_tag", "profiles.profile_id", "profile_tag.profile_id")
-                .whereIn("profile_tag.profile_tag", filters.tags);
+                .whereIn("profile_tag.profile_tag", filters.tags)
+                .groupBy(
+                    "users.id",
+                    "profiles.age",
+                    "profiles.fame_rating",
+                    "profiles.gender",
+                    "photos.url",
+                    "locations.latitude",
+                    "locations.longitude",
+                    "locations.city_name",
+                    "users.is_online",
+                    "users.is_verified",
+                    "users.last_activity"
+                )
+                .havingRaw('COUNT(DISTINCT profile_tag.profile_tag) = ?', [filters.tags.length]);
         }
         if (filters.preferredGenders && filters.preferredGenders.length > 0) {
             query.whereIn("profiles.gender", filters.preferredGenders);
