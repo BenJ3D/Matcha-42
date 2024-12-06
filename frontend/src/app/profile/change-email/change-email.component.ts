@@ -1,14 +1,14 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatIcon } from "@angular/material/icon";
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { AuthService } from "../../../services/auth.service";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatInputModule } from "@angular/material/input";
-import { MatButtonModule } from "@angular/material/button";
-import { ProfileService } from "../../../services/profile.service";
-import { UserResponseDto } from "../../../DTOs/users/UserResponseDto";
-import { ToastService } from "../../../services/toast.service";
+import {Component, Input, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {MatIcon} from "@angular/material/icon";
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {AuthService} from "../../../services/auth.service";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatInputModule} from "@angular/material/input";
+import {MatButtonModule} from "@angular/material/button";
+import {ProfileService} from "../../../services/profile.service";
+import {UserResponseDto} from "../../../DTOs/users/UserResponseDto";
+import {ToastService} from "../../../services/toast.service";
 
 @Component({
   selector: 'app-change-email',
@@ -27,6 +27,7 @@ import { ToastService } from "../../../services/toast.service";
 export class ChangeEmailComponent implements OnInit {
   @Input() backToProfile!: () => void;
   @Input() user!: UserResponseDto | null;
+  protected isLoading = false;
 
   emailForm!: FormGroup;
 
@@ -59,14 +60,23 @@ export class ChangeEmailComponent implements OnInit {
   onSubmit() {
     if (this.emailForm.value.newEmail === this.user?.email) {
       this.toastService.show('The email is identical to the old email.');
-      this.emailForm.setValue({ newEmail: '' });
+      this.emailForm.setValue({newEmail: ''});
       this.emailForm.touched;
       return;
     }
     if (this.emailForm.valid) {
+      this.isLoading = true;
       this.profileService.updateEmail(this.emailForm.value.newEmail).subscribe({
         next: () => {
+          this.isLoading = false;
           this.authService.logout();
+        },
+        error: () => {
+          this.isLoading = false;
+        },
+        complete: () => {
+          this.isLoading = false;
+
         }
       });
     } else {
