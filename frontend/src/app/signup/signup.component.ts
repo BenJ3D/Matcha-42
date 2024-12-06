@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {Component} from '@angular/core';
+import {CommonModule} from '@angular/common';
 import {
   AbstractControl,
   FormBuilder,
@@ -8,15 +8,15 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { AuthService } from '../../services/auth.service';
-import { UserCreateDto } from '../../DTOs/users/UserCreateDto';
+import {Router, RouterModule} from '@angular/router';
+import {MatCardModule} from '@angular/material/card';
+import {MatInputModule} from '@angular/material/input';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {AuthService} from '../../services/auth.service';
+import {UserCreateDto} from '../../DTOs/users/UserCreateDto';
 
 @Component({
   selector: 'app-signup',
@@ -38,7 +38,6 @@ import { UserCreateDto } from '../../DTOs/users/UserCreateDto';
 export class SignupComponent {
   form: FormGroup;
   isLoading = false;
-  signupError: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -63,7 +62,7 @@ export class SignupComponent {
   checkPasswords(group: AbstractControl): ValidationErrors | null {
     const pass = group.get('password')?.value;
     const confirmPass = group.get('confirmPassword')?.value;
-    return pass === confirmPass ? null : { notSame: true };
+    return pass === confirmPass ? null : {notSame: true};
   }
 
   onSubmit(): void {

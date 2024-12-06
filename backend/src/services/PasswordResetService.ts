@@ -14,14 +14,13 @@ class PasswordResetService {
             throw {status: 404, message: 'Utilisateur non trouvé.'};
         }
 
-
         const token = jwtService.generateGenericToken(
             {id: user.id, email: user.email},
             config.jwtPassResetSecret,
             config.jwtEmailExpiration
         );
 
-        const resetLink = `${config.frontUrl}password-reset?token=${token}`;
+        const resetLink = `${config.frontUrl}callback/password-reset?token=${token}`;
 
         await EmailVerificationService.sendEmail({
             from: config.emailFrom,
@@ -38,9 +37,8 @@ class PasswordResetService {
 
     async resetPassword(token: string, newPassword: string) {
         const payload = jwtService.verifyGenericToken(token, config.jwtPassResetSecret);
-        console.log(JSON.stringify(payload));
         if (!payload || !payload.id) {
-            throw {status: 400, message: 'Token invalide ou expiré.'};
+            throw {status: 401, message: 'Token invalide ou expiré.'};
         }
 
         const hashedPassword = await PasswordService.hashPassword(newPassword);
