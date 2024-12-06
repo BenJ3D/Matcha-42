@@ -3,16 +3,16 @@
     class="flex flex-col justify-center items-center bg-white pb-8 xs:p-1 rounded-lg h-1/2 w-2/3 xs:h-full xs:w-full">
     <mat-icon class="pb-10 ">warning</mat-icon>
     <div class="text-ellipsis text-center font-medium pb-10 text-xl">You will need to validate your email
-      again<br />before
+      again<br/>before
       you
       can
       reconnect.
     </div>
     <form [formGroup]="emailForm" (ngSubmit)="onSubmit()"
-      class="w-full max-w-sm flex flex-col justify-center items-center">
+          class="w-full max-w-sm flex flex-col justify-center items-center">
       <mat-form-field class="w-full pb-10" appearance="fill">
         <mat-label>New Email</mat-label>
-        <input matInput type="email" formControlName="newEmail" />
+        <input matInput type="email" formControlName="newEmail"/>
         <mat-error *ngIf="emailForm.get('newEmail')?.hasError('required')">
           Email is required.
         </mat-error>
@@ -29,7 +29,8 @@
 
     </form>
     <div class="flex flex-col w-2/3  space-y-2 max-w-96 ">
-      <button class="!font-black" mat-raised-button color="primary" (click)="onSubmit()" [disabled]="emailForm.invalid">
+      <button class="!font-black" mat-raised-button color="primary" (click)="onSubmit()"
+              [disabled]="emailForm.invalid || isLoading">
         Submit
       </button>
       <button mat-raised-button class="font-black bg-red-800 hover:bg-red-700 text-white" (click)="backToProfile()">
