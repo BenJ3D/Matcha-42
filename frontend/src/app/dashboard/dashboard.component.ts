@@ -1,3 +1,4 @@
+import { AuthService } from './../../services/auth.service';
 import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
@@ -56,6 +57,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private router: Router,
     private ngZone: NgZone,
+    private authService: AuthService,
   ) {
 
     this.ngZone.runOutsideAngular(() => {
@@ -123,5 +125,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
     clearInterval(this.intervalId);
+  }
+
+  logout() {
+    this.authService.logout();
   }
 }
