@@ -77,7 +77,7 @@ class UserDAL {
             return userId;
         } catch (e: any) {
             if (e.code === '23505') {
-                throw {status: 409, message: "L'email existe déjà."};
+                throw {status: 409, message: "The email or username is already taken."};
             } else {
                 throw {status: e.status, message: e.message};
             }
@@ -285,6 +285,14 @@ class UserDAL {
     async findOneByEmail(email: string): Promise<UserLoginPasswordCheckDto | null> {
         try {
             return await db('users').select('id', 'email', 'password').where('email', email).first();
+        } catch (e) {
+            throw new Error("Could not fetch users");
+        }
+    }
+
+    async findOneByUsername(username: string): Promise<UserLoginPasswordCheckDto | null> {
+        try {
+            return await db('users').select('id', 'username', 'password').where('username', username).first();
         } catch (e) {
             throw new Error("Could not fetch users");
         }
