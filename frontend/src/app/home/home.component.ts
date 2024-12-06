@@ -133,7 +133,7 @@ export class HomeComponent implements OnInit {
   loadTags() {
     this.profileService.getTags().subscribe({
       next: (tags) => {
-        this.tags = tags;
+        this.tags = tags.sort((a, b) => a.tag_name.localeCompare(b.tag_name));
       },
     });
   }

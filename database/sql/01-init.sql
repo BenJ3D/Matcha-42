@@ -497,7 +497,6 @@ CREATE TABLE "public"."users" (
     "last_activity" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT "user_email_key" UNIQUE ("email"),
     CONSTRAINT "user_pkey" PRIMARY KEY ("id"),
-    CONSTRAINT "user_username_key" UNIQUE ("username"),
     CONSTRAINT "users_profile_id" UNIQUE ("profile_id")
 ) WITH (oids = false);
 

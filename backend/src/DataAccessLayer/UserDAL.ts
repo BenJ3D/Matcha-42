@@ -77,7 +77,7 @@ class UserDAL {
             return userId;
         } catch (e: any) {
             if (e.code === '23505') {
-                throw {status: 409, message: "L'email existe déjà."};
+                throw {status: 409, message: "The email or username is already taken."};
             } else {
                 throw {status: e.status, message: e.message};
             }
@@ -290,6 +290,14 @@ class UserDAL {
         }
     }
 
+    async findOneByUsername(username: string): Promise<UserLoginPasswordCheckDto | null> {
+        try {
+            return await db('users').select('id', 'username', 'password').where('username', username).first();
+        } catch (e) {
+            throw new Error("Could not fetch users");
+        }
+    }
+
     async advancedSearch(
         filters: {
             ageMin?: number;
@@ -360,7 +368,21 @@ class UserDAL {
         if (filters.tags && filters.tags.length > 0) {
             query
                 .join("profile_tag", "profiles.profile_id", "profile_tag.profile_id")
-                .whereIn("profile_tag.profile_tag", filters.tags);
+                .whereIn("profile_tag.profile_tag", filters.tags)
+                .groupBy(
+                    "users.id",
+                    "profiles.age",
+                    "profiles.fame_rating",
+                    "profiles.gender",
+                    "photos.url",
+                    "locations.latitude",
+                    "locations.longitude",
+                    "locations.city_name",
+                    "users.is_online",
+                    "users.is_verified",
+                    "users.last_activity"
+                )
+                .havingRaw('COUNT(DISTINCT profile_tag.profile_tag) = ?', [filters.tags.length]);
         }
         if (filters.preferredGenders && filters.preferredGenders.length > 0) {
             query.whereIn("profiles.gender", filters.preferredGenders);

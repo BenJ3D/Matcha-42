@@ -9,16 +9,11 @@ class ProfileController {
     async createMyProfile(req: AuthenticatedRequest, res: Response) {
         try {
             const userId = req.userId!;
-            console.log('COUCOUC CREA PROFILE')
-
             const {error, value} = ProfileCreateDtoValidation.validate(req.body);
 
             if (error) {
-                console.log(error.message)
                 return res.status(400).json({error: error.message});
             }
-            console.log('COUCOUC CREA PROFILE2')
-
             const existingProfile = await profileServices.getProfileByUserId(userId);
             if (existingProfile) {
                 return res.status(400).json({error: 'Profil déjà existant'});
