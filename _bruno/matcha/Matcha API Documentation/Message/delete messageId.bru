@@ -1,0 +1,15 @@
+meta {
+  name: delete messageId
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{baseUrl}}/messages/:messageId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  messageId: 2
+}

@@ -33,14 +33,20 @@ class MessageDAL {
     async getMessageById(messageId: number): Promise<Message | undefined> {
         return await db('messages')
             .select('*')
-            .where({ message_id: messageId })
+            .where({message_id: messageId})
             .first();
     }
 
     async updateMessageLikeStatus(messageId: number, isLiked: boolean): Promise<void> {
         await db('messages')
-            .where({ message_id: messageId })
-            .update({ is_liked: isLiked });
+            .where({message_id: messageId})
+            .update({is_liked: isLiked});
+    }
+
+    async deleteMessage(messageId: number): Promise<void> {
+        await db('messages')
+            .where({message_id: messageId})
+            .delete();
     }
 }
 

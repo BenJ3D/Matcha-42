@@ -10,23 +10,23 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef
 } from '@angular/core';
-import { Message } from '../../../models/Message';
-import { Subscription } from 'rxjs';
-import { SocketService } from '../../../services/socket.service';
-import { AuthService } from '../../../services/auth.service';
-import { MessageDto } from '../../../DTOs/chat/MessageDto';
-import { CreateMessageDto } from '../../../DTOs/chat/CreateMessageDto';
-import { UserLightResponseDto } from "../../../DTOs/users/UserLightResponseDto";
-import { MatIconModule } from "@angular/material/icon";
-import { CommonModule } from "@angular/common";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { FormsModule } from "@angular/forms";
-import { MatButtonModule } from "@angular/material/button";
-import { MatInputModule } from "@angular/material/input";
-import { ApiService } from "../../../services/api.service";
-import { ProfileService } from "../../../services/profile.service";
-import { Router } from "@angular/router";
-import { MatTooltip } from "@angular/material/tooltip";
+import {Message} from '../../../models/Message';
+import {Subscription} from 'rxjs';
+import {SocketService} from '../../../services/socket.service';
+import {AuthService} from '../../../services/auth.service';
+import {MessageDto} from '../../../DTOs/chat/MessageDto';
+import {CreateMessageDto} from '../../../DTOs/chat/CreateMessageDto';
+import {UserLightResponseDto} from "../../../DTOs/users/UserLightResponseDto";
+import {MatIconModule} from "@angular/material/icon";
+import {CommonModule} from "@angular/common";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {FormsModule} from "@angular/forms";
+import {MatButtonModule} from "@angular/material/button";
+import {MatInputModule} from "@angular/material/input";
+import {ApiService} from "../../../services/api.service";
+import {ProfileService} from "../../../services/profile.service";
+import {Router} from "@angular/router";
+import {MatTooltip} from "@angular/material/tooltip";
 
 @Component({
   selector: 'app-conversation',
@@ -86,6 +86,26 @@ export class ConversationComponent implements OnInit, OnDestroy {
         message.is_liked = !message.is_liked;
       },
     });
+  }
+
+  deleteMessage(message: Message) {
+    if (message.owner_user !== this.getCurrentUserId()) {
+      return;
+    }
+    if (
+      confirm(
+        'Are you sure you want to delete this message? This action cannot be undone.'
+      )
+    ) {
+
+      const endpoint = `messages/${message.message_id}`;
+
+      this.apiService.delete(endpoint).subscribe({
+        next: () => {
+
+        },
+      });
+    }
   }
 
   isMessageLiked(messageId: string): boolean {
