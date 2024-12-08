@@ -68,7 +68,8 @@ class MessageService {
         if (message.owner_user !== userId) {
             throw {status: 403, message: 'You can only delete messages for which you are the author.'};
         }
-        return await MessageDAL.deleteMessage(messageId);
+        await MessageDAL.deleteMessage(messageId);
+        this.emitRefreshMessageToAllConcern(message);
     }
 
     async likeMessage(messageId: number, userId: number): Promise<void> {

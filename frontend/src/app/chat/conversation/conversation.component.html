@@ -30,6 +30,12 @@
           {{ message.is_liked ? "favorite" : "favorite_border" }}
         </mat-icon>
       </div>
+      <div class="like-icon" [class.readonly]="message.owner_user !== getCurrentUserId()"
+           *ngIf="message.owner_user === getCurrentUserId()">
+        <mat-icon [class.clickable]="message.owner_user !== getCurrentUserId()" (click)="deleteMessage(message)">
+          {{ "delete" }}
+        </mat-icon>
+      </div>
     </div>
   </div>
   <div class="message-input">
