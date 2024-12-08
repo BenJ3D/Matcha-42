@@ -1,20 +1,20 @@
-import { onlineUsers } from '../sockets/events/onlineUsers';
-import { CreateMessageDto } from '../DTOs/chat/CreateMessageDto';
+import {onlineUsers} from '../sockets/events/onlineUsers';
+import {CreateMessageDto} from '../DTOs/chat/CreateMessageDto';
 import MessageDAL from '../DataAccessLayer/MessageDAL';
 import MatchesService from "./MatchesService";
-import { Message } from '../models/Message';
-import { Socket } from 'socket.io';
+import {Message} from '../models/Message';
+import {Socket} from 'socket.io';
 import NotificationsService from "./NotificationsService";
-import { NotificationType } from "../models/Notifications";
+import {NotificationType} from "../models/Notifications";
 import UnreadUserMessageService from "./UnreadUserMessageService";
 
 class MessageService {
     async createMessage(ownerUserId: number, createMessageDto: CreateMessageDto): Promise<Message> {
-        const { target_user, content } = createMessageDto;
+        const {target_user, content} = createMessageDto;
 
         const isMatched = await MatchesService.isMatched(ownerUserId, target_user);
         if (!isMatched) {
-            throw { status: 403, message: 'Vous pouvez seulement envoyer des messages aux utilisateurs matchés.' };
+            throw {status: 403, message: 'Vous pouvez seulement envoyer des messages aux utilisateurs matchés.'};
         }
 
         const messageData: Partial<Message> = {
@@ -60,16 +60,28 @@ class MessageService {
         return await MessageDAL.getMessageById(messageId);
     }
 
+    async deleteMessageById(messageId: number, userId: number): Promise<void> {
+        const message = await this.getMessageById(messageId);
+        if (!message) {
+            throw {status: 404, message: 'Message not found'};
+        }
+        if (message.owner_user !== userId) {
+            throw {status: 403, message: 'You can only delete messages for which you are the author.'};
+        }
+        await MessageDAL.deleteMessage(messageId);
+        this.emitRefreshMessageToAllConcern(message);
+    }
+
     async likeMessage(messageId: number, userId: number): Promise<void> {
         const message = await this.getMessageById(messageId);
         if (!message) {
-            throw { status: 404, message: 'Message not found' };
+            throw {status: 404, message: 'Message not found'};
         }
         if (message.target_user !== userId) {
-            throw { status: 403, message: 'You can only like messages sent to you' };
+            throw {status: 403, message: 'You can only like messages sent to you'};
         }
         if (message.is_liked) {
-            throw { status: 400, message: 'Message is already liked' };
+            throw {status: 400, message: 'Message is already liked'};
         }
         await MessageDAL.updateMessageLikeStatus(messageId, true);
         this.emitRefreshMessageToAllConcern(message);
@@ -78,13 +90,13 @@ class MessageService {
     async unlikeMessage(messageId: number, userId: number): Promise<void> {
         const message = await this.getMessageById(messageId);
         if (!message) {
-            throw { status: 404, message: 'Message not found' };
+            throw {status: 404, message: 'Message not found'};
         }
         if (message.target_user !== userId) {
-            throw { status: 403, message: 'You can only unlike messages sent to you' };
+            throw {status: 403, message: 'You can only unlike messages sent to you'};
         }
         if (!message.is_liked) {
-            throw { status: 400, message: 'Message is not liked' };
+            throw {status: 400, message: 'Message is not liked'};
         }
         await MessageDAL.updateMessageLikeStatus(messageId, false);
         this.emitRefreshMessageToAllConcern(message);
