@@ -1,9 +1,9 @@
-import { HttpParams } from '@angular/common/http';
-import { ProfileService } from './../../services/profile.service';
-import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
-import { Router } from '@angular/router';
+import {HttpParams} from '@angular/common/http';
+import {ProfileService} from './../../services/profile.service';
+import {Component, OnInit, PLATFORM_ID, Inject} from '@angular/core';
+import {CommonModule, isPlatformBrowser} from '@angular/common';
+import {MatIconModule} from '@angular/material/icon';
+import {Router} from '@angular/router';
 import * as L from 'leaflet';
 
 interface NearbyUser {
@@ -29,7 +29,7 @@ interface NearbyUser {
 })
 export class NearbyComponent implements OnInit {
   private map: any;
-  private currentPosition: any = { lat: 0, lng: 0 };
+  private currentPosition: any = {lat: 0, lng: 0};
 
   nearbyUsers: NearbyUser[] = [];
 
@@ -37,15 +37,16 @@ export class NearbyComponent implements OnInit {
     @Inject(PLATFORM_ID) private platformId: Object,
     private profileService: ProfileService,
     private router: Router
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.initMap();
       this.profileService.getMyProfile().subscribe((user) => {
-        this.currentPosition = { lat: user.location?.latitude, lng: user.location?.longitude };
+        this.currentPosition = {lat: user.location?.latitude, lng: user.location?.longitude};
         this.map.setView([this.currentPosition.lat, this.currentPosition.lng], 13);
-        this.addCurrentPositionMarker();
+        this.addCurrentPositionMarker(); // Appel ici seulement
       });
       this.fetchUsers();
     }
@@ -58,7 +59,7 @@ export class NearbyComponent implements OnInit {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
 
-    this.addCurrentPositionMarker();
+    // this.addCurrentPositionMarker();
     this.addNearbyUsersMarkers();
   }
 
@@ -70,7 +71,7 @@ export class NearbyComponent implements OnInit {
       iconAnchor: [15, 30]
     });
 
-    L.marker([this.currentPosition.lat, this.currentPosition.lng], { icon: icon })
+    L.marker([this.currentPosition.lat, this.currentPosition.lng], {icon: icon})
       .addTo(this.map)
       .bindPopup('You are here')
       .openPopup();
@@ -108,8 +109,8 @@ export class NearbyComponent implements OnInit {
           className: 'custom-marker',
           html: `
             <div class="marker-content" title="${user.name}, ${user.age}">
-              <img src="${user.main_photo_url || 'assets/images/default-profile.webp'}" 
-                   alt="${user.name}" 
+              <img src="${user.main_photo_url || 'assets/images/default-profile.webp'}"
+                   alt="${user.name}"
                    class="profile-marker-img"/>
             </div>
           `,
@@ -117,19 +118,19 @@ export class NearbyComponent implements OnInit {
           iconAnchor: [20, 40]
         });
 
-        const marker = L.marker([user.lat, user.lng], { icon: customIcon })
+        const marker = L.marker([user.lat, user.lng], {icon: customIcon})
           .addTo(this.map)
           .bindPopup(`
             <div class="marker-popup">
-              <img src="${user.main_photo_url || 'assets/images/default-profile.webp'}" 
-                   alt="${user.name}" 
+              <img src="${user.main_photo_url || 'assets/images/default-profile.webp'}"
+                   alt="${user.name}"
                    class="popup-img"/>
               <div class="popup-content">
                 <strong>${user.name}</strong>, ${user.age}<br>
                 ${user.location?.city_name || ''}
               </div>
-              <button class="view-profile-btn" 
-                      onclick="window.dispatchEvent(new CustomEvent('viewProfile', 
+              <button class="view-profile-btn"
+                      onclick="window.dispatchEvent(new CustomEvent('viewProfile',
                       {detail: ${user.id}}))">
                 View Profile
               </button>
@@ -139,7 +140,7 @@ export class NearbyComponent implements OnInit {
           });
 
         marker.on('click', () => {
-          this.router.navigate(['/profile'], { queryParams: { id: user.id } });
+          this.router.navigate(['/profile'], {queryParams: {id: user.id}});
         });
       }
     });

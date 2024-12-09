@@ -1,4 +1,4 @@
-import {Component, OnInit, Inject, PLATFORM_ID} from '@angular/core';
+import {Component, OnInit, Inject, PLATFORM_ID, OnDestroy} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AuthService} from '../../services/auth.service';
 import {MatCardModule} from '@angular/material/card';
@@ -19,7 +19,7 @@ import {ToastService} from "../../services/toast.service";
   templateUrl: './verify-email.component.html',
   styleUrls: ['./verify-email.component.scss'],
 })
-export class VerifyEmailComponent implements OnInit {
+export class VerifyEmailComponent implements OnInit, OnDestroy {
   verificationMessage: string = 'Verifying your email...';
   isLoading: boolean = true;
   isBrowser: boolean;
@@ -35,6 +35,8 @@ export class VerifyEmailComponent implements OnInit {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
+  private timeoutRef?: number;
+
   ngOnInit(): void {
     if (this.isBrowser) {
       const token = this.route.snapshot.queryParamMap.get('token');
@@ -45,7 +47,7 @@ export class VerifyEmailComponent implements OnInit {
             this.verificationMessage = response.message;
             this.isLoading = false;
             this.verificationIsOk = true;
-            setTimeout(() => {
+            this.timeoutRef = window.setTimeout(() => {
               this.router.navigate(['/login']);
             }, 4000);
           },
@@ -80,5 +82,11 @@ export class VerifyEmailComponent implements OnInit {
         this.goToLogin();
       }
     })
+  }
+
+  ngOnDestroy(): void {
+    if (this.timeoutRef !== undefined) {
+      clearTimeout(this.timeoutRef);
+    }
   }
 }
