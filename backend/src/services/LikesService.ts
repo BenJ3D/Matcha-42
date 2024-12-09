@@ -3,11 +3,11 @@ import MatchesService from './MatchesService';
 import userDAL from '../DataAccessLayer/UserDAL';
 import UnlikesService from "./UnlikesService";
 import NotificationsService from "./NotificationsService";
-import { NotificationType } from "../models/Notifications";
+import {NotificationType} from "../models/Notifications";
 import UserServices from "./UserServices";
 import fameRatingConfig from "../config/fameRating.config";
 import UserDAL from "../DataAccessLayer/UserDAL";
-import { UserLikesResponseDto } from "../DTOs/likes/UserLikesReponseDto";
+import {UserLikesResponseDto} from "../DTOs/likes/UserLikesReponseDto";
 import BlockedUsersService from "./BlockedUsersService";
 
 class LikesService {
@@ -20,20 +20,23 @@ class LikesService {
         const likesReceivedUserIds = likesReceived.map(like => like.user);
         const likesReceivedUsers = likesReceivedUserIds.length > 0 ? await userDAL.getUsersByIds(likesReceivedUserIds) : [];
 
-        const likeResp = { likesGiven: likesGivenUsers, likesReceived: likesReceivedUsers };
+        const likeResp = {likesGiven: likesGivenUsers, likesReceived: likesReceivedUsers};
         return likeResp;
     }
 
     async addLike(userId: number, targetUserId: number): Promise<void> {
         if (userId === targetUserId) {
-            throw { status: 400, message: 'Vous ne pouvez pas liker vous-même' };
+            throw {status: 400, message: 'You can\'t like yourself'};
         }
 
         const targetExists = await UserDAL.userExists(targetUserId);
         if (!targetExists) {
-            throw { status: 404, message: 'Utilisateur cible non trouvé' };
+            throw {status: 404, message: 'Target user not found.'};
         }
-
+        const currentUser = await UserDAL.findOne(userId);
+        if (!currentUser?.main_photo_id) {
+            throw {status: 404, message: 'You can\'t like another profile before defining a main photo.'};
+        }
         await BlockedUsersService.checkIsUserBlocked(targetUserId, userId);
 
         await LikesDAL.addLike(userId, targetUserId);
