@@ -38,7 +38,7 @@ class UnlikesService {
 
         const currentUser = await UserDAL.findOne(userId);
         if (!currentUser?.main_photo_id) {
-            throw {status: 404, message: 'You can\'t unlike another profile before defining a main photo.'};
+            throw {status: 403, message: 'You can\'t unlike another profile before defining a main photo.'};
         }
         await BlockedUsersService.checkIsUserBlocked(targetUserId, userId);
 
