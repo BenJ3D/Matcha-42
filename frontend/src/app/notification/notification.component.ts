@@ -1,15 +1,17 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { SocketService } from '../../services/socket.service';
-import { CommonModule } from "@angular/common";
-import { MatListModule } from "@angular/material/list";
-import { MatIconModule } from "@angular/material/icon";
-import { Router } from "@angular/router";
-import { NotificationsReceiveDto } from "../../DTOs/notifications/NotificationsReceiveDto";
-import { NotificationType } from "../../models/Notifications";
-import { MatTooltip } from "@angular/material/tooltip";
-import { MatCardModule } from "@angular/material/card";
-import { ApiService } from "../../services/api.service";
+import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
+import {Subscription} from 'rxjs';
+import {SocketService} from '../../services/socket.service';
+import {CommonModule} from "@angular/common";
+import {MatListModule} from "@angular/material/list";
+import {MatIconModule} from "@angular/material/icon";
+import {Router} from "@angular/router";
+import {NotificationsReceiveDto} from "../../DTOs/notifications/NotificationsReceiveDto";
+import {NotificationType} from "../../models/Notifications";
+import {MatTooltip} from "@angular/material/tooltip";
+import {MatCardModule} from "@angular/material/card";
+import {ApiService} from "../../services/api.service";
+import {ProfileService} from "../../services/profile.service";
+import {UserResponseDto} from "../../DTOs/users/UserResponseDto";
 
 @Component({
   selector: 'app-notification',
@@ -27,16 +29,21 @@ import { ApiService } from "../../services/api.service";
 export class NotificationComponent implements OnInit, OnDestroy {
   notifications: NotificationsReceiveDto[] = [];
   private notificationSubscription!: Subscription;
+  hasMainPhoto: boolean = false;
+  profileId: number | null = null;
+  user: UserResponseDto | null = null;
 
   constructor(
     private socketService: SocketService,
     private apiService: ApiService,
+    private profileService: ProfileService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {
   }
 
   ngOnInit(): void {
+    this.loadUserProfile();
     this.notificationSubscription = this.socketService.on<NotificationsReceiveDto>('notification').subscribe((notification) => {
       this.notifications.unshift(notification);
     });
@@ -48,6 +55,15 @@ export class NotificationComponent implements OnInit, OnDestroy {
     this.fetchNotification();
   }
 
+  loadUserProfile() {
+    this.profileService.getMyProfile().subscribe({
+      next: (user) => {
+        this.hasMainPhoto = user.main_photo_url != null;
+
+      },
+    });
+  }
+
   onNotificationClick(notification: NotificationsReceiveDto): void {
     this.readNotification(notification);
     this.navigateToRelevantPage(notification);
@@ -55,10 +71,10 @@ export class NotificationComponent implements OnInit, OnDestroy {
 
   readNotification(notification: NotificationsReceiveDto): void {
     if (!notification.has_read) {
-      this.socketService.emit('notification_read', { data: [notification.notification_id] });
+      this.socketService.emit('notification_read', {data: [notification.notification_id]});
     }
     if (notification.type == NotificationType.NEW_MESSAGE) {
-      this.socketService.emit('conversation_read', { data: notification.source_user });
+      this.socketService.emit('conversation_read', {data: notification.source_user});
       notification.has_read = true;
       this.cdr.detectChanges();
     }
@@ -70,7 +86,7 @@ export class NotificationComponent implements OnInit, OnDestroy {
       .map(notification => notification.notification_id);
 
     if (unreadIds.length > 0) {
-      this.socketService.emit('notification_read', { data: unreadIds });
+      this.socketService.emit('notification_read', {data: unreadIds});
       this.notifications.forEach(notification => {
         if (!notification.has_read) {
           notification.has_read = true;
@@ -89,7 +105,7 @@ export class NotificationComponent implements OnInit, OnDestroy {
   }
 
   deleteNotification(notification: NotificationsReceiveDto): void {
-    this.socketService.emit('notifications_delete', { data: [notification.notification_id] });
+    this.socketService.emit('notifications_delete', {data: [notification.notification_id]});
   }
 
   deleteAllNotifications(): void {
@@ -97,7 +113,7 @@ export class NotificationComponent implements OnInit, OnDestroy {
       .map(notification => notification.notification_id);
 
     if (unreadIds.length > 0) {
-      this.socketService.emit('notifications_delete', { data: unreadIds });
+      this.socketService.emit('notifications_delete', {data: unreadIds});
       this.notifications.forEach(notification => {
         if (!notification.has_read) {
           notification.has_read = true;
@@ -112,11 +128,11 @@ export class NotificationComponent implements OnInit, OnDestroy {
       case 'LIKE':
       case 'UNLIKE':
       case 'NEW_VISIT':
-        this.router.navigate(['/profile'], { queryParams: { id: notification.source_user } });
+        this.router.navigate(['/profile'], {queryParams: {id: notification.source_user}});
         break;
       case 'MATCH':
       case 'NEW_MESSAGE':
-        this.router.navigate(['/chat'], { queryParams: { id: notification.source_user } });
+        this.router.navigate(['/chat'], {queryParams: {id: notification.source_user}});
         break;
       default:
         break;
