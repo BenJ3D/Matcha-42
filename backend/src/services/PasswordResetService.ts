@@ -6,11 +6,16 @@ import {PasswordService} from './PasswordService';
 import zxcvbn from "zxcvbn";
 import UserDAL from "../DataAccessLayer/UserDAL";
 import ResetPasswordDTO from "../DTOs/users/ResetPasswordDTO";
+import EmailDTO from "../DTOs/users/EmailDTO";
 
 class PasswordResetService {
     async sendResetEmail(email: string) {
         if (!email) {
             throw {status: 400, message: 'Email requis.'};
+        }
+        const {error, value} = EmailDTO.validate({email});
+        if (error) {
+            throw {status: 400, message: "Validation échouée " + error.message, details: error.details};
         }
         const user = await UserServices.getUserByEmail(email);
         if (!user) {

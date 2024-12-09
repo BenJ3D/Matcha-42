@@ -2,7 +2,7 @@ import joi from "joi";
 
 export const SearchValidationSchema = joi.object({
     ageMin: joi.number().integer().min(18).max(120),
-    ageMax: joi.number().integer().min(joi.ref('ageMin')).max(120),
+    ageMax: joi.number().integer().min(18).max(120),
     fameMin: joi.number().integer().min(0).max(10),
     fameMax: joi.number().integer().min(joi.ref('fameMin')).max(10),
     location: joi.string().max(255),
