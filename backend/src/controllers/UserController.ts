@@ -183,11 +183,9 @@ const userController = {
 
     advancedSearch: async (req: AuthenticatedRequest, res: Response) => {
         const {error, value: newUser} = SearchValidationSchema.validate(req.body);
-
         if (error) {
             return res.status(400).json({error: "Validation échouée", details: error.details});
         }
-
 
         try {
             const userId = req.userId;
@@ -240,7 +238,9 @@ const userController = {
 
             return res.json(results);
         } catch (e: any) {
-            res.status(e.status || 500).json({error: e.message});
+            if (e.code === '22P02')
+                return res.status(400).json({error: 'Validation data error'});
+            return res.status(e.status || 500).json({error: e.message});
         }
     }
 };

@@ -1,6 +1,8 @@
 import {Response} from 'express';
 import NotificationsService from '../services/NotificationsService';
 import {AuthenticatedRequest} from '../middlewares/authMiddleware';
+import Joi from "joi";
+import {MarkAsReadDTO} from "../DTOs/users/MarkAsReadValidationDto";
 
 class NotificationsController {
     async getNotifications(req: AuthenticatedRequest, res: Response) {
@@ -22,7 +24,15 @@ class NotificationsController {
     async markAsRead(req: AuthenticatedRequest, res: Response) {
         try {
             const userId = req.userId!;
-            const {notificationIds} = req.body;
+            const {error, value} = MarkAsReadDTO.validate(req.body);
+            if (error) {
+                return res.status(400).json({
+                    error: 'Validation échouée',
+                    status: 400,
+                    details: error.details.map(detail => detail.message),
+                });
+            }
+            const {notificationIds} = value;
             if (!Array.isArray(notificationIds)) {
                 return res
                     .status(500)
@@ -31,9 +41,8 @@ class NotificationsController {
             await NotificationsService.markNotificationsAsRead(userId, notificationIds);
             res.status(200).json({message: 'Notifications marked as read'});
         } catch (error: any) {
-            res
-                .status(error.status)
-                .json({error: error.message || 'error'});
+            const statusCode = error.status || 500;
+            return res.status(statusCode).json({error: error.message || 'Error'});
         }
     }
 

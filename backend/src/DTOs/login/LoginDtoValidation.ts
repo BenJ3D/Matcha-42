@@ -1,6 +1,6 @@
 import joi from "joi";
 
 export const LoginDtoValidation = joi.object({
-    email: joi.string().required(),
-    password: joi.string().required(),
+    email: joi.string().required().max(255),
+    password: joi.string().required().max(255).min(5),
 })

@@ -5,11 +5,17 @@ import EmailVerificationService from './EmailVerificationService';
 import {PasswordService} from './PasswordService';
 import zxcvbn from "zxcvbn";
 import UserDAL from "../DataAccessLayer/UserDAL";
+import ResetPasswordDTO from "../DTOs/users/ResetPasswordDTO";
+import EmailDTO from "../DTOs/users/EmailDTO";
 
 class PasswordResetService {
     async sendResetEmail(email: string) {
         if (!email) {
             throw {status: 400, message: 'Email requis.'};
+        }
+        const {error, value} = EmailDTO.validate({email});
+        if (error) {
+            throw {status: 400, message: "Validation échouée " + error.message, details: error.details};
         }
         const user = await UserServices.getUserByEmail(email);
         if (!user) {
@@ -52,10 +58,16 @@ class PasswordResetService {
     }
 
     async resetPassword(token: string, newPassword: string) {
-        const payload = jwtService.verifyGenericToken(token, config.jwtPassResetSecret);
+        const {error, value} = ResetPasswordDTO.validate({token, newPassword});
+        if (error) {
+            throw {status: 400, message: "Validation échouée " + error.message, details: error.details};
+        }
+
+        const payload = jwtService.verifyGenericToken(value.token, config.jwtPassResetSecret);
         if (!payload || !payload.id) {
             throw {status: 401, message: 'Invalid or expired token.'};
         }
+
         const targetExists = await UserDAL.userExists(payload.id);
         if (!targetExists) {
             throw {status: 404, message: 'User of your token does not exist'};
@@ -63,7 +75,7 @@ class PasswordResetService {
 
         const requiredScore = config.userPasswordStrengthForce;
 
-        const passwordEvaluation = zxcvbn(newPassword);
+        const passwordEvaluation = zxcvbn(value.newPassword);
         if (passwordEvaluation.score < requiredScore) {
             throw {
                 status: 400,
@@ -71,7 +83,7 @@ class PasswordResetService {
             };
         }
 
-        const hashedPassword = await PasswordService.hashPassword(newPassword);
+        const hashedPassword = await PasswordService.hashPassword(value.newPassword);
         await UserServices.updatePassword(payload.id, hashedPassword);
     }
 }
