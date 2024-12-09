@@ -3,11 +3,11 @@
     <span>Notifications</span>
     <div class="space-x-4">
       <button (click)="readAllNotifications()" *ngIf="hasUnreadNotification()"
-        class="mt-2 sm:mt-0 text-blue-500 hover:text-blue-700 text-sm">
+              class="mt-2 sm:mt-0 text-blue-500 hover:text-blue-700 text-sm">
         Read All
       </button>
       <button (click)="deleteAllNotifications()" *ngIf="hasNotifications()"
-        class="mt-2 sm:mt-0 text-blue-500 hover:text-red-700 text-sm">
+              class="mt-2 sm:mt-0 text-blue-500 hover:text-red-700 text-sm">
         Delete All
       </button>
     </div>
@@ -16,8 +16,8 @@
   <div class="notification-list space-y-4">
     <div *ngIf="notifications.length > 0; else noNotifications">
       <div (click)="onNotificationClick(notification)" *ngFor="let notification of notifications"
-        [ngClass]="{ 'unread-notification bg-gray-50': !notification.has_read }"
-        class="notification-item flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white rounded-lg shadow hover:bg-gray-100 cursor-pointer">
+           [ngClass]="{ 'unread-notification bg-gray-50': !notification.has_read }"
+           class="notification-item flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white rounded-lg shadow hover:bg-gray-100 cursor-pointer">
         <div class="flex flex-1 flex-col sm:flex-row sm:items-center">
           <mat-icon class="notification-icon text-2xl mr-0 sm:mr-4 mb-2 sm:mb-0">
             {{ getNotificationIcon(notification.type) }}
@@ -27,10 +27,13 @@
             <div class="flex flex-wrap sm:flex-nowrap items-center space-x-0 sm:space-x-2">
               <div class="text-xl font-semibold">{{ notification.source_username }}</div>
               <div class="description text-gray-600">{{ getNotificationMessage(notification.type) }}</div>
-              <button (click)="likingBack(notification); $event.stopPropagation()" *ngIf="notification.type === 'LIKE'"
-                class="mt-2 sm:mt-0 hover:text-white hover:font-bold hover:bg-emerald-800 px-4 rounded-2xl py-2 text-sm">
-                Liking back
-              </button>
+              @if (hasMainPhoto) {
+                <button (click)="likingBack(notification); $event.stopPropagation()"
+                        *ngIf="notification.type === 'LIKE'"
+                        class="mt-2 sm:mt-0 hover:text-white hover:font-bold hover:bg-emerald-800 px-4 rounded-2xl py-2 text-sm">
+                  Liking back
+                </button>
+              }
             </div>
             <small class="timestamp text-gray-500">{{ notification.notified_at | date: 'short' }}</small>
           </div>
@@ -42,7 +45,7 @@
           </mat-icon>
 
           <mat-icon (click)="deleteNotification(notification); $event.stopPropagation()"
-            class="delete-icon text-gray-400 hover:text-red-500" matTooltip="Delete notification">
+                    class="delete-icon text-gray-400 hover:text-red-500" matTooltip="Delete notification">
             delete
           </mat-icon>
         </div>
