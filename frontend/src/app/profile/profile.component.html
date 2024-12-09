@@ -8,7 +8,7 @@
                  [src]="user.BlockedMe ? 'assets/images/default-profile.webp' : user.main_photo_url || 'assets/images/default-profile.webp'"
                  class="profile-picture border-8"/>
           </div>
-          <div class="flex w-full break-after-auto flex-col items-center">
+          <div class="flex w-full break-after-auto flex-col items-center break-all whitespace-normal">
             <div class="text-xl font-medium">
               {{ user.first_name || 'No first name' }} {{ user.last_name || 'No last name' }}
             </div>
@@ -68,7 +68,7 @@
             <strong>Interested In:</strong>
             {{ getSexualPreferencesNames(user.sexualPreferences) }}
           </p>
-          <p><strong>Bio:</strong> {{ user.biography }}</p>
+          <p class="break-all whitespace-normal"><strong>Bio:</strong> {{ user.biography }}</p>
           <p><strong>Fame Rating:</strong> {{ user.fame_rating | number: '1.2-2' }}</p>
           <strong>Tags interests:</strong>
           <strong class="text-gray-500 italic text-xs"> (Tags you have in common are clear)</strong>
