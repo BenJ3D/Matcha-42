@@ -18,7 +18,7 @@
       'user-message': message.owner_user === getCurrentUserId(),
       'other-message': message.owner_user !== getCurrentUserId()
     }">
-      <div class="message-content">
+      <div class="message-content break-all whitespace-normal">
         {{ message.content }}
         <div class="message-timestamp">
           {{ message.created_at | date : "shortTime" }}
