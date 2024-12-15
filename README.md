@@ -53,7 +53,7 @@ Matcha est une application de rencontre en ligne développée dans le cadre du c
 - **Conteneurisation** : Docker et Docker Compose
 
 ## Auteur
-Ce projet a été réalisé par @acroisie & @BenJ3D.
+Ce projet a été réalisé par [Acroisie](https://github.com/acroisie) & [BenJ3D](https://github.com/BenJ3D).
 
 
 ![image](https://github.com/user-attachments/assets/12912b4f-64db-44b8-b026-7fee5152642f)
